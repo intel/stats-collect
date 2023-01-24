@@ -1,7 +1,7 @@
 %bcond_without tests
 
 Name:		stats-collect
-Version:	0.0.3
+Version:	1.0.0
 Release:	1%{?dist}
 Summary:	Power, Energy, and Performance configuration tool
 

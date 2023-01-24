@@ -1,29 +1,5 @@
-stats-collect (0.0.3) unstable; urgency=low
-
-
-
- -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 24 Jan 2023 00:00:00 +0200
-
-stats-collect (0.0.2) unstable; urgency=low
-
-
-
- -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 24 Jan 2023 00:00:00 +0200
-
-stats-collect (0.0.1) unstable; urgency=low
-
-
-
- -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 24 Jan 2023 00:00:00 +0200
-
-stats-collect (0.0.1) unstable; urgency=low
-
-  * First release take 2.
-
- -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 24 Jan 2023 00:00:00 +0200
-
 stats-collect (1.0.0) unstable; urgency=low
 
   * First release.
 
- -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 10 Jan 2023 00:00:00 +0200
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 24 Jan 2023 00:00:00 +0200

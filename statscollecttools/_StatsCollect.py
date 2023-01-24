@@ -24,7 +24,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploylibs import _Deploy
 from statscollectlibs.helperlibs import ReportID
 
-_VERSION = "0.0.3"
+_VERSION = "1.0.0"
 _OWN_NAME = "stats-collect"
 _STC_DEPLOY_INFO = {
     "installables" : {
