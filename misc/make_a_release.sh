@@ -141,7 +141,7 @@ EOF
 for remote in "origin" "upstream" "public"; do
     echo "git push $remote $tag_name"
     if [ "$current_branch" = "master" ]; then
-        echo "git push $remote master:master"
+        echo "git push $remote master:main"
         echo "git push $remote master:release"
     else
         echo "git push public release:release"
@@ -152,7 +152,7 @@ if [ "$current_branch" != "master" ]; then
     echo
     echo "Then merge the release branch back to master, and run the following commands:"
 
-    for remote in "origin" "upstream" "public"; do
-        echo "git push $remote master:master"
-    done
+    echo "git push origin master:master"
+    echo "git push upstream master:master"
+    echo "git push public master:main"
 fi
