@@ -16,6 +16,16 @@ from setuptools import setup, find_packages
 
 _TOOLNAMES = ["stats-collect"]
 
+def get_version(filename):
+    """Fetch the project version number."""
+
+    with open(filename, "r", encoding="utf-8") as fobj:
+        for line in fobj:
+            matchobj = re.match(r'^_VERSION = "(\d+.\d+.\d+)"$', line)
+            if matchobj:
+                return matchobj.group(1)
+    return None
+
 def get_data_files(installdir, subdir, exclude=None):
     """
     When the task is to include all files in the 'subdir' directory to the package and install them
@@ -47,7 +57,7 @@ setup(
     author="Artem Bityutskiy",
     author_email="artem.bityutskiy@linux.intel.com",
     python_requires=">=3.7",
-    version="0.0.1",
+    version=get_version("statscollecttools/_StatsCollect.py"),
     data_files=get_data_files("share/stats-collect/helpers/stc-agent", "helpers/stc-agent",
                               exclude=_PYTHON_HELPERS) + \
                get_data_files("share/stats-collect/defs/statscollect", "defs/statscollect") + \
