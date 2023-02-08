@@ -12,6 +12,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Changed
  - Renamed the 'stats-collect-components' JavaScript package to
     '@intc/stats-collect'.
+ - Moved the 'Busy%' turbostat tab from 'Misc' to 'C-states,Hardware' in
+   reports generated with 'stats-collect report'.
 
 ## [1.0.0] - 2023-01-24
 ### Changed
