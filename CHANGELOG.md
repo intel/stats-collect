@@ -8,6 +8,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix 'stats-collect report' crashing because HTML assets are not properly
    installed.
 ### Added
+ - Add 'pepc topology info' output to 'sysinfo' statistics collection.
+ - Add 'pepc topology info' output to 'sysinfo pepc' tab in HTML reports.
 ### Removed
 ### Changed
  - Renamed the 'stats-collect-components' JavaScript package to
