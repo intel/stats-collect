@@ -138,10 +138,15 @@ To finish the release:
 The commands would be:
 EOF
 
+if [ "$current_branch" = "master" ]; then
+    echo "git push origin master:master"
+    echo "git push upstream master:master"
+    echo "git push public master:main"
+fi
+
 for remote in "origin" "upstream" "public"; do
     echo "git push $remote $tag_name"
     if [ "$current_branch" = "master" ]; then
-        echo "git push $remote master:main"
         echo "git push $remote master:release"
     else
         echo "git push public release:release"
