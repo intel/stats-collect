@@ -1,3 +1,16 @@
+stats-collect (1.0.1) unstable; urgency=low
+
+  * Fix 'stats-collect report' crashing because HTML assets are not properly
+    installed.
+  * Add 'pepc topology info' output to 'sysinfo' statistics collection.
+  * Add 'pepc topology info' output to 'sysinfo pepc' tab in HTML reports.
+  * Renamed the 'stats-collect-components' JavaScript package to
+    '@intc/stats-collect'.
+  * Moved the 'Busy%' turbostat tab from 'Misc' to 'C-states,Hardware' in
+    reports generated with 'stats-collect report'.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Mon, 13 Feb 2023 00:00:00 +0200
+
 stats-collect (1.0.0) unstable; urgency=low
 
   * First release.
