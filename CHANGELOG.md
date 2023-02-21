@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
  - Add module C-state support to turbostat collection and reporting.
  - Add fullscreen view to diagrams in wult HTML reports.
+ - Add a button to hide report headers in wult HTML reports.
 ### Removed
 ### Changed
 
