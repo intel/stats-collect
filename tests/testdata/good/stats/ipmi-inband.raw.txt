@@ -1,0 +1,696 @@
+timestamp | 2023_03_01_11:57:30
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 38 degrees C      | ok
+Temp                     | 30 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:57:35
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 37 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:57:40
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2760 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:57:45
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:57:50
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 30 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:57:55
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:58:00
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:58:05
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:58:10
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:58:15
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 3000 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.60 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:58:20
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 3000 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 112 Watts         | ok
+
+timestamp | 2023_03_01_11:58:25
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:58:30
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:58:35
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:58:40
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:58:45
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:58:50
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:58:55
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:59:00
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:59:05
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2760 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:59:10
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:59:15
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 29 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:59:20
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 35 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
+timestamp | 2023_03_01_11:59:25
+Fan1A                    | 2880 RPM          | ok
+Fan2A                    | 2880 RPM          | ok
+Fan3A                    | 2880 RPM          | ok
+Fan4A                    | 2880 RPM          | ok
+Fan5A                    | 2880 RPM          | ok
+Fan6A                    | 2880 RPM          | ok
+Inlet Temp               | 18 degrees C      | ok
+CPU Usage                | 0 percent         | ok
+IO Usage                 | 0 percent         | ok
+MEM Usage                | 0 percent         | ok
+SYS Usage                | 0 percent         | ok
+Exhaust Temp             | 30 degrees C      | ok
+Temp                     | 34 degrees C      | ok
+Temp                     | 28 degrees C      | ok
+Fan7A                    | 2880 RPM          | ok
+Fan1B                    | 2760 RPM          | ok
+Fan2B                    | 2880 RPM          | ok
+Fan3B                    | 2760 RPM          | ok
+Fan4B                    | 2640 RPM          | ok
+Fan5B                    | 2880 RPM          | ok
+Fan6B                    | 2760 RPM          | ok
+Fan7B                    | 2760 RPM          | ok
+Current 1                | 0.40 Amps         | ok
+Current 2                | 0.20 Amps         | ok
+Voltage 1                | 230 Volts         | ok
+Voltage 2                | 230 Volts         | ok
+Pwr Consumption          | 98 Watts          | ok
+
