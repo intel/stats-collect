@@ -1,0 +1,42 @@
+sysinfo:
+  interval:
+  inband: true
+  toolpath:
+  description: Not really a statistics collector, but just a script that saves all
+    sorts of information about the SUT (e.g., 'dmesg', 'lspci -vvv' and 'dmidecode'
+    output, and more). One snapshot of the SUT information is taken before the workload,
+    and the other snapshot is taken after the workload. The second snapshot, however,
+    includes only the information that could potentially change while the workload
+    was running (e.g., 'dmesg' may include new messages).
+  enabled: true
+  fallible: false
+  props: {}
+turbostat:
+  interval: 5
+  inband: true
+  toolpath: turbostat
+  description: Periodically run the 'turbostat' tool and collect C-state residency,
+    average CPU frequency, RAPL data, and more.
+  enabled: true
+  fallible: false
+  props: {}
+ipmi-inband:
+  interval: 5
+  inband: true
+  fallible: true
+  toolpath: ipmi-helper
+  description: Same as the 'ipmi-oob' statistics, but the data are collected by running
+    'ipmitool' on the SUT (in-band).
+  enabled: true
+  props: {}
+acpower:
+  interval: 1
+  inband: false
+  toolpath: yokotool
+  description: Collect SUT wall socket power consumption from an external Yokogawa
+    power meter using 'yokotool'.
+  props:
+    devnode: bdwep1
+    pmtype:
+  enabled: true
+  fallible: false

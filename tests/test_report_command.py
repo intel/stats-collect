@@ -8,6 +8,7 @@
 
 """This module contains the tests for the 'stats-collect report' command."""
 
+from pepclibs.helperlibs import Exceptions
 import common
 
 def test_good_input_data(tmpdir, data_path):
@@ -16,3 +17,12 @@ def test_good_input_data(tmpdir, data_path):
     good_data_path = data_path / "good"
     args = f"report -o {tmpdir} {good_data_path}"
     common.run_stats_collect(args)
+
+def test_missing_info_file(tmpdir, data_path):
+    """
+    Test 'report' command for a bad dataset which does not contain the required 'info.yml' file.
+    """
+
+    data_path = data_path / "bad" / "missing-info-file"
+    args = f"report -o {tmpdir} {data_path}"
+    common.run_stats_collect(args, Exceptions.Error)
