@@ -1,0 +1,20 @@
+turbostat:
+  interval: 5
+  inband: true
+  toolpath: turbostat
+  description: Periodically run the 'turbostat' tool and collect C-state residency,
+    average CPU frequency, RAPL data, and more.
+  enabled: true
+  fallible: false
+  props: {}
+acpower:
+  interval: 1
+  inband: false
+  toolpath: yokotool
+  description: Collect SUT wall socket power consumption from an external Yokogawa
+    power meter using 'yokotool'.
+  props:
+    devnode: bdwep1
+    pmtype:
+  enabled: true
+  fallible: false
