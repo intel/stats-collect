@@ -5,12 +5,16 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix 'stats-collect report' crashing on 'inf' acpower values.
 ### Added
  - Add module C-state support to turbostat collection and reporting.
  - Add fullscreen view to diagrams in wult HTML reports.
  - Add a button to hide report headers in wult HTML reports.
+ - Add command used in 'stats-collect start' to 'stats-collect' reports.
 ### Removed
 ### Changed
+ - Change 'stats-collect' to collect 'turbostat' and 'sysinfo' statistics by
+   default.
 
 ## [1.0.1] - 2023-02-13
 ### Fixed
