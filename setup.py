@@ -58,9 +58,7 @@ setup(
     author_email="artem.bityutskiy@linux.intel.com",
     python_requires=">=3.7",
     version=get_version("statscollecttools/_StatsCollect.py"),
-    data_files=get_data_files("share/stats-collect/helpers/stc-agent", "helpers/stc-agent",
-                              exclude=_PYTHON_HELPERS) + \
-               get_data_files("share/stats-collect/defs/statscollect", "defs/statscollect") + \
+    data_files=get_data_files("share/stats-collect/defs/statscollect", "defs/statscollect") + \
                get_data_files("share/stats-collect/js/dist", "js/dist") + \
                get_data_files("share/stats-collect/misc/servedir", "misc/servedir") + \
                [("share/stats-collect/js", ["js/index.html"])],
