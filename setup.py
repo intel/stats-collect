@@ -64,7 +64,7 @@ setup(
                [("share/stats-collect/js", ["js/index.html"])],
     scripts=_TOOLNAMES + _PYTHON_HELPERS,
     packages=find_packages(),
-    install_requires=["pepc>=1.3.13,<1.4.0", "plotly>=4", "numpy", "pandas", "pyyaml", "colorama"],
+    install_requires=["pepc>=1.4.2", "plotly>=4", "numpy", "pandas", "pyyaml", "colorama"],
     long_description="""This package provides stats-collect - a Linux command-line tool which
                         collects and visualizes system statistics and telemetry.""",
     classifiers=[
