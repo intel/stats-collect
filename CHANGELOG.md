@@ -5,6 +5,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.2] - 2023-03-24
+### Fixed
  - Fix 'stats-collect report' crashing on 'inf' acpower values.
  - Fix 'stats-collect report' crashing on on raw acpower statistic files with
    bad headers.
@@ -13,7 +19,6 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Add fullscreen view to diagrams in wult HTML reports.
  - Add a button to hide report headers in wult HTML reports.
  - Add command used in 'stats-collect start' to 'stats-collect' reports.
-### Removed
 ### Changed
  - Change 'stats-collect' to collect 'turbostat' and 'sysinfo' statistics by
    default.

@@ -25,7 +25,7 @@ from statscollectlibs.deploylibs import _Deploy
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.collector import StatsCollectBuilder
 
-_VERSION = "1.0.1"
+_VERSION = "1.0.2"
 TOOLNAME = "stats-collect"
 _STC_DEPLOY_INFO = {
     "installables" : {
