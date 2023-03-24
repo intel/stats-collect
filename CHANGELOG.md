@@ -16,8 +16,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
    bad headers.
 ### Added
  - Add module C-state support to turbostat collection and reporting.
- - Add fullscreen view to diagrams in wult HTML reports.
- - Add a button to hide report headers in wult HTML reports.
+ - Add fullscreen view to diagrams to 'stats-collect' reports.
+ - Add a button to hide report headers in 'stats-collect' reports.
  - Add command used in 'stats-collect start' to 'stats-collect' reports.
 ### Changed
  - Change 'stats-collect' to collect 'turbostat' and 'sysinfo' statistics by
