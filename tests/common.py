@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from pepclibs.helperlibs import TestRunner
-from statscollecttools import _StatsCollect
+from statscollecttools import _StatsCollect, ToolInfo
 
 def run_stats_collect(arguments, exp_exc=None):
     """
@@ -27,4 +27,4 @@ def run_stats_collect(arguments, exp_exc=None):
                   considered to be a failure.
     """
 
-    TestRunner.run_tool(_StatsCollect, arguments, exp_exc=exp_exc)
+    TestRunner.run_tool(_StatsCollect, ToolInfo.TOOLNAME, arguments, exp_exc=exp_exc)
