@@ -14,6 +14,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix 'stats-collect report' crashing on 'inf' acpower values.
  - Fix 'stats-collect report' crashing on on raw acpower statistic files with
    bad headers.
+ - Fix several metrics missing 'min/max' summary functions in HTML reports.
 ### Added
  - Add module C-state support to turbostat collection and reporting.
  - Add fullscreen view to diagrams to 'stats-collect' reports.
