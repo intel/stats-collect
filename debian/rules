@@ -4,4 +4,5 @@
 	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_test:
-	: # do nothing
+	cp -r stats-collect defs js misc $(shell realpath --relative-to=. .pybuild/*python*/build)
+	dh_auto_test
