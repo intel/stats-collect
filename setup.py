@@ -21,7 +21,7 @@ def get_version(filename):
 
     with open(filename, "r", encoding="utf-8") as fobj:
         for line in fobj:
-            matchobj = re.match(r'^_VERSION = "(\d+.\d+.\d+)"$', line)
+            matchobj = re.match(r'^VERSION = "(\d+.\d+.\d+)"$', line)
             if matchobj:
                 return matchobj.group(1)
     return None
@@ -57,7 +57,7 @@ setup(
     author="Artem Bityutskiy",
     author_email="artem.bityutskiy@linux.intel.com",
     python_requires=">=3.7",
-    version=get_version("statscollecttools/_StatsCollect.py"),
+    version=get_version("statscollecttools/ToolInfo.py"),
     data_files=get_data_files("share/stats-collect/defs/statscollect", "defs/statscollect") + \
                get_data_files("share/stats-collect/js/dist", "js/dist") + \
                get_data_files("share/stats-collect/misc/servedir", "misc/servedir") + \
