@@ -5,7 +5,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix HTML reports not being able to be viewed locally since v1.0.2.
 ### Added
+ - Add 'tool information' and 'collection date' to HTML report intro tables.
 ### Removed
 ### Changed
 
