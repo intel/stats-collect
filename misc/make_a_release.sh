@@ -15,7 +15,7 @@ BASEDIR="$(readlink -ev -- ${0%/*}/..)"
 VERSION_REGEX='\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)'
 
 # File paths containing the version number that we'll have to adjust.
-STCOLL_FILE="$BASEDIR/statscollecttools/_StatsCollect.py"
+STCOLL_FILE="$BASEDIR/statscollecttools/_ToolInfo.py"
 SPEC_FILE="$BASEDIR/rpm/stats-collect.spec"
 
 # The CHANGELOG.md file path.
