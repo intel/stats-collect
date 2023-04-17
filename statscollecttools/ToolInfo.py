@@ -8,5 +8,5 @@
 
 """This module contains miscellaneous functions used by various 'statscollecttools' modules."""
 
-VERSION = "1.0.0"
+VERSION = "1.0.2"
 TOOLNAME = "stats-collect"
