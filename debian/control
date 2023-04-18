@@ -15,7 +15,7 @@ Build-Depends: debhelper (>= 12),
                python3-pluggy,
                python3-yaml
 Standards-Version: 3.9.8
-Homepage: https://intelpedia.intel.com/ServerPowerLab/Pepc
+Homepage: https://github.com/intel/stats-collect
 X-Python3-Version: >= 3.7
 
 Package: stats-collect
@@ -28,8 +28,9 @@ Depends: python3:any (>= 3.7~),
          util-linux (>= 2.20~),
          procps,
          rsync
-Description: Power, Energy, and Performance configuration tool.
- A tool configuring various power and performance aspects of a Linux system.
+Description: The Statistics Collection Tool project provides the
+'stats-collect' command-line tool. This tool collects system statistics and
+telemetry, and visualizes them.
 
 Package: python3-stats-collect
 Architecture: all
@@ -38,5 +39,5 @@ Depends: python3:any (>= 3.7~),
          python3-paramiko,
          ${misc:Depends},
          ${python3:Depends}
-Description: Pepc Python libraries.
- Pepc Python libraries.
+Description: The Statistics Collection Tool Python libraries.
+ The Statistics Collection Tool Python libraries.
