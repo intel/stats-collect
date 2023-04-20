@@ -61,7 +61,7 @@ setup(
     data_files=get_data_files("share/stats-collect/helpers/stc-agent", "helpers/stc-agent",
                               exclude=_PYTHON_HELPERS) + \
                get_data_files("share/stats-collect/defs/statscollect", "defs/statscollect") + \
-               get_data_files("share/web-assets/javascript/stats-collect/js/dist", "js/dist") + \
+               get_data_files("share/javascript/stats-collect/js/dist", "js/dist") + \
                get_data_files("share/stats-collect/misc/servedir", "misc/servedir") + \
                [("share/stats-collect/js", ["js/index.html"])],
     scripts=_TOOLNAMES + _PYTHON_HELPERS,
