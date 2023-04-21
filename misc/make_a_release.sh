@@ -15,7 +15,8 @@ BASEDIR="$(readlink -ev -- ${0%/*}/..)"
 VERSION_REGEX='\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)'
 
 # File paths containing the version number that we'll have to adjust.
-STCOLL_FILE="$BASEDIR/statscollecttools/_ToolInfo.py"
+STCOLL_FILE="$BASEDIR/statscollecttools/_StatsCollect.py"
+STCOLL_VER_FILE="$BASEDIR/statscollecttools/ToolInfo.py"
 SPEC_FILE="$BASEDIR/rpm/stats-collect.spec"
 
 # The CHANGELOG.md file path.
@@ -69,10 +70,10 @@ if [ $# -eq 1 ]; then
     printf "%s" "$new_ver" | grep -q -x "$VERSION_REGEX" ||
            fatal "please, provide new version in X.Y.Z format"
 elif [ $# -eq 0 ]; then
-    # The new version was not provided, increment the current version umber.
-    sed_regex="^_VERSION = \"$VERSION_REGEX\"$"
-    ver_start="$(sed -n -e "s/$sed_regex/\1.\2./p" "$STCOLL_FILE")"
-    ver_end="$(sed -n -e "s/$sed_regex/\3/p" "$STCOLL_FILE")"
+    # The new version was not provided, increment the current version number.
+    sed_regex="^VERSION = \"$VERSION_REGEX\"$"
+    ver_start="$(sed -n -e "s/$sed_regex/\1.\2./p" "$STCOLL_VER_FILE")"
+    ver_end="$(sed -n -e "s/$sed_regex/\3/p" "$STCOLL_VER_FILE")"
     ver_end="$(($ver_end+1))"
     new_ver="$ver_start$ver_end"
 else
@@ -103,7 +104,7 @@ ask_question "Did you update 'CHANGELOG.md'"
 
 
 # Change the tool version.
-sed -i -e "s/^_VERSION = \"$VERSION_REGEX\"$/_VERSION = \"$new_ver\"/" "$STCOLL_FILE"
+sed -i -e "s/^VERSION = \"$VERSION_REGEX\"$/VERSION = \"$new_ver\"/" "$STCOLL_VER_FILE"
 # Change RPM package version.
 sed -i -e "s/^Version:\(\s\+\)$VERSION_REGEX$/Version:\1$new_ver/" "$SPEC_FILE"
 
