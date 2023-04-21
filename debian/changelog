@@ -1,8 +1,16 @@
+stats-collect (1.0.3) unstable; urgency=low
+
+  * Fix HTML reports not being able to be viewed locally since v1.0.2.
+  * Add 'tool information' and 'collection date' to HTML report intro tables.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 21 Apr 2023 00:00:00 +0200
+
 stats-collect (1.0.2) unstable; urgency=low
 
   * Fix 'stats-collect report' crashing on 'inf' acpower values.
   * Fix 'stats-collect report' crashing on on raw acpower statistic files with
     bad headers.
+  * Fix several metrics missing 'min/max' summary functions in HTML reports.
   * Add module C-state support to turbostat collection and reporting.
   * Add fullscreen view to diagrams to 'stats-collect' reports.
   * Add a button to hide report headers in 'stats-collect' reports.

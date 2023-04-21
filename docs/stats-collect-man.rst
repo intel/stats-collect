@@ -2,7 +2,7 @@
 STATS-COLLECT
 =============
 
-:Date:   2023-03-24
+:Date:   2023-04-21
 
 .. contents::
    :depth: 3
@@ -95,7 +95,7 @@ OPTIONS *'stats-collect* deploy'
 **-K** *PRIVKEY*, **--priv-key** *PRIVKEY*
    Path to the private SSH key that should be used for logging into the
    remote host. By default the key is automatically found from standard
-   paths like '~/.ssh'.
+   paths like
 
 **-T** *TIMEOUT*, **--timeout** *TIMEOUT*
    SSH connect timeout in seconds, default is 8.
@@ -137,7 +137,7 @@ OPTIONS *'stats-collect* start'
 **-K** *PRIVKEY*, **--priv-key** *PRIVKEY*
    Path to the private SSH key that should be used for logging into the
    remote host. By default the key is automatically found from standard
-   paths like '~/.ssh'.
+   paths like
 
 **-T** *TIMEOUT*, **--timeout** *TIMEOUT*
    SSH connect timeout in seconds, default is 8.
@@ -171,8 +171,8 @@ OPTIONS *'stats-collect* start'
    AC power meter statistics. You can also specify the statistics you do
    not want to be collected by pre-pending the '!' symbol. For example,
    'all,!turbostat' would mean: collect all the statistics supported by
-   the SUT, except for 'turbostat'. Use the '--list- stats' option to
-   get more information about available statistics. By default, only
+   the SUT, except for 'turbostat'. Use the '--list-stats' option to get
+   more information about available statistics. By default, only
    'sysinfo' statistics are collected.
 
 **--stats-intervals** *STATS_INTERVALS*
@@ -211,7 +211,7 @@ OPTIONS *'stats-collect* report'
 
 **-o** *OUTDIR*, **--outdir** *OUTDIR*
    Path to the directory to store the report at. By default the report
-   is stored in the 'stats-collect- report-<reportid>' sub-directory of
+   is stored in the 'stats-collect-report-<reportid>' sub-directory of
    the test result directory. If there are multiple test results, the
    report is stored in the current directory. The '<reportid>' is report
    ID of stats-collect test result.
