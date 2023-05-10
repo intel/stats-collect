@@ -11,6 +11,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Install man page when using 'pip install'.
 
 ## [1.0.3] - 2023-04-21
 ### Fixed
