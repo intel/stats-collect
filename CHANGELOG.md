@@ -8,10 +8,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix statistics collectors.
  - Fix 'stats-collect report' generating broken diffs when given results with
    duplicate report IDs.
+ - Fix a bug where 'sysinfo' tabs in HTML reports do not generate diffs.
 ### Added
 ### Removed
 ### Changed
  - Install man page when using 'pip install'.
+ - Minor design improvements to HTML report tabs with alerts and file-previews.
 
 ## [1.0.3] - 2023-04-21
 ### Fixed
