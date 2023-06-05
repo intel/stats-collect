@@ -9,11 +9,21 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix 'stats-collect report' generating broken diffs when given results with
    duplicate report IDs.
  - Fix a bug where 'sysinfo' tabs in HTML reports do not generate diffs.
+ - Fix 'Measured CPU' tab generation crashing when the measured CPU of a result
+   is not 0.
+ - Fix '--stats=ipmi' not resolving to 'ipmi-inband' and 'ipmi-oob' properly.
+ - Fix '--stats=ipmi-inband' or '--stats=ipmi-oob' sometimes resulting in the
+   other 'ipmi' collection method being used.
+ - Fix 'stats-collect start --stats=none' crashing.
+ - Fix turbostat tabs failing to generate because of two or more results do not
+   have enough turbostat metrics in common.
 ### Added
 ### Removed
 ### Changed
  - Install man page when using 'pip install'.
  - Minor design improvements to HTML report tabs with alerts and file-previews.
+ - Change 'stats-collect' to skip generating SysInfo diffs if the files are
+   identical to speed up report generation.
 
 ## [1.0.3] - 2023-04-21
 ### Fixed
