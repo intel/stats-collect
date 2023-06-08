@@ -18,12 +18,15 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix turbostat tabs failing to generate because of two or more results do not
    have enough turbostat metrics in common.
 ### Added
+ - Add 'stats-collect report --reportids' option.
+ - Add 'pepc power info' output to 'pepc SysInfo' tabs in HTML reports.
 ### Removed
 ### Changed
  - Install man page when using 'pip install'.
  - Minor design improvements to HTML report tabs with alerts and file-previews.
  - Change 'stats-collect' to skip generating SysInfo diffs if the files are
    identical to speed up report generation.
+ - Changed the default value of 'stats-collect start --cpunum' to 'None'.
 
 ## [1.0.3] - 2023-04-21
 ### Fixed
