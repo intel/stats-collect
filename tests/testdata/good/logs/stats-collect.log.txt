@@ -1,9 +1,7 @@
-Command line: /home/adamjame/powerlab/git/wult/stats-collect start --stats=all sleep 120 -o tmp -H bdwep1
-Discovering the following statistics: ipmi-inband, sysinfo, ipmi-oob, acpower, turbostat
-Discovered the following statistics: ipmi-inband, acpower, turbostat, sysinfo
-Configuring the following statistics: turbostat, ipmi-inband, acpower, sysinfo
+Command line: /opt/powerlab/bin/stats-collect start -H bdwep1 --stats=all -o good sleep 5
 Collecting bdwep1 system information
 Starting statistics collectors
+Running the following command on host 'bdwep1': sleep 5
 Stopping statistics collectors
 Collecting more bdwep1 system information
-Copy statistics data files and logs from 'bdwep1' to '/home/adamjame/public_html/public_files/tmp'
+Copy collected statistics from 'bdwep1' to '/home/adamjame/powerlab/git/stats-collect/good'

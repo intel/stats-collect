@@ -1,1 +1,1 @@
-Listening on Unix socket /tmp/stc-agent-bdwep1-ho3s39hz
+Listening on Unix socket /tmp/stc-agent-bdwep1-l7eb4rum

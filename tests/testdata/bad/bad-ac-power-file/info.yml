@@ -1,5 +1,44 @@
 format_version: '1.2'
-reportid: bdwep1-stats-collect-20230301
+reportid: bdwep1-stats-collect-20230608
 toolname: stats-collect
 toolver: 1.0.0
 cpunum: 0
+cmd: sleep 5
+date: 08 Jun 2023
+stinfo:
+  turbostat:
+    interval: 5
+    inband: true
+    toolpath: turbostat
+    description: Periodically run the 'turbostat' tool and collect C-state residency,
+      average CPU frequency, RAPL data, and more.
+    paths:
+      stats: turbostat.raw.txt
+    enabled: true
+    fallible: false
+    props: {}
+  ipmi-inband:
+    interval: 5
+    inband: true
+    fallible: true
+    toolpath: ipmi-helper
+    description: Same as the 'ipmi-oob' statistics, but the data are collected by
+      running 'ipmitool' on the SUT (in-band).
+    paths:
+      stats: ipmi-inband.raw.txt
+    enabled: true
+    props: {}
+  acpower:
+    interval: 1
+    inband: false
+    toolpath: yokotool
+    description: Collect SUT wall socket power consumption from an external Yokogawa
+      power meter using 'yokotool'.
+    paths:
+      stats: acpower.raw.txt
+    props:
+      devnode: bdwep1
+      pmtype:
+    enabled: true
+    fallible: false
+duration: 5.505s

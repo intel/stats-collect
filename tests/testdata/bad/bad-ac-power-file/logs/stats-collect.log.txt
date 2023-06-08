@@ -1,5 +1,7 @@
-Command line: /home/adamjame/powerlab/git/wult/stats-collect start -o /home/adamjame/powerlab/git/stats-collect/tests/testdata/bad/bad-ac-power-file --stats=acpower,turbostat sleep 10 -H bdwep1
-Configuring the following statistics: acpower, turbostat
+Command line: /opt/powerlab/bin/stats-collect start -H bdwep1 --stats=all -o good sleep 5
+Collecting bdwep1 system information
 Starting statistics collectors
+Running the following command on host 'bdwep1': sleep 5
 Stopping statistics collectors
-Copy statistics data files and logs from 'bdwep1' to '/home/adamjame/powerlab/git/stats-collect/tests/testdata/bad/bad-ac-power-file'
+Collecting more bdwep1 system information
+Copy collected statistics from 'bdwep1' to '/home/adamjame/powerlab/git/stats-collect/good'
