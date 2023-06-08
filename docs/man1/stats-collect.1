@@ -1,4 +1,4 @@
-.TH STATS\-COLLECT "1" "2023\-04\-21" "stats\-collect" "Generated Python Manual"
+.TH STATS\-COLLECT "1" "2023\-06\-08" "stats\-collect" "Generated Python Manual"
 .SH NAME
 stats\-collect
 .SH SYNOPSIS
@@ -41,7 +41,8 @@ Start the measurements.
 Create an HTML report.
 
 .SH COMMAND \fI\,'stats\-collect deploy'\/\fR
-usage: stats\-collect deploy [\-h] [\-q] [\-d] [\-\-tmpdir\-path TMPDIR_PATH] [\-\-keep\-tmpdir] [\-H HOSTNAME] [\-U USERNAME] [\-K PRIVKEY] [\-T TIMEOUT]
+usage: stats\-collect deploy [\-h] [\-q] [\-d] [\-\-tmpdir\-path TMPDIR_PATH] [\-\-keep\-tmpdir] [\-H HOSTNAME] [\-U USERNAME]
+                            [\-K PRIVKEY] [\-T TIMEOUT]
 
 Deploy stats\-collect helpers to a remote SUT (System Under Test).
 
@@ -60,12 +61,13 @@ Print debugging information.
 
 .TP
 \fB\-\-tmpdir\-path\fR \fI\,TMPDIR_PATH\/\fR
-When 'stats\-collect' is deployed, a random temporary directory is used. Use this option provide a custom path instead. It will be used as a temporary
-directory on both local and remote hosts. This option is meant for debugging purposes.
+When 'stats\-collect' is deployed, a random temporary directory is used. Use this option provide a custom path instead.
+It will be used as a temporary directory on both local and remote hosts. This option is meant for debugging purposes.
 
 .TP
 \fB\-\-keep\-tmpdir\fR
-Do not remove the temporary directories created while deploying 'stats\-collect'. This option is meant for debugging purposes.
+Do not remove the temporary directories created while deploying 'stats\-collect'. This option is meant for debugging
+purposes.
 
 .TP
 \fB\-H\fR \fI\,HOSTNAME\/\fR, \fB\-\-host\fR \fI\,HOSTNAME\/\fR
@@ -77,24 +79,25 @@ Name of the user to use for logging into the remote host over SSH. The default u
 
 .TP
 \fB\-K\fR \fI\,PRIVKEY\/\fR, \fB\-\-priv\-key\fR \fI\,PRIVKEY\/\fR
-Path to the private SSH key that should be used for logging into the remote host. By default the key is automatically found from standard paths like
-'~/.ssh'.
+Path to the private SSH key that should be used for logging into the remote host. By default the key is automatically
+found from standard paths like '~/.ssh'.
 
 .TP
 \fB\-T\fR \fI\,TIMEOUT\/\fR, \fB\-\-timeout\fR \fI\,TIMEOUT\/\fR
 SSH connect timeout in seconds, default is 8.
 
 .SH COMMAND \fI\,'stats\-collect start'\/\fR
-usage: stats\-collect start [\-h] [\-q] [\-d] [\-H HOSTNAME] [\-U USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-cpunum CPUNUM] [\-\-time\-limit LIMIT] [\-o OUTDIR]
-                           [\-\-reportid REPORTID] [\-\-stats STATS] [\-\-stats\-intervals STATS_INTERVALS] [\-\-report]
+usage: stats\-collect start [\-h] [\-q] [\-d] [\-H HOSTNAME] [\-U USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-cpunum CPUNUM]
+                           [\-\-time\-limit LIMIT] [\-o OUTDIR] [\-\-reportid REPORTID] [\-\-stats STATS]
+                           [\-\-stats\-intervals STATS_INTERVALS] [\-\-report]
                            cmd
 
 Start collecting statistics.
 
 .TP
 \fBcmd\fR
-Command to run on the SUT during statistics collection. If 'HOSTNAME' is provided, the tool will run the command on that host, otherwise the tool will run
-the command on 'localhost'.
+Command to run on the SUT during statistics collection. If 'HOSTNAME' is provided, the tool will run the command on
+that host, otherwise the tool will run the command on 'localhost'.
 
 .SH OPTIONS \fI\,'stats\-collect start'\/\fR
 .TP
@@ -119,8 +122,8 @@ Name of the user to use for logging into the remote host over SSH. The default u
 
 .TP
 \fB\-K\fR \fI\,PRIVKEY\/\fR, \fB\-\-priv\-key\fR \fI\,PRIVKEY\/\fR
-Path to the private SSH key that should be used for logging into the remote host. By default the key is automatically found from standard paths like
-'~/.ssh'.
+Path to the private SSH key that should be used for logging into the remote host. By default the key is automatically
+found from standard paths like '~/.ssh'.
 
 .TP
 \fB\-T\fR \fI\,TIMEOUT\/\fR, \fB\-\-timeout\fR \fI\,TIMEOUT\/\fR
@@ -128,42 +131,47 @@ SSH connect timeout in seconds, default is 8.
 
 .TP
 \fB\-\-cpunum\fR \fI\,CPUNUM\/\fR
-The logical CPU number to measure, default is CPU 0.
+If the executed command stresses a particular CPU number, you can specify it via this option so that the number is
+saved in the test result and later the 'stats\-collect report' command will take this into account while generating the
+test report.
 
 .TP
 \fB\-\-time\-limit\fR \fI\,LIMIT\/\fR
-The time limit for statistics collection, after which the collection will stop if the command 'cmd' (given as a positional argument) has not finished
-executing.
+The time limit for statistics collection, after which the collection will stop if the command 'cmd' (given as a
+positional argument) has not finished executing.
 
 .TP
 \fB\-o\fR \fI\,OUTDIR\/\fR, \fB\-\-outdir\fR \fI\,OUTDIR\/\fR
 
 .TP
 \fB\-\-reportid\fR \fI\,REPORTID\/\fR
-Any string which may serve as an identifier of this run. By default report ID is the current date, prefixed with the remote host name in case the '\-H'
-option was used: [hostname\-]YYYYMMDD. For example, "20150323" is a report ID for a run made on March 23, 2015. The allowed characters are: ACSII
-alphanumeric, '\-', '.', ',', '_', and '~'.
+Any string which may serve as an identifier of this run. By default report ID is the current date, prefixed with the
+remote host name in case the '\-H' option was used: [hostname\-]YYYYMMDD. For example, "20150323" is a report ID for a
+run made on March 23, 2015. The allowed characters are: ACSII alphanumeric, '\-', '.', ',', '_', and '~'.
 
 .TP
 \fB\-\-stats\fR \fI\,STATS\/\fR
-Comma\-separated list of statistics to collect. They are stored in the the "stats" sub\-directory of the output directory. By default, only 'turbostat,
-sysinfo' statistics are collected. Use 'all' to collect all possible statistics. Use '\-\-stats=""' or '\-\-stats="none"' to disable statistics collection. If
-you know exactly what statistics you need, specify the comma\-separated list of statistics to collect. For example, use 'turbostat,acpower' if you need
-only turbostat and AC power meter statistics. You can also specify the statistics you do not want to be collected by pre\-pending the '!' symbol. For
-example, 'all,!turbostat' would mean: collect all the statistics supported by the SUT, except for 'turbostat'. Use the '\-\-list\-stats' option to get more
-information about available statistics. By default, only 'sysinfo' statistics are collected.
+Comma\-separated list of statistics to collect. They are stored in the the "stats" sub\-directory of the output
+directory. By default, only 'turbostat, sysinfo' statistics are collected. Use 'all' to collect all possible
+statistics. Use '\-\-stats=""' or '\-\-stats="none"' to disable statistics collection. If you know exactly what statistics
+you need, specify the comma\-separated list of statistics to collect. For example, use 'turbostat,acpower' if you need
+only turbostat and AC power meter statistics. You can also specify the statistics you do not want to be collected by
+pre\-pending the '!' symbol. For example, 'all,!turbostat' would mean: collect all the statistics supported by the SUT,
+except for 'turbostat'. Use the '\-\-list\-stats' option to get more information about available statistics. By default,
+only 'sysinfo' statistics are collected.
 
 .TP
 \fB\-\-stats\-intervals\fR \fI\,STATS_INTERVALS\/\fR
-The intervals for statistics. Statistics collection is based on doing periodic snapshots of data. For example, by default the 'acpower' statistics
-collector reads SUT power consumption for the last second every second, and 'turbostat' default interval is 5 seconds. Use 'acpower:5,turbostat:10' to
-increase the intervals to 5 and 10 seconds correspondingly. Use the '\-\-list\-stats' to get the default interval values.
+The intervals for statistics. Statistics collection is based on doing periodic snapshots of data. For example, by
+default the 'acpower' statistics collector reads SUT power consumption for the last second every second, and
+'turbostat' default interval is 5 seconds. Use 'acpower:5,turbostat:10' to increase the intervals to 5 and 10 seconds
+correspondingly. Use the '\-\-list\-stats' to get the default interval values.
 
 .TP
 \fB\-\-report\fR
 
 .SH COMMAND \fI\,'stats\-collect report'\/\fR
-usage: stats\-collect report [\-h] [\-q] [\-d] [\-o OUTDIR] respaths [respaths ...]
+usage: stats\-collect report [\-h] [\-q] [\-d] [\-o OUTDIR] [\-\-reportids REPORTIDS] respaths [respaths ...]
 
 Create an HTML report for one or multiple test results.
 
@@ -186,10 +194,20 @@ Print debugging information.
 
 .TP
 \fB\-o\fR \fI\,OUTDIR\/\fR, \fB\-\-outdir\fR \fI\,OUTDIR\/\fR
-Path to the directory to store the report at. By default the report is stored in the 'stats\-collect\-report\-<reportid>' sub\-directory of the test result
-directory. If there are multiple test results, the report is stored in the current directory. The '<reportid>' is report ID of stats\-collect test result.
+Path to the directory to store the report at. By default the report is stored in the 'stats\-collect\-report\-<reportid>'
+sub\-directory of the test result directory. If there are multiple test results, the report is stored in the current
+directory. The '<reportid>' is report ID of stats\-collect test result.
 
-.SH AUTHORS
+.TP
+\fB\-\-reportids\fR \fI\,REPORTIDS\/\fR
+Every input raw result comes with a report ID. This report ID is basically a short name for the test result, and it
+used in the HTML report to refer to the test result. However, sometimes it is helpful to temporarily override the
+report IDs just for the HTML report, and this is what the '\-\-reportids' option does. Please, specify a comma\-separated
+list of report IDs for every input raw test result. The first report ID will be used for the first raw rest result,
+the second report ID will be used for the second raw test result, and so on. Please, refer to the '\-\-reportid' option
+description in the 'start' command for more information about the report ID.
+
+.SH AUTHOR
 .nf
 Artem Bityutskiy
 .fi

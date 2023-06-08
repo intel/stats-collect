@@ -5,6 +5,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.4] - 2023-06-08
+### Fixed
  - Fix statistics collectors.
  - Fix 'stats-collect report' generating broken diffs when given results with
    duplicate report IDs.
@@ -20,7 +26,6 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
  - Add 'stats-collect report --reportids' option.
  - Add 'pepc power info' output to 'pepc SysInfo' tabs in HTML reports.
-### Removed
 ### Changed
  - Install man page when using 'pip install'.
  - Minor design improvements to HTML report tabs with alerts and file-previews.

@@ -2,7 +2,7 @@
 STATS-COLLECT
 =============
 
-:Date:   2023-04-21
+:Date: 2023-06-08
 
 .. contents::
    :depth: 3
@@ -95,7 +95,7 @@ OPTIONS *'stats-collect* deploy'
 **-K** *PRIVKEY*, **--priv-key** *PRIVKEY*
    Path to the private SSH key that should be used for logging into the
    remote host. By default the key is automatically found from standard
-   paths like
+   paths like '~/.ssh'.
 
 **-T** *TIMEOUT*, **--timeout** *TIMEOUT*
    SSH connect timeout in seconds, default is 8.
@@ -137,13 +137,16 @@ OPTIONS *'stats-collect* start'
 **-K** *PRIVKEY*, **--priv-key** *PRIVKEY*
    Path to the private SSH key that should be used for logging into the
    remote host. By default the key is automatically found from standard
-   paths like
+   paths like '~/.ssh'.
 
 **-T** *TIMEOUT*, **--timeout** *TIMEOUT*
    SSH connect timeout in seconds, default is 8.
 
 **--cpunum** *CPUNUM*
-   The logical CPU number to measure, default is CPU 0.
+   If the executed command stresses a particular CPU number, you can
+   specify it via this option so that the number is saved in the test
+   result and later the 'stats-collect report' command will take this
+   into account while generating the test report.
 
 **--time-limit** *LIMIT*
    The time limit for statistics collection, after which the collection
@@ -179,18 +182,18 @@ OPTIONS *'stats-collect* start'
    The intervals for statistics. Statistics collection is based on doing
    periodic snapshots of data. For example, by default the 'acpower'
    statistics collector reads SUT power consumption for the last second
-   every second, and 'turbostat' default interval is 5 seconds. Use
-   'acpower:5,turbostat:10' to increase the intervals to 5 and 10
-   seconds correspondingly. Use the '--list-stats' to get the default
-   interval values.
+   every second, and
+
+correspondingly. Use the '--list-stats' to get the default interval
+values.
 
 **--report**
 
 COMMAND *'stats-collect* report'
 ================================
 
-usage: stats-collect report [-h] [-q] [-d] [-o OUTDIR] respaths
-[respaths ...]
+usage: stats-collect report [-h] [-q] [-d] [-o OUTDIR] [--reportids
+REPORTIDS] respaths [respaths ...]
 
 Create an HTML report for one or multiple test results.
 
@@ -216,8 +219,20 @@ OPTIONS *'stats-collect* report'
    report is stored in the current directory. The '<reportid>' is report
    ID of stats-collect test result.
 
-AUTHORS
-=======
+**--reportids** *REPORTIDS*
+   Every input raw result comes with a report ID. This report ID is
+   basically a short name for the test result, and it used in the HTML
+   report to refer to the test result. However, sometimes it is helpful
+   to temporarily override the report IDs just for the HTML report, and
+   this is what the '--reportids' option does. Please, specify a
+   comma-separated list of report IDs for every input raw test result.
+   The first report ID will be used for the first raw rest result, the
+   second report ID will be used for the second raw test result, and so
+   on. Please, refer to the '--reportid' option description in the
+   'start' command for more information about the report ID.
+
+AUTHOR
+======
 
 ::
 
