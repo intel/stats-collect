@@ -8,20 +8,24 @@
 
 """This module provides the API for creating raw stats-collect test results."""
 
+import contextlib
+import os
+import shutil
 import time
-from pepclibs.helperlibs import YAML
+from pepclibs.helperlibs import YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
 
-class WORawResult(_RawResultBase.RawResultBase):
+class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext):
     """This class represents a write-only raw test result."""
 
     def write_info(self):
         """Write the 'self.info' dictionary to the 'info.yml' file."""
 
         YAML.dump(self.info, self.info_path)
+        self._data_collected = True
 
     def _init_outdir(self):
         """Initialize the output directory for writing or appending test results."""
@@ -36,6 +40,7 @@ class WORawResult(_RawResultBase.RawResultBase):
         else:
             try:
                 self.dirpath.mkdir(parents=True, exist_ok=True)
+                self._created_paths.append(self.dirpath)
                 FSHelpers.set_default_perm(self.dirpath)
             except OSError as err:
                 raise Error(f"failed to create directory '{self.dirpath}':\n{err}") from None
@@ -61,6 +66,9 @@ class WORawResult(_RawResultBase.RawResultBase):
         self.reportid = reportid
         self.cpunum = cpunum
 
+        self._created_paths = []
+        self._data_collected = False
+
         self._init_outdir()
 
         self.info["format_version"] = _RawResultBase.FORMAT_VERSION
@@ -71,3 +79,20 @@ class WORawResult(_RawResultBase.RawResultBase):
         self.info["cmd"] = cmd
         self.info["date"] = time.strftime("%d %b %Y")
         self.info["stinfo"] = {}
+
+    def close(self):
+        """Stop the experiment."""
+
+        # Remove results if no data were collected.
+        paths = []
+        if not self._data_collected:
+            paths = getattr(self, "_created_paths", [])
+
+        for path in paths:
+            if not path.exists():
+                continue
+            with contextlib.suppress(Exception):
+                if path.is_dir():
+                    shutil.rmtree(path)
+                elif path.is_file():
+                    os.remove(path)
