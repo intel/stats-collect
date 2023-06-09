@@ -14,6 +14,7 @@ collection of statistics.
 
 import logging
 import time
+from pepclibs.helperlibs.Exceptions import Error
 from pepclibs.helperlibs import ClassHelpers, Human
 from statscollectlibs.helperlibs import ProcHelpers
 
@@ -42,6 +43,9 @@ def run_command(cmd, pman, tlimit):
             _LOG.notice("statistics collection stopped because the time limit was reached before "
                         "the command finished executing.")
             ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=pman)
+
+    if exitcode != 0:
+        raise Error(f"there was an error running command '{cmd}':\n{stderr}")
 
     return stdout, stderr
 
