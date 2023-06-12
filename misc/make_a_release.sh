@@ -107,7 +107,7 @@ ask_question "Did you run tests"
 ask_question "Did you update 'CHANGELOG.md'"
 
 # Update 'pepc' version.
-sed -i -e "s/\(pepc\s*>=\s*\)$VERSION_REGEX/\1$pepc_ver/g" "$BASEDIR/rpm/wult.spec"
+sed -i -e "s/\(pepc\s*>=\s*\)$VERSION_REGEX/\1$pepc_ver/g" "$BASEDIR/rpm/stats-collect.spec"
 sed -i -e "s/^\(\s\+pepc\s*(>=\s*\)$VERSION_REGEX)/\1$pepc_ver)/g" "$BASEDIR/debian/control"
 
 # Update CHANGELOG.md.
