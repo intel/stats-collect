@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Separate from the 'wult' project.
 
 ## [1.0.4] - 2023-06-08
 ### Fixed
