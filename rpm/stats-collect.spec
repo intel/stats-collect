@@ -16,6 +16,7 @@ BuildRequires:	python3-devel
 BuildRequires:	python3-pytest
 %endif
 Requires:	python3-stats-collect
+Requires:	pepc
 
 %description
 Pepc stands for "Power, Energy, and Performance Configurator".
