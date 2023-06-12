@@ -26,10 +26,12 @@ CHANGELOG_FILE="$BASEDIR/CHANGELOG.md"
 STCOLL_MAN_FILE="$BASEDIR/docs/man1/stats-collect.1"
 STCOLL_RST_FILE="$BASEDIR/docs/stats-collect-man.rst"
 
+# Path to 'pepc' project sources.
+PEPC_SRC_PATH="$BASEDIR/../pepc"
 # Path to the script converting CHANGELOG.md into debian changelog.
-CHANGELOG_MD_TO_DEBIAN="$BASEDIR/misc/changelog_md_to_debian"
+CHANGELOG_MD_TO_DEBIAN="$PEPC_SRC_PATH/misc/changelog_md_to_debian"
 # Path to the script that prepares CHANGELOG.md for the release.
-PREPARE_CHENGELOG_MD="$BASEDIR/misc/prepare_changelog_md"
+PREPARE_CHENGELOG_MD="$PEPC_SRC_PATH/misc/prepare_changelog_md"
 
 fatal() {
         printf "$PROG: error: %s\n" "$1" >&2
