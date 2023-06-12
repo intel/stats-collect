@@ -80,11 +80,19 @@ else
     usage
 fi
 
-echo "New version: $new_ver"
+echo "New stats-collect version: $new_ver"
 
 # Validate the new version.
 printf "%s" "$new_ver" | grep -q -x "$VERSION_REGEX" ||
          fatal "please, provide new version in X.Y.Z format"
+
+pepc_ver="$(sed -n -e "s/.*pepc\s*>=\s*\($VERSION_REGEX\).*/\1/p" "$BASEDIR/setup.py")"
+
+echo "Dependency: pepc version >= $pepc_ver"
+
+# Validate 'pepc' version.
+printf "%s" "$pepc_ver" | grep -q -x "$VERSION_REGEX" ||
+         fatal "bad 'pepc' version '$pepc_ver' in '$BASEDIR/setup.py'"
 
 # Make sure that the current branch is 'main' or 'release'.
 current_branch="$(git -C "$BASEDIR" branch | sed -n -e '/^*/ s/^* //p')"
@@ -96,18 +104,22 @@ fi
 ask_question "Did you run tests"
 ask_question "Did you update 'CHANGELOG.md'"
 
+# Update 'pepc' version.
+sed -i -e "s/\(pepc\s*>=\s*\)$VERSION_REGEX/\1$pepc_ver/g" "$BASEDIR/rpm/wult.spec"
+sed -i -e "s/^\(\s\+pepc\s*(>=\s*\)$VERSION_REGEX)/\1$pepc_ver)/g" "$BASEDIR/debian/control"
+
 # Update CHANGELOG.md.
 "$PREPARE_CHENGELOG_MD" "$new_ver" "$CHANGELOG_FILE"
 # Update debian changelog.
 "$CHANGELOG_MD_TO_DEBIAN" -o "$BASEDIR/debian/changelog" -p "stats-collect" -n "Artem Bityutskiy" \
                           -e "artem.bityutskiy@intel.com" "$CHANGELOG_FILE"
 
-
 # Change the tool version.
 sed -i -e "s/^VERSION = \"$VERSION_REGEX\"$/VERSION = \"$new_ver\"/" "$STCOLL_VER_FILE"
 # Change RPM package version.
 sed -i -e "s/^Version:\(\s\+\)$VERSION_REGEX$/Version:\1$new_ver/" "$SPEC_FILE"
 
+# Update the man page.
 argparse-manpage --pyfile "$STCOLL_FILE" --function build_arguments_parser \
                  --project-name 'stats-collect' --author 'Artem Bityutskiy' \
                  --author-email 'dedekind1@gmail.com' --output "$STCOLL_MAN_FILE" \
