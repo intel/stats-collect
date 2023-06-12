@@ -23,7 +23,7 @@ Package: stats-collect
 Architecture: all
 Multi-Arch: foreign
 Depends: python3:any (>= 3.7~),
-         pepc (>= 1.4.10)
+         pepc (>= 1.4.10),
          python3-stats-collect,
          ${misc:Depends},
          ${python3:Depends},
@@ -31,14 +31,14 @@ Depends: python3:any (>= 3.7~),
          procps,
          rsync
 Description: The Statistics Collection Tool project provides the
-'stats-collect' command-line tool. This tool collects system statistics and
-telemetry, and visualizes them.
+ 'stats-collect' command-line tool. This tool collects system statistics and
+ telemetry, and visualizes them.
 
 Package: python3-stats-collect
 Architecture: all
 Multi-Arch: foreign
 Depends: python3:any (>= 3.7~),
-         pepc (>= 1.4.10)
+         pepc (>= 1.4.10),
          python3-paramiko,
          ${misc:Depends},
          ${python3:Depends}
