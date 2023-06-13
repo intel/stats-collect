@@ -8,8 +8,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
- - Changed 'stats-collect start' to raise an error if the user's command fails
+ - Change 'stats-collect start' to raise an error if the user's command fails
    during statistics collection.
+ - Change 'stats-collect start' to remove the output directory if no statistics
+   were collected.
 
 ## [1.0.6] - 2023-06-12
 
