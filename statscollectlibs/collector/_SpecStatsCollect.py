@@ -477,4 +477,5 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
 
     def close(self):
         """Close the statistics collector."""
-        ClassHelpers.close(self, close_attrs=("_oobagent", "_inbagent"), unref_attrs=("_pman",))
+        ClassHelpers.close(self, close_attrs=("_oobagent", "_inbagent", "res"),
+                           unref_attrs=("_pman",))
