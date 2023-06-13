@@ -10,7 +10,7 @@
 This module includes the "report" 'stats-collect' command implementation.
 """
 
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult
@@ -56,5 +56,7 @@ def report_command(args):
 
     if not args.outdir:
         args.outdir = args.respaths[0] / "html-report"
+
+    Logging.setup_stdout_logging(ToolInfo.TOOLNAME, args.outdir)
 
     _Common.generate_stc_report(rsts, args.outdir)
