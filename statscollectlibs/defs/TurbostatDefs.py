@@ -17,6 +17,7 @@ class _CSTypeBase:
     requestable, package, and module C-states. This base class provides a common interface for all
     of the C-state type classes.
     """
+
     @staticmethod
     def check_metric(metric):
         """Checks if 'metric' is an instance of this type of C-state."""
@@ -33,6 +34,7 @@ class _CSTypeBase:
 
 class ReqCSDef(_CSTypeBase):
     """This class represents the 'Requestable C-state' type of C-state."""
+
     @staticmethod
     def check_metric(metric):
         """Checks if 'metric' represents the usage of a requestable C-state."""
@@ -45,6 +47,7 @@ class ReqCSDef(_CSTypeBase):
 
 class CoreCSDef(_CSTypeBase):
     """This class represents the 'Core C-state' type of C-state."""
+
     @staticmethod
     def check_metric(metric):
         """Checks if 'metric' represents the usage of a core C-state."""
@@ -56,6 +59,7 @@ class CoreCSDef(_CSTypeBase):
 
 class PackageCSDef(_CSTypeBase):
     """This class represents the 'Package C-state' type of C-state."""
+
     @staticmethod
     def check_metric(metric):
         """Checks if 'metric' represents the usage of a package C-state."""
@@ -67,6 +71,7 @@ class PackageCSDef(_CSTypeBase):
 
 class ModuleCSDef(_CSTypeBase):
     """This class represents the 'Module C-state' type of C-state."""
+
     @staticmethod
     def check_metric(metric):
         """Checks if 'metric' represents the usage of a module C-state."""
