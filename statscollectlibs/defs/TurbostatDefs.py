@@ -32,6 +32,19 @@ class _CSTypeBase:
         self.metric = metric
         self.cstate = self._get_cs_from_metric(metric)
 
+class ReqCSDefCount(_CSTypeBase):
+    """This class represents the 'Requested C-state count' type of C-state."""
+
+    @staticmethod
+    def check_metric(metric):
+        """Checks if 'metric' represents the usage of a requestable C-state."""
+        return metric == "POLL" or (metric.startswith("C") and metric[1].isdigit() and
+                                    not metric.endswith("%"))
+
+    def _get_cs_from_metric(self, metric):
+        """Returns the name of the C-state represented in 'metric'."""
+        return metric
+
 class ReqCSDef(_CSTypeBase):
     """This class represents the 'Requestable C-state' type of C-state."""
 
