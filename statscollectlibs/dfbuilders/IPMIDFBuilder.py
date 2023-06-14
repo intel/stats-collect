@@ -77,7 +77,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Convert time column format to be 'time since epoch in seconds' so it is consistent with
         # other time columns for other statistics and so that labels can be applied using
         # '_apply_labels()'.
-        sdf[time_colname] -= numpy.datetime64('1970-01-01T00:00:00Z')
+        sdf[time_colname] -= numpy.datetime64('1970-01-01T00:00:00')
         sdf[time_colname] /= numpy.timedelta64(1, "s")
 
         if labels:
