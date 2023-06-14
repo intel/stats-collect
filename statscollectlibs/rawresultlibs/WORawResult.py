@@ -75,7 +75,8 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         self.info["reportid"] = reportid
         self.info["toolname"] = ToolInfo.TOOLNAME
         self.info["toolver"] = ToolInfo.VERSION
-        self.info["cpunum"] = self.cpunum
+        if cpunum is not None:
+            self.info["cpunum"] = self.cpunum
         self.info["cmd"] = cmd
         self.info["date"] = time.strftime("%d %b %Y")
         self.info["stinfo"] = {}
