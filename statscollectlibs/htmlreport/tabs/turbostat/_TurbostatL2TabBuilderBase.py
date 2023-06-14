@@ -35,7 +35,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         tab_hierarchy = {
             "C-states": {
                 "Hardware": {"dtabs":[]},
-                "Requested": {"dtabs": []}
+                "Requested": {
+                    "Residency": {"dtabs": []},
+                    "Count": {"dtabs": []}
+                }
             }
         }
 
@@ -52,8 +55,11 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         misc_metrics = ["IRQ", "SMI", "IPC"]
         tab_hierarchy["Misc"] = {"dtabs": [m for m in misc_metrics if m in common_metrics]}
 
-        for cs in self._cstates["requested"]:
-            tab_hierarchy["C-states"]["Requested"]["dtabs"].append(cs.metric)
+        for cs in self._cstates["requested"]["residency"]:
+            tab_hierarchy["C-states"]["Requested"]["Residency"]["dtabs"].append(cs.metric)
+
+        for cs in self._cstates["requested"]["count"]:
+            tab_hierarchy["C-states"]["Requested"]["Count"]["dtabs"].append(cs.metric)
 
         tab_hierarchy["C-states"]["Hardware"]["dtabs"].append("Busy%")
         for cs in self._cstates["hardware"]["core"]:
@@ -112,7 +118,8 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         'self._cstates' dictionary. Returns a list of all of the common C-states.
         """
 
-        req_cstates = []
+        req_rsdncy_cstates = []
+        req_cnt_cstates = []
         core_cstates = []
         pkg_cstates = []
         mod_cstates = []
@@ -122,7 +129,9 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
                 continue
 
             if TurbostatDefs.ReqCSDef.check_metric(metric):
-                req_cstates.append(TurbostatDefs.ReqCSDef(metric))
+                req_rsdncy_cstates.append(TurbostatDefs.ReqCSDef(metric))
+            elif TurbostatDefs.ReqCSDefCount.check_metric(metric):
+                req_cnt_cstates.append(TurbostatDefs.ReqCSDefCount(metric))
             elif TurbostatDefs.CoreCSDef.check_metric(metric):
                 core_cstates.append(TurbostatDefs.CoreCSDef(metric))
             elif TurbostatDefs.PackageCSDef.check_metric(metric):
@@ -133,9 +142,11 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         self._cstates["hardware"]["core"] = core_cstates
         self._cstates["hardware"]["package"] = pkg_cstates
         self._cstates["hardware"]["module"] = mod_cstates
-        self._cstates["requested"] = req_cstates
+        self._cstates["requested"]["residency"] = req_rsdncy_cstates
+        self._cstates["requested"]["count"] = req_cnt_cstates
 
-        all_cstates = req_cstates + core_cstates + pkg_cstates + mod_cstates
+        all_cstates = req_rsdncy_cstates + req_cnt_cstates + core_cstates
+        all_cstates += pkg_cstates + mod_cstates
         return [csdef.cstate for csdef in all_cstates]
 
     def __init__(self, dfs, outdir, basedir, hover_defs=None):
@@ -160,7 +171,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         # Store C-states for which there is data in each raw turbostat statistics file.
         self._cstates = {
-            "requested": [],
+            "requested": {
+                "residency": [],
+                "count": []
+            },
             "hardware": {
                 "core": [],
                 "package": [],
