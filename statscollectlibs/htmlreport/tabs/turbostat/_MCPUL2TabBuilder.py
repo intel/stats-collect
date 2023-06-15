@@ -43,9 +43,8 @@ class MCPUL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
             if cpunum is None:
                 continue
 
-            mcpu = str(res.info["cpunum"])
-            dfs[res.reportid] = res.load_stat("turbostat", TurbostatDFBuilder.MCPUDFBuilder(mcpu),
-                                              "turbostat.raw.txt")
+            dfbldr = TurbostatDFBuilder.MCPUDFBuilder(str(cpunum))
+            dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
 
             hover_defs[res.reportid] = res.get_label_defs("turbostat")
 

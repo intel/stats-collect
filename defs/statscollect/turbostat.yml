@@ -68,6 +68,13 @@ POLL%:
     unit: "%"
     short_unit: "%"
     drop_empty: True
+Cx:
+    title: "Cx requested count"
+    descr: >-
+        The number times Linux requested the Cx idle state during the measurement interval.
+        Retrieved from the "Cx" turbostat column.
+    type: "float"
+    drop_empty: True
 Cx%:
     title: "Cx requested percent"
     descr: >-
