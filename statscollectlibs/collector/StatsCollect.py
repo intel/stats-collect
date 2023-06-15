@@ -403,7 +403,8 @@ class StatsCollect(_SpecStatsCollect.SpecStatsCollect):
         directory gets removed in the 'close()' method.
         """
 
-        super().__init__(pman, reportid, cpunum, cmd, local_outdir, remote_outdir)
+        super().__init__(pman, reportid, cpunum=cpunum, cmd=cmd, local_outdir=local_outdir,
+                         remote_outdir=remote_outdir)
 
         # Initialize the aggregate statistics dictionary.
         self._aggr_stinfo = copy.deepcopy(_AGGR_STINFO)

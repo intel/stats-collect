@@ -92,7 +92,8 @@ class StatsCollectBuilder:
                          method will search for 'stc-agent' on the remote system.
         """
 
-        stcoll = StatsCollect.StatsCollect(pman, reportid, cpunum, cmd, local_outdir, remote_outdir)
+        stcoll = StatsCollect.StatsCollect(pman, reportid, cpunum=cpunum, cmd=cmd,
+                                           local_outdir=local_outdir, remote_outdir=remote_outdir)
         stcoll.set_info_logging(True)
 
         if self.discover:
