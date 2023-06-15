@@ -6,9 +6,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
- - Add turbostat requested C-state count visualization.
 ### Removed
 ### Changed
+
+## [1.0.8] - 2023-06-15
+### Added
+ - Add turbostat requested C-state count visualization.
 
 ## [1.0.7] - 2023-06-15
 ### Added
