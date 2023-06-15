@@ -1,3 +1,13 @@
+stats-collect (1.0.7) unstable; urgency=low
+
+  * Add report generation logs to report directories.
+  * Change 'stats-collect start' to raise an error if the user's command fails
+    during statistics collection.
+  * Change 'stats-collect start' to remove the output directory if no statistics
+    were collected.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Thu, 15 Jun 2023 00:00:00 +0200
+
 stats-collect (1.0.6) unstable; urgency=low
 
 

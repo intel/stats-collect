@@ -2,7 +2,7 @@
 STATS-COLLECT
 =============
 
-:Date: 2023-06-12
+:Date: 2023-06-15
 
 .. contents::
    :depth: 3
@@ -16,7 +16,7 @@ stats-collect
 SYNOPSIS
 ========
 
-**stats-collect** [-h] [-q] [-d] [--version] [--force-color]
+**stats-collect** [-h] [-q] [-d] [-v] [--force-color]
 {deploy,start,report} ...
 
 DESCRIPTION
@@ -28,16 +28,13 @@ and telemetry.
 OPTIONS
 =======
 
-**-h**
-   Show this help message and exit.
-
-**-q**
+**-q**, **--quiet**
    Be quiet.
 
-**-d**
+**-d**, **--debug**
    Print debugging information.
 
-**--version**
+**-v**, **--version**
    Print version and exit.
 
 **--force-color**
@@ -66,13 +63,10 @@ Deploy stats-collect helpers to a remote SUT (System Under Test).
 OPTIONS *'stats-collect* deploy'
 ================================
 
-**-h**
-   Show this help message and exit.
-
-**-q**
+**-q**, **--quiet**
    Be quiet.
 
-**-d**
+**-d**, **--debug**
    Print debugging information.
 
 **--tmpdir-path** *TMPDIR_PATH*
@@ -118,13 +112,10 @@ Start collecting statistics.
 OPTIONS *'stats-collect* start'
 ===============================
 
-**-h**
-   Show this help message and exit.
-
-**-q**
+**-q**, **--quiet**
    Be quiet.
 
-**-d**
+**-d**, **--debug**
    Print debugging information.
 
 **-H** *HOSTNAME*, **--host** *HOSTNAME*
@@ -201,13 +192,10 @@ Create an HTML report for one or multiple test results.
 OPTIONS *'stats-collect* report'
 ================================
 
-**-h**
-   Show this help message and exit.
-
-**-q**
+**-q**, **--quiet**
    Be quiet.
 
-**-d**
+**-d**, **--debug**
    Print debugging information.
 
 **-o** *OUTDIR*, **--outdir** *OUTDIR*
