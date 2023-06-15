@@ -51,7 +51,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         except OSError as err:
             raise Error(f"failed to create file '{self.info_path}':\n{err}") from None
 
-    def __init__(self, reportid, outdir, cmd, cpunum=None):
+    def __init__(self, reportid, outdir, cmd=None, cpunum=None):
         """
         The class constructor. The arguments are as follows.
           * reportid - reportid of the raw test result.
@@ -77,7 +77,8 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         self.info["toolver"] = ToolInfo.VERSION
         if cpunum is not None:
             self.info["cpunum"] = self.cpunum
-        self.info["cmd"] = cmd
+        if cmd is not None:
+            self.info["cmd"] = cmd
         self.info["date"] = time.strftime("%d %b %Y")
         self.info["stinfo"] = {}
 
