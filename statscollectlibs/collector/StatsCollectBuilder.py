@@ -71,7 +71,7 @@ class StatsCollectBuilder:
                 raise Error(f"bad intervals entry '{entry}', should be 'stname:interval', where "
                             f"'stname' is the statistics name and 'interval' is a floating point "
                             f"interval for collecting the 'stname' statistics.")
-            stname, interval = split
+            stname, interval = split # pylint: disable=unbalanced-tuple-unpacking
             StatsCollect.check_stname(stname)
 
             if not Trivial.is_float(interval):
@@ -80,8 +80,8 @@ class StatsCollectBuilder:
 
             self.intervals[stname] = float(interval)
 
-    def build_stcoll(self, pman, reportid, cpunum=None, cmd=None, local_outdir=None,
-                     remote_outdir=None, local_path=None, remote_path=None):
+    def build_stcoll(self, pman, res, local_outdir=None, remote_outdir=None, local_path=None,
+                     remote_path=None):
         """
         Build and return an instance of 'StatsCollect' based on the statistics named in the class
         properties 'discover', 'include', 'exclude' and 'intervals'. Arguments are the same as
@@ -92,8 +92,8 @@ class StatsCollectBuilder:
                          method will search for 'stc-agent' on the remote system.
         """
 
-        stcoll = StatsCollect.StatsCollect(pman, reportid, cpunum=cpunum, cmd=cmd,
-                                           local_outdir=local_outdir, remote_outdir=remote_outdir)
+        stcoll = StatsCollect.StatsCollect(pman, res, local_outdir=local_outdir,
+                                           remote_outdir=remote_outdir)
         stcoll.set_info_logging(True)
 
         if self.discover:

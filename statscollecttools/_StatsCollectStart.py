@@ -61,28 +61,21 @@ def start_command(args):
                                  pman=pman) as depl:
             depl.check_deployment()
 
+        res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpunum=args.cpunum)
+        stack.enter_context(res)
+
         if not args.stats or args.stats == "none":
             args.stats = None
             stcoll = None
             _LOG.warning("no statistics will be collected")
-            res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpunum=args.cpunum)
-            stack.enter_context(res)
         else:
             stcoll_builder = StatsCollectBuilder.StatsCollectBuilder()
             stcoll_builder.parse_stnames(args.stats)
             if args.stats_intervals:
                 stcoll_builder.parse_intervals(args.stats_intervals)
 
-            stcoll = stcoll_builder.build_stcoll(pman, args.reportid, cpunum=args.cpunum,
-                                                 cmd=args.cmd, local_outdir=args.outdir)
+            stcoll = stcoll_builder.build_stcoll(pman, res, local_outdir=args.outdir)
             stack.enter_context(stcoll)
-
-            if stcoll:
-                res = stcoll.res
-            else:
-                res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd,
-                                              cpunum=args.cpunum)
-                stack.enter_context(res)
 
         Logging.setup_stdout_logging(args.toolname, res.logs_path)
 
