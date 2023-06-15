@@ -8,6 +8,8 @@
 
 """Common bits for the 'stats-collect' tests."""
 
+import os
+from pathlib import Path
 from pepclibs.helperlibs import TestRunner
 from statscollecttools import _StatsCollect, ToolInfo
 
@@ -20,4 +22,7 @@ def run_stats_collect(arguments, exp_exc=None):
                   considered to be a failure.
     """
 
+    # Set the environment variable to force the tester to use the data files of
+    # the 'stats-collect' installation being tested.
+    os.environ["STATS_COLLECT_DATA_PATH"] = str(Path(__file__).parents[1])
     TestRunner.run_tool(_StatsCollect, ToolInfo.TOOLNAME, arguments, exp_exc=exp_exc)
