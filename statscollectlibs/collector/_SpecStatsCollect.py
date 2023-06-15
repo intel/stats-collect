@@ -371,7 +371,7 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         # contents of the remote directory, but not the directory itself.
         srcpath = f"{self.remote_outdir}/"
 
-        self._pman.rsync(f"{srcpath}/", self.local_outdir, remotesrc=True, remotedst=False)
+        self._pman.rsync(srcpath, self.local_outdir, remotesrc=True, remotedst=False)
 
     def get_stinfo(self):
         """Get statistics description dictionary for all enabled statistics."""
