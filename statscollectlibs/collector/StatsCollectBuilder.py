@@ -10,16 +10,17 @@
 
 import contextlib
 import logging
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.collector import StatsCollect
 from statscollectlibs.deploylibs import DeployBase
+from statscollectlibs.rawresultlibs import WORawResult
 
 _LOG = logging.getLogger()
 
 DEFAULT_STNAMES = ("turbostat", "sysinfo")
 
-class StatsCollectBuilder:
+class StatsCollectBuilder(ClassHelpers.SimpleCloseContext):
     """This class provides the API for building an instance of 'StatsCollect'."""
 
     def parse_stnames(self, stnames):
@@ -153,8 +154,23 @@ class StatsCollectBuilder:
 
         return stcoll
 
+    def build_stcoll_nores(self, pman, reportid, cpunum=None, cmd=None, local_outdir=None,
+                           remote_outdir=None, local_path=None, remote_path=None):
+        """
+        Same as 'build_stcoll()', but does not require the caller creating a 'WORawResult' object.
+        The arguments are the same as in 'build_stcoll()', except for 'reportid', 'cpunum', and
+        'cmd', which are the same as in 'StatsCollect.StatsCollect.__init__()'.
+        """
+
+        self._res = WORawResult.WORawResult(reportid, local_outdir, cmd=cmd, cpunum=cpunum)
+        return self.build_stcoll(pman, self._res, local_outdir=local_outdir,
+                                 remote_outdir=remote_outdir, local_path=local_path,
+                                 remote_path=remote_path)
+
     def __init__(self):
         """Class constructor."""
+
+        self._res = None
 
         # Statistic names that should try to be discovered. Statistic names in 'exclude' will not
         # try to be discovered.
@@ -166,3 +182,7 @@ class StatsCollectBuilder:
         # Statistics collection intervals. Maps statistic names to collection intervals which are in
         # seconds.
         self.intervals = {}
+
+    def close(self):
+        """Close the statistics collector."""
+        ClassHelpers.close(self, close_attrs=("_res", ))

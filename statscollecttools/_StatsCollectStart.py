@@ -70,6 +70,8 @@ def start_command(args):
             _LOG.warning("no statistics will be collected")
         else:
             stcoll_builder = StatsCollectBuilder.StatsCollectBuilder()
+            stack.enter_context(stcoll_builder)
+
             stcoll_builder.parse_stnames(args.stats)
             if args.stats_intervals:
                 stcoll_builder.parse_intervals(args.stats_intervals)
