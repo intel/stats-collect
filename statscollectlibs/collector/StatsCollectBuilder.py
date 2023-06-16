@@ -37,6 +37,9 @@ class StatsCollectBuilder(ClassHelpers.SimpleCloseContext):
         """
 
         for stname in Trivial.split_csv_line(stnames):
+            if stname in ("", "none"):
+                continue
+
             if stname == "all":
                 self.discover = "all"
             elif stname == "default":
