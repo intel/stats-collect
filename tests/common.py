@@ -8,14 +8,6 @@
 
 """Common bits for the 'stats-collect' tests."""
 
-from pathlib import Path
-
-# Insert the local '_StatsCollect' Python module in the path so that it is used over '_StatsCollect'
-# in the 'wult' project and other 'stats-collect' installations.
-import sys
-sys.path.insert(0, str(Path(__file__).parents[1]))
-
-# pylint: disable=wrong-import-position
 from pepclibs.helperlibs import TestRunner
 from statscollecttools import _StatsCollect, ToolInfo
 
