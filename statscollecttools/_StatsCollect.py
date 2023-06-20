@@ -111,7 +111,7 @@ def build_arguments_parser():
     text = """Command to run on the SUT during statistics collection. If 'HOSTNAME' is provided,
               the tool will run the command on that host, otherwise the tool will run the command on
               'localhost'."""
-    subpars.add_argument("cmd", type=str, help=text)
+    subpars.add_argument("cmd", type=str, nargs="+", help=text)
 
     #
     # Create parsers for the "report" command.
@@ -154,6 +154,9 @@ def parse_arguments():
     args.toolname = ToolInfo.TOOLNAME
     args.toolver = ToolInfo.VERSION
     args.deploy_info = _STC_DEPLOY_INFO
+
+    if hasattr(args, "cmd"):
+        args.cmd = " ".join(args.cmd)
 
     return args
 
