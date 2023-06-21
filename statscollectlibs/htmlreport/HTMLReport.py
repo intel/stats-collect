@@ -207,17 +207,15 @@ class HTMLReport:
             _LOG.info("All statistics have been skipped, therefore the report will not contain "
                       "a 'Stats' tab.")
 
-        try:
-            sysinfo_tabs = self._generate_sysinfo_tabs(stats_paths)
-        except Error as err:
-            _LOG.info("Error occurred during info tab generation: %s", err)
-            sysinfo_tabs = []
+        if any("sysinfo" in res.info["stinfo"] for res in rsts):
+            try:
+                sysinfo_tabs = self._generate_sysinfo_tabs(stats_paths)
+            except Error as err:
+                _LOG.info("Error occurred during SysInfo tab generation: %s", err)
+                sysinfo_tabs = []
 
-        if sysinfo_tabs:
-            tabs.append(_Tabs.CTabDC("SysInfo", tabs=sysinfo_tabs))
-        else:
-            _LOG.info("All SysInfo tabs have been skipped, therefore the report will not "
-                      "contain a 'SysInfo' tab.")
+            if sysinfo_tabs:
+                tabs.append(_Tabs.CTabDC("SysInfo", tabs=sysinfo_tabs))
 
         return tabs
 
