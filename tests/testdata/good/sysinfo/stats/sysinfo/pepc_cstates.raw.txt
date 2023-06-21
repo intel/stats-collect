@@ -1,0 +1,30 @@
+POLL: 'on' for CPUs 0-87 (all CPUs)
+      - description: CPUIDLE CORE POLL IDLE
+      - expected latency: 0 us
+      - target residency: 0 us
+C1: 'on' for CPUs 0-87 (all CPUs)
+    - description: MWAIT 0x00
+    - expected latency: 2 us
+    - target residency: 2 us
+C1E: 'on' for CPUs 0-87 (all CPUs)
+     - description: MWAIT 0x01
+     - expected latency: 10 us
+     - target residency: 20 us
+C3: 'off' for CPUs 0-87 (all CPUs)
+    - description: MWAIT 0x10
+    - expected latency: 40 us
+    - target residency: 100 us
+C6: 'on' for CPUs 0-87 (all CPUs)
+    - description: MWAIT 0x20
+    - expected latency: 133 us
+    - target residency: 400 us
+Package C-state limit: 'PC6' for CPUs 0-87 (all CPUs)
+Package C-state limit lock: 'on' for CPUs 0-87 (all CPUs)
+Available package C-state limits: 'PC0, PC2, PC3, PC6, unlimited' for CPUs 0-87 (all CPUs)
+C1 demotion: 'off' for CPUs 0-87 (all CPUs)
+C1 undemotion: 'off' for CPUs 0-87 (all CPUs)
+C1E autopromote: 'off' for CPUs 0-87 (all CPUs)
+C-state prewake: 'on' for CPUs 0-87 (all CPUs)
+Idle driver: intel_idle
+Idle governor: 'menu' for CPUs 0-87 (all CPUs)
+Available idle governors: menu

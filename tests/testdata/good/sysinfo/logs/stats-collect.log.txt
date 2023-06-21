@@ -1,0 +1,19 @@
+Command line: /home/adamjame/powerlab/git/stats-collect/stats-collect start -H bdwep1 --stats=sysinfo sleep 10 --report -o dev-reports/sysinfo
+Collecting bdwep1 system information
+Starting statistics collectors
+Running the following command on host 'bdwep1': sleep 10
+Stopping statistics collectors
+Collecting more bdwep1 system information
+Copy collected statistics from 'bdwep1' to '/home/adamjame/public_html/public_files/dev-reports/sysinfo'
+Generating 'Captured Output' tab.
+Generating statistics tabs.
+Generating 'pepc' tab.
+Generating 'turbostat' tab.
+Generating 'thermal_throttle' tab.
+Generating 'dmidecode' tab.
+Generating 'x86_energy_perf_policy' tab.
+Generating 'cpufreq' tab.
+Generating 'cpuidle' tab.
+Generating 'dmesg' tab.
+Generating 'lspci' tab.
+Generating 'Misc' tab.

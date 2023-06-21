@@ -1,0 +1,23 @@
+format_version: '1.2'
+reportid: bdwep1-stats-collect-20230621
+toolname: stats-collect
+toolver: 1.0.8
+cmd: sleep 10
+date: 21 Jun 2023
+stinfo:
+  sysinfo:
+    interval:
+    inband: true
+    toolpath:
+    description: Not really a statistics collector, but just a script that saves all
+      sorts of information about the SUT (e.g., 'dmesg', 'lspci -vvv' and 'dmidecode'
+      output, and more). One snapshot of the SUT information is taken before the workload,
+      and the other snapshot is taken after the workload. The second snapshot, however,
+      includes only the information that could potentially change while the workload
+      was running (e.g., 'dmesg' may include new messages).
+    paths:
+      stats: sysinfo
+    enabled: true
+    fallible: false
+    props: {}
+duration: 10s

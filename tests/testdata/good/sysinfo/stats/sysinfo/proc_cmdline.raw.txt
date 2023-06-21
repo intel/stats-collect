@@ -1,0 +1,1 @@
+BOOT_IMAGE=http://powerlab/pxelinux/node/bdwep1/fedora37/kernel initrd=http://powerlab/pxelinux/node/bdwep1/fedora37/initramfs.img root=UUID=b1b471fa-9391-4671-b9c5-e15c256f63da ro console=ttyS0,115200 msr.allow_writes=1

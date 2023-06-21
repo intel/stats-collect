@@ -18,6 +18,13 @@ def test_all_stats(tmpdir, data_path):
     args = f"report -o {tmpdir} {good_data_path}"
     common.run_stats_collect(args)
 
+def test_only_sysinfo(tmpdir, data_path):
+    """Test 'report' command for good input data with only 'SysInfo' statistics."""
+
+    good_data_path = data_path / "good" / "sysinfo"
+    args = f"report -o {tmpdir} {good_data_path}"
+    common.run_stats_collect(args)
+
 def test_bad_ac_power_file(tmpdir, data_path):
     """
     Test that a badly-formatted 'Ac Power' raw statistics file does not cause 'stats-collect report'
