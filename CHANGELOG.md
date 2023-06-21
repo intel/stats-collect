@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Change 'stats-collect report' to work for results with no statistics data.
 
 ## [1.0.8] - 2023-06-15
 ### Added
