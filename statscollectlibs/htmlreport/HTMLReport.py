@@ -160,6 +160,8 @@ class HTMLReport:
         The elements of the returned list are tab dataclass objects, such as '_Tabs.DTabDC'.
         """
 
+        _LOG.info("Generating SysInfo tabs.")
+
         tab_builders = [
             _PepcTabBuilder.PepcTabBuilder,
             _SysInfoTstatTabBuilder.TurbostatTabBuilder,
@@ -178,7 +180,7 @@ class HTMLReport:
         for tab_builder in tab_builders:
             tbldr = tab_builder(self.outdir, stats_paths)
 
-            _LOG.info("Generating '%s' tab.", tbldr.name)
+            _LOG.info("Generating '%s' SysInfo tab.", tbldr.name)
             try:
                 tabs.append(tbldr.get_tab())
             except Error as err:
