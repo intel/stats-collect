@@ -11,10 +11,10 @@
 from pepclibs.helperlibs import Exceptions
 import common
 
-def test_good_input_data(tmpdir, data_path):
-    """Test 'report' command for good input data."""
+def test_all_stats(tmpdir, data_path):
+    """Test 'report' command for good input data with all statistics."""
 
-    good_data_path = data_path / "good"
+    good_data_path = data_path / "good" / "all-stats"
     args = f"report -o {tmpdir} {good_data_path}"
     common.run_stats_collect(args)
 
