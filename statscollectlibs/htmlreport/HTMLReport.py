@@ -276,6 +276,8 @@ class HTMLReport:
 
         FSHelpers.set_default_perm(self.outdir)
 
+        _LOG.info("Generated report in '%s'.", self.outdir)
+
     def __init__(self, outdir):
         """
         The class constructor. The arguments are as follows:
