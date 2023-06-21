@@ -118,17 +118,36 @@ class HTMLReport:
         The elements of the returned list are tab dataclass objects, such as 'CTabDC'.
         """
 
+        tab_bldr_classes = (_ACPowerTabBuilder.ACPowerTabBuilder,
+                            _TurbostatTabBuilder.TurbostatTabBuilder)
+        tab_builders = {tab_bldr.stname: tab_bldr for tab_bldr in tab_bldr_classes}
+
+        # 'IPMITabBuilder' is used for inband and out-of-band IPMI collection
+        # so has two statistic names.
+        for stname in _IPMITabBuilder.IPMITabBuilder.stnames:
+            tab_builders[stname] = _IPMITabBuilder.IPMITabBuilder
+
+        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
+
+        filtered_stnames = set(stname for stname in collected_stnames if stname in tab_builders)
+        # The 'SysInfo' tab is generated in '_generate_sysinfo_tabs()', so should not be generated
+        # in this method.
+        missing_tab_builders = collected_stnames - filtered_stnames - {"sysinfo"}
+        if missing_tab_builders:
+            _LOG.warning("the following statistics are not supported for HTML reports: %s",
+                         ", ".join(missing_tab_builders))
+
+        if not filtered_stnames:
+            return []
+
         _LOG.info("Generating statistics tabs.")
 
-        tab_builders = [
-            _ACPowerTabBuilder.ACPowerTabBuilder,
-            _TurbostatTabBuilder.TurbostatTabBuilder,
-            _IPMITabBuilder.IPMITabBuilder,
-        ]
-
         tabs = []
+        for stname in tab_builders:
+            if stname not in filtered_stnames:
+                continue
 
-        for tab_builder in tab_builders:
+            tab_builder = tab_builders[stname]
             try:
                 tbldr = tab_builder(rsts, self.outdir)
             except ErrorNotFound as err:
