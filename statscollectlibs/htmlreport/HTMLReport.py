@@ -257,7 +257,7 @@ class HTMLReport:
             intro_tbl.generate(intro_tbl_path)
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self.outdir)
 
-        if rsts is not None:
+        if rsts:
             reportids_dedup(rsts)
             tabs += self._generate_tabs(rsts)
 
