@@ -224,9 +224,6 @@ class HTMLReport:
 
         if stats_tabs:
             tabs.append(_Tabs.CTabDC("Stats", tabs=stats_tabs))
-        else:
-            _LOG.info("All statistics have been skipped, therefore the report will not contain "
-                      "a 'Stats' tab.")
 
         if any("sysinfo" in res.info["stinfo"] for res in rsts):
             try:
