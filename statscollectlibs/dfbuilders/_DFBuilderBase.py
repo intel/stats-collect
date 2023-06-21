@@ -53,7 +53,7 @@ class DFBuilderBase:
 
             if label["name"] == "skip":
                 # Datapoints labelled 'skip' are dropped from the 'pandas.DataFrame'.
-                df.drop(df[filtered_rows].index, inplace=True)
+                df.drop(df.loc[filtered_rows].index, inplace=True)
                 continue
 
             if len(filtered_rows) < 1:
