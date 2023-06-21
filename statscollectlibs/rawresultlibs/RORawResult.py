@@ -137,9 +137,6 @@ class RORawResult(_RawResultBase.RawResultBase):
         if not toolver:
             raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
 
-        if not self.stats_path.is_dir():
-            raise Error(f"unable to find statistics directory '{self.stats_path}'")
-
         # Store each loaded 'pandas.DataFrame' so that it does not need to be re-loaded in future.
         # This dictionary maps statistic names to 'pandas.DataFrames'.
         self.dfs = {}
