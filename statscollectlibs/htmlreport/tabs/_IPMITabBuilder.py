@@ -29,6 +29,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     """
 
     name = "IPMI"
+    stnames = ("ipmi-inband", "ipmi-oob",)
 
     def _get_tab_hierarchy(self, common_cols):
         """
@@ -145,7 +146,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         dfbldr = IPMIDFBuilder.IPMIDFBuilder()
         self._hover_defs = {}
         for res in rsts:
-            for stname in ("ipmi-oob", "ipmi-inband"):
+            for stname in self.stnames:
                 if stname not in res.info["stinfo"]:
                     continue
 
