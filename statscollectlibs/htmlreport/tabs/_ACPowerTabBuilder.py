@@ -26,6 +26,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     """
 
     name = "AC Power"
+    stname = "acpower"
 
     def get_tab(self):
         """
@@ -64,10 +65,10 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfbldr = ACPowerDFBuilder.ACPowerDFBuilder()
         self._hover_defs = {}
         for res in rsts:
-            if "acpower" not in res.info["stinfo"]:
+            if self.stname not in res.info["stinfo"]:
                 continue
 
-            dfs[res.reportid] = res.load_stat("acpower", dfbldr, "acpower.raw.txt")
-            self._hover_defs[res.reportid] = res.get_label_defs("acpower")
+            dfs[res.reportid] = res.load_stat(self.stname, dfbldr, "acpower.raw.txt")
+            self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
 
         super().__init__(dfs, outdir, defs=ACPowerDefs.ACPowerDefs())
