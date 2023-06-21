@@ -1,0 +1,9 @@
+format_version: '1.2'
+reportid: bdwep1-stats-collect-20230621
+toolname: stats-collect
+toolver: 1.0.8
+cmd: echo hello
+date: 21 Jun 2023
+stinfo: {}
+stdout: logs/cmd-stdout.log.txt
+duration: 0.507s

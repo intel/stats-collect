@@ -1,0 +1,4 @@
+Command line: /home/adamjame/powerlab/git/stats-collect/stats-collect start -H bdwep1 -o dev-reports/no-stats --report echo hello --stats=none
+Running the following command on host 'bdwep1': echo hello
+Generating 'Captured Output' tab.
+Generated report in 'dev-reports/no-stats/html-report'.
