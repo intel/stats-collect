@@ -27,6 +27,7 @@ class TurbostatTabBuilder:
     """
 
     name = "Turbostat"
+    stname = "turbostat"
 
     def get_tab(self):
         """
