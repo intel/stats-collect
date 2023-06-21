@@ -77,7 +77,8 @@ def start_command(args):
                 stcoll_builder.parse_intervals(args.stats_intervals)
 
             stcoll = stcoll_builder.build_stcoll(pman, res, local_outdir=args.outdir)
-            stack.enter_context(stcoll)
+            if stcoll:
+                stack.enter_context(stcoll)
 
         Logging.setup_stdout_logging(args.toolname, res.logs_path)
 
