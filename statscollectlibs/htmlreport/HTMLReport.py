@@ -219,7 +219,7 @@ class HTMLReport:
         try:
             stats_tabs = self._generate_stats_tabs(rsts)
         except Error as err:
-            _LOG.info("Error occurred during statistics tabs generation: %s", err)
+            _LOG.info("Unable to generate statistics tabs: %s", err)
             stats_tabs = []
 
         if stats_tabs:
@@ -229,7 +229,7 @@ class HTMLReport:
             try:
                 sysinfo_tabs = self._generate_sysinfo_tabs(stats_paths)
             except Error as err:
-                _LOG.info("Error occurred during SysInfo tab generation: %s", err)
+                _LOG.info("Unable to generate SysInfo tabs: %s", err)
                 sysinfo_tabs = []
 
             if sysinfo_tabs:
