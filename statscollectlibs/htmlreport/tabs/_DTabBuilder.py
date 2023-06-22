@@ -176,14 +176,14 @@ class DTabBuilder:
             sdfs_with_data = [sdf for sdf in self._reports.values() if mname in sdf]
             # Check that at least one result contains data for metric 'mname'.
             if not sdfs_with_data:
-                _LOG.info("Skipping %s: no results have data for '%s'.", plotname, mname)
+                _LOG.debug("skipping %s: no results have data for '%s'.", plotname, mname)
                 return True
 
             # Check if there is a constant value for all datapoints.
             sample_dp = sdfs_with_data[0][mname].max()
             if all((sdf[mname] == sample_dp).all() for sdf in sdfs_with_data):
-                _LOG.info("Skipping %s: every datapoint in all results is the same, '%s' is always "
-                          "'%s'.", plotname, mname, sample_dp)
+                _LOG.debug("skipping %s: every datapoint in all results is the same, '%s' is "
+                          "always '%s'.", plotname, mname, sample_dp)
                 if mname not in self._alerted_metrics:
                     self._alerts.append(f"'{mname}' was always: '{sample_dp}'. One or more "
                                         f"diagrams have been skipped.")
