@@ -140,7 +140,7 @@ class HTMLReport:
         if not filtered_stnames:
             return []
 
-        _LOG.info("Generating statistics tabs.")
+        _LOG.info("Generating tabs for the following statistics: %s", ", ".join(filtered_stnames))
 
         tabs = []
         for stname in tab_builders:
