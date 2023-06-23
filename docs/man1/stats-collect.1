@@ -1,23 +1,27 @@
-.TH STATS\-COLLECT "1" "2023\-06\-15" "stats\-collect" "Generated Python Manual"
+.TH STATS\-COLLECT "1" "2023\-06\-23" "stats\-collect" "Generated Python Manual"
 .SH NAME
 stats\-collect
 .SH SYNOPSIS
 .B stats\-collect
-[-h] [-q] [-d] [-v] [--force-color] {deploy,start,report} ...
+[-h] [-q] [-d] [--version] [--force-color] {deploy,start,report} ...
 .SH DESCRIPTION
 stats\-collect \- a tool for collecting and visualising system statistics and telemetry.
 
 .SH OPTIONS
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
+\fB\-h\fR
+Show this help message and exit.
+
+.TP
+\fB\-q\fR
 Be quiet.
 
 .TP
-\fB\-d\fR, \fB\-\-debug\fR
+\fB\-d\fR
 Print debugging information.
 
 .TP
-\fB\-v\fR, \fB\-\-version\fR
+\fB\-\-version\fR
 Print version and exit.
 
 .TP
@@ -43,11 +47,15 @@ Deploy stats\-collect helpers to a remote SUT (System Under Test).
 
 .SH OPTIONS \fI\,'stats\-collect deploy'\/\fR
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
+\fB\-h\fR
+Show this help message and exit.
+
+.TP
+\fB\-q\fR
 Be quiet.
 
 .TP
-\fB\-d\fR, \fB\-\-debug\fR
+\fB\-d\fR
 Print debugging information.
 
 .TP
@@ -85,11 +93,15 @@ Command to run on the SUT during statistics collection. If 'HOSTNAME' is provide
 
 .SH OPTIONS \fI\,'stats\-collect start'\/\fR
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
+\fB\-h\fR
+Show this help message and exit.
+
+.TP
+\fB\-q\fR
 Be quiet.
 
 .TP
-\fB\-d\fR, \fB\-\-debug\fR
+\fB\-d\fR
 Print debugging information.
 
 .TP
@@ -151,11 +163,15 @@ One or multiple stats\-collect test result paths.
 
 .SH OPTIONS \fI\,'stats\-collect report'\/\fR
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
+\fB\-h\fR
+Show this help message and exit.
+
+.TP
+\fB\-q\fR
 Be quiet.
 
 .TP
-\fB\-d\fR, \fB\-\-debug\fR
+\fB\-d\fR
 Print debugging information.
 
 .TP

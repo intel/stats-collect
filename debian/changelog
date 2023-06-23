@@ -1,3 +1,11 @@
+stats-collect (1.0.9) unstable; urgency=low
+
+  * Change 'stats-collect report' to work for results with no statistics data.
+  * Change 'stats-collect report' to not print messages about tabs skipped
+    because there is no data for them.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 23 Jun 2023 00:00:00 +0200
+
 stats-collect (1.0.8) unstable; urgency=low
 
   * Add turbostat requested C-state count visualization.

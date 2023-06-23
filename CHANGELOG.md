@@ -8,6 +8,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.9] - 2023-06-23
+### Changed
  - Change 'stats-collect report' to work for results with no statistics data.
  - Change 'stats-collect report' to not print messages about tabs skipped
    because there is no data for them.
