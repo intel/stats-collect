@@ -16,10 +16,10 @@ import socket
 import logging
 import contextlib
 from pathlib import Path
-from pepclibs.helperlibs import LocalProcessManager, Trivial, ClassHelpers
+from pepclibs.helperlibs import LocalProcessManager, Trivial, ClassHelpers, KernelVersion
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.collector import SysInfo
-from statscollectlibs.helperlibs import KernelVersion, ProcHelpers, RemoteHelpers
+from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
 _LOG = logging.getLogger()
 
