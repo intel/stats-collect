@@ -1,12 +1,12 @@
 module.exports = {
     env: {
         browser: true,
-        es2021: true,
+        es2022: true,
         commonjs: true
     },
-    parser: '@babel/eslint-parser',
     extends: [
         'standard',
+        'eslint:recommended',
         'plugin:wc/recommended',
         'plugin:lit/recommended'
     ],
