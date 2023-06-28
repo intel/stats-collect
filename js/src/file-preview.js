@@ -65,7 +65,7 @@ class ScFilePreview extends LitElement {
         loadedFiles: { type: Boolean, attribute: false },
         diff: { type: String },
         diffFile: { type: Object }
-    };
+    }
 
     getNewTabBtnTemplate (file) {
         return html`

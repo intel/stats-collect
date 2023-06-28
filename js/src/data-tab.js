@@ -29,7 +29,7 @@ class ScDataTab extends LitElement {
             margin-left: 20px;
             margin-right: 20px;
         }
-  `;
+  `
 
     static properties = {
         paths: { type: Array },

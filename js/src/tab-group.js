@@ -68,7 +68,7 @@ class ScTabGroup extends LitElement {
 
     static properties = {
         tabs: { type: Object }
-    };
+    }
 
     get _tabPanels () {
         return this.renderRoot.querySelectorAll('sc-tab-panel')

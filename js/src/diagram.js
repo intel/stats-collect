@@ -49,13 +49,13 @@ class ScDiagram extends LitElement {
             height: 0%;
             width: 100%;
         }
-  `;
+    `
 
     static properties = {
         path: { type: String },
         _dialogOpened: { type: Boolean, state: true },
         _visible: { type: Boolean, state: true }
-    };
+    }
 
     /**
      * Early DOM lifecycle event. Invoked each time the custom element is appended into a

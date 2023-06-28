@@ -30,7 +30,7 @@ export class ScReportTable extends LitElement {
     static properties = {
         file: { type: File },
         template: { attribute: false }
-    };
+    }
 
     static styles = css`
         table {
@@ -78,7 +78,7 @@ export class ScReportTable extends LitElement {
         table .td-funcname {
             text-align: left;
         }
-    `;
+    `
 
     /**
      * Returns pixel width of table based on the number of columns in the table.
