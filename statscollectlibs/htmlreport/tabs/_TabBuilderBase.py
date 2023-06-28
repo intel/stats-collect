@@ -87,6 +87,12 @@ class TabBuilderBase:
                     _LOG.info("Skipping '%s' tab in '%s' tab: one or more results do not contain "
                               "data for this metric.", metric, self.name)
                     continue
+
+                if not metric in self._defs.info:
+                    _LOG.warning("skipping '%s' tab in '%s' tab: metric '%s' is not currently "
+                                 "supported.", metric, self.name, metric)
+                    continue
+
                 try:
                     tab = _DTabBuilder.DTabBuilder(self._reports, outdir, self._defs.info[metric],
                                                    self._basedir)
