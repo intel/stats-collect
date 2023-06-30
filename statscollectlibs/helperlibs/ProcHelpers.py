@@ -72,6 +72,21 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             with contextlib.suppress(OSError):
                 os.waitpid(0, os.WNOHANG)
 
+    def get_pids(pids):
+        """Return the list of integer PID numbers to send the signal to."""
+
+        if not kill_children:
+            return pids
+
+        # Find all the children of the process.
+        for pid in pids:
+            children, _, exitcode = wpman.run(f"pgrep -P {pid}", join=False)
+            if exitcode != 0:
+                break
+            pids += [child.strip() for child in children]
+
+        return pids
+
     if not pids:
         return
 
@@ -90,13 +105,9 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
         raise Error(f"'children' and 'must_die' arguments cannot be used with '{sig}' signal")
 
     with ProcessManager.pman_or_local(pman) as wpman:
-        if kill_children:
-            # Find all the children of the process.
-            for pid in pids:
-                children, _, exitcode = wpman.run(f"pgrep -P {pid}", join=False)
-                if exitcode != 0:
-                    break
-                pids += [child.strip() for child in children]
+        pids = get_pids(wpman)
+        if not pids:
+            return
 
         pids_spc = " ".join(pids)
         pids_comma = ",".join(pids)
