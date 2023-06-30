@@ -72,19 +72,29 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             with contextlib.suppress(OSError):
                 os.waitpid(0, os.WNOHANG)
 
-    def get_pids(pids):
+    def get_pids(pids, pman):
         """Return the list of integer PID numbers to send the signal to."""
 
-        if not kill_children:
-            return pids
+        if kill_children:
+            # Find all the children of the process.
+            for pid in pids:
+                children, _, exitcode = wpman.run(f"pgrep -P {pid}", join=False)
+                if exitcode != 0:
+                    _LOG.debug("PID %d was not found, skipping")
+                    continue
+                pids += [child.strip() for child in children]
 
-        # Find all the children of the process.
-        for pid in pids:
-            children, _, exitcode = wpman.run(f"pgrep -P {pid}", join=False)
+        # Drop zombie processes.
+        orig_pids = Trivial.list_dedup(pids)
+        pids = []
+        for pid in orig_pids:
+            state, _, exitcode = pman.run(f"ps -p {pid} -o stat --no-headers")
             if exitcode != 0:
-                _LOG.debug("PID %d was not found, skipping")
                 continue
-            pids += [child.strip() for child in children]
+            if state.strip() == "Z":
+                # Drop the zombie process.
+                continue
+            pids.append(pid)
 
         return pids
 
@@ -106,7 +116,7 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
         raise Error(f"'children' and 'must_die' arguments cannot be used with '{sig}' signal")
 
     with ProcessManager.pman_or_local(pman) as wpman:
-        pids = get_pids(wpman)
+        pids = get_pids(pids, wpman)
         if not pids:
             return
 
