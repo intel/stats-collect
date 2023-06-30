@@ -154,11 +154,12 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
                 time.sleep(0.2)
 
         # Something refused to die, find out what.
-        msg, _, = wpman.run_verify(f"ps -f {pids_spc}", join=False)
-        if len(msg) < 2:
+        msg, _, = wpman.run_verify(f"ps -f {pids_spc} --no-headers")
+        if not msg:
             msg = pids_comma
 
-        raise Error(f"one of the following processes{wpman.hostmsg} did not die after 'SIGKILL': "
+        msg = Error(msg).indent(2)
+        raise Error(f"one of the following processes{wpman.hostmsg} did not die after 'SIGKILL':\n"
                     f"{msg}")
 
 def find_processes(regex, pman=None):
