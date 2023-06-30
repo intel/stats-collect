@@ -43,8 +43,9 @@ def run_command(cmd, pman, tlimit):
             _LOG.notice("statistics collection stopped because the time limit was reached before "
                         "the command finished executing.")
             ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=pman)
+            break
 
-    if exitcode != 0:
+    if exitcode:
         raise Error(f"there was an error running command '{cmd}':\n{stderr}")
 
     return stdout, stderr
