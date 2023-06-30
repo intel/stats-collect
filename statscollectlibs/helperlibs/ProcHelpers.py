@@ -121,7 +121,7 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             return
 
         pids_spc = " ".join(pids)
-        pids_comma = ",".join(pids)
+        pids_comma = ", ".join(pids)
         _LOG.debug("sending '%s' signal to the following process%s: %s",
                    sig, wpman.hostmsg, pids_comma)
 
@@ -129,8 +129,8 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             wpman.run_verify(f"kill -{sig} -- {pids_spc}")
         except Error as err:
             if not killing:
-                raise Error(f"failed to send signal '{sig}' to PIDs "
-                            f"'{pids_comma}'{wpman.hostmsg}:\n{err.indent(2)}") from err
+                raise Error(f"failed to send signal '{sig}' the following PIDs{wpman.hostmsg}:\n"
+                            f"  {pids_comma}:\n{err.indent(2)}") from err
             # We are trying to terminate processes, but an error happened. Do not give up yet. Here
             # is an example to demonstrate why.
             #
