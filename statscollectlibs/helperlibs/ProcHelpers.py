@@ -131,16 +131,16 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             if not killing:
                 raise Error(f"failed to send signal '{sig}' to PIDs "
                             f"'{pids_comma}'{wpman.hostmsg}:\n{err.indent(2)}") from err
-            # Some error happened on the first attempt. We've seen a couple of situations when this
-            # happens.
-            # 1. Most often, a PID does not exist anymore, the process exited already (race
-            #    condition).
-            # 2 One of the processes in the list is owned by a different user (e.g., root). Let's
-            #   call it process A. We have no permissions to kill process A, but we can kill other
-            #   processes in the 'pids' list. But often killing other processes in the 'pids' list
-            #   will make process A exit. This is why we do not error out just yet. So the strategy
-            #   is to do the second signal sending round and often times it happens without errors,
-            #   and all the processes that we want to kill just go away.
+            # We are trying to terminate processes, but an error happened. Do not give up yet. Here
+            # is an example to demonstrate why.
+            #
+            # One of the processes in the list is owned by a different user (e.g., root). Let's call
+            # it process A. We have no permissions to kill process A, but we can kill other
+            # processes in the 'pids' list. But often killing other processes in the 'pids' list
+            # will make process A exit. This is why we do not error out just yet. So the strategy is
+            # to do the second signal sending round and often times it happens without errors, and
+            # all the processes that we want to kill just go away.
+
         if not killing:
             return
 
