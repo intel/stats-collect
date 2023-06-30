@@ -98,6 +98,32 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
 
         return pids
 
+    def wait_for_pids_to_die(pids, pman, timeout=4):
+        """
+        Wait for PIDs in 'pids' list to die. Return 'True' if all processes have died, and 'False'
+        otherwise.
+        """
+
+        start_time = time.time()
+        while time.time() - start_time <= timeout:
+            collect_zombies(pman)
+
+            # Refresh the PIDs list to exclude already exited processes and zombies.
+            pids = get_pids(pids, pman)
+            if not pids:
+                return True
+
+            # Check if processes have exited (special signal "0").
+            pids_spc = " ".join(pids)
+            _, _, exitcode = pman.run(f"kill -0 -- {pids_spc}")
+            if exitcode == 1:
+                # All processes have exited.
+                return True
+
+            time.sleep(0.2)
+
+        return False
+
     if not pids:
         return
 
@@ -145,40 +171,39 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             return
 
         # Give the processes up to 4 seconds to die.
-        timeout = 4
-        start_time = time.time()
-        while time.time() - start_time <= timeout:
-            collect_zombies(wpman)
-            _, _, exitcode = wpman.run(f"kill -0 -- {pids_spc}")
-            if exitcode == 1:
-                return
-            time.sleep(0.2)
+        if wait_for_pids_to_die(pids, wpman):
+            return
 
         if _is_sigterm(sig):
             # Something refused to die, try SIGKILL.
+            pids = get_pids(pids, wpman)
+            if not pids:
+                return
+
             try:
+                pids_spc = " ".join(pids)
                 wpman.run_verify(f"kill -9 -- {pids_spc}")
             except Error as err:
                 # It is fine if one of the processes exited meanwhile.
                 if "No such process" not in str(err):
                     raise
-            collect_zombies(wpman)
-            if not must_die:
+
+            # Give the processes another 4 seconds to die.
+            if wait_for_pids_to_die(pids, wpman):
                 return
-            # Give the processes up to 4 seconds to die.
-            timeout = 4
-            start_time = time.time()
-            while time.time() - start_time <= timeout:
-                collect_zombies(wpman)
-                _, _, exitcode = wpman.run(f"kill -0 -- {pids_spc}")
-                if exitcode != 0:
-                    return
-                time.sleep(0.2)
+
+        if not must_die:
+            return
 
         # Something refused to die, find out what.
+        pids = get_pids(pids, wpman)
+        if not pids:
+            return
+
+        pids_spc = " ".join(pids)
         msg, _, = wpman.run_verify(f"ps -f {pids_spc} --no-headers")
         if not msg:
-            msg = pids_comma
+            msg = "PIDs " + ", ".join(pids)
 
         msg = Error(msg).indent(2)
         raise Error(f"one of the following processes{wpman.hostmsg} did not die after 'SIGKILL':\n"
