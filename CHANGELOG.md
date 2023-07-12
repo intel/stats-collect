@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix 'stats-collect start --time-limt' option.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.11] - 2023-07-12
+### Fixed
+ - Fix 'stats-collect start --time-limt' option.
 
 ## [1.0.10] - 2023-06-28
 ### Fixed
