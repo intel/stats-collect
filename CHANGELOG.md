@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix debian installation.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.12] - 2023-07-14
+### Fixed
+ - Fix debian installation.
 
 ## [1.0.11] - 2023-07-12
 ### Fixed
