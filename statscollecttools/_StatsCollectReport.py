@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Adam Hawley <adam.james.hawley@intel.com>
@@ -14,7 +14,8 @@ from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult
-from statscollecttools import _Common, ToolInfo
+from statscollectlibs.htmlreport import _StatsCollectReport
+from statscollecttools import ToolInfo
 
 def open_raw_results(respaths, reportids=None):
     """
@@ -59,4 +60,5 @@ def report_command(args):
 
     Logging.setup_stdout_logging(ToolInfo.TOOLNAME, args.outdir)
 
-    _Common.generate_stc_report(rsts, args.outdir)
+    rep = _StatsCollectReport.StatsCollectReport(rsts, args.outdir)
+    rep.generate()
