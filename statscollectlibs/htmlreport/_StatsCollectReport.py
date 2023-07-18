@@ -101,6 +101,32 @@ class StatsCollectReport:
         dtab = _Tabs.DTabDC(tab_title, fpreviews=fpbuilder.fpreviews, alerts=alerts)
         return _Tabs.CTabDC(tab_title, tabs=[dtab])
 
+    def _copy_logs(self):
+        """
+        Helper function for '_generate_intro_table()'. Copies log files to the outdir.
+        """
+
+        copied_paths = {}
+
+        for res in self.rsts:
+            dst_dir = self.outdir / f"raw-{res.reportid}"
+            src_dir = res.logs_path.relative_to(res.dirpath)
+            try:
+                dst_dir.mkdir(parents=True, exist_ok=True)
+
+                logs_dst = dst_dir / src_dir
+                if not logs_dst.exists():
+                    HTMLReport.copy_dir(res.dirpath / src_dir, logs_dst)
+
+            except (OSError, Error) as err:
+                _LOG.warning("unable to copy log files to the generated report: %s", err)
+                logs_dst = None
+
+            if logs_dst:
+                copied_paths[res.reportid] = logs_dst.relative_to(self.outdir)
+
+        return copied_paths
+
     def _generate_intro_table(self, rsts):
         """
         Helper function for 'generate_stc_report()'. Generates an intro table based on results in
@@ -127,6 +153,15 @@ class StatsCollectReport:
         date_row = intro_tbl.create_row("Duration")
         for res in rsts:
             date_row.add_cell(res.reportid, res.info.get("duration"))
+
+        # Add link to logs.
+        log_paths = self._copy_logs()
+        log_row = intro_tbl.create_row("Logs")
+        for res in rsts:
+            if res.reportid in log_paths:
+                log_row.add_cell(res.reportid, "Logs", link=log_paths.get(res.reportid))
+            else:
+                log_row.add_cell(res.reportid, None)
 
         return intro_tbl
 
