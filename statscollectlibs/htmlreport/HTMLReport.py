@@ -8,11 +8,13 @@
 
 """This module provides the API for generating HTML reports."""
 
+import contextlib
 import dataclasses
 import logging
 import json
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorExists
+from pepclibs.helperlibs import LocalProcessManager
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport.tabs import _ACPowerTabBuilder, _IPMITabBuilder, _Tabs
 from statscollectlibs.htmlreport.tabs.turbostat import _TurbostatTabBuilder
@@ -45,6 +47,29 @@ def reportids_dedup(rsts):
                 raise Error(f"too many duplicate report IDs, e.g., '{reportid}' is problematic")
 
         reportids.add(res.reportid)
+
+def copy_dir(srcdir, dstpath):
+    """
+    Helper function for '_copy_raw_data()'. Copy the 'srcdir' to 'dstpath' and set permissions
+    accordingly.
+    """
+
+    try:
+        FSHelpers.copy_dir(srcdir, dstpath, exist_ok=True, ignore=["html-report"])
+        FSHelpers.set_default_perm(dstpath)
+
+        # This block of code helps on SELinux-enabled systems when the output directory
+        # ('self.outdir') is exposed via HTTP. In this case, the output directory should
+        # have the right SELinux attributes (e.g., 'httpd_user_content_t' in Fedora 35).
+        # The raw wult data that we just copied does not have the SELinux attribute, and
+        # won't be accessible via HTTPs. Run 'restorecon' tool to fix up the SELinux
+        # attributes.
+        with LocalProcessManager.LocalProcessManager() as lpman:
+            with contextlib.suppress(ErrorNotFound):
+                lpman.run_verify(f"restorecon -R {dstpath}")
+    except Error as err:
+        msg = Error(err).indent(2)
+        raise Error(f"failed to copy raw data to report directory:\n{msg}") from None
 
 def _copy_assets(outdir):
     """
