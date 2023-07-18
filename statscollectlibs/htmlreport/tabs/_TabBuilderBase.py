@@ -133,7 +133,7 @@ class TabBuilderBase:
 
         raise NotImplementedError()
 
-    def __init__(self, dfs, outdir, defs=None):
+    def __init__(self, dfs, outdir, basedir=None, defs=None):
         """
         The class constructor. Adding a statistics container tab will create a sub-directory and
         store tabs inside it. These tabs will represent all of the metrics stored in 'stats_file'.
@@ -141,6 +141,8 @@ class TabBuilderBase:
          * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where the
                  'pandas.DataFrame' contains that statistics data for that result.
          * outdir - the output directory in which to create the sub-directory for the container tab.
+         * basedir - base directory of the report. All paths should be made relative to this.
+                     Defaults to 'outdir'.
          * defs - a '_DefsBase.DefsBase' instance containing definitions for the metrics which
                   should be included in the output tab.
         """
@@ -154,8 +156,8 @@ class TabBuilderBase:
                                 f"data for this statistic.")
 
         self._reports = dfs
-        self._basedir = outdir
         self._outdir = outdir / DefsBase.get_fsname(self.name)
+        self._basedir = basedir if basedir else outdir
         self._defs = defs
 
         try:

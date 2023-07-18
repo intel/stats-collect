@@ -178,6 +178,9 @@ class HTMLReport:
 
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(filtered_stnames))
 
+        # Create 'Stats' tabs directory.
+        stats_dir = self.tabs_dir / "Stats"
+
         tabs = []
         for stname in tab_builders:
             if stname not in filtered_stnames:
@@ -185,7 +188,7 @@ class HTMLReport:
 
             tab_builder = tab_builders[stname]
             try:
-                tbldr = tab_builder(rsts, self.outdir)
+                tbldr = tab_builder(rsts, stats_dir, basedir=self.outdir)
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder.name, tab_builder.name)
@@ -338,4 +341,5 @@ class HTMLReport:
         """
 
         self.outdir = Path(outdir)
+        self.tabs_dir = self.outdir / "tabs"
         validate_outdir(outdir)

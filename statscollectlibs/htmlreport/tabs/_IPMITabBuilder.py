@@ -122,7 +122,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         return self._build_ctab(self.name, tab_hierarchy, self._outdir, plots, smry_funcs,
                                 self._hover_defs)
 
-    def __init__(self, rsts, outdir):
+    def __init__(self, rsts, outdir, basedir=None):
         """
         The class constructor. Adding an IPMI statistics container tab will create an 'IPMI'
         sub-directory and store tabs inside it. These tabs will represent all of the metrics stored
@@ -130,6 +130,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
          * rsts - a list of 'RORawResult' instances for which data should be included in the built
                   tab.
          * outdir - the output directory in which to create the sub-directory for the built tab.
+         * basedir - base directory of the report. All paths should be made relative to this.
+                     Defaults to 'outdir'.
         """
 
         self._time_metric = "Time"
@@ -160,4 +162,4 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             _LOG.warning("generating '%s' tab with a combination of data collected both inband "
                          "and out-of-band.", self.name)
 
-        super().__init__(dfs, outdir, defs=defs)
+        super().__init__(dfs, outdir, basedir=basedir, defs=defs)
