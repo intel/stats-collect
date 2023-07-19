@@ -16,7 +16,7 @@ from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
 
 _LOG = logging.getLogger()
 
-class StatsCollectReport:
+class StatsCollectHTMLReport:
     """
     This class provides the API for generating 'stats-collect' HTML reports.
 

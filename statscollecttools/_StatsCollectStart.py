@@ -20,7 +20,7 @@ from statscollectlibs.collector import StatsCollectBuilder
 from statscollectlibs.deploylibs import _Deploy
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult, WORawResult
-from statscollectlibs.htmlreport import _StatsCollectReport
+from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
 _LOG = logging.getLogger()
 
@@ -89,5 +89,5 @@ def start_command(args):
 
     if args.report:
         ro_res = RORawResult.RORawResult(res.dirpath, res.reportid)
-        rep = _StatsCollectReport.StatsCollectReport([ro_res], args.outdir / "html-report")
+        rep = _StatsCollectHTMLReport.StatsCollectHTMLReport([ro_res], args.outdir / "html-report")
         rep.generate()

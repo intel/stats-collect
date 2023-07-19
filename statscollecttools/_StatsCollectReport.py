@@ -14,7 +14,7 @@ from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult
-from statscollectlibs.htmlreport import _StatsCollectReport
+from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 from statscollecttools import ToolInfo
 
 def open_raw_results(respaths, reportids=None):
@@ -60,5 +60,5 @@ def report_command(args):
 
     Logging.setup_stdout_logging(ToolInfo.TOOLNAME, args.outdir)
 
-    rep = _StatsCollectReport.StatsCollectReport(rsts, args.outdir)
+    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir)
     rep.generate()
