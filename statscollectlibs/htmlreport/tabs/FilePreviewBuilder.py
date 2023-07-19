@@ -111,6 +111,8 @@ class FilePreviewBuilder:
                                "all reports.", name, fp)
                     break
 
+                filename = src_path.name
+
                 # If the file is not in 'outdir' it should be copied to 'outdir'.
                 if self.outdir not in src_path.parents:
                     if not _reasonable_file_size(src_path, name):
@@ -125,7 +127,7 @@ class FilePreviewBuilder:
                         raise Error(f"can't create directory '{dst_dir}':\n"
                                     f"{msg}") from None
 
-                    dst_path = dst_dir / fp
+                    dst_path = dst_dir / filename
 
                     try:
                         FSHelpers.move_copy_link(src_path, dst_path, "copy")
