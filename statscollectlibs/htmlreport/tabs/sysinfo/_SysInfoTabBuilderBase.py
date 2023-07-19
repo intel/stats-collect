@@ -34,7 +34,7 @@ class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
         raise Error(f"unable to build '{self.name}' SysInfo tab, no file previews could be "
                     f"generated.")
 
-    def __init__(self, name, outdir, files, stats_paths):
+    def __init__(self, name, outdir, files, stats_paths, basedir=None):
         """
         Class constructor. Arguments are as follows:
          * name - name to give the tab produced when 'get_tab()' is called.
@@ -45,6 +45,8 @@ class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
                    'FilePath' should be relative to the directories in 'stats_paths'
          * stats_paths - a dictionary in the format '{ReportID: StatsDir}' where 'StatsDir' is the
                          path to the directory which contains raw statistics files for 'ReportID'.
+         * basedir - base directory of the report. All paths should be made relative to this.
+                     Defaults to 'outdir'.
         """
 
         if any(not fp for fp in stats_paths.values()):
@@ -58,7 +60,7 @@ class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
             "title": name
         }
 
-        super().__init__({}, outdir / "SysInfo", mdef, outdir)
+        super().__init__({}, outdir, mdef, basedir=basedir)
 
         self.name = name
         self.files = files

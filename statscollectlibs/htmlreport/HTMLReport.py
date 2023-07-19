@@ -235,8 +235,9 @@ class HTMLReport:
 
         tabs = []
 
+        sysinfo_dir = self.tabs_dir / "SysInfo"
         for tab_builder in tab_builders:
-            tbldr = tab_builder(self.outdir, stats_paths)
+            tbldr = tab_builder(sysinfo_dir, stats_paths, basedir=self.outdir)
 
             _LOG.info("Generating '%s' SysInfo tab.", tbldr.name)
             try:

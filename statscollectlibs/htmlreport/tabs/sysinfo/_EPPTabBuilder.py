@@ -26,7 +26,7 @@ class EPPTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
      * get_tab() - returns a '_Tabs.DTabDC' instance which contains various system information.
     """
 
-    def __init__(self, outdir, stats_paths):
+    def __init__(self, outdir, stats_paths, basedir=None):
         """Class constructor. Arguments are the same as in 'DTabBuilderBase.__init__()'."""
 
-        super().__init__("x86_energy_perf_policy", outdir, _FILES, stats_paths)
+        super().__init__("x86_energy_perf_policy", outdir, _FILES, stats_paths, basedir=basedir)

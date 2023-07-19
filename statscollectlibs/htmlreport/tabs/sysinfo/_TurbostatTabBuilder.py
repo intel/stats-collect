@@ -27,7 +27,7 @@ class TurbostatTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
                    'turbostat' tool.
     """
 
-    def __init__(self, outdir, stats_paths):
+    def __init__(self, outdir, stats_paths, basedir=None):
         """Class constructor. Arguments are the same as in 'DTabBuilderBase.__init__()'."""
 
-        super().__init__("turbostat", outdir, _FILES, stats_paths)
+        super().__init__("turbostat", outdir, _FILES, stats_paths, basedir=basedir)
