@@ -133,7 +133,18 @@ def validate_outdir(outdir):
                               f"contains '{index_path.name}'")
 
 class HTMLReport:
-    """This class provides the API for generating HTML reports."""
+    """
+    This class provides the API for generating HTML reports.
+
+    The reports generated using this class are highly customisable. The caller
+    is responsible for optionally providing an introduction table, extra tabs,
+    and 'RORawResult' instances to create the 'Stats' tab.
+
+    The class has only one public method which is used to generate the HTML
+    report in the 'outdir' provided to the class constructor. The arguments
+    provided to the method determine the contents of the generated report.
+       * 'generate_report()'
+    """
 
     def _generate_stats_tabs(self, rsts):
         """
@@ -264,7 +275,8 @@ class HTMLReport:
 
     def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None):
         """
-        Generate a report in 'outdir' with 'tabs'. Arguments are as follows:
+        Generate an HTML report in 'outdir' (provided to the class constructor). Customise the
+        contents of the report using the function parameters. Arguments are as follows:
          * tabs - a list of additional container tabs which should be included in the report. If,
                   omitted, 'stats_paths' is required to generate statistics tabs.
          * rsts - a list of 'RORawResult' instances for different results with statistics which
