@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Simplified the HTML report directory structure.
 
 ## [1.0.13] - 2023-07-20
 ### Added
