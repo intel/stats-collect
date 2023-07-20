@@ -301,10 +301,10 @@ class HTMLReport:
 
         # Make sure the output directory exists.
         try:
-            self._outdir.mkdir(parents=True, exist_ok=True)
+            self._data_dir.mkdir(parents=True, exist_ok=True)
         except OSError as err:
             msg = Error(err).indent(2)
-            raise Error(f"failed to create directory '{self._outdir}':\n{msg}") from None
+            raise Error(f"failed to create directory '{self._data_dir}':\n{msg}") from None
 
         # 'report_info' stores data used by the Javascript to generate the main report page
         # including the intro table, the file path of the tabs JSON dump plus the report title and
@@ -312,7 +312,7 @@ class HTMLReport:
         report_info = {"title": title, "descr": descr}
 
         if intro_tbl is not None:
-            intro_tbl_path = self._outdir / "intro_tbl.json"
+            intro_tbl_path = self._data_dir / "intro_tbl.json"
             intro_tbl.generate(intro_tbl_path)
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
@@ -322,11 +322,11 @@ class HTMLReport:
 
         # Convert Dataclasses to dictionaries so that they are JSON serialisable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]
-        tabs_path = self._outdir / "tabs.json"
+        tabs_path = self._data_dir / "tabs.json"
         _dump_json(json_tabs, tabs_path, "tab container")
         report_info["tab_file"] = tabs_path.relative_to(self._outdir)
 
-        rinfo_path = self._outdir / "report_info.json"
+        rinfo_path = self._data_dir / "report_info.json"
         _dump_json(report_info, rinfo_path, "report information dictionary")
 
         _copy_assets(self._outdir)
@@ -342,5 +342,6 @@ class HTMLReport:
         """
 
         self._outdir = Path(outdir)
-        self._tabs_dir = self._outdir / "tabs"
+        self._data_dir = self._outdir / "report-data"
+        self._tabs_dir = self._data_dir / "tabs"
         validate_outdir(outdir)
