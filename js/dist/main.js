@@ -2354,11 +2354,14 @@
                 `))}
             </sl-tab-group>
       `:O``}}customElements.define("sc-tab-group",Ds);class Os extends it{static properties={introtbl:{type:Object},src:{type:String},reportInfo:{type:Object},toolname:{type:String},titleDescr:{type:String},tabs:{type:Object},fetchFailed:{type:Boolean,attribute:!1}};static styles=r`
+        * {
+            font-family: Arial, sans-serif;
+        }
+
         .report-head {
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: Arial, sans-serif;
             transition: 0.5s;
             max-height: 100vh;
             overflow: hidden;
@@ -2367,7 +2370,6 @@
         .cors-warning {
             display: flex;
             flex-direction: column;
-            font-family: Arial, sans-serif;
         }
 
         .sticky {
@@ -2405,13 +2407,13 @@
         `}findFile(t){const e=Object.keys(this.files);for(const i of e)if(i.endsWith(t))return this.files[i];throw Error(`unable to find an uploaded file ending with '${t}'.`)}async resolveTabFile(t,e){return t?await fetch(e).then((t=>t.blob())):this.findFile(e)}async extractTabs(t,e){for(const i of t){if(i.smrytblpath&&(i.smrytblfile=await this.resolveTabFile(e,i.smrytblpath)),i.fpreviews)for(const t of i.fpreviews){t.files={};for(const[i,s]of Object.entries(t.paths))t.files[i]=await this.resolveTabFile(e,s);t.diff&&(t.diffFile=await this.resolveTabFile(e,t.diff))}i.tabs&&(i.tabs=await this.extractTabs(i.tabs,e))}return this.generateTabIDs(t)}async processUploadedFiles(){const t=this.renderRoot.getElementById("upload-files");this.files={};for(const e of t.files)this.files[e.webkitRelativePath]=e;const e=await this.findFile("report_info.json").arrayBuffer();this.reportInfo=JSON.parse((new TextDecoder).decode(e)),this.introtbl=this.findFile(this.reportInfo.intro_tbl);const i=await this.findFile(this.reportInfo.tab_file).arrayBuffer().then((t=>JSON.parse((new TextDecoder).decode(t))));this.tabs=await this.extractTabs(i,!1),this.initRepProps(),this.fetchFailed=!1}constructor(){super(),this.fetchFailed=!1,this.reportInfo={},this.tabIDs=new Map,this.headerExpanded=!0}toggleHeader(){const t=this.renderRoot.querySelector(".report-head");this.headerExpanded?t.style.maxHeight="0vh":t.style.maxHeight="100vh",this.headerExpanded=!this.headerExpanded}render(){return this.fetchFailed?this.corsWarning():O`
             <div class="report-head">
                 ${this.reportTitle?O`<h1>${this.reportTitle}</h1>`:O``}
-                ${this.reportDescr?O`
-                        <p>${this.reportDescr}</p>
-                    `:O``}
+                ${this.reportDescr?O`<p>${this.reportDescr}</p>`:O``}
                 ${this.introtbl?O`<sc-intro-tbl .file=${this.introtbl}></sc-intro-tbl>`:O``}
             </div>
             <div class="sticky">
-                <sl-button size="small" class="toggle-header-btn" @click=${this.toggleHeader}>Toggle Header</sl-button>
+                <sl-button size="small" class="toggle-header-btn" @click=${this.toggleHeader}>
+                    Toggle Header
+                </sl-button>
                 ${this.tabs?O`<sc-tab-group .tabs=${this.tabs}></sc-tab-group>`:O``}
             </div>
         `}}customElements.define("sc-report-page",Os),fi("shoelace")})();

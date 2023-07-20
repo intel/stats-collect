@@ -45,11 +45,14 @@ export class ScReportPage extends LitElement {
     }
 
     static styles = css`
+        * {
+            font-family: Arial, sans-serif;
+        }
+
         .report-head {
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: Arial, sans-serif;
             transition: 0.5s;
             max-height: 100vh;
             overflow: hidden;
@@ -58,7 +61,6 @@ export class ScReportPage extends LitElement {
         .cors-warning {
             display: flex;
             flex-direction: column;
-            font-family: Arial, sans-serif;
         }
 
         .sticky {
@@ -280,15 +282,17 @@ export class ScReportPage extends LitElement {
             <div class="report-head">
                 ${this.reportTitle ? html`<h1>${this.reportTitle}</h1>` : html``}
                 ${this.reportDescr
-                    ? html`
-                        <p>${this.reportDescr}</p>
-                    `
+                    ? html`<p>${this.reportDescr}</p>`
                     : html``
                 }
-                ${this.introtbl ? html`<sc-intro-tbl .file=${this.introtbl}></sc-intro-tbl>` : html``}
+                ${this.introtbl
+                    ? html`<sc-intro-tbl .file=${this.introtbl}></sc-intro-tbl>`
+                    : html``}
             </div>
             <div class="sticky">
-                <sl-button size="small" class="toggle-header-btn" @click=${this.toggleHeader}>Toggle Header</sl-button>
+                <sl-button size="small" class="toggle-header-btn" @click=${this.toggleHeader}>
+                    Toggle Header
+                </sl-button>
                 ${this.tabs ? html`<sc-tab-group .tabs=${this.tabs}></sc-tab-group>` : html``}
             </div>
         `
