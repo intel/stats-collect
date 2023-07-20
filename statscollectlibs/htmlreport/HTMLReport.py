@@ -179,7 +179,7 @@ class HTMLReport:
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(filtered_stnames))
 
         # Create 'Stats' tabs directory.
-        stats_dir = self.tabs_dir / "Stats"
+        stats_dir = self._tabs_dir / "Stats"
 
         tabs = []
         for stname in tab_builders:
@@ -188,7 +188,7 @@ class HTMLReport:
 
             tab_builder = tab_builders[stname]
             try:
-                tbldr = tab_builder(rsts, stats_dir, basedir=self.outdir)
+                tbldr = tab_builder(rsts, stats_dir, basedir=self._outdir)
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder.name, tab_builder.name)
@@ -235,9 +235,9 @@ class HTMLReport:
 
         tabs = []
 
-        sysinfo_dir = self.tabs_dir / "SysInfo"
+        sysinfo_dir = self._tabs_dir / "SysInfo"
         for tab_builder in tab_builders:
-            tbldr = tab_builder(sysinfo_dir, stats_paths, basedir=self.outdir)
+            tbldr = tab_builder(sysinfo_dir, stats_paths, basedir=self._outdir)
 
             _LOG.info("Generating '%s' SysInfo tab.", tbldr.name)
             try:
@@ -301,10 +301,10 @@ class HTMLReport:
 
         # Make sure the output directory exists.
         try:
-            self.outdir.mkdir(parents=True, exist_ok=True)
+            self._outdir.mkdir(parents=True, exist_ok=True)
         except OSError as err:
             msg = Error(err).indent(2)
-            raise Error(f"failed to create directory '{self.outdir}':\n{msg}") from None
+            raise Error(f"failed to create directory '{self._outdir}':\n{msg}") from None
 
         # 'report_info' stores data used by the Javascript to generate the main report page
         # including the intro table, the file path of the tabs JSON dump plus the report title and
@@ -312,9 +312,9 @@ class HTMLReport:
         report_info = {"title": title, "descr": descr}
 
         if intro_tbl is not None:
-            intro_tbl_path = self.outdir / "intro_tbl.json"
+            intro_tbl_path = self._outdir / "intro_tbl.json"
             intro_tbl.generate(intro_tbl_path)
-            report_info["intro_tbl"] = intro_tbl_path.relative_to(self.outdir)
+            report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
         if rsts:
             reportids_dedup(rsts)
@@ -322,18 +322,18 @@ class HTMLReport:
 
         # Convert Dataclasses to dictionaries so that they are JSON serialisable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]
-        tabs_path = self.outdir / "tabs.json"
+        tabs_path = self._outdir / "tabs.json"
         _dump_json(json_tabs, tabs_path, "tab container")
-        report_info["tab_file"] = tabs_path.relative_to(self.outdir)
+        report_info["tab_file"] = tabs_path.relative_to(self._outdir)
 
-        rinfo_path = self.outdir / "report_info.json"
+        rinfo_path = self._outdir / "report_info.json"
         _dump_json(report_info, rinfo_path, "report information dictionary")
 
-        _copy_assets(self.outdir)
+        _copy_assets(self._outdir)
 
-        FSHelpers.set_default_perm(self.outdir)
+        FSHelpers.set_default_perm(self._outdir)
 
-        _LOG.info("Generated report in '%s'.", self.outdir)
+        _LOG.info("Generated report in '%s'.", self._outdir)
 
     def __init__(self, outdir):
         """
@@ -341,6 +341,6 @@ class HTMLReport:
          * outdir - the directory which will contain the report.
         """
 
-        self.outdir = Path(outdir)
-        self.tabs_dir = self.outdir / "tabs"
+        self._outdir = Path(outdir)
+        self._tabs_dir = self._outdir / "tabs"
         validate_outdir(outdir)
