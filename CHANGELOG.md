@@ -6,9 +6,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
- - Add logs generated with 'stats-collect start' to HTML reports.
 ### Removed
 ### Changed
+
+## [1.0.13] - 2023-07-20
+### Added
+ - Add logs generated with 'stats-collect start' to HTML reports.
 
 ## [1.0.12] - 2023-07-14
 ### Fixed
