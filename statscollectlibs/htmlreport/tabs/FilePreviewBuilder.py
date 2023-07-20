@@ -140,7 +140,7 @@ class FilePreviewBuilder:
 
             if len(paths) == 2:
                 try:
-                    diff = self._generate_diff(paths, fp)
+                    diff = self._generate_diff(paths, filename)
                 except Error as err:
                     _LOG.info("Unable to generate diff for file preview '%s'.", name)
                     _LOG.debug(err)
