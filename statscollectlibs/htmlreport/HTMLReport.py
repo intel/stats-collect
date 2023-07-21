@@ -265,15 +265,18 @@ class HTMLReport:
         if stats_tabs:
             tabs.append(_Tabs.CTabDC("Stats", tabs=stats_tabs))
 
-        if any("sysinfo" in res.info["stinfo"] for res in rsts):
-            try:
-                sysinfo_tabs = self._generate_sysinfo_tabs(stats_paths)
-            except Error as err:
-                _LOG.info("Unable to generate SysInfo tabs: %s", err)
-                sysinfo_tabs = []
+        # Skip SysInfo tab generation if no results have SysInfo data.
+        if not any("sysinfo" in res.info["stinfo"] for res in rsts):
+            return tabs
 
-            if sysinfo_tabs:
-                tabs.append(_Tabs.CTabDC("SysInfo", tabs=sysinfo_tabs))
+        try:
+            sysinfo_tabs = self._generate_sysinfo_tabs(stats_paths)
+        except Error as err:
+            _LOG.info("Unable to generate SysInfo tabs: %s", err)
+            sysinfo_tabs = []
+
+        if sysinfo_tabs:
+            tabs.append(_Tabs.CTabDC("SysInfo", tabs=sysinfo_tabs))
 
         return tabs
 
