@@ -21,7 +21,9 @@ _LOG = logging.getLogger()
 class SysInfoTabBuilder:
     """This class provides the API to generate a 'SysInfo' container tab."""
 
-    def get_tab(self, stats_paths):
+    stname = "sysinfo"
+
+    def get_tab(self, rsts):
         """
         Generate and return the SysInfo container tab (as an instance of '_Tabs.CTab'). The
         container tab includes tabs representing various system information about the SUTs.
@@ -32,6 +34,7 @@ class SysInfoTabBuilder:
         """
 
         tab_name = "SysInfo"
+        stats_paths = {res.reportid: res.stats_path for res in rsts}
 
         _LOG.info("Generating %s tabs.", tab_name)
 

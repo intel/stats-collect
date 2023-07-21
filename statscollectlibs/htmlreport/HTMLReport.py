@@ -208,7 +208,6 @@ class HTMLReport:
 
         tabs = []
 
-        stats_paths = {res.reportid: res.stats_path for res in rsts}
         try:
             stats_tabs = self._generate_stats_tabs(rsts)
         except Error as err:
@@ -218,14 +217,13 @@ class HTMLReport:
         if stats_tabs:
             tabs.append(_Tabs.CTabDC("Stats", tabs=stats_tabs))
 
-        # Skip SysInfo tab generation if no results have SysInfo data.
-        if not any("sysinfo" in res.info["stinfo"] for res in rsts):
+        sysinfo_tab_bldr = _SysInfoTabBuilder.SysInfoTabBuilder
+        if not any(sysinfo_tab_bldr.stname in res.info["stinfo"] for res in rsts):
             return tabs
 
         try:
-            sysinfo_tab_bldr = _SysInfoTabBuilder.SysInfoTabBuilder(self._tabs_dir,
-                                                                    basedir=self._outdir)
-            sysinfo_tab = sysinfo_tab_bldr.get_tab(stats_paths)
+            tab_bldr = sysinfo_tab_bldr(self._tabs_dir, basedir=self._outdir)
+            sysinfo_tab = tab_bldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
             _LOG.info("Unable to generate 'SysInfo' tab: %s", err)
