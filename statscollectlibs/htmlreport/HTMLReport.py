@@ -206,16 +206,14 @@ class HTMLReport:
 
         return tabs
 
-    def _generate_sysinfo_tabs(self, stats_paths):
+    def _generate_sysinfo_tab(self, stats_paths):
         """
-        Generate and return a list of data tabs for the SysInfo container tab. The container tab
-        includes tabs representing various system information about the SUTs.
+        Generate and return the SysInfo container tab (as an instance of '_Tabs.CTab'). The
+        container tab includes tabs representing various system information about the SUTs.
 
         The 'stats_paths' argument is a dictionary mapping in the following format:
            {'report_id': 'stats_directory_path'}
         where 'stats_directory_path' is the directory containing raw statistics files.
-
-        The elements of the returned list are tab dataclass objects, such as '_Tabs.DTabDC'.
         """
 
         _LOG.info("Generating SysInfo tabs.")
@@ -248,7 +246,10 @@ class HTMLReport:
                 _LOG.debug(err)
                 continue
 
-        return tabs
+        if not tabs:
+            raise Error("all 'SysInfo' tabs were skipped")
+
+        return _Tabs.CTabDC("SysInfo", tabs=tabs)
 
     def _generate_tabs(self, rsts):
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
@@ -270,13 +271,10 @@ class HTMLReport:
             return tabs
 
         try:
-            sysinfo_tabs = self._generate_sysinfo_tabs(stats_paths)
+            sysinfo_tab = self._generate_sysinfo_tab(stats_paths)
+            tabs.append(sysinfo_tab)
         except Error as err:
-            _LOG.info("Unable to generate SysInfo tabs: %s", err)
-            sysinfo_tabs = []
-
-        if sysinfo_tabs:
-            tabs.append(_Tabs.CTabDC("SysInfo", tabs=sysinfo_tabs))
+            _LOG.info("Unable to generate 'SysInfo' tab: %s", err)
 
         return tabs
 
