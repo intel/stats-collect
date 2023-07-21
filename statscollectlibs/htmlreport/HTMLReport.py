@@ -17,11 +17,8 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorExists
 from pepclibs.helperlibs import LocalProcessManager
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport.tabs import _ACPowerTabBuilder, _IPMITabBuilder, _Tabs
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 from statscollectlibs.htmlreport.tabs.turbostat import _TurbostatTabBuilder
-from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqTabBuilder, _CPUIdleTabBuilder,
-    _DMIDecodeTabBuilder, _DmesgTabBuilder, _EPPTabBuilder, _LspciTabBuilder, _MiscTabBuilder,
-    _PepcTabBuilder, _ThermalThrottleTabBuilder)
-from statscollectlibs.htmlreport.tabs.sysinfo import _TurbostatTabBuilder as _SysInfoTstatTabBuilder
 
 _LOG = logging.getLogger()
 
@@ -206,53 +203,6 @@ class HTMLReport:
 
         return tabs
 
-    def _generate_sysinfo_tab(self, stats_paths):
-        """
-        Generate and return the SysInfo container tab (as an instance of '_Tabs.CTab'). The
-        container tab includes tabs representing various system information about the SUTs.
-
-        The 'stats_paths' argument is a dictionary mapping in the following format:
-           {'report_id': 'stats_directory_path'}
-        where 'stats_directory_path' is the directory containing raw statistics files.
-        """
-
-        tab_name = "SysInfo"
-
-        _LOG.info("Generating %s tabs.", tab_name)
-
-        tab_builders = [
-            _PepcTabBuilder.PepcTabBuilder,
-            _SysInfoTstatTabBuilder.TurbostatTabBuilder,
-            _ThermalThrottleTabBuilder.ThermalThrottleTabBuilder,
-            _DMIDecodeTabBuilder.DMIDecodeTabBuilder,
-            _EPPTabBuilder.EPPTabBuilder,
-            _CPUFreqTabBuilder.CPUFreqTabBuilder,
-            _CPUIdleTabBuilder.CPUIdleTabBuilder,
-            _DmesgTabBuilder.DmesgTabBuilder,
-            _LspciTabBuilder.LspciTabBuilder,
-            _MiscTabBuilder.MiscTabBuilder
-        ]
-
-        tabs = []
-
-        sysinfo_dir = self._tabs_dir / tab_name
-        for tab_builder in tab_builders:
-            tbldr = tab_builder(sysinfo_dir, stats_paths, basedir=self._outdir)
-
-            _LOG.info("Generating '%s' %s tab.", tbldr.name, tab_name)
-            try:
-                tabs.append(tbldr.get_tab())
-            except Error as err:
-                _LOG.info("Skipping '%s' %s tab: error occurred during tab generation.",
-                          tbldr.name, tab_name)
-                _LOG.debug(err)
-                continue
-
-        if not tabs:
-            raise Error(f"all '{tab_name}' tabs were skipped")
-
-        return _Tabs.CTabDC(tab_name, tabs=tabs)
-
     def _generate_tabs(self, rsts):
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
 
@@ -273,7 +223,9 @@ class HTMLReport:
             return tabs
 
         try:
-            sysinfo_tab = self._generate_sysinfo_tab(stats_paths)
+            sysinfo_tab_bldr = _SysInfoTabBuilder.SysInfoTabBuilder(self._tabs_dir,
+                                                                    basedir=self._outdir)
+            sysinfo_tab = sysinfo_tab_bldr.get_tab(stats_paths)
             tabs.append(sysinfo_tab)
         except Error as err:
             _LOG.info("Unable to generate 'SysInfo' tab: %s", err)
