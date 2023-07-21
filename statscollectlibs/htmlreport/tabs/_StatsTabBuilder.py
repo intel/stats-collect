@@ -10,7 +10,7 @@
 
 import logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.htmlreport.tabs import _ACPowerTabBuilder, _IPMITabBuilder
+from statscollectlibs.htmlreport.tabs import _ACPowerTabBuilder, _IPMITabBuilder, _Tabs
 from statscollectlibs.htmlreport.tabs.turbostat import _TurbostatTabBuilder
 
 _LOG = logging.getLogger()
@@ -20,10 +20,8 @@ class StatsTabBuilder:
 
     def get_tab(self, rsts):
         """
-        Generate and return a list sub-tabs for the statistics tab. The statistics tab includes
-        metrics from the statistics collectors, such as 'turbostat'.
-
-        The elements of the returned list are tab dataclass objects, such as 'CTabDC'.
+        Generate and return the Stats container tab (as an instance of '_Tabs.CTab'). The statistics
+        tab includes metrics from the statistics collectors, such as 'turbostat'.
         """
 
         tab_bldr_classes = (_ACPowerTabBuilder.ACPowerTabBuilder,
@@ -46,7 +44,7 @@ class StatsTabBuilder:
                          ", ".join(missing_tab_builders))
 
         if not filtered_stnames:
-            return []
+            raise Error("no results contain any statistics data")
 
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(filtered_stnames))
 
@@ -76,7 +74,10 @@ class StatsTabBuilder:
                 _LOG.debug(err)
                 continue
 
-        return tabs
+        if not tabs:
+            raise Error("all 'Stats' tabs were skipped")
+
+        return _Tabs.CTabDC("Stats", tabs)
 
     def __init__(self, outdir, basedir=None):
         """

@@ -16,7 +16,7 @@ from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorExists
 from pepclibs.helperlibs import LocalProcessManager
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
-from statscollectlibs.htmlreport.tabs import _Tabs, _StatsTabBuilder
+from statscollectlibs.htmlreport.tabs import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 
 _LOG = logging.getLogger()
@@ -149,13 +149,9 @@ class HTMLReport:
 
         try:
             stats_tab_bldr = _StatsTabBuilder.StatsTabBuilder(self._tabs_dir, basedir=self._outdir)
-            stats_tabs = stats_tab_bldr.get_tab(rsts)
+            tabs.append(stats_tab_bldr.get_tab(rsts))
         except Error as err:
             _LOG.info("Unable to generate statistics tabs: %s", err)
-            stats_tabs = []
-
-        if stats_tabs:
-            tabs.append(_Tabs.CTabDC("Stats", tabs=stats_tabs))
 
         sysinfo_tab_bldr = _SysInfoTabBuilder.SysInfoTabBuilder
         if not any(sysinfo_tab_bldr.stname in res.info["stinfo"] for res in rsts):
