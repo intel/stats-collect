@@ -216,7 +216,9 @@ class HTMLReport:
         where 'stats_directory_path' is the directory containing raw statistics files.
         """
 
-        _LOG.info("Generating SysInfo tabs.")
+        tab_name = "SysInfo"
+
+        _LOG.info("Generating %s tabs.", tab_name)
 
         tab_builders = [
             _PepcTabBuilder.PepcTabBuilder,
@@ -233,23 +235,23 @@ class HTMLReport:
 
         tabs = []
 
-        sysinfo_dir = self._tabs_dir / "SysInfo"
+        sysinfo_dir = self._tabs_dir / tab_name
         for tab_builder in tab_builders:
             tbldr = tab_builder(sysinfo_dir, stats_paths, basedir=self._outdir)
 
-            _LOG.info("Generating '%s' SysInfo tab.", tbldr.name)
+            _LOG.info("Generating '%s' %s tab.", tbldr.name, tab_name)
             try:
                 tabs.append(tbldr.get_tab())
             except Error as err:
-                _LOG.info("Skipping '%s' SysInfo tab: error occurred during tab generation.",
-                          tbldr.name)
+                _LOG.info("Skipping '%s' %s tab: error occurred during tab generation.",
+                          tbldr.name, tab_name)
                 _LOG.debug(err)
                 continue
 
         if not tabs:
-            raise Error("all 'SysInfo' tabs were skipped")
+            raise Error(f"all '{tab_name}' tabs were skipped")
 
-        return _Tabs.CTabDC("SysInfo", tabs=tabs)
+        return _Tabs.CTabDC(tab_name, tabs=tabs)
 
     def _generate_tabs(self, rsts):
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
