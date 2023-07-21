@@ -16,7 +16,7 @@ from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorExists
 from pepclibs.helperlibs import LocalProcessManager
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
-from statscollectlibs.htmlreport.tabs import _StatsTabBuilder
+from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 
 _LOG = logging.getLogger()

@@ -10,9 +10,10 @@
 
 import logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.htmlreport.tabs import _ACPowerTabBuilder, _IPMITabBuilder, _Tabs
+from statscollectlibs.htmlreport.tabs import _Tabs
+from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
-from statscollectlibs.htmlreport.tabs.turbostat import _TurbostatTabBuilder
+from statscollectlibs.htmlreport.tabs.stats.turbostat import _TurbostatTabBuilder
 
 _LOG = logging.getLogger()
 

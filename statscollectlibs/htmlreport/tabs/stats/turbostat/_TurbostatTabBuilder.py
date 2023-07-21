@@ -13,7 +13,7 @@ This module provides the capability of populating the turbostat statistics tab.
 import logging
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.turbostat import _MCPUL2TabBuilder, _TotalsL2TabBuilder
+from statscollectlibs.htmlreport.tabs.stats.turbostat import _MCPUL2TabBuilder, _TotalsL2TabBuilder
 
 _LOG = logging.getLogger()
 
