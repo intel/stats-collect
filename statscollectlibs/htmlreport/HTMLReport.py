@@ -146,14 +146,19 @@ class HTMLReport:
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
 
         tabs = []
-
-        try:
-            stats_tab_bldr = _StatsTabBuilder.StatsTabBuilder(self._tabs_dir, basedir=self._outdir)
-            tabs.append(stats_tab_bldr.get_tab(rsts))
-        except Error as err:
-            _LOG.info("Unable to generate statistics tabs: %s", err)
-
         sysinfo_tab_bldr = _SysInfoTabBuilder.SysInfoTabBuilder
+
+        # Only try and generate the statistics tab if statistics were collected.
+        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
+        collected_stnames -= {sysinfo_tab_bldr.stname}
+        if collected_stnames:
+            try:
+                stats_tab_bldr = _StatsTabBuilder.StatsTabBuilder(self._tabs_dir,
+                                                                  basedir=self._outdir)
+                tabs.append(stats_tab_bldr.get_tab(rsts))
+            except Error as err:
+                _LOG.info("Unable to generate statistics tabs: %s", err)
+
         if not any(sysinfo_tab_bldr.stname in res.info["stinfo"] for res in rsts):
             return tabs
 
