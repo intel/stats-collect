@@ -18,6 +18,8 @@ _LOG = logging.getLogger()
 class StatsTabBuilder:
     """This class provides the API to generate a 'Stats' container tab."""
 
+    name = "Stats"
+
     def get_tab(self, rsts):
         """
         Generate and return the Stats container tab (as an instance of '_Tabs.CTab'). The statistics
@@ -49,7 +51,7 @@ class StatsTabBuilder:
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(filtered_stnames))
 
         # Create 'Stats' tabs directory.
-        stats_dir = self._outdir / "Stats"
+        stats_dir = self._outdir / self.name
 
         tabs = []
         for stname in tab_builders:
@@ -75,9 +77,9 @@ class StatsTabBuilder:
                 continue
 
         if not tabs:
-            raise Error("all 'Stats' tabs were skipped")
+            raise Error(f"all '{self.name}' tabs were skipped")
 
-        return _Tabs.CTabDC("Stats", tabs)
+        return _Tabs.CTabDC(self.name, tabs)
 
     def __init__(self, outdir, basedir=None):
         """
