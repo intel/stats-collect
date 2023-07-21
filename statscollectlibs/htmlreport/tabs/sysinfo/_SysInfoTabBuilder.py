@@ -21,6 +21,7 @@ _LOG = logging.getLogger()
 class SysInfoTabBuilder:
     """This class provides the API to generate a 'SysInfo' container tab."""
 
+    name = "SysInfo"
     stname = "sysinfo"
 
     def get_tab(self, rsts):
@@ -33,10 +34,9 @@ class SysInfoTabBuilder:
         where 'stats_directory_path' is the directory containing raw statistics files.
         """
 
-        tab_name = "SysInfo"
         stats_paths = {res.reportid: res.stats_path for res in rsts}
 
-        _LOG.info("Generating %s tabs.", tab_name)
+        _LOG.info("Generating %s tabs.", self.name)
 
         tab_builders = [
             _PepcTabBuilder.PepcTabBuilder,
@@ -53,23 +53,23 @@ class SysInfoTabBuilder:
 
         tabs = []
 
-        sysinfo_dir = self._outdir / tab_name
+        sysinfo_dir = self._outdir / self.name
         for tab_builder in tab_builders:
             tbldr = tab_builder(sysinfo_dir, stats_paths, basedir=self._basedir)
 
-            _LOG.info("Generating '%s' %s tab.", tbldr.name, tab_name)
+            _LOG.info("Generating '%s' %s tab.", tbldr.name, self.name)
             try:
                 tabs.append(tbldr.get_tab())
             except Error as err:
                 _LOG.info("Skipping '%s' %s tab: error occurred during tab generation.",
-                          tbldr.name, tab_name)
+                          tbldr.name, self.name)
                 _LOG.debug(err)
                 continue
 
         if not tabs:
-            raise Error(f"all '{tab_name}' tabs were skipped")
+            raise Error(f"all '{self.name}' tabs were skipped")
 
-        return _Tabs.CTabDC(tab_name, tabs=tabs)
+        return _Tabs.CTabDC(self.name, tabs=tabs)
 
     def __init__(self, outdir, basedir=None):
         """

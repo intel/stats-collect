@@ -226,7 +226,7 @@ class HTMLReport:
             sysinfo_tab = tab_bldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
-            _LOG.info("Unable to generate 'SysInfo' tab: %s", err)
+            _LOG.info("Unable to generate '%s' tab: %s", sysinfo_tab_bldr.name, err)
 
         return tabs
 
