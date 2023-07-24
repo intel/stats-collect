@@ -9,6 +9,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
  - Simplified the HTML report directory structure.
+ - Generate 'SysInfo' tabs in HTML diffs when one or more results have 'SysInfo' data rather than
+   only when all results have 'SysInfo' data.
 
 ## [1.0.13] - 2023-07-20
 ### Added
