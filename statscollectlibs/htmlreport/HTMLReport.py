@@ -157,7 +157,7 @@ class HTMLReport:
                                                                   basedir=self._outdir)
                 tabs.append(stats_tab_bldr.get_tab(rsts))
             except Error as err:
-                _LOG.info("Unable to generate statistics tabs: %s", err)
+                _LOG.warning("Failed to generate statistics tabs: %s", err)
 
         if not any(sysinfo_tab_bldr.stname in res.info["stinfo"] for res in rsts):
             return tabs
@@ -167,7 +167,7 @@ class HTMLReport:
             sysinfo_tab = tab_bldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
-            _LOG.info("Unable to generate '%s' tab: %s", sysinfo_tab_bldr.name, err)
+            _LOG.warning("Failed to generate '%s' tab: %s", sysinfo_tab_bldr.name, err)
 
         return tabs
 
