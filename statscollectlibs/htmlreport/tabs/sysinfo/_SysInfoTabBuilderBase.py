@@ -49,8 +49,8 @@ class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
                      Defaults to 'outdir'.
         """
 
-        if any(not fp for fp in stats_paths.values()):
-            raise Error("Unable to add file previews since not all reports have a statistics dir.")
+        if not any(fp for fp in stats_paths.values()):
+            raise Error("unable to add file previews since not all reports have a statistics dir")
 
         # All of the names of 'SysInfo' tabs are file-safe and are also used as the title of the
         # tab.

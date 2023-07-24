@@ -106,10 +106,9 @@ class FilePreviewBuilder:
 
                 if not src_path.exists():
                     # If one of the reports does not have a file, exclude the file preview entirely.
-                    paths = {}
-                    _LOG.debug("skipping file preview '%s' since the file '%s' doesn't exist for "
-                               "all reports.", name, fp)
-                    break
+                    _LOG.debug("file preview '%s' does not include report '%s' since the file '%s' "
+                                "doesn't exist.", name, reportid, src_path)
+                    continue
 
                 filename = src_path.name
 
