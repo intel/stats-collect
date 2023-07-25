@@ -14,6 +14,7 @@
 import { LitElement, html, css } from 'lit'
 import '@shoelace-style/shoelace/dist/components/divider/divider'
 import '@shoelace-style/shoelace/dist/components/dialog/dialog'
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 
 import './intro-tbl'
 import './tab-group'
@@ -92,6 +93,8 @@ export class ScReportPage extends LitElement {
     initRepProps () {
         this.reportTitle = this.reportInfo.title
         this.reportDescr = this.reportInfo.descr
+        this.toolname = this.reportInfo.toolname
+        this.toolver = this.reportInfo.toolver
     }
 
     generateTabIDs (tabs) {
@@ -140,6 +143,13 @@ export class ScReportPage extends LitElement {
                 }
             })
         super.connectedCallback()
+    }
+
+    firstUpdated () {
+        const dialog = this.renderRoot.querySelector('.report-info-dialog')
+        const openButton = this.renderRoot.querySelector('.open-info-dialog')
+
+        openButton.addEventListener('click', () => dialog.show())
     }
 
     updated (changedProperties) {
@@ -273,21 +283,42 @@ export class ScReportPage extends LitElement {
         this.headerExpanded = !this.headerExpanded
     }
 
+    reportInfoTemplate () {
+        return html`
+        <sl-dialog class="report-info-dialog" label="Report Info">
+            Report generated with:
+            <ul>
+                <li>${this.toolname} v${this.toolver}</li>
+            </ul>
+        </sl-dialog>
+        `
+    }
+
     render () {
         if (this.fetchFailed) {
             return this.corsWarning()
         }
 
         return html`
+            ${this.reportInfoTemplate()}
             <div class="report-head">
-                ${this.reportTitle ? html`<h1>${this.reportTitle}</h1>` : html``}
-                ${this.reportDescr
-                    ? html`<p>${this.reportDescr}</p>`
-                    : html``
-                }
-                ${this.introtbl
-                    ? html`<sc-intro-tbl .file=${this.introtbl}></sc-intro-tbl>`
-                    : html``}
+                <div style="position: relative;left: 45vw;top: 1em;height: 0px;">
+                    <sl-tooltip content="Report info">
+                        <sl-button class="open-info-dialog">
+                            <i>i</i>
+                        </sl-button>
+                    </sl-tooltip>
+                </div>
+                <div style="display:flex; flex-direction: column; align-items: center">
+                    ${this.reportTitle ? html`<h1>${this.reportTitle}</h1>` : html``}
+                    ${this.reportDescr
+                        ? html`<p>${this.reportDescr}</p>`
+                        : html``
+                    }
+                    ${this.introtbl
+                        ? html`<sc-intro-tbl .file=${this.introtbl}></sc-intro-tbl>`
+                        : html``}
+                </div>
             </div>
             <div class="sticky">
                 <sl-button size="small" class="toggle-header-btn" @click=${this.toggleHeader}>

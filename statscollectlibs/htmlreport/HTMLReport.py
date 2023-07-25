@@ -18,6 +18,7 @@ from pepclibs.helperlibs import LocalProcessManager
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
+from statscollecttools import ToolInfo
 
 _LOG = logging.getLogger()
 
@@ -203,7 +204,8 @@ class HTMLReport:
         # 'report_info' stores data used by the Javascript to generate the main report page
         # including the intro table, the file path of the tabs JSON dump plus the report title and
         # description.
-        report_info = {"title": title, "descr": descr}
+        report_info = {"title": title, "descr": descr,
+                       "toolname": ToolInfo.TOOLNAME, "toolver": ToolInfo.VERSION}
 
         if intro_tbl is not None:
             intro_tbl_path = self._data_dir / "intro_tbl.json"
