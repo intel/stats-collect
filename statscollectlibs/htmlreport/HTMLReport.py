@@ -172,7 +172,8 @@ class HTMLReport:
 
         return tabs
 
-    def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None):
+    def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None,
+                        toolname=None, toolver=None):
         """
         Generate an HTML report in 'outdir' (provided to the class constructor). Customise the
         contents of the report using the function parameters. Arguments are as follows:
@@ -185,11 +186,26 @@ class HTMLReport:
                        report.
          * title - the title of the report. If one is not provided, omits the title.
          * descr - a description of the report. If one is not provided, omits the description.
+         * toolname - override the name of the tool used to generate the report. Defaults to
+                      'stats-collect'. Should be used in conjunction with the 'toolver' parameter.
+         * toolver - override the version of the tool used to generate the report. Defaults to the
+                     current version of 'stats-collect'. Should be used in conjunction with the
+                     'toolname' parameter.
         """
 
         if not tabs and not rsts:
             raise Error("both 'tabs' and 'rsts' can't be 'None'. One of the two parameters should "
                         "be provided.")
+
+        if (toolname and not toolver) or (not toolname and toolver):
+            raise Error("one of 'toolname' and 'toolver' was provided. Either both 'toolname' and "
+                        "'toolver' should be provided or neither of the options.")
+
+        if not toolname:
+            toolname = ToolInfo.TOOLNAME
+
+        if not toolver:
+            toolver = ToolInfo.VERSION
 
         if not tabs:
             tabs = []
@@ -205,7 +221,7 @@ class HTMLReport:
         # including the intro table, the file path of the tabs JSON dump plus the report title and
         # description.
         report_info = {"title": title, "descr": descr,
-                       "toolname": ToolInfo.TOOLNAME, "toolver": ToolInfo.VERSION}
+                       "toolname": toolname, "toolver": toolver}
 
         if intro_tbl is not None:
             intro_tbl_path = self._data_dir / "intro_tbl.json"
