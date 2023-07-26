@@ -2427,7 +2427,7 @@
                     </sl-tree-item>
                 `))}
         `:(this.dataTabs.push(t.id),this.firstTab||(this.firstTab=t.id),t.name)}render(){return this.tab?R`
-            <sl-split-panel position=20 style="--divider-width: 20px;">
+            <sl-split-panel position=20 snap="0% 25%" style="--divider-width: 2px;">
                 <sl-tree style="overflow-x: hidden;" selection="leaf" slot="start">
                     ${this.treeItemTemplate(this.tab)}
                 </sl-tree>
