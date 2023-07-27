@@ -425,29 +425,27 @@
             width: auto;
         }
 
-        table th {
+        table th, table td {
             font-family: Arial, sans-serif;
-            font-size: 15px;
-            font-weight: bold;
-            padding: 10px 5px;
-            border-style: solid;
-            border-width: 1px;
             overflow: hidden;
             word-break: normal;
             border-color: black;
+            border-style: solid;
+        }
+
+        table th {
+            font-size: 15px;
+            font-weight: bold;
+            padding: 10px 5px;
+            border-width: 1px;
             text-align: center;
             background-color: rgb(161, 195, 209);
         }
 
         table td {
-            font-family: Arial, sans-serif;
             font-size: 14px;
             padding: 5px 10px;
-            border-style: solid;
             border-width: 1px;
-            overflow: hidden;
-            word-break:normal ;
-            border-color:black;
             background-color: rgb(237, 250, 255);
         }
 
