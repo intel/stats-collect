@@ -167,12 +167,14 @@ class ScDiagram extends LitElement {
             return html``
         }
         return html`
-            ${this.dialogTemplate()}
             <sl-divider></sl-divider>
 
-            <sl-button style="margin-left: 2em;" @click=${this.openFullscreen}>
-                Open Fullscreen View
-            </sl-button>
+            <div style="display: flex;flex-direction: column;align-items: flex-end;">
+                ${this.dialogTemplate()}
+                <sl-button style="margin-right: 2em;" @click=${this.openFullscreen}>
+                    Open Fullscreen View
+                </sl-button>
+            </div>
 
             ${this.iframeTemplate('page-spinner', 'page-iframe')}
         `

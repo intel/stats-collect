@@ -2165,12 +2165,14 @@
                 ${this._dialogOpened?this.iframeTemplate("dialog-spinner","dialog-iframe"):R``}
             </sl-dialog>
         `}render(){return this._visible?R`
-            ${this.dialogTemplate()}
             <sl-divider></sl-divider>
 
-            <sl-button style="margin-left: 2em;" @click=${this.openFullscreen}>
-                Open Fullscreen View
-            </sl-button>
+            <div style="display: flex;flex-direction: column;align-items: flex-end;">
+                ${this.dialogTemplate()}
+                <sl-button style="margin-right: 2em;" @click=${this.openFullscreen}>
+                    Open Fullscreen View
+                </sl-button>
+            </div>
 
             ${this.iframeTemplate("page-spinner","page-iframe")}
         `:R``}}customElements.define("sc-diagram",ks);var As=ht`
