@@ -2388,9 +2388,13 @@
             margin-left: 20px;
             margin-right: 20px;
         }
-  `;static properties={paths:{type:Array},alerts:{type:Array},fpreviews:{type:Array},smrytblpath:{type:String},smrytblfile:{type:Blob}};render(){return this.smrytblpath&&!this.smrytblfile&&fetch(this.smrytblpath).then((t=>t.blob())).then((t=>{this.smrytblfile=t})),R`
+  `;static properties={paths:{type:Array},alerts:{type:Array},fpreviews:{type:Array},smrytblpath:{type:String},smrytblfile:{type:Blob}};summaryTableTemplate(){return R`
+            <div style="margin-left: 2em; margin-right: 1em;">
+                <sc-smry-tbl .file="${this.smrytblfile}"></sc-smry-tbl>
+            </div>
+        `}render(){return this.smrytblpath&&!this.smrytblfile&&fetch(this.smrytblpath).then((t=>t.blob())).then((t=>{this.smrytblfile=t})),R`
             <br>
-            ${this.smrytblfile?R`<sc-smry-tbl .file="${this.smrytblfile}"></sc-smry-tbl>`:R``}
+            ${this.smrytblfile?this.summaryTableTemplate():R``}
 
             ${this.alerts.length>0?R`
                     <br>

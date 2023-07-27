@@ -39,6 +39,14 @@ class ScDataTab extends LitElement {
         smrytblfile: { type: Blob }
     }
 
+    summaryTableTemplate () {
+        return html`
+            <div style="margin-left: 2em; margin-right: 1em;">
+                <sc-smry-tbl .file="${this.smrytblfile}"></sc-smry-tbl>
+            </div>
+        `
+    }
+
     render () {
         if (this.smrytblpath && !this.smrytblfile) {
             fetch(this.smrytblpath).then((resp) => {
@@ -50,7 +58,7 @@ class ScDataTab extends LitElement {
 
         return html`
             <br>
-            ${this.smrytblfile ? html`<sc-smry-tbl .file="${this.smrytblfile}"></sc-smry-tbl>` : html``}
+            ${this.smrytblfile ? this.summaryTableTemplate() : html``}
 
             ${this.alerts.length > 0
                 ? html`
