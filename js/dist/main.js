@@ -429,7 +429,7 @@
             font-family: Arial, sans-serif;
             overflow: hidden;
             word-break: normal;
-            border-color: black;
+            border-color: rgb(161, 161, 170);
             border-style: solid;
         }
 
