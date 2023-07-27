@@ -162,7 +162,7 @@ class ScTabPanel extends LitElement {
                 <sl-tree style="overflow-x: hidden;" selection="leaf" slot="start">
                     ${this.treeItemTemplate(this.tab)}
                 </sl-tree>
-                <div style="height: 95vh; overflow:scroll;" slot="end">
+                <div style="height: calc(100vh - 2em); overflow:scroll;" slot="end">
                     ${this.tabPanesTemplate(this.tab)}
                 </div>
             </sl-split-panel>
