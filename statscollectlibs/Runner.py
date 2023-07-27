@@ -17,6 +17,7 @@ import time
 from pepclibs.helperlibs.Exceptions import Error
 from pepclibs.helperlibs import ClassHelpers, Human
 from statscollectlibs.helperlibs import ProcHelpers
+from statscollecttools import ToolInfo
 
 _LOG = logging.getLogger()
 
@@ -70,6 +71,12 @@ class Runner(ClassHelpers.SimpleCloseContext):
         start_time = time.time()
         stdout, stderr = run_command(cmd, self._pman, tlimit)
         duration = time.time() - start_time
+
+        min_duration = 2 * self._stcoll.get_max_interval()
+        if duration < min_duration:
+            raise Error(f"command '{cmd}' finished before '{ToolInfo.TOOLNAME}' collected "
+                        f"the mininum amount of statistics. Command should run for at least "
+                        f"{Human.duration(min_duration)}")
 
         if self._stcoll:
             self._stcoll.stop()
