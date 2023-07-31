@@ -71,7 +71,7 @@ class StatsCollectHTMLReport:
         _LOG.info("Generating '%s' tab.", tab_title)
 
         files = {}
-        trimmed_rsts = []
+        trimmed_rsts = set()
         for res in rsts:
             for ftype in ("stdout", "stderr"):
                 fp = res.info.get(ftype)
@@ -87,7 +87,7 @@ class StatsCollectHTMLReport:
                 trimmed = self._trim_file(res.dirpath / fp,
                                           outdir / res.reportid / dstfp, 16, 32)
                 if trimmed:
-                    trimmed_rsts.append(res.reportid)
+                    trimmed_rsts.add(res.reportid)
 
                 files[ftype] = dstfp
 
@@ -99,6 +99,9 @@ class StatsCollectHTMLReport:
             return None
 
         if trimmed_rsts:
+            # Convert the set of report IDs into a list which maintains the order of reports used
+            # elsewhere.
+            trimmed_rsts = [res.reportid for res in rsts if res.reportid in trimmed_rsts]
             msg = f"Note - the outputs of the following results have been trimmed to save time " \
                   f"during report generation: {', '.join(trimmed_rsts)}"
             alerts = (msg,)
