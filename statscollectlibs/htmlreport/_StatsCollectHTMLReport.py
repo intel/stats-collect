@@ -9,7 +9,6 @@
 """This module provides the API for generating 'stats-collect' HTML reports."""
 
 import logging
-from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
@@ -73,21 +72,24 @@ class StatsCollectHTMLReport:
 
         files = {}
         trimmed_rsts = []
-        for ftype in ("stdout", "stderr"):
-            fp = rsts[0].info.get(ftype)
+        for res in rsts:
+            for ftype in ("stdout", "stderr"):
+                fp = res.info.get(ftype)
+                if not fp:
+                    continue
 
-            if not fp or not all(((res.dirpath / fp).exists() for res in rsts)):
-                continue
+                srcfp = res.dirpath / fp
+                if not srcfp.exists():
+                    continue
 
-            srcfp = Path(fp)
-            dstfp = srcfp.parent / f"trimmed-{srcfp.name}"
-            for res in rsts:
-                trimmed = self._trim_file(res.dirpath / srcfp,
+                dstfp = srcfp.parent / f"trimmed-{srcfp.name}"
+
+                trimmed = self._trim_file(res.dirpath / fp,
                                           outdir / res.reportid / dstfp, 16, 32)
                 if trimmed:
                     trimmed_rsts.append(res.reportid)
 
-            files[ftype] = dstfp
+                files[ftype] = dstfp
 
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(outdir)
         fpreviews = fpbuilder.build_fpreviews({res.reportid: outdir / res.reportid for res in rsts},
