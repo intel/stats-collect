@@ -9,10 +9,9 @@
 """This module provides the API for generating 'stats-collect' HTML reports."""
 
 import logging
-from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
-from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
+from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder
 
 _LOG = logging.getLogger()
 
@@ -28,96 +27,6 @@ class StatsCollectHTMLReport:
     Furthermore, the 'HTMLReport' class is also used by other projects to extend HTML reports with
     other tabs.
     """
-
-    def _write_lines(self, lines, dstpath):
-        """Helper function for 'generate_captured_output_tab()'."""
-
-        try:
-            dstpath.parent.mkdir(parents=True, exist_ok=True)
-            with open(dstpath, "w", encoding="utf-8") as f:
-                f.writelines(lines)
-        except OSError as err:
-            msg = Error(err).indent(2)
-            msg = f"unable to write trimmed captured output file at '{dstpath}':\n{msg}"
-            raise Error(msg) from None
-
-    def _trim_lines(self, lines, top, bottom):
-        """
-        Helper function for 'generate_captured_output_tab()'. Copies the file at 'srcpath' to
-        'dstpath' and removes all but the top 'top' lines and bottom 'bottom' lines. Returns a
-        boolean representing if the file was trimmed or not.
-        """
-
-        trim_notice_lines = [
-            "==========================\n",
-            "FILE CONTENTS REMOVED HERE\n",
-            "==========================\n"
-            ]
-
-        if len(lines) <= top + bottom:
-            trimmed_lines = lines
-        else:
-            trimmed_lines = lines[:top] + trim_notice_lines + lines[-bottom:]
-
-        return trimmed_lines
-
-    def generate_captured_output_tab(self, rsts, outdir):
-        """Generate a container tab containing the output captured in 'stats-collect start'."""
-
-        tab_title = "Captured Output"
-
-        _LOG.info("Generating '%s' tab.", tab_title)
-
-        files = {}
-        base_paths = {}
-        trimmed_rsts = set()
-        for res in rsts:
-            basedir = outdir / res.reportid
-            base_paths[res.reportid] = basedir
-            for ftype in ("stdout", "stderr"):
-                fp = res.info.get(ftype)
-                if not fp:
-                    continue
-
-                srcpath = res.dirpath / fp
-                if not srcpath.exists():
-                    continue
-
-                try:
-                    with open(srcpath, "r", encoding="utf-8") as f:
-                        lines = f.readlines()
-                except OSError as err:
-                    raise Error(f"unable to open captured output file at '{srcpath}':\n"
-                                f"{Error(err).indent(2)}") from None
-
-                trimmed_lines = self._trim_lines(lines, 16, 32)
-
-                dstpath = outdir / res.reportid / Path(fp).parent / f"trimmed-{srcpath.name}"
-                if len(trimmed_lines) < len(lines):
-                    trimmed_rsts.add(res.reportid)
-
-                self._write_lines(trimmed_lines, dstpath)
-
-                files[ftype] = dstpath.relative_to(basedir)
-
-        fpbuilder = FilePreviewBuilder.FilePreviewBuilder(outdir)
-        fpreviews = fpbuilder.build_fpreviews(base_paths, files)
-
-        if not fpreviews:
-            return None
-
-        if trimmed_rsts:
-            # Convert the set of report IDs into a list which maintains the order of reports used
-            # elsewhere.
-            trimmed_rsts = [res.reportid for res in rsts if res.reportid in trimmed_rsts]
-            msg = f"Note - the outputs of the following results have been trimmed to save time " \
-                  f"during report generation: {', '.join(trimmed_rsts)}"
-            alerts = (msg,)
-        else:
-            alerts = []
-
-        dtab = _Tabs.DTabDC(tab_title, fpreviews=fpbuilder.fpreviews, alerts=alerts)
-        return _Tabs.CTabDC(tab_title, tabs=[dtab])
 
     def _copy_logs(self):
         """
@@ -191,8 +100,10 @@ class StatsCollectHTMLReport:
         HTMLReport.reportids_dedup(self.rsts)
 
         rep = HTMLReport.HTMLReport(self.outdir)
-        stdout_tab = self.generate_captured_output_tab(self.rsts, self.outdir)
-        tabs = [stdout_tab] if stdout_tab else None
+        captout_tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, self.outdir)
+        captout_tab = captout_tbldr.get_tab()
+
+        tabs = [captout_tab] if captout_tab else None
         intro_tbl = self._generate_intro_table(self.rsts)
         rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=intro_tbl,
                             title="stats-collect report")
