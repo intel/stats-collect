@@ -11,8 +11,8 @@ This module provides the capability of populating the 'Captured Output' tab.
 """
 
 import logging
-from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.defs import DefsBase
 from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _Tabs
 
 _LOG = logging.getLogger()
@@ -69,11 +69,11 @@ class CapturedOutputTabBuilder():
         _LOG.info("Generating '%s' tab.", self.name)
 
         files = {}
-        base_paths = {}
+        resdirs = {}
         trimmed_rsts = set()
         for res in self._rsts:
-            basedir = self._outdir / res.reportid
-            base_paths[res.reportid] = basedir
+            resdir = self._outdir / res.reportid
+            resdirs[res.reportid] = resdir
             for ftype in ("stdout", "stderr"):
                 fp = res.info.get(ftype)
                 if not fp:
@@ -92,16 +92,16 @@ class CapturedOutputTabBuilder():
 
                 trimmed_lines = self._trim_lines(lines, 16, 32)
 
-                dstpath = self._outdir / res.reportid / Path(fp).parent / f"trimmed-{srcpath.name}"
+                dstpath = resdir / f"trimmed-{srcpath.name}"
                 if len(trimmed_lines) < len(lines):
                     trimmed_rsts.add(res.reportid)
 
                 self._write_lines(trimmed_lines, dstpath)
 
-                files[ftype] = dstpath.relative_to(basedir)
+                files[ftype] = dstpath.relative_to(resdir)
 
-        fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir)
-        fpreviews = fpbuilder.build_fpreviews(base_paths, files)
+        fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir, basedir=self._basedir)
+        fpreviews = fpbuilder.build_fpreviews(resdirs, files)
 
         if not fpreviews:
             return None
@@ -131,5 +131,5 @@ class CapturedOutputTabBuilder():
         """
 
         self._rsts = rsts
-        self._outdir = outdir
         self._basedir = basedir if basedir else outdir
+        self._outdir = outdir / DefsBase.get_fsname(self.name)

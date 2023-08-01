@@ -143,6 +143,13 @@ class HTMLReport:
        * 'generate_report()'
     """
 
+    @property
+    def tabs_dir(self):
+        """
+        The 'tabs' report directory. Can be used to place tab data inside the relevant directory.
+        """
+        return self._tabs_dir
+
     def _generate_tabs(self, rsts):
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
 

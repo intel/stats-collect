@@ -100,7 +100,8 @@ class StatsCollectHTMLReport:
         HTMLReport.reportids_dedup(self.rsts)
 
         rep = HTMLReport.HTMLReport(self.outdir)
-        captout_tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, self.outdir)
+        captout_tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, rep.tabs_dir,
+                                                                           basedir=self.outdir)
         captout_tab = captout_tbldr.get_tab()
 
         tabs = [captout_tab] if captout_tab else None
