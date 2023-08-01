@@ -9,6 +9,7 @@
 """This module provides the API for generating 'stats-collect' HTML reports."""
 
 import logging
+from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
@@ -28,7 +29,19 @@ class StatsCollectHTMLReport:
     other tabs.
     """
 
-    def _trim_file(self, srcpath, dstpath, top, bottom):
+    def _write_lines(self, lines, dstpath):
+        """Helper function for 'generate_captured_output_tab()'."""
+
+        try:
+            dstpath.parent.mkdir(parents=True, exist_ok=True)
+            with open(dstpath, "w", encoding="utf-8") as f:
+                f.writelines(lines)
+        except OSError as err:
+            msg = Error(err).indent(2)
+            msg = f"unable to write trimmed captured output file at '{dstpath}':\n{msg}"
+            raise Error(msg) from None
+
+    def _trim_lines(self, lines, top, bottom):
         """
         Helper function for 'generate_captured_output_tab()'. Copies the file at 'srcpath' to
         'dstpath' and removes all but the top 'top' lines and bottom 'bottom' lines. Returns a
@@ -41,27 +54,12 @@ class StatsCollectHTMLReport:
             "==========================\n"
             ]
 
-        try:
-            with open(srcpath, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                if len(lines) <= top + bottom:
-                    trimmed_lines = lines
-                else:
-                    trimmed_lines = lines[:top] + trim_notice_lines + lines[-bottom:]
-        except OSError as err:
-            msg = Error(err).indent(2)
-            raise Error(f"unable to open captured output file at '{srcpath}':\n{msg}") from None
+        if len(lines) <= top + bottom:
+            trimmed_lines = lines
+        else:
+            trimmed_lines = lines[:top] + trim_notice_lines + lines[-bottom:]
 
-        try:
-            dstpath.parent.mkdir(parents=True, exist_ok=True)
-            with open(dstpath, "w", encoding="utf-8") as f:
-                f.writelines(trimmed_lines)
-        except OSError as err:
-            msg = Error(err).indent(2)
-            msg = f"unable to write trimmed captured output file at '{dstpath}':\n{msg}"
-            raise Error(msg) from None
-
-        return len(trimmed_lines) < len(lines)
+        return trimmed_lines
 
     def generate_captured_output_tab(self, rsts, outdir):
         """Generate a container tab containing the output captured in 'stats-collect start'."""
@@ -71,29 +69,39 @@ class StatsCollectHTMLReport:
         _LOG.info("Generating '%s' tab.", tab_title)
 
         files = {}
+        base_paths = {}
         trimmed_rsts = set()
         for res in rsts:
+            basedir = outdir / res.reportid
+            base_paths[res.reportid] = basedir
             for ftype in ("stdout", "stderr"):
                 fp = res.info.get(ftype)
                 if not fp:
                     continue
 
-                srcfp = res.dirpath / fp
-                if not srcfp.exists():
+                srcpath = res.dirpath / fp
+                if not srcpath.exists():
                     continue
 
-                dstfp = srcfp.parent / f"trimmed-{srcfp.name}"
+                try:
+                    with open(srcpath, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+                except OSError as err:
+                    raise Error(f"unable to open captured output file at '{srcpath}':\n"
+                                f"{Error(err).indent(2)}") from None
 
-                trimmed = self._trim_file(res.dirpath / fp,
-                                          outdir / res.reportid / dstfp, 16, 32)
-                if trimmed:
+                trimmed_lines = self._trim_lines(lines, 16, 32)
+
+                dstpath = outdir / res.reportid / Path(fp).parent / f"trimmed-{srcpath.name}"
+                if len(trimmed_lines) < len(lines):
                     trimmed_rsts.add(res.reportid)
 
-                files[ftype] = dstfp
+                self._write_lines(trimmed_lines, dstpath)
+
+                files[ftype] = dstpath.relative_to(basedir)
 
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(outdir)
-        fpreviews = fpbuilder.build_fpreviews({res.reportid: outdir / res.reportid for res in rsts},
-                                               files)
+        fpreviews = fpbuilder.build_fpreviews(base_paths, files)
 
         if not fpreviews:
             return None
