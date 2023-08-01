@@ -8,6 +8,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Change 'Captured Output' tab in HTML reports to generate if any results have
+   captured output files rather than only generating if all results have
+   captured output files.
 
 ## [1.0.14] - 2023-07-28
 ### Added
