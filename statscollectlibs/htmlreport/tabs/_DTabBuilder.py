@@ -41,7 +41,9 @@ class DTabBuilder:
         """
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir / "file-previews",
                                                           self._basedir)
-        self.fpreviews = fpbuilder.build_fpreviews(base_paths, files)
+        for title, fp in files.items():
+            paths = {reportid: basepath / fp for reportid, basepath in base_paths.items()}
+            self.fpreviews.append(fpbuilder.build_fpreview(title, paths))
 
     def add_smrytbl(self, smry_funcs, defs):
         """

@@ -68,13 +68,13 @@ class CapturedOutputTabBuilder():
 
         _LOG.info("Generating '%s' tab.", self.name)
 
-        files = {}
-        resdirs = {}
+        fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir, basedir=self._basedir)
+        fpreviews = []
         trimmed_rsts = set()
-        for res in self._rsts:
-            resdir = self._outdir / res.reportid
-            resdirs[res.reportid] = resdir
-            for ftype in ("stdout", "stderr"):
+        for ftype in ("stdout", "stderr"):
+            files = {}
+            for res in self._rsts:
+                resdir = self._outdir / res.reportid
                 fp = res.info.get(ftype)
                 if not fp:
                     continue
@@ -98,10 +98,10 @@ class CapturedOutputTabBuilder():
 
                 self._write_lines(trimmed_lines, dstpath)
 
-                files[ftype] = dstpath.relative_to(resdir)
+                files[res.reportid] = dstpath
 
-        fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir, basedir=self._basedir)
-        fpreviews = fpbuilder.build_fpreviews(resdirs, files)
+            if files:
+                fpreviews.append(fpbuilder.build_fpreview(ftype, files))
 
         if not fpreviews:
             return None
@@ -116,7 +116,7 @@ class CapturedOutputTabBuilder():
         else:
             alerts = []
 
-        dtab = _Tabs.DTabDC(self.name, fpreviews=fpbuilder.fpreviews, alerts=alerts)
+        dtab = _Tabs.DTabDC(self.name, fpreviews=fpreviews, alerts=alerts)
         return _Tabs.CTabDC(self.name, tabs=[dtab])
 
     def __init__(self, rsts, outdir, basedir=None):

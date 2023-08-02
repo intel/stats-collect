@@ -86,71 +86,68 @@ class FilePreviewBuilder:
 
         return diff_path.relative_to(self._basedir)
 
-    def build_fpreviews(self, base_paths, files):
+    def build_fpreview(self, title, files):
         """
-        Build file previews. Scans for the files specified in 'files' in each result directory.
-        Arguments are as follows:
-         * base_paths - dictionary in the format '{ReportID: BasePath}' where 'BasePath' is the base
-                        directory for the result with report id 'ReportID'. This class will search
-                        this base directory to find the file to display in the preview.
-         * files - dictionary in the format '{FilePreviewTitle: FilePath}' where 'FilePath' is the
-                   patch that will be used to check for the file in each result in 'base_paths'.
+        Build file preview. Arguments are as follows:
+         * title - the title of the resultant file preview element.
+         * files - dictionary in the format '{ReportID: FilePath}' where 'FilePath' is the
+                   path to the file which should be included in the file preview for result
+                   'ReportID'.
         """
 
-        self.fpreviews = []
-        for name, fp in files.items():
-            paths = {}
-            for reportid, base_path in base_paths.items():
-                src_path = base_path / fp
+        paths = {}
+        for reportid, fp in files.items():
+            if not fp.exists():
+                # If one of the reports does not have a file, exclude the file preview entirely.
+                _LOG.debug("file preview '%s' does not include report '%s' since the file '%s' "
+                           "doesn't exist.", title, reportid, fp)
+                continue
 
-                if not src_path.exists():
-                    # If one of the reports does not have a file, exclude the file preview entirely.
-                    _LOG.debug("file preview '%s' does not include report '%s' since the file '%s' "
-                                "doesn't exist.", name, reportid, src_path)
-                    continue
+            # If the file is not in 'outdir' it should be copied to 'outdir'.
+            if self.outdir not in fp.parents:
+                if not _reasonable_file_size(fp, title):
+                    break
 
-                filename = src_path.name
+                dst_dir = self.outdir / reportid
 
-                # If the file is not in 'outdir' it should be copied to 'outdir'.
-                if self.outdir not in src_path.parents:
-                    if not _reasonable_file_size(src_path, name):
-                        break
-
-                    dst_dir = self.outdir / reportid
-
-                    try:
-                        dst_dir.mkdir(parents=True, exist_ok=True)
-                    except OSError as err:
-                        msg = Error(err).indent(2)
-                        raise Error(f"can't create directory '{dst_dir}':\n"
-                                    f"{msg}") from None
-
-                    dst_path = dst_dir / filename
-
-                    try:
-                        FSHelpers.move_copy_link(src_path, dst_path, "copy")
-                    except ErrorExists:
-                        _LOG.debug("file '%s' already in output dir: will not replace.", dst_path)
-                else:
-                    dst_path = src_path
-
-                paths[reportid] = dst_path.relative_to(self._basedir)
-
-            if len(paths) == 2:
                 try:
-                    diff_paths = [self._basedir / path for path in paths.values()]
-                    diff = self._generate_diff(diff_paths, filename)
-                except Error as err:
-                    _LOG.info("Unable to generate diff for file preview '%s'.", name)
-                    _LOG.debug(err)
-                    diff = ""
+                    dst_dir.mkdir(parents=True, exist_ok=True)
+                except OSError as err:
+                    msg = Error(err).indent(2)
+                    raise Error(f"can't create directory '{dst_dir}':\n{msg}") from None
+
+                dst_path = dst_dir / fp.name
+
+                try:
+                    FSHelpers.move_copy_link(fp, dst_path, "copy")
+                except ErrorExists:
+                    _LOG.debug("file '%s' already in output dir: will not replace.", dst_path)
+                    dst_path = fp
             else:
+                dst_path = fp
+
+            paths[reportid] = dst_path
+
+        if not paths:
+            raise Error("unable to generate file preview")
+
+        if len(paths) == 2:
+            try:
+                # Name the diff after one of the files.
+                diff_paths = list(paths.values())
+                diff_name = diff_paths[0].name
+                diff = self._generate_diff(diff_paths, diff_name)
+            except Error as err:
+                _LOG.info("Unable to generate diff for file preview '%s'.", title)
+                _LOG.debug(err)
                 diff = ""
+        else:
+            diff = ""
 
-            if paths:
-                self.fpreviews.append(_Tabs.FilePreviewDC(name, paths, diff))
+        for reportid, path in paths.items():
+            paths[reportid] = path.relative_to(self._basedir)
 
-        return self.fpreviews
+        return _Tabs.FilePreviewDC(title, paths, diff)
 
     def __init__(self, outdir, basedir=None):
         """
