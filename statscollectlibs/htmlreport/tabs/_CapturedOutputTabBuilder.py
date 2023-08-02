@@ -92,9 +92,11 @@ class CapturedOutputTabBuilder():
 
                 trimmed_lines = self._trim_lines(lines, 16, 32)
 
-                dstpath = resdir / f"trimmed-{srcpath.name}"
                 if len(trimmed_lines) < len(lines):
                     trimmed_rsts.add(res.reportid)
+                    dstpath = resdir / f"trimmed-{srcpath.name}"
+                else:
+                    dstpath = resdir / srcpath.name
 
                 self._write_lines(trimmed_lines, dstpath)
 
