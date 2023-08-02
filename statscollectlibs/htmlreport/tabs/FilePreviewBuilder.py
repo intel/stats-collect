@@ -86,6 +86,30 @@ class FilePreviewBuilder:
 
         return diff_path.relative_to(self._basedir)
 
+    def _copy_file(self, fp, reportid):
+        """
+        Helper function for 'build_fpreview()'. Copies the file at path 'fp' to
+        'self.outdir / reportid'.
+        """
+
+        dst_dir = self.outdir / reportid
+
+        try:
+            dst_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as err:
+            msg = Error(err).indent(2)
+            raise Error(f"can't create directory '{dst_dir}':\n{msg}") from None
+
+        dst_path = dst_dir / fp.name
+
+        try:
+            FSHelpers.move_copy_link(fp, dst_path, "copy")
+        except ErrorExists:
+            _LOG.debug("file '%s' already in output dir: will not replace.", dst_path)
+            dst_path = fp
+
+        return dst_path
+
     def build_fpreview(self, title, files):
         """
         Build file preview. Arguments are as follows:
@@ -107,22 +131,7 @@ class FilePreviewBuilder:
             if self.outdir not in fp.parents:
                 if not _reasonable_file_size(fp, title):
                     break
-
-                dst_dir = self.outdir / reportid
-
-                try:
-                    dst_dir.mkdir(parents=True, exist_ok=True)
-                except OSError as err:
-                    msg = Error(err).indent(2)
-                    raise Error(f"can't create directory '{dst_dir}':\n{msg}") from None
-
-                dst_path = dst_dir / fp.name
-
-                try:
-                    FSHelpers.move_copy_link(fp, dst_path, "copy")
-                except ErrorExists:
-                    _LOG.debug("file '%s' already in output dir: will not replace.", dst_path)
-                    dst_path = fp
+                dst_path = self._copy_file(fp, reportid)
             else:
                 dst_path = fp
 
