@@ -52,15 +52,14 @@ class FilePreviewBuilder:
         relative to 'outdir'.
         """
 
-        if filecmp.cmp(*(self._basedir / path for path in paths.values())):
+        if filecmp.cmp(*paths):
             _LOG.info("Skipping '%s' diff as both files are identical.", diff_name)
             return None
 
         # Read the contents of the files into 'lines'.
         lines = []
-        for diff_src in paths.values():
+        for fp in paths:
             try:
-                fp = self._basedir / diff_src
                 with open(fp, "r", encoding="utf-8") as f:
                     lines.append(f.readlines())
             except OSError as err:
@@ -78,7 +77,7 @@ class FilePreviewBuilder:
 
         try:
             with open(diff_path, "w", encoding="utf-8") as f:
-                reportids = [str(path) for path in paths.values()]
+                reportids = [str(path) for path in paths]
                 f.writelines(difflib.unified_diff(lines[0], lines[1],
                                                   fromfile=reportids[0], tofile=reportids[1]))
         except Exception as err:
@@ -139,7 +138,8 @@ class FilePreviewBuilder:
 
             if len(paths) == 2:
                 try:
-                    diff = self._generate_diff(paths, filename)
+                    diff_paths = [self._basedir / path for path in paths.values()]
+                    diff = self._generate_diff(diff_paths, filename)
                 except Error as err:
                     _LOG.info("Unable to generate diff for file preview '%s'.", name)
                     _LOG.debug(err)
