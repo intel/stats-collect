@@ -7,12 +7,16 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
  - Fix duplicate report IDs appearing in the trimmed file alert in the 'Captured
    Output' tab.
+ - Fix 'stats-collect report' marking all captured output log files as 'trimmed'
+   even if they are not trimmed.
 ### Added
 ### Removed
 ### Changed
  - Change 'Captured Output' tab in HTML reports to generate if any results have
    captured output files rather than only generating if all results have
    captured output files.
+ - Change 'stats-collect report' to store 'Captured Output' tab files in a
+   dedicated directory.
 
 ## [1.0.14] - 2023-07-28
 ### Added
