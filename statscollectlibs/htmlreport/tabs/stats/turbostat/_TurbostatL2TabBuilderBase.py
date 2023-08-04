@@ -83,7 +83,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         # Find metrics which are common to all raw turbostat statistic files.
         metric_sets = [set(sdf.columns) for sdf in self._reports.values()]
-        common_metrics = set.intersection(*metric_sets)
+        common_metrics = set.union(*metric_sets)
 
         # Limit metrics to only those with definitions.
         common_metrics.intersection_update(set(self._defs.info.keys()))
@@ -124,20 +124,24 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         pkg_cstates = []
         mod_cstates = []
 
-        for metric in list(dfs.values())[0]:
-            if not all(metric in df.columns for df in dfs.values()):
-                continue
+        # Maintain the order that C-states appear in turbostat so that they are not jumbled.
+        all_colnames = []
+        for df in dfs.values():
+            for column in df.columns:
+                if column not in all_colnames:
+                    all_colnames.append(column)
 
-            if TurbostatDefs.ReqCSDef.check_metric(metric):
-                req_rsdncy_cstates.append(TurbostatDefs.ReqCSDef(metric))
-            elif TurbostatDefs.ReqCSDefCount.check_metric(metric):
-                req_cnt_cstates.append(TurbostatDefs.ReqCSDefCount(metric))
-            elif TurbostatDefs.CoreCSDef.check_metric(metric):
-                core_cstates.append(TurbostatDefs.CoreCSDef(metric))
-            elif TurbostatDefs.PackageCSDef.check_metric(metric):
-                pkg_cstates.append(TurbostatDefs.PackageCSDef(metric))
-            elif TurbostatDefs.ModuleCSDef.check_metric(metric):
-                mod_cstates.append(TurbostatDefs.ModuleCSDef(metric))
+        for colname in all_colnames:
+            if TurbostatDefs.ReqCSDef.check_metric(colname):
+                req_rsdncy_cstates.append(TurbostatDefs.ReqCSDef(colname))
+            elif TurbostatDefs.ReqCSDefCount.check_metric(colname):
+                req_cnt_cstates.append(TurbostatDefs.ReqCSDefCount(colname))
+            elif TurbostatDefs.CoreCSDef.check_metric(colname):
+                core_cstates.append(TurbostatDefs.CoreCSDef(colname))
+            elif TurbostatDefs.PackageCSDef.check_metric(colname):
+                pkg_cstates.append(TurbostatDefs.PackageCSDef(colname))
+            elif TurbostatDefs.ModuleCSDef.check_metric(colname):
+                mod_cstates.append(TurbostatDefs.ModuleCSDef(colname))
 
         self._cstates["hardware"]["core"] = core_cstates
         self._cstates["hardware"]["package"] = pkg_cstates
