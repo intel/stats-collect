@@ -12,6 +12,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Change 'stats-collect report' to generate 'turbostat' tabs for metrics
+   present in any result rather than all results.
  - Change 'Captured Output' tab in HTML reports to generate if any results have
    captured output files rather than only generating if all results have
    captured output files.
