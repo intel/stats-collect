@@ -74,7 +74,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         """
 
         col_sets = [set(sdf.columns) for sdf in self._reports.values()]
-        common_cols = set.intersection(*col_sets)
+        common_cols = set.union(*col_sets)
 
         # Reports may have the "Time" column in common or none at all. In both of these cases, an
         # IPMI tab won't be generated.
