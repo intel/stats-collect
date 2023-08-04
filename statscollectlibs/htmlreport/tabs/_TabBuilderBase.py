@@ -83,9 +83,10 @@ class TabBuilderBase:
         # them and append them to 'sub_tabs'.
         if "dtabs" in tab_hierarchy:
             for metric in tab_hierarchy["dtabs"]:
-                if not all(metric in sdf for sdf in self._reports.values()):
-                    _LOG.info("Skipping '%s' tab in '%s' tab: one or more results do not contain "
-                              "data for this metric.", metric, self.name)
+                results = {repid: sdf for repid, sdf in self._reports.items() if metric in sdf}
+                if not results:
+                    _LOG.info("Skipping '%s' tab in '%s' tab: no results contain data for this "
+                              "metric.", metric, self.name)
                     continue
 
                 if not metric in self._defs.info:
@@ -94,7 +95,7 @@ class TabBuilderBase:
                     continue
 
                 try:
-                    tab = _DTabBuilder.DTabBuilder(self._reports, outdir, self._defs.info[metric],
+                    tab = _DTabBuilder.DTabBuilder(results, outdir, self._defs.info[metric],
                                                    self._basedir)
                     if metric in plots:
                         tab.add_plots(plots[metric].get("scatter"), plots[metric].get("hist"),
