@@ -17,6 +17,11 @@ from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _Tabs
 
 _LOG = logging.getLogger()
 
+# The number of lines at the start and end of captured output files to preserve. Lines outside of
+# those limits will be trimmed and will not be copied to the report directory.
+_MAX_FILE_START = 16
+_MAX_FILE_END = 32
+
 class CapturedOutputTabBuilder():
     """
     This class provides the capability of populating the 'Captured Output' tab.
@@ -90,7 +95,7 @@ class CapturedOutputTabBuilder():
                     raise Error(f"unable to open captured output file at '{srcpath}':\n"
                                 f"{Error(err).indent(2)}") from None
 
-                trimmed_lines = self._trim_lines(lines, 16, 32)
+                trimmed_lines = self._trim_lines(lines, _MAX_FILE_START, _MAX_FILE_END)
 
                 if len(trimmed_lines) < len(lines):
                     trimmed_rsts.add(res.reportid)
