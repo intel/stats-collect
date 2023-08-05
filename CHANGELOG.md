@@ -12,6 +12,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Increase the line limits of files in the 'Captured Output' tab of HTML
+   reports.
  - Change 'stats-collect report' to generate 'turbostat' and 'ipmi' tabs for
    metrics present in any result rather than all results.
  - Change 'Captured Output' tab in HTML reports to generate if any results have
