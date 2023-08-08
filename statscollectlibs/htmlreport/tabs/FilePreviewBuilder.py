@@ -159,12 +159,7 @@ class FilePreviewBuilder:
         return _Tabs.FilePreviewDC(title, paths, diff)
 
     def __init__(self, outdir, basedir=None):
-        """
-        The class constructor. Arguments are as follows:
-         * outdir - path to the directory to store the files which will be displayed in the preview.
-         * basedir - base directory of the report. All paths will be made relative to this.
-                     Defaults to 'outdir'.
-        """
+        """Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()'."""
 
         self.outdir = outdir
         self._basedir = basedir if basedir else outdir

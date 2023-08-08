@@ -51,12 +51,11 @@ class TurbostatTabBuilder:
         """
         The class constructor. Adding a turbostat statistics container tab will create a "Turbostat"
         sub-directory and store level 2 tabs inside it. Level 2 tabs will represent metrics stored
-        in the raw turbostat statistics file using data tabs. Arguments are as follows:
+        in the raw turbostat statistics file using data tabs.
+
+        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
          * rsts - a list of 'RORawResult' instances for different results with statistics which
                   should be included in the turbostat tabs.
-         * outdir - the output directory in which to create the sub-directory for the turbostat tab.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
         """
 
         self.l2tab_bldrs = []

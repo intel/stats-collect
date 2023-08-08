@@ -126,12 +126,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         """
         The class constructor. Adding an IPMI statistics container tab will create an 'IPMI'
         sub-directory and store tabs inside it. These tabs will represent all of the metrics stored
-        in the raw IPMI statistics file. Arguments are as follows:
+        in the raw IPMI statistics file.
+
+        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following: 
          * rsts - a list of 'RORawResult' instances for which data should be included in the built
                   tab.
-         * outdir - the output directory in which to create the sub-directory for the built tab.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
         """
 
         self._time_metric = "Time"

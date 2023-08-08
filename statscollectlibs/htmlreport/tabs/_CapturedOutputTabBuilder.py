@@ -129,12 +129,11 @@ class CapturedOutputTabBuilder():
     def __init__(self, rsts, outdir, basedir=None):
         """
         The class constructor. Adding a "Captured Output" tab will create an 'CapturedOutput'
-        sub-directory and store 'stdout' and 'stderr' log files in it. Arguments are as follows:
+        sub-directory and store 'stdout' and 'stderr' log files in it.
+
+        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
          * rsts - a list of 'RORawResult' instances for which data should be included in the built
                   tab.
-         * outdir - the output directory in which to create the sub-directory for the built tab.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
         """
 
         self._rsts = rsts

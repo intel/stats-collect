@@ -156,11 +156,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
     def __init__(self, dfs, outdir, basedir, hover_defs=None):
         """
         The class constructor. Adding a turbostat level 2 tab will create a sub-directory and store
-        data tabs inside it for metrics stored in the raw turbostat statistics file.  The arguments
+        data tabs inside it for metrics stored in the raw turbostat statistics file. The arguments
         are the same as in '_TabBuilderBase.TabBuilderBase' except for:
          * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where the
                  'pandas.DataFrame' contains that statistics data for that result.
-         * basedir - base directory of the report. All asset paths will be made relative to this.
          * hover_defs - a mapping from 'reportid' to definition dictionaries of metrics which
                         should be included in the hovertext of scatter plots.
         """

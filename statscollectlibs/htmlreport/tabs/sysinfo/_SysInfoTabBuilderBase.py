@@ -36,17 +36,15 @@ class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
 
     def __init__(self, name, outdir, files, stats_paths, basedir=None):
         """
-        Class constructor. Arguments are as follows:
+        Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except
+        for the following:
          * name - name to give the tab produced when 'get_tab()' is called.
-         * outdir - the directory to store tab files in.
          * files - a dictionary containing the paths of files to include file previews for.
                    Expected to be in the format '{Name: FilePath}' where 'Name' will be the title
                    of the file preview and 'FilePath' is the path of the file to preview.
                    'FilePath' should be relative to the directories in 'stats_paths'
          * stats_paths - a dictionary in the format '{ReportID: StatsDir}' where 'StatsDir' is the
                          path to the directory which contains raw statistics files for 'ReportID'.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
         """
 
         if not any(fp for fp in stats_paths.values()):

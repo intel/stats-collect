@@ -72,12 +72,7 @@ class SysInfoTabBuilder:
         return _Tabs.CTabDC(self.name, tabs=tabs)
 
     def __init__(self, outdir, basedir=None):
-        """
-        Class constructor. Arguments are as follows:
-         * outdir - the directory to store tab files in.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
-        """
+        """Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()'."""
 
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir

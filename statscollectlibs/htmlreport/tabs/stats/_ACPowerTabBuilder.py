@@ -52,12 +52,11 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     def __init__(self, rsts, outdir, basedir=None):
         """
         The class constructor. Adding an ACPower tab will create an 'ACPower' sub-directory and
-        store plots and the summary table in it. Arguments are as follows:
+        store plots and the summary table in it.
+
+        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
          * rsts - a list of 'RORawResult' instances for which data should be included in the built
                   tab.
-         * outdir - the output directory in which to create the sub-directory for the built tab.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
         """
 
         self._power_metric = "P"

@@ -65,11 +65,11 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
         """
         The class constructor. Adding a "totals" turbostat level 2 tab will create a "Totals"
         sub-directory and store data tabs inside it for metrics stored in the raw turbostat
-        statistics file. Arguments are as follows:
+        statistics file.
+
+        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
          * rsts - a list of 'RORawResult' instances for which data should be included in the built
                   tab.
-         * outdir - the output directory in which to create the sub-directory for the built tab.
-         * basedir - base directory of the report. All asset paths will be made relative to this.
         """
 
         dfs = {}

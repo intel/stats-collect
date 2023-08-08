@@ -232,13 +232,12 @@ class DTabBuilder:
     def __init__(self, reports, outdir, metric_def, basedir=None):
         """
         The class constructor. Adding a data tab will create a sub-directory named after the metric
-        in 'metric_def' and store plots and the summary table in it. Arguments are as follows:
+        in 'metric_def' and store plots and the summary table in it.
+
+        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
          * reports - dictionary containing the data for each report:
                      '{reportid: dataframe}'
-         * outdir - the output directory in which to create the 'metricname' sub-directory.
          * metric_def - dictionary containing the definition for this metric.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
         """
 
         self._reports = reports
