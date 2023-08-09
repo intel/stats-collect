@@ -91,6 +91,38 @@ Note, 'stats-collect' has to be run with superuser (root) privileges in many cas
 install it with the '--user' option of 'pip3', it won't work "out of the box". This is why we do not
 recommend using '--user'.
 
+# Basic Usage
+
+Below outlines basic local usage of the 'stats-collect' tool involving how to collect and visualise
+statistics.
+
+All of the commands listed below can be used in conjunction with the `-h` option to learn more about
+the command and other options that can be used with it. For more information, it is recommended that
+users refer to the 'stats-collect' [man page](docs/stats-collect-man.rst).
+
+## Start Statistics Collection
+
+Start statistics collection using the `stats-collect start` command.
+
+A command must be passed to `stats-collect start` to run on the system during the test (e.g. `sleep
+30` is used in the example below).
+
+Note that below the optional `-o` argument is used to specify an output directory.
+
+```
+stats-collect start -o stats-result 'sleep 30'
+```
+
+## Generate Report
+
+Generate an HTML report to visualise the statistics collected using `stats-collect start`.
+
+```
+stats-collect report stats-result
+```
+
+To view the report, open the 'index.html' file in the report directory in a browser.
+
 # Authors and contributors
 
 * Artem Bityutskiy <dedekind1@gmail.com> - original author, project maintainer.
