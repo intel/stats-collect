@@ -21,41 +21,41 @@ from statscollecttools import ToolInfo
 
 _LOG = logging.getLogger()
 
-def run_command(cmd, pman, tlimit):
-    """Run the command."""
-
-    _LOG.info("Running the following command%s: %s", pman.hostmsg, cmd)
-
-    if not tlimit:
-        run_forever = True
-        tlimit = 4 * 60 * 60
-    else:
-        run_forever = False
-
-    with pman.run_async(cmd) as proc:
-        while True:
-            stdout, stderr, exitcode = proc.wait(timeout=tlimit)
-            if exitcode is not None:
-                break
-
-            if run_forever:
-                continue
-
-            _LOG.notice("statistics collection stopped because the time limit was reached before "
-                        "the command finished executing.")
-            ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=pman)
-            break
-
-    if exitcode:
-        raise Error(f"there was an error running command '{cmd}':\n{stderr}")
-
-    return stdout, stderr
-
 class Runner(ClassHelpers.SimpleCloseContext):
     """
     This class provides the capability to execute a given command on a SUT and control the
     simultaneous collection of statistics.
     """
+
+    def _run_command(self, cmd, pman, tlimit):
+        """Run the command."""
+
+        _LOG.info("Running the following command%s: %s", pman.hostmsg, cmd)
+
+        if not tlimit:
+            run_forever = True
+            tlimit = 4 * 60 * 60
+        else:
+            run_forever = False
+
+        with pman.run_async(cmd) as proc:
+            while True:
+                stdout, stderr, exitcode = proc.wait(timeout=tlimit)
+                if exitcode is not None:
+                    break
+
+                if run_forever:
+                    continue
+
+                _LOG.notice("statistics collection stopped because the time limit was reached before "
+                            "the command finished executing.")
+                ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=pman)
+                break
+
+        if exitcode:
+            raise Error(f"there was an error running command '{cmd}':\n{stderr}")
+
+        return stdout, stderr
 
     def run(self, cmd, tlimit=None):
         """
@@ -69,7 +69,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
             self._stcoll.start()
 
         start_time = time.time()
-        stdout, stderr = run_command(cmd, self._pman, tlimit)
+        stdout, stderr = self._run_command(cmd, self._pman, tlimit)
         duration = time.time() - start_time
 
         min_duration = 2 * self._stcoll.get_max_interval()
