@@ -38,19 +38,20 @@ class Runner(ClassHelpers.SimpleCloseContext):
         else:
             run_forever = False
 
-        with self._pman.run_async(self._cmd) as proc:
-            while True:
-                stdout, stderr, exitcode = proc.wait(timeout=tlimit)
-                if exitcode is not None:
-                    break
-
-                if run_forever:
-                    continue
-
-                _LOG.notice("statistics collection stopped because the time limit was reached "
-                            "before the command finished executing.")
-                ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=self._pman)
+        self._proc = self._pman.run_async(self._cmd)
+        while True:
+            stdout, stderr, exitcode = self._proc.wait(timeout=tlimit)
+            if exitcode is not None:
                 break
+
+            if run_forever:
+                continue
+
+            _LOG.notice("statistics collection stopped because the time limit was reached "
+                        "before the command finished executing.")
+            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
+                                  pman=self._pman)
+            break
 
         if exitcode:
             raise Error(f"there was an error running command '{self._cmd}':\n{stderr}")
@@ -108,9 +109,10 @@ class Runner(ClassHelpers.SimpleCloseContext):
         self._pman = pman
         self._stcoll = stcoll
 
-        # Class attribute representing the command run by 'run()'.
+        # Class attributes representing the command and process run by 'run()'.
         self._cmd = None
+        self._proc = None
 
     def close(self):
         """Close the runner."""
-        ClassHelpers.close(self, unref_attrs=("_pman",))
+        ClassHelpers.close(self, close_attrs=("_proc",), unref_attrs=("_pman",))
