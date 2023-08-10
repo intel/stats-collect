@@ -75,13 +75,13 @@ class Runner(ClassHelpers.SimpleCloseContext):
         stdout, stderr = self._run_command(tlimit)
         duration = time.time() - start_time
 
-        min_duration = 2 * self._stcoll.get_max_interval()
-        if duration < min_duration:
-            raise Error(f"command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' collected "
-                        f"the mininum amount of statistics. Command should run for at least "
-                        f"{Human.duration(min_duration)}")
-
         if self._stcoll:
+            min_duration = 2 * self._stcoll.get_max_interval()
+            if duration < min_duration:
+                raise Error(f"command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' "
+                            f"collected the mininum amount of statistics. Command should run for "
+                            f"at least {Human.duration(min_duration)}")
+
             self._stcoll.stop()
             self._stcoll.finalize()
 
