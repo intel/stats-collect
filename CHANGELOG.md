@@ -9,6 +9,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
    Output' tab.
  - Fix 'stats-collect report' marking all captured output log files as 'trimmed'
    even if they are not trimmed.
+ - Fix 'stats-collect start 'cmd'' not killing the process running 'cmd' upon
+   keyboard-interrupt.
 ### Added
 ### Removed
 ### Changed
