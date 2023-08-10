@@ -27,10 +27,10 @@ class Runner(ClassHelpers.SimpleCloseContext):
     simultaneous collection of statistics.
     """
 
-    def _run_command(self, cmd, pman, tlimit):
+    def _run_command(self, tlimit):
         """Run the command."""
 
-        _LOG.info("Running the following command%s: %s", pman.hostmsg, cmd)
+        _LOG.info("Running the following command%s: %s", self._pman.hostmsg, self._cmd)
 
         if not tlimit:
             run_forever = True
@@ -38,7 +38,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         else:
             run_forever = False
 
-        with pman.run_async(cmd) as proc:
+        with self._pman.run_async(self._cmd) as proc:
             while True:
                 stdout, stderr, exitcode = proc.wait(timeout=tlimit)
                 if exitcode is not None:
@@ -47,13 +47,13 @@ class Runner(ClassHelpers.SimpleCloseContext):
                 if run_forever:
                     continue
 
-                _LOG.notice("statistics collection stopped because the time limit was reached before "
-                            "the command finished executing.")
-                ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=pman)
+                _LOG.notice("statistics collection stopped because the time limit was reached "
+                            "before the command finished executing.")
+                ProcHelpers.kill_pids(proc.pid, kill_children=True, must_die=True, pman=self._pman)
                 break
 
         if exitcode:
-            raise Error(f"there was an error running command '{cmd}':\n{stderr}")
+            raise Error(f"there was an error running command '{self._cmd}':\n{stderr}")
 
         return stdout, stderr
 
@@ -65,16 +65,18 @@ class Runner(ClassHelpers.SimpleCloseContext):
          * tlimit - the time limit to execute 'cmd' in seconds.
         """
 
+        self._cmd = cmd
+
         if self._stcoll:
             self._stcoll.start()
 
         start_time = time.time()
-        stdout, stderr = self._run_command(cmd, self._pman, tlimit)
+        stdout, stderr = self._run_command(tlimit)
         duration = time.time() - start_time
 
         min_duration = 2 * self._stcoll.get_max_interval()
         if duration < min_duration:
-            raise Error(f"command '{cmd}' finished before '{ToolInfo.TOOLNAME}' collected "
+            raise Error(f"command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' collected "
                         f"the mininum amount of statistics. Command should run for at least "
                         f"{Human.duration(min_duration)}")
 
@@ -105,6 +107,9 @@ class Runner(ClassHelpers.SimpleCloseContext):
         self.res = res
         self._pman = pman
         self._stcoll = stcoll
+
+        # Class attribute representing the command run by 'run()'.
+        self._cmd = None
 
     def close(self):
         """Close the runner."""
