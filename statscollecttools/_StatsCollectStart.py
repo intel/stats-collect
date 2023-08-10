@@ -84,6 +84,7 @@ def start_command(args):
         Logging.setup_stdout_logging(args.toolname, res.logs_path)
 
         runner = Runner.Runner(res, pman, stcoll)
+        stack.enter_context(runner)
 
         runner.run(args.cmd, args.tlimit)
 
