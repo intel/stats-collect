@@ -5,6 +5,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.15] - 2023-08-11
+### Fixed
  - Fix duplicate report IDs appearing in the trimmed file alert in the 'Captured
    Output' tab.
  - Fix 'stats-collect report' marking all captured output log files as 'trimmed'
@@ -13,8 +19,6 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
    keyboard-interrupt.
  - Fix regression introduced in v1.0.14 which caused
    'stats-collect start --stats=none' to crash.
-### Added
-### Removed
 ### Changed
  - Increase the line limits of files in the 'Captured Output' tab of HTML
    reports.

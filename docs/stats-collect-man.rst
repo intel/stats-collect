@@ -2,7 +2,7 @@
 STATS-COLLECT
 =============
 
-:Date: 2023-07-28
+:Date: 2023-08-11
 
 .. contents::
    :depth: 3
@@ -167,7 +167,7 @@ OPTIONS *'stats-collect* start'
    Comma-separated list of statistics to collect. They are stored in the
    the "stats" sub-directory of the output directory. By default, only
    'turbostat, sysinfo' statistics are collected. Use 'all' to collect
-   all possible statistics. Use '--stats=""' or '-- stats="none"' to
+   all possible statistics. Use '--stats=""' or '--stats="none"' to
    disable statistics collection. If you know exactly what statistics
    you need, specify the comma-separated list of statistics to collect.
    For example, use 'turbostat,acpower' if you need only turbostat and
@@ -180,11 +180,9 @@ OPTIONS *'stats-collect* start'
 
 **--stats-intervals** *STATS_INTERVALS*
    The intervals for statistics. Statistics collection is based on doing
-   periodic snapshots of data. For example, by default the
-
-seconds. Use 'acpower:5,turbostat:10' to increase the intervals to 5 and
-10 seconds correspondingly. Use the '--list-stats' to get the default
-interval values.
+   periodic snapshots of data. For example, by default the 'acpower'
+   statistics collector reads SUT power consumption for the last second
+   every second, and 'turbostat' default interval is 5 seconds. Use
 
 **--report**
 
@@ -213,9 +211,10 @@ OPTIONS *'stats-collect* report'
 
 **-o** *OUTDIR*, **--outdir** *OUTDIR*
    Path to the directory to store the report at. By default the report
-   is stored in the 'stats-collect-report-<reportid>' sub- directory of
+   is stored in the 'stats-collect-report-<reportid>' sub-directory of
    the test result directory. If there are multiple test results, the
-   report is stored in the current directory. The
+   report is stored in the current directory. The '<reportid>' is report
+   ID of stats-collect test result.
 
 **--reportids** *REPORTIDS*
    Every input raw result comes with a report ID. This report ID is
