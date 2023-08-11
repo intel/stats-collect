@@ -123,6 +123,47 @@ stats-collect report stats-result
 
 To view the report, open the 'index.html' file in the report directory in a browser.
 
+# Remote Usage
+
+`stats-collect` can be used to collect statistics on a remote system. Generally, the process is very
+similar to the local usage but there are some differences.
+
+**Please note: in the following steps, the name of the system to measure should be used. For
+documentation purposes, the example comands below will use a placeholder name 'SUTNAME'. Therefore,
+please replace any instances of 'SUTNAME' with the name of the system you are trying to measure
+before running the commands.**
+
+## Deploy 'stats-collect'
+
+Before collecting statistics with 'stats-collect' start, 'stats-collect deploy' should be used. This
+is to deploy the 'stats-collect' helpers to the system which are required to collect statistics.
+
+```
+stats-collect deploy -H SUTNAME
+```
+
+## Start Remote Statistics Collection
+
+The statistics collection step is very similar to the equivalent step in local usage. However it
+differs because it requires the host option `-H SUTNAME` (like in the previous deployment step).
+
+See [local usage](#start-statistics-collection), for more information on the other elements of this
+command.
+
+```
+stats-collect start -H SUTNAME -o stats-result 'sleep 30'
+```
+
+## Generate Report Containing Remote Data
+
+Generating a report for remote data works exactly the same way as locally. Remember to make sure
+that the result directory you specify is the same as the directory passed as the output directory
+the statistics collection step (using the `-o` option).
+
+```
+stats-collect report stats-result
+```
+
 # Authors and contributors
 
 * Artem Bityutskiy <dedekind1@gmail.com> - original author, project maintainer.
