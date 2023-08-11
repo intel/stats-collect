@@ -11,6 +11,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
    even if they are not trimmed.
  - Fix 'stats-collect start 'cmd'' not killing the process running 'cmd' upon
    keyboard-interrupt.
+ - Fix regression introduced in v1.0.14 which caused
+   'stats-collect start --stats=none' to crash.
 ### Added
 ### Removed
 ### Changed
