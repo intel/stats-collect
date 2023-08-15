@@ -5,6 +5,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix units on plot axes in HTML reports sometimes containing two SI-prefixes
+   (e.g. kMHz).
 ### Added
 ### Removed
 ### Changed
