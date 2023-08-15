@@ -47,6 +47,12 @@ _LEGEND = {"font"    : {"size" : 14},
 
 _LOG = logging.getLogger()
 
+# Some units contain SI-prefixes (such as "M" in "MHz"). For these units we want to tell 'plotly'
+# not to add extra SI-prefixes. This set is used to contain the base units to which 'plotly' can add
+# an SI-prefix. This list does not contain all possible units, only the ones supported by
+# 'stats-collect'.
+_BASE_UNITS = {"s", "Hz"}
+
 class Plot:
     """This class provides the common defaults and logic for producing plotly diagrams."""
 
@@ -57,8 +63,6 @@ class Plot:
         """
 
         templ = "(%{x}, %{y})<br>"
-        # Units which don't include any SI-prefixes.
-        base_units = {"s"}
 
         for idx, col in enumerate(columns):
             if col not in hov_defs:
@@ -77,7 +81,7 @@ class Plot:
 
             if mdef.get("type") == "float":
                 # If the data uses a unit with no SI-prefixes, let plotly scale it accordingly.
-                if mdef.get("short_unit") in base_units:
+                if mdef.get("short_unit") in _BASE_UNITS:
                     # "s" formatting is decimal notation with an SI prefix, rounded to significant
                     # digits. This should apply to floats which aren't represented as a percentage.
                     templ += ":.3s"
@@ -168,7 +172,7 @@ class Plot:
         # The default axis configuration uses an SI prefix for units (e.g. ms, ks, etc.).  For
         # percent values, just round the value to 3 significant figures and do not include an SI
         # prefix.
-        if self.xaxis_unit == "%":
+        if self.xaxis_unit not in _BASE_UNITS:
             xaxis["tickformat"] = ".3r"
 
         yaxis = {**_AXIS,
@@ -176,7 +180,7 @@ class Plot:
                  "title": self.yaxis_label}
 
         # See comment above regarding SI prefixes. Here we do the same but for the Y-axis.
-        if self.yaxis_unit == "%":
+        if self.yaxis_unit not in _BASE_UNITS:
             yaxis["tickformat"] = ".3r"
 
         layout = {"showlegend"  : True,
