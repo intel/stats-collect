@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -50,7 +50,7 @@ class ScatterPlot(_Plot.Plot):
             returns the corresponding pandas series object.
             """
 
-            if not self._is_numeric_col(df, colname):
+            if not self._is_scalar_col(df, colname):
                 num_rmap = {name : idx for idx, name in enumerate(df[colname].unique())}
                 return df[colname].map(num_rmap)
 
@@ -126,7 +126,7 @@ class ScatterPlot(_Plot.Plot):
         # "C1", "C1E" and "C6". Using dotted markers for such data will have 3 thin lines
         # which is hard to see. Improve it by using line markers to turn lines into wider
         # "bars".
-        if self._is_numeric_col(df, self.xcolname) and self._is_numeric_col(df, self.ycolname):
+        if self._is_scalar_col(df, self.xcolname) and self._is_scalar_col(df, self.ycolname):
             marker_size = 4
             marker_symbol = next(self._markers)
         else:

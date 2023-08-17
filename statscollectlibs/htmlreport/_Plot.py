@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -12,7 +12,7 @@
 
 import logging
 import plotly
-from pandas.core.dtypes.common import is_numeric_dtype
+from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
 from pepclibs.helperlibs.Exceptions import Error
 
 # Default plotly diagram layout configuration.
@@ -113,15 +113,19 @@ class Plot:
         return hovertemplate
 
     @staticmethod
-    def _is_numeric_col(df, colname):
+    def _is_scalar_col(df, colname):
         """
-        Returns 'True' if column 'colname' in 'pandas.DataFrame' 'df' consists of numerical data,
+        Returns 'True' if column 'colname' in 'pandas.DataFrame' 'df' consists of scalar data,
         otherwise returns 'False'.  Helper for child classes to dictate styling based on whether a
-        column is numeric or not.
+        column is scalar or not.
         """
 
+        # Date-time data is used in time-series and therefore as scalar data.
+        if is_datetime64_any_dtype(df[colname]):
+            return True
+
         # Pandas 'is_numeric_dtype' function returns 'True' if the column datatype is numeric or a
-        # boolean.  This function returns the same as the pandas function unless the datatype is a
+        # boolean. This function returns the same as the pandas function unless the datatype is a
         # boolean, in which case it returns False.
         return is_numeric_dtype(df[colname]) and df[colname].dtype != 'bool'
 
