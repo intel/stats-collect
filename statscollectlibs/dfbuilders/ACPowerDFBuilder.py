@@ -51,6 +51,7 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Convert Time column from time since epoch to time since the first data point was recorded.
         sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
+        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
 
         # Remove any 'infinite' values which can appear in raw ACPower files.
         sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)

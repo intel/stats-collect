@@ -85,6 +85,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Convert Time column from time stamp to time since the first data point was recorded.
         sdf[time_colname] = sdf[time_colname] - sdf[time_colname][0]
+        sdf[time_colname] = pandas.to_datetime(sdf[time_colname], unit="s")
 
         sdf = sdf.rename(columns={time_colname: self._time_metric})
         return sdf
