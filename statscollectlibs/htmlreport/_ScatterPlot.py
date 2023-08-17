@@ -15,6 +15,7 @@ import logging
 import numpy
 import pandas
 import plotly
+from pandas.core.dtypes.common import is_datetime64_any_dtype
 from statscollectlibs.htmlreport import _Plot
 
 # List of diagram markers that we use in scatter plots.
@@ -132,6 +133,13 @@ class ScatterPlot(_Plot.Plot):
         else:
             marker_size = 30
             marker_symbol = "line-ns"
+
+        # If the data passed is an instance of 'datetime' then it should be formatted in a
+        # human-readable way on the axes and hover text.
+        for colname, axis in (("xcolname", "xaxis"), ("ycolname", "yaxis")):
+            if is_datetime64_any_dtype(df[getattr(self, colname)]):
+                self._layout[axis]["tickformat"] = "%H:%M:%S"
+                self._layout[axis]["hoverformat"] = "%H:%M:%S"
 
         marker = {"size" : marker_size, "symbol" : marker_symbol, "opacity" : self.opacity}
         gobj = plotly.graph_objs.Scattergl(x=df[self.xcolname], y=df[self.ycolname],
