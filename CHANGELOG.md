@@ -10,6 +10,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Change HTML reports to show "Time Elapsed" in the "hh:mm:ss" format in plots
+   (rather than using the integer count of seconds passed, which previously
+   resulted in values shown in "ks").
 
 ## [1.0.15] - 2023-08-11
 ### Fixed
