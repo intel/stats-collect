@@ -9,6 +9,7 @@
 """This module provides the API for creating raw stats-collect test results."""
 
 import contextlib
+import logging
 import os
 import shutil
 import time
@@ -17,6 +18,8 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
+
+_LOG = logging.getLogger()
 
 class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext):
     """This class represents a write-only raw test result."""
@@ -42,6 +45,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
                 self.dirpath.mkdir(parents=True, exist_ok=True)
                 self._created_paths.append(self.dirpath)
                 FSHelpers.set_default_perm(self.dirpath)
+                _LOG.info("Created statistics result directory '%s'", self.dirpath)
             except OSError as err:
                 raise Error(f"failed to create directory '{self.dirpath}':\n{err}") from None
 
@@ -90,6 +94,8 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         if not self._data_collected:
             paths = getattr(self, "_created_paths", [])
 
+        _LOG.info("No statistcs were collected so the following paths which were created will be "
+                  "deleted:\n  - %s", "\n  -".join(str(path) for path in self._created_paths))
         for path in paths:
             if not path.exists():
                 continue
