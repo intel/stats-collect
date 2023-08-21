@@ -39,18 +39,6 @@ Fedora packages are maintained by Ali Erdinç Köroğlu <ali.erdinc.koroglu@inte
 
 In case of Fedora 34 or older Fedora, use the 'pip' installation method.
 
-## CentOS 9 Stream
-
-'stats-collect' is available for CentOS 9 Stream via the 'epel' repository. Here is how to add 'epel' and
-install 'stats-collect'.
-
-```
-sudo dnf install epel-release
-sudo dnf install stats-collect
-```
-
-Epel packages are maintained by Ali Erdinç Köroğlu <ali.erdinc.koroglu@intel.com>.
-
 ## CentOS 8 Stream
 
 To install 'stats-collect' in CentOS stream, you can use the
