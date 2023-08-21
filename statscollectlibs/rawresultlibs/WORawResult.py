@@ -89,13 +89,15 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
     def close(self):
         """Stop the experiment."""
 
-        # Remove results if no data were collected.
-        paths = []
-        if not self._data_collected:
-            paths = getattr(self, "_created_paths", [])
+        # Only remove result directory if no data were collected.
+        if self._data_collected:
+            return
 
-        _LOG.info("No statistcs were collected so the following paths which were created will be "
-                  "deleted:\n  - %s", "\n  -".join(str(path) for path in self._created_paths))
+        paths = getattr(self, "_created_paths", [])
+        if paths:
+            _LOG.info("No statistcs were collected so the following paths which were created will "
+                      "be deleted:\n  - %s", "\n  -".join(str(p) for p in self._created_paths))
+
         for path in paths:
             if not path.exists():
                 continue
