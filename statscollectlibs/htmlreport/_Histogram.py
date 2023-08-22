@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -27,11 +27,11 @@ class Histogram(_Plot.Plot):
         try:
             if self.cumulative:
                 gobj = plotly.graph_objs.Histogram(x=df[self.xcolname], name=name, xbins=self.xbins,
-                                                    cumulative=dict(enabled=True),
-                                                    histnorm="percent", opacity=self.opacity)
+                                                   cumulative={"enabled": True}, histnorm="percent",
+                                                   opacity=self.opacity)
             else:
-                gobj = plotly.graph_objs.Histogram(x=df[self.xcolname], name=name, xbins=self.xbins,
-                                                   opacity=self.opacity,
+                gobj = plotly.graph_objs.Histogram(x=df[self.xcolname], name=name,
+                                                   xbins=self.xbins, opacity=self.opacity,
                                                    hovertemplate=hover_template, customdata=df)
         except Exception as err:
             msg = Error(err).indent(2)
