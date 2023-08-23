@@ -143,9 +143,8 @@ class ScatterPlot(_Plot.Plot):
 
         marker = {"size" : marker_size, "symbol" : marker_symbol, "opacity" : self.opacity}
         gobj = plotly.graph_objs.Scattergl(x=df[self.xcolname], y=df[self.ycolname],
-                                           hovertemplate=hover_template, customdata=df,
-                                           opacity=self.opacity, marker=marker, mode="markers",
-                                           name=name)
+                                           hovertemplate=hover_template, opacity=self.opacity,
+                                           marker=marker, mode="markers", name=name)
         self._gobjs.append(gobj)
 
     def __init__(self, xcolname, ycolname, outpath, xaxis_label=None, yaxis_label=None,

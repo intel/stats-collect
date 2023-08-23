@@ -14,7 +14,6 @@ import plotly
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import _Plot
 
-
 class Histogram(_Plot.Plot):
     """This class provides the functionality to generate plotly histograms."""
 
@@ -32,7 +31,7 @@ class Histogram(_Plot.Plot):
             else:
                 gobj = plotly.graph_objs.Histogram(x=df[self.xcolname], name=name,
                                                    xbins=self.xbins, opacity=self.opacity,
-                                                   hovertemplate=hover_template, customdata=df)
+                                                   hovertemplate=hover_template)
         except Exception as err:
             msg = Error(err).indent(2)
             raise Error(f"failed to create histogram 'count-vs-{self.xcolname}':\n{msg}") from err
