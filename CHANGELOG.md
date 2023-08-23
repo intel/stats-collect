@@ -7,6 +7,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
  - Fix units on plot axes in HTML reports sometimes containing two SI-prefixes
    (e.g. kMHz).
+ - Fix diagrams with hover text being generated with huge file sizes.
 ### Added
 ### Removed
 ### Changed
