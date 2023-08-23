@@ -1,3 +1,14 @@
+stats-collect (1.0.16) unstable; urgency=low
+
+  * Fix units on plot axes in HTML reports sometimes containing two SI-prefixes
+    (e.g. kMHz).
+  * Fix diagrams with hover text being generated with huge file sizes.
+  * Change HTML reports to show "Time Elapsed" in the "hh:mm:ss" format in plots
+    (rather than using the integer count of seconds passed, which previously
+    resulted in values shown in "ks").
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 23 Aug 2023 00:00:00 +0200
+
 stats-collect (1.0.15) unstable; urgency=low
 
   * Fix duplicate report IDs appearing in the trimmed file alert in the 'Captured
@@ -24,7 +35,7 @@ stats-collect (1.0.14) unstable; urgency=low
 
   * Add 'Report info' section to HTML reports with the name and version of the
     tool used to generate the report.
-  * Simplified the HTML report directory structure.
+  * Simplify the HTML report directory structure.
   * Generate 'SysInfo' tabs in HTML diffs when one or more results have 'SysInfo'
     data rather than only when all results have 'SysInfo' data.
   * Change 'stats-collect start' to fail if 'cmd' finishes before any significant

@@ -5,11 +5,15 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.16] - 2023-08-23
+### Fixed
  - Fix units on plot axes in HTML reports sometimes containing two SI-prefixes
    (e.g. kMHz).
  - Fix diagrams with hover text being generated with huge file sizes.
-### Added
-### Removed
 ### Changed
  - Change HTML reports to show "Time Elapsed" in the "hh:mm:ss" format in plots
    (rather than using the integer count of seconds passed, which previously
