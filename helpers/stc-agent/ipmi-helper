@@ -50,8 +50,8 @@ def parse_arguments():
     text = "IPMI user name (will be passed to 'ipmitool -U'). Default is 'root'."
     parser.add_argument("-U", "--user", help=text)
 
-    text = "IPMI password (will be passed to 'ipmitool -P'). Default is \"no password\"."
-    parser.add_argument("-P", "--password", help=text)
+    text = "IPMI password file (will be passed to 'ipmitool -f')."
+    parser.add_argument("-f", "--password-file", help=text)
 
     # This is a hidden option which makes 'ipmi-helper' print paths to its dependencies and exit.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
@@ -79,8 +79,8 @@ def main():
 
     args = parse_arguments()
 
-    if (args.user or args.password) and not args.host:
-        raise Error("please, specify the host: '--user' and '--password' require '--host'")
+    if (args.user or args.password_file) and not args.host:
+        raise Error("please, specify the host: '--user' and '--password-file' require '--host'")
 
     if args.print_module_paths:
         print_module_paths()
@@ -94,8 +94,8 @@ def main():
         cmd += f" -I lanplus -H '{args.host}'"
     if args.user:
         cmd += f" -U '{args.user}'"
-    if args.password:
-        cmd += f" -P '{args.password}'"
+    if args.password_file:
+        cmd += f" -f '{args.password_file}'"
     cmd += " sdr list full"
 
     with LocalProcessManager.LocalProcessManager() as pman:

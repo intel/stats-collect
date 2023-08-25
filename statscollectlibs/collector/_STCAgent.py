@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -51,7 +51,8 @@ _DELIMITER = "--\n".encode("utf-8")
 # ipmi-oob:
 #     bmchost: name or address of the BMC host to read IPMI data from.
 #     bmcuser: name of the BMC user to use when talking to the BMC host (same as 'ipmitool -U').
-#     bmcpwd: BMC password to use when talking to the BMC host (same as 'ipmitool -P').
+#     bmcpwdfile: path to a file containing the BMC password to use when talking to the BMC host
+#                 (same as 'ipmitool -f').
 # acpower:
 #     devnode: the power meter device node to use for reading power consumption data.
 #     pmtype: the power meter type.
@@ -96,7 +97,7 @@ STINFO = {
         "props" : {
             "bmchost" : None,
             "bmcuser" : None,
-            "bmcpwd" : None,
+            "bmcpwdfile" : None,
         }
     },
     "ipmi-inband" : {
