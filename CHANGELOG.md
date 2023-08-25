@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Change the 'ipmi-oob' 'bmcpwd' property to 'bmcpwdfile' property.
 
 ## [1.0.16] - 2023-08-23
 ### Fixed
