@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -35,14 +35,16 @@ from pepclibs.helperlibs.Exceptions import Error
 
 try:
     from statscollectlibs.helperlibs import ProcHelpers
+    from statscollecttools import ToolInfo
 except ImportError:
     # The project was not installed, and the program was executed from the sources. Insert the
     # project root directory path to the modules search list.
     ownpath = Path(sys.argv[0]).parent.resolve()
     sys.path.append(f"{ownpath}/../../")
     from statscollectlibs.helperlibs import ProcHelpers
+    from statscollecttools import ToolInfo
 
-VERSION = "1.0"
+VERSION = ToolInfo.VERSION
 OWN_NAME = "stc-agent"
 
 # The values for statistics collector properties which mean that the property was not initialized.
