@@ -429,12 +429,12 @@ class IPMIOOBCollector(_IPMICollector):
 
         super().configure()
 
-        hostopt = f" --host '{self.props['bmchost']}'"
+        hostopt = f" --host '{self.props['host']}'"
         self._command += hostopt
-        if self.props["bmcuser"] != UNINITIALIZED["str"]:
-            self._command += f" --user '{self.props['bmcuser']}'"
-        if self.props["bmcpwdfile"] != UNINITIALIZED["str"]:
-            self._command += f" --password-file '{self.props['bmcpwdfile']}'"
+        if self.props["user"] != UNINITIALIZED["str"]:
+            self._command += f" --user '{self.props['user']}'"
+        if self.props["pwdfile"] != UNINITIALIZED["str"]:
+            self._command += f" --password-file '{self.props['pwdfile']}'"
 
         self._stale_search += f".*{hostopt}"
 
@@ -442,9 +442,9 @@ class IPMIOOBCollector(_IPMICollector):
         """Initialize a class instance."""
 
         super().__init__("ipmi-oob")
-        self.props["bmchost"] = UNINITIALIZED["required-str"]
-        self.props["bmcuser"] = UNINITIALIZED["str"]
-        self.props["bmcpwdfile"] = UNINITIALIZED["str"]
+        self.props["host"] = UNINITIALIZED["required-str"]
+        self.props["user"] = UNINITIALIZED["str"]
+        self.props["pwdfile"] = UNINITIALIZED["str"]
 
 class ACPowerCollector(_BaseCollector):
     """This class represents the ACPower statistics collector."""

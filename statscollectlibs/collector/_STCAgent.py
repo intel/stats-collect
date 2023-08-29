@@ -49,10 +49,10 @@ _DELIMITER = "--\n".encode("utf-8")
 # Here are the currently supported properties.
 #
 # ipmi-oob:
-#     bmchost: name or address of the BMC host to read IPMI data from.
-#     bmcuser: name of the BMC user to use when talking to the BMC host (same as 'ipmitool -U').
-#     bmcpwdfile: path to a file containing the BMC password to use when talking to the BMC host
-#                 (same as 'ipmitool -f').
+#     host: name or address of the host to read IPMI data from (using 'ipmitool').
+#     user: name of the BMC user to use when talking to the BMC host (same as 'ipmitool -U').
+#     pwdfile: path to a file containing the password to use when talking to the host (same as
+#             'ipmitool -f').
 # acpower:
 #     devnode: the power meter device node to use for reading power consumption data.
 #     pmtype: the power meter type.
@@ -95,9 +95,9 @@ STINFO = {
                         "on the SUT (in-band), because it does not add to CPU load.",
         "paths" : {"stats": "ipmi-oob.raw.txt"},
         "props" : {
-            "bmchost" : None,
-            "bmcuser" : None,
-            "bmcpwdfile" : None,
+            "host" : None,
+            "user" : None,
+            "pwdfile" : None,
         }
     },
     "ipmi-inband" : {
