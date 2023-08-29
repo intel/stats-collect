@@ -8,7 +8,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
- - Change the 'ipmi-oob' 'bmcpwd' property to 'bmcpwdfile' property.
+ - Change the 'ipmi-oob' 'bmcpwd' property to 'pwdfile' property.
+ - Rename the 'bmcuser' and 'bmchost' 'ipmi-oob' properties to 'user' and 'host'
+   respectively.
 
 ## [1.0.16] - 2023-08-23
 ### Fixed
