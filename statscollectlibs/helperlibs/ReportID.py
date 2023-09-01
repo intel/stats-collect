@@ -15,7 +15,7 @@ import re
 import time
 from pepclibs.helperlibs.Exceptions import Error
 
-MAX_REPORID_LEN = 64
+MAX_REPORID_LEN = 128
 # The special characters allowed in the report ID.
 SPECIAL_CHARS = "-.,_~"
 
