@@ -43,17 +43,15 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         }
 
         # Add frequency-related D-tabs to a separate C-tab.
-        freq_metrics = ["Bzy_MHz", "Avg_MHz"]
-        tab_hierarchy["Frequency"] = {"dtabs": [m for m in freq_metrics if m in common_metrics]}
+        freq_metrics = [m for m in self._freq_metrics if m in common_metrics]
+        tab_hierarchy["Frequency"] = {"dtabs": freq_metrics}
 
         # Add temperature/power-related D-tabs to a separate C-tab.
-        tp_metrics = ["CorWatt", "CoreTmp"]
-        tp_metrics = [m for m in tp_metrics if m in common_metrics]
+        tp_metrics = [m for m in self._tp_metrics if m in common_metrics]
         tab_hierarchy["Temperature / Power"] = {"dtabs": tp_metrics}
 
         # Add miscellaneous D-tabs to a separate C-tab.
-        misc_metrics = ["IRQ", "SMI", "IPC"]
-        tab_hierarchy["Misc"] = {"dtabs": [m for m in misc_metrics if m in common_metrics]}
+        tab_hierarchy["Misc"] = {"dtabs": [m for m in self._misc_metrics if m in common_metrics]}
 
         for cs in self._cstates["requested"]["residency"]:
             tab_hierarchy["C-states"]["Requested"]["Residency"]["dtabs"].append(cs.metric)
@@ -171,6 +169,19 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         # After C-states have been extracted from the first raw turbostat statistics file, this
         # property will be assigned a 'TurbostatDefs.TurbostatDefs' instance.
         self._defs = None
+
+        # Expose the "C-states -> Hardware" tab so that child classes can add to it.
+        self._hw_cs_tab = None
+
+        # Categorise 'turbostat' metrics into different tabs. Child classes can
+        # modify these attributes to change which metrics will appear in the
+        # tabs.
+        # Frequency tab.
+        self._freq_metrics = ["Bzy_MHz", "Avg_MHz"]
+        # Temperature/Power tab.
+        self._tp_metrics = ["CorWatt", "CoreTmp"]
+        # Misc tab.
+        self._misc_metrics = ["IRQ", "SMI", "IPC"]
 
         # Store C-states for which there is data in each raw turbostat statistics file.
         self._cstates = {

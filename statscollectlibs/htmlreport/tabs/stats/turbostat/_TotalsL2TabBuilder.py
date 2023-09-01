@@ -29,14 +29,6 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
 
         harchy = super()._get_tab_hierarchy(common_metrics)
 
-        # Add extra metrics to the metrics in 'harchy' if they are common to all results.
-        extra_dtabs = ["PkgWatt", "GFXWatt", "RAMWatt", "PkgTmp"]
-        harchy["Temperature / Power"]["dtabs"] += [m for m in extra_dtabs if m in common_metrics]
-
-        # Add uncore frequency D-tab to the "Frequency" C-tab.
-        unc_metric = "UncMHz"
-        if unc_metric in common_metrics:
-            harchy["Frequency"]["dtabs"].append(unc_metric)
 
         # Add package C-states.
         hw_pkg_cs = self._cstates["hardware"]["package"]
@@ -84,3 +76,9 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
             hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         super().__init__(dfs, outdir / self.name, basedir, hover_defs)
+
+        # Add non-CPU specific power metrics to the "Temperature/Power" tab.
+        self._tp_metrics += ["PkgWatt", "GFXWatt", "RAMWatt", "PkgTmp"]
+
+        # Add uncore frequency D-tab to the "Frequency" C-tab.
+        self._freq_metrics.append("UncMHz")
