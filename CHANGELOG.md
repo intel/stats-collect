@@ -11,6 +11,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Change the 'ipmi-oob' 'bmcpwd' property to 'pwdfile' property.
  - Rename the 'bmcuser' and 'bmchost' 'ipmi-oob' properties to 'user' and 'host'
    respectively.
+ - Maximum report ID length changed from 64 characters to 128.
 
 ## [1.0.16] - 2023-08-23
 ### Fixed
