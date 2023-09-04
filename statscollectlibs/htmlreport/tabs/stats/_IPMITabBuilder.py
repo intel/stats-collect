@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -15,7 +15,7 @@ from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.defs import DefsBase, IPMIDefs
 from statscollectlibs.dfbuilders import IPMIDFBuilder
-from statscollectlibs.htmlreport.tabs import _TabBuilderBase
+from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
 _LOG = logging.getLogger()
 
@@ -31,31 +31,33 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "IPMI"
     stnames = ("ipmi-inband", "ipmi-oob",)
 
-    def _get_tab_hierarchy(self, common_cols):
+    def _get_tab_config(self, common_cols, smry_funcs):
         """
-        Helper function for 'get_tab()'. Get the tab hierarchy which is populated with IPMI column
+        Helper function for 'get_tab()'. Get the tab config which is populated with IPMI column
         names which are common to all raw IPMI statistic files 'common_cols'.
         """
-
-        tab_hierarchy = {}
 
         # Dedupe cols in 'self._metrics'.
         for metric in self._metrics:
             self._metrics[metric] = Trivial.list_dedup(self._metrics[metric])
 
+        ctabs = []
         # Add fan speed-related D-tabs to a separate C-tab.
-        fspeed_cols = self._metrics["FanSpeed"]
-        tab_hierarchy["Fan Speed"] = {"dtabs": [c for c in fspeed_cols if c in common_cols]}
+        fspeed_cols = [col for col in self._metrics["FanSpeed"] if col in common_cols]
+        ctabs.append(self._build_def_ctab_cfg("Fan Speed", fspeed_cols, self._time_metric,
+                                              smry_funcs, self._hover_defs))
 
         # Add temperature-related D-tabs to a separate C-tab.
-        temp_cols = self._metrics["Temperature"]
-        tab_hierarchy["Temperature"] = {"dtabs": [c for c in temp_cols if c in common_cols]}
+        temp_cols = [col for col in self._metrics["Temperature"] if col in common_cols]
+        ctabs.append(self._build_def_ctab_cfg("Temperature", temp_cols, self._time_metric,
+                                              smry_funcs, self._hover_defs))
 
         # Add power-related D-tabs to a separate C-tab.
         pwr_cols = self._metrics["Power"] + self._metrics["Current"] + self._metrics["Voltage"]
-        tab_hierarchy["Power"] = {"dtabs": [c for c in pwr_cols if c in common_cols]}
+        ctabs.append(self._build_def_ctab_cfg("Power", pwr_cols, self._time_metric,
+                                              smry_funcs, self._hover_defs))
 
-        return tab_hierarchy
+        return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 
     def get_tab(self):
         """
@@ -97,8 +99,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 col_def["name"] = colname
                 self._defs.info[colname] = col_def
 
-        tab_hierarchy = self._get_tab_hierarchy(common_cols)
-
         # Configure which axes plots will display in the data tabs.
         plots = {}
         smry_funcs = {}
@@ -119,8 +119,9 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
                                   "med", "avg", "min", "std"]
 
-        return self._build_ctab(self.name, tab_hierarchy, self._outdir, plots, smry_funcs,
-                                self._hover_defs)
+        ctabconfig = self._get_tab_config(common_cols, smry_funcs)
+
+        return self._build_ctab_from_cfg(self._outdir, ctabconfig)
 
     def __init__(self, rsts, outdir, basedir=None):
         """

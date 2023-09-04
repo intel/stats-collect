@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -14,7 +14,7 @@ from pathlib import Path
 import logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.defs import DefsBase
-from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs
+from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 
 _LOG = logging.getLogger()
 
@@ -36,6 +36,98 @@ class TabBuilderBase:
 
     # The name of the statistics represented in the produced tab.
     name = None
+
+    def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs):
+        """
+        Provides a way to build a default data tab configuration. Returns an instance of
+        'TabConfig.DTabConfig'. Arguments are as follows:
+          * y_metric - the name of the metric which will be plotted on the y-axis of the tab's
+                       scatter plot.
+          * x_metric - the name of the metric which will be plotted on the x-axis of the tab's
+                       scatter plot.
+          * smry_funcs - a dictionary in the format '{metric: summary_func}', for example:
+                         {
+                            Metric1: ["99.999%", "99.99%",...],
+                            Metric2: ["max", "min",...]
+                         }
+          * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
+                         list of metric definition dictionaries for the metrics which should be
+                         included on plots as hover text for the relevant report with id 'reportid'.
+        """
+
+        dtab = TabConfig.DTabConfig(self._defs.info[y_metric])
+        dtab.add_scatter_plot(self._defs.info[x_metric], self._defs.info[y_metric])
+        dtab.add_hist(self._defs.info[y_metric])
+        dtab.set_smry_funcs({y_metric: smry_funcs[y_metric]})
+        dtab.set_hover_defs(hover_defs)
+
+        return dtab
+
+    def _build_def_ctab_cfg(self, ctab_name, metrics, def_x_metric, smry_funcs, hover_defs):
+        """
+        Provides a way to build a default container tab configuration. Returns an instance of
+        'TabConfig.CTabConfig'. Arguments are the same as 'self._build_def_dtab_cfg()' except for:
+          * ctab_name - the name of the container tab.
+          * metrics - a list of names of metrics, for which each should have a data tab.
+          * def_x_metric - the name of the metric used on the x-axis of plots for all metrics.
+        """
+
+        dtabs = []
+
+        for metric in metrics:
+            if metric not in self._defs.info:
+                continue
+            dtabs.append(self._build_def_dtab_cfg(metric, def_x_metric, smry_funcs, hover_defs))
+
+        return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
+
+    def _build_ctab_from_cfg(self, outdir, ctabconfig):
+        """
+        Build a container tab according to the tab configuration 'ctabconfig'. If no sub-tabs can be
+        generated then raises an 'Error' and if the config provided is empty then returns 'None'.
+        Arguments are as follows:
+         * outdir - path of the directory in which to store the generated tabs.
+         * ctabconfig - an instance of 'TabConfig.CTabConfig' which configures the contents of the
+                        resultant container tab.
+        """
+
+        if not (ctabconfig.ctabs or ctabconfig.dtabs):
+            return None
+
+        # Sub-tabs which will be contained by the returned container tab.
+        sub_tabs = []
+
+        for dtabconfig in ctabconfig.dtabs:
+            tab_mdef = dtabconfig.tab_mdef
+
+            results = {rid: sdf for rid, sdf in self._reports.items() if tab_mdef["name"] in sdf}
+            if not results:
+                _LOG.info("Skipping '%s' tab in '%s' tab: no results contain data for this "
+                          "metric.", tab_mdef, self.name)
+                continue
+
+            try:
+                tab = _DTabBuilder.DTabBuilder(self._reports, outdir, tab_mdef, self._basedir)
+                tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
+                              hover_defs=dtabconfig.hover_defs)
+                tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
+                sub_tabs.append(tab.get_tab())
+            except Error as err:
+                _LOG.info("Skipping '%s' tab in '%s' tab: error occured during tab generation.",
+                          tab_mdef, self.name)
+                _LOG.debug(err)
+
+        for subtab_cfg in ctabconfig.ctabs:
+            subdir = Path(outdir) / DefsBase.get_fsname(subtab_cfg.name)
+            subtab = self._build_ctab_from_cfg(subdir, subtab_cfg)
+
+            if subtab:
+                sub_tabs.append(subtab)
+
+        if sub_tabs:
+            return _Tabs.CTabDC(ctabconfig.name, sub_tabs)
+
+        raise Error(f"unable to generate a container tab for {self.name}.")
 
     def _build_ctab(self, name, tab_hierarchy, outdir, plots, smry_funcs, hover_defs=None):
         """
