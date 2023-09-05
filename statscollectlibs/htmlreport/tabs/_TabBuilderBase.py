@@ -81,7 +81,7 @@ class TabBuilderBase:
 
         return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
-    def _build_ctab_from_cfg(self, outdir, ctabconfig):
+    def _build_ctab(self, outdir, ctabconfig):
         """
         Build a container tab according to the tab configuration 'ctabconfig'. If no sub-tabs can be
         generated then raises an 'Error' and if the config provided is empty then returns 'None'.
@@ -119,102 +119,13 @@ class TabBuilderBase:
 
         for subtab_cfg in ctabconfig.ctabs:
             subdir = Path(outdir) / DefsBase.get_fsname(subtab_cfg.name)
-            subtab = self._build_ctab_from_cfg(subdir, subtab_cfg)
+            subtab = self._build_ctab(subdir, subtab_cfg)
 
             if subtab:
                 sub_tabs.append(subtab)
 
         if sub_tabs:
             return _Tabs.CTabDC(ctabconfig.name, sub_tabs)
-
-        raise Error(f"unable to generate a container tab for {self.name}.")
-
-    def _build_ctab(self, name, tab_hierarchy, outdir, plots, smry_funcs, hover_defs=None):
-        """
-        This is a helper function for 'get_tab()'. Build a container tab according to the
-        'tab_hierarchy' dictionary. If no sub-tabs can be generated then raises an 'Error' and if
-        the 'tab_hierarchy' provided is empty then returns 'None'. Arguments are as follows:
-         * name - name of the returned container tab.
-         * tab_hierarchy - dictionary representation of the desired tab hierarchy. Schema is as
-                           follows:
-                           {
-                               CTabName1:
-                                   {"dtabs": [metric1, metric2...]},
-                               CTabName2:
-                                   CTabName3:
-                                       {"dtabs": [metric3, metric4...]}
-                           }
-         * outdir - path of the directory in which to store the generated tabs.
-         * plots - dictionary representation of the plots to include for each metric. Schema is as
-                   follows:
-                   {
-                        Metric1:
-                            {
-                                "scatter": [(mdef1, mdef2), (mdef1, mdef5)],
-                                "hist": [mdef1, mdef2],
-                                "chist": [mdef1]
-                            }
-                   }
-         * smry_funcs - dictionary representation of the summary functions to include in the summary
-                    table for each metric. Schema is as follows:
-                    {
-                        Metric1: ["99.999%", "99.99%",...],
-                        Metric2: ["max", "min",...]
-                    }
-         * hover_defs - a mapping from 'reportid' to defs of metrics which should be included in the
-                        hovertext of scatter plots.
-        """
-
-        if tab_hierarchy == {"dtabs": []}:
-            return None
-
-        # Sub-tabs which will be contained by the returned container tab.
-        sub_tabs = []
-
-        # Start by checking if 'tab_hierarchy' includes data tabs at this level. If it does, create
-        # them and append them to 'sub_tabs'.
-        if "dtabs" in tab_hierarchy:
-            for metric in tab_hierarchy["dtabs"]:
-                results = {repid: sdf for repid, sdf in self._reports.items() if metric in sdf}
-                if not results:
-                    _LOG.info("Skipping '%s' tab in '%s' tab: no results contain data for this "
-                              "metric.", metric, self.name)
-                    continue
-
-                if not metric in self._defs.info:
-                    _LOG.warning("skipping '%s' tab in '%s' tab: metric '%s' is not currently "
-                                 "supported.", metric, self.name, metric)
-                    continue
-
-                try:
-                    tab = _DTabBuilder.DTabBuilder(results, outdir, self._defs.info[metric],
-                                                   self._basedir)
-                    if metric in plots:
-                        tab.add_plots(plots[metric].get("scatter"), plots[metric].get("hist"),
-                                      plots[metric].get("chist"), hover_defs=hover_defs)
-                    tab.add_smrytbl({metric: smry_funcs[metric]}, self._defs)
-                    sub_tabs.append(tab.get_tab())
-                except Error as err:
-                    _LOG.info("Skipping '%s' tab in '%s' tab: error occured during tab generation.",
-                              metric, self.name)
-                    _LOG.debug(err)
-
-        # Process the rest of the tabs in the tab hierarchy.
-        for tab_name, sub_hierarchy in tab_hierarchy.items():
-            # Data tabs are handled by the check above so skip them.
-            if tab_name == "dtabs":
-                continue
-
-            # Tabs not labelled by the "dtabs" key in the tab hierarchy are container tabs. For each
-            # sub container tab, recursively call 'self._build_ctab()'.
-            subdir = Path(outdir) / DefsBase.get_fsname(tab_name)
-            subtab = self._build_ctab(tab_name, sub_hierarchy, subdir, plots, smry_funcs,
-                                      hover_defs)
-            if subtab:
-                sub_tabs.append(subtab)
-
-        if sub_tabs:
-            return _Tabs.CTabDC(name, sub_tabs)
 
         raise Error(f"unable to generate a container tab for {self.name}.")
 

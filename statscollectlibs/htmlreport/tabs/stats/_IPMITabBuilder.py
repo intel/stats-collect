@@ -121,7 +121,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         ctabconfig = self._get_tab_config(common_cols, smry_funcs)
 
-        return self._build_ctab_from_cfg(self._outdir, ctabconfig)
+        return self._build_ctab(self._outdir, ctabconfig)
 
     def __init__(self, rsts, outdir, basedir=None):
         """

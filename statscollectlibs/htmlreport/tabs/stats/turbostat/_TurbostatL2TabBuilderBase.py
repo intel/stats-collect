@@ -107,7 +107,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         # tabs which are common to all sets of results.
         tab_cfg = self._get_ctab_cfg(common_metrics, smry_funcs)
 
-        return self._build_ctab_from_cfg(self.outdir, tab_cfg)
+        return self._build_ctab(self.outdir, tab_cfg)
 
     def _init_cstates(self, dfs):
         """
