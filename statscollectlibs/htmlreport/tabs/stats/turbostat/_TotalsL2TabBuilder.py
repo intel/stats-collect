@@ -20,29 +20,24 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
 
     name = "Totals"
 
-    def _get_tab_hierarchy(self, common_metrics):
+    def _get_ctab_cfg(self, common_metrics, smry_funcs):
         """
-        Extends '_get_tab_hierarchy()' from the parent class to add tabs specifically for this
-        level 2 turbostat tab as they are not added by 'super()._get_tab_hierarchy()'. Arguments are
-        the same as 'super()._get_tab_hierarchy()'.
+        Extends '_get_ctab_cfg()' from the parent class to add tabs specifically for this
+        level 2 turbostat tab as they are not added by 'super()._get_ctab_cfg()'. Arguments are
+        the same as 'super()._get_ctab_cfg()'.
         """
 
-        harchy = super()._get_tab_hierarchy(common_metrics)
+        cfg = super()._get_ctab_cfg(common_metrics, smry_funcs)
 
+        # Add package & module C-states.
+        for scope in ("package", "module",):
+            hw_pkg_cs = [m for m in self._cstates["hardware"][scope] if m in common_metrics]
+            for csdef in hw_pkg_cs:
+                self._hw_cs_tab.dtabs.append(self._build_def_dtab_cfg(csdef.metric,
+                                                                      self._time_metric, smry_funcs,
+                                                                      self._hover_defs))
 
-        # Add package C-states.
-        hw_pkg_cs = self._cstates["hardware"]["package"]
-        for csdef in hw_pkg_cs:
-            if csdef.metric in common_metrics:
-                harchy["C-states"]["Hardware"]["dtabs"].append(csdef.metric)
-
-        # Add module C-states.
-        hw_mod_cs = self._cstates["hardware"]["module"]
-        for csdef in hw_mod_cs:
-            if csdef.metric in common_metrics:
-                harchy["C-states"]["Hardware"]["dtabs"].append(csdef.metric)
-
-        return harchy
+        return cfg
 
     def get_tab(self):
         """

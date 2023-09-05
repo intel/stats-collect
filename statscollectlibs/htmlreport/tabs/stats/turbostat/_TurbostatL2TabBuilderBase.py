@@ -15,7 +15,7 @@ base class expects child classes to implement '_turbostat_to_df()'.
 """
 
 from statscollectlibs.defs import TurbostatDefs
-from statscollectlibs.htmlreport.tabs import _TabBuilderBase
+from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
 class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
     """
@@ -26,44 +26,45 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
        * '_turbostat_to_df()'
     """
 
-    def _get_tab_hierarchy(self, common_metrics):
+    def _get_ctab_cfg(self, common_metrics, smry_funcs):
         """
-        Get the tab hierarchy which is populated with 'common_metrics' and using the C-states in
+        Get the tab config which is populated with 'common_metrics' and using the C-states in
         'self._hw_cstates' and 'self._req_cstates'.
         """
 
-        tab_hierarchy = {
-            "C-states": {
-                "Hardware": {"dtabs":[]},
-                "Requested": {
-                    "Residency": {"dtabs": []},
-                    "Count": {"dtabs": []}
-                }
-            }
-        }
+        def fltr(metrics):
+            """Helper function filters 'metrics' based on if they are in 'common_metrics'."""
+            return [m for m in metrics if m in common_metrics]
 
         # Add frequency-related D-tabs to a separate C-tab.
-        freq_metrics = [m for m in self._freq_metrics if m in common_metrics]
-        tab_hierarchy["Frequency"] = {"dtabs": freq_metrics}
+        freq_tab = self._build_def_ctab_cfg("Frequency", fltr(self._freq_metrics),
+                                            self._time_metric, smry_funcs, self._hover_defs)
 
         # Add temperature/power-related D-tabs to a separate C-tab.
-        tp_metrics = [m for m in self._tp_metrics if m in common_metrics]
-        tab_hierarchy["Temperature / Power"] = {"dtabs": tp_metrics}
+        tmp_tab = self._build_def_ctab_cfg("Temperature / Power", fltr(self._tp_metrics),
+                                           self._time_metric, smry_funcs, self._hover_defs)
 
         # Add miscellaneous D-tabs to a separate C-tab.
-        tab_hierarchy["Misc"] = {"dtabs": [m for m in self._misc_metrics if m in common_metrics]}
+        misc_tab = self._build_def_ctab_cfg("Misc", fltr(self._misc_metrics), self._time_metric,
+                                            smry_funcs, self._hover_defs)
 
-        for cs in self._cstates["requested"]["residency"]:
-            tab_hierarchy["C-states"]["Requested"]["Residency"]["dtabs"].append(cs.metric)
+        req_res_cstates = [cs.metric for cs in self._cstates["requested"]["residency"]]
+        req_res_tab = self._build_def_ctab_cfg("Residency", req_res_cstates, self._time_metric,
+                                               smry_funcs, self._hover_defs)
 
-        for cs in self._cstates["requested"]["count"]:
-            tab_hierarchy["C-states"]["Requested"]["Count"]["dtabs"].append(cs.metric)
+        req_cnt_cstates = [cs.metric for cs in self._cstates["requested"]["count"]]
+        req_cnt_tab = self._build_def_ctab_cfg("Count", req_cnt_cstates, self._time_metric,
+                                               smry_funcs, self._hover_defs)
 
-        tab_hierarchy["C-states"]["Hardware"]["dtabs"].append("Busy%")
-        for cs in self._cstates["hardware"]["core"]:
-            tab_hierarchy["C-states"]["Hardware"]["dtabs"].append(cs.metric)
+        req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
 
-        return tab_hierarchy
+        hw_cstates = [cs.metric for cs in self._cstates["hardware"]["core"]] + ["Busy%"]
+        self._hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric,
+                                                   smry_funcs, self._hover_defs)
+
+        cs_tab = TabConfig.CTabConfig("C-states", ctabs=[self._hw_cs_tab, req_tabs])
+
+        return TabConfig.CTabConfig(self.name, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
 
     def get_tab(self):
         """
@@ -86,10 +87,6 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         # Limit metrics to only those with definitions.
         common_metrics.intersection_update(set(self._defs.info.keys()))
 
-        # All raw turbostat statistic files have been parsed so we can now get a tab hierarchy with
-        # tabs which are common to all sets of results.
-        tab_hierarchy = self._get_tab_hierarchy(common_metrics)
-
         # Define which plots should be generated in the data tab and which summary functions
         # should be included in the generated summary table for a given metric.
         plots = {}
@@ -106,9 +103,11 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
                 smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
                                       "med", "avg", "min", "std"]
 
-        # Build L2 CTab with hierarchy represented in 'self._tab_hierarchy'.
-        return self._build_ctab(self.name, tab_hierarchy, self.outdir, plots, smry_funcs,
-                                self._hover_defs)
+        # All raw turbostat statistic files have been parsed so we can now get a tab config with
+        # tabs which are common to all sets of results.
+        tab_cfg = self._get_ctab_cfg(common_metrics, smry_funcs)
+
+        return self._build_ctab_from_cfg(self.outdir, tab_cfg)
 
     def _init_cstates(self, dfs):
         """
