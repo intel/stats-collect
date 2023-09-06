@@ -66,10 +66,9 @@ class IPMIParser(_ParserBase.ParserBase):
                 data_set[key] = entry[1:]
             else:
                 if data_set:
-                    data_set[key] = entry[1:]
                     yield data_set
 
-                data_set = {}
+                data_set = {key: entry[1:]}
                 duplicates = {}
                 data_set[key] = entry[1:]
 
