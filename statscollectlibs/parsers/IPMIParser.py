@@ -72,3 +72,6 @@ class IPMIParser(_ParserBase.ParserBase):
                 data_set = {}
                 duplicates = {}
                 data_set[key] = entry[1:]
+
+        # Yield the last data point, which is not followed by another timestamp.
+        yield data_set
