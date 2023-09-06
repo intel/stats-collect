@@ -7,6 +7,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
  - Fix units in HTML report plot hover texts sometimes containing two
    SI-prefixes (e.g. kMHz).
+ - Fix HTML reports being generated missing the last data point of 'ipmi' data.
 ### Added
 ### Removed
 ### Changed
