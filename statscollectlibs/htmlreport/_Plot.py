@@ -194,7 +194,9 @@ class Plot:
         # percent values, just round the value to 3 significant figures and do not include an SI
         # prefix.
         if self.xaxis_unit not in _BASE_UNITS:
-            xaxis["tickformat"] = ".3r"
+            fmt = ".3r"
+            xaxis["tickformat"] = fmt
+            xaxis["hoverformat"] = fmt
 
         yaxis = {**_AXIS,
                  "ticksuffix": self.yaxis_unit,
@@ -202,7 +204,9 @@ class Plot:
 
         # See comment above regarding SI prefixes. Here we do the same but for the Y-axis.
         if self.yaxis_unit not in _BASE_UNITS:
-            yaxis["tickformat"] = ".3r"
+            fmt = ".3r"
+            yaxis["tickformat"] = fmt
+            yaxis["hoverformat"] = fmt
 
         layout = {"showlegend"  : True,
                   "hovermode"   : "closest",
