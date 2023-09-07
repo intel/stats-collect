@@ -10,6 +10,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix HTML reports being generated missing the last data point of 'ipmi' data.
  - Fix 'ipmi' plots in HTML reports being generated with timestamps which are
    inconsistent with raw 'ipmi' statistics files.
+ - Fix 'stats-collect start' collecting both 'ipmi-inband' and 'ipmi-oob' data
+   when it has already stated that it will disable the former in favour of the
+   latter.
 ### Added
 ### Removed
 ### Changed
