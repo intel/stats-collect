@@ -309,11 +309,11 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
     def configure(self):
         """Same as 'StatsCollect.configure()'."""
 
+        self._handle_conflicting_stats()
+
         self._inbagent.configure()
         if self._oobagent:
             self._oobagent.configure()
-
-        self._handle_conflicting_stats()
 
     def add_label(self, name, metrics=None):
         """
