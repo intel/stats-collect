@@ -1,3 +1,22 @@
+stats-collect (1.0.17) unstable; urgency=low
+
+  * Fix units in HTML report plot hover texts sometimes containing two
+    SI-prefixes (e.g. kMHz).
+  * Fix HTML reports being generated missing the last data point of 'ipmi' data.
+  * Fix 'ipmi' plots in HTML reports being generated with timestamps which are
+    inconsistent with raw 'ipmi' statistics files.
+  * Fix 'stats-collect start' collecting both 'ipmi-inband' and 'ipmi-oob' data
+    when it has already stated that it will disable the former in favour of the
+    latter.
+  * Fix 'stats-collect report' crashing on plot density reduction if any data
+    points were marked with the 'skip' label.
+  * Change the 'ipmi-oob' 'bmcpwd' property to 'pwdfile' property.
+  * Rename the 'bmcuser' and 'bmchost' 'ipmi-oob' properties to 'user' and 'host'
+    respectively.
+  * Maximum report ID length changed from 64 characters to 128.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 08 Sep 2023 00:00:00 +0200
+
 stats-collect (1.0.16) unstable; urgency=low
 
   * Fix units on plot axes in HTML reports sometimes containing two SI-prefixes

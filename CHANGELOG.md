@@ -5,6 +5,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.17] - 2023-09-08
+### Fixed
  - Fix units in HTML report plot hover texts sometimes containing two
    SI-prefixes (e.g. kMHz).
  - Fix HTML reports being generated missing the last data point of 'ipmi' data.
@@ -15,8 +21,6 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
    latter.
  - Fix 'stats-collect report' crashing on plot density reduction if any data
    points were marked with the 'skip' label.
-### Added
-### Removed
 ### Changed
  - Change the 'ipmi-oob' 'bmcpwd' property to 'pwdfile' property.
  - Rename the 'bmcuser' and 'bmchost' 'ipmi-oob' properties to 'user' and 'host'
