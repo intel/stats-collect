@@ -68,6 +68,10 @@ class DFBuilderBase:
                 # 'label' corresponds to.
                 df.loc[filtered_rows, metric] = val
 
+        # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
+        # indexing. Reset the index to avoid any of these problems.
+        df.reset_index(inplace=True)
+
     def _read_stats_file(self, path, labels=None):
         """
         Returns a 'pandas.DataFrame' containing the data stored in the raw statistics file at
