@@ -13,6 +13,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix 'stats-collect start' collecting both 'ipmi-inband' and 'ipmi-oob' data
    when it has already stated that it will disable the former in favour of the
    latter.
+ - Fix 'stats-collect report' crashing on plot density reduction if any data
+   points were marked with the 'skip' label.
 ### Added
 ### Removed
 ### Changed
