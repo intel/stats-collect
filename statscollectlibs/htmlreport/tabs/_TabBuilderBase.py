@@ -55,7 +55,7 @@ class TabBuilderBase:
                          included on plots as hover text for the relevant report with id 'reportid'.
         """
 
-        dtab = TabConfig.DTabConfig(self._defs.info[y_metric])
+        dtab = TabConfig.DTabConfig(y_metric)
         dtab.add_scatter_plot(self._defs.info[x_metric], self._defs.info[y_metric])
         dtab.add_hist(self._defs.info[y_metric])
         dtab.set_smry_funcs({y_metric: smry_funcs[y_metric]})
@@ -84,8 +84,7 @@ class TabBuilderBase:
     def _build_dtab(self, outdir, dtabconfig):
         """Build a data tab according to the tab configuration 'dtabconfig'."""
 
-        tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.tab_mdef["name"],
-                                       self._basedir)
+        tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.name, self._basedir)
         tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
                       hover_defs=dtabconfig.hover_defs)
         tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
@@ -109,19 +108,17 @@ class TabBuilderBase:
         sub_tabs = []
 
         for dtabconfig in ctabconfig.dtabs:
-            tab_mdef = dtabconfig.tab_mdef
-
-            results = {rid: sdf for rid, sdf in self._reports.items() if tab_mdef["name"] in sdf}
+            results = {rid: sdf for rid, sdf in self._reports.items() if dtabconfig.name in sdf}
             if not results:
                 _LOG.info("Skipping '%s' tab in '%s' tab: no results contain data for this "
-                          "metric.", tab_mdef, self.name)
+                          "metric.", dtabconfig.name, self.name)
                 continue
 
             try:
                 sub_tabs.append(self._build_dtab(outdir, dtabconfig))
             except Error as err:
                 _LOG.info("Skipping '%s' tab in '%s' tab: error occured during tab generation.",
-                          tab_mdef, self.name)
+                          dtabconfig.name, self.name)
                 _LOG.debug(err)
 
         for subtab_cfg in ctabconfig.ctabs:

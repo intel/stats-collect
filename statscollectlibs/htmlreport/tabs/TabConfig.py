@@ -57,13 +57,13 @@ class DTabConfig:
         """
         self.hover_defs = hover_defs
 
-    def __init__(self, tab_mdef):
+    def __init__(self, name):
         """
-        Class constructor. 'tab_mdef' should be a metric definition dictionary for the metric
-        represented by the tab.
+        Class constructor. 'name' represents the name of the tab. See 'DTabDC.name' for more
+        information.
         """
 
-        self.tab_mdef = tab_mdef
+        self.name = name
 
         self.scatter_plots = []
         self.chists = []
