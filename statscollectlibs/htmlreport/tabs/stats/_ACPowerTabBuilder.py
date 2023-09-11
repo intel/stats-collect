@@ -13,7 +13,6 @@ This module provides the capability of populating the AC Power statistics tab.
 from statscollectlibs.defs import ACPowerDefs
 from statscollectlibs.dfbuilders import ACPowerDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
-from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
 class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     """
@@ -34,16 +33,11 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         raw AC Power statistics files.
         """
 
-        dtab_bldr = _DTabBuilder.DTabBuilder(self._reports, self._outdir,
-                                             self._defs.info[self._power_metric], self._basedir)
-        scatter_axes = [(self._defs.info[self._time_metric], self._defs.info[self._power_metric])]
-
-        dtab_bldr.add_plots(scatter_axes, [self._defs.info[self._power_metric]],
-                            hover_defs=self._hover_defs)
         smry_funcs = {self._power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",
                                            "min", "std"]}
-        dtab_bldr.add_smrytbl(smry_funcs, self._defs)
-        tab = dtab_bldr.get_tab()
+        dtab_cfg = self._build_def_dtab_cfg(self._power_metric, self._time_metric, smry_funcs, None)
+
+        tab = self._build_dtab(self._outdir, dtab_cfg)
 
         # By default the tab will be titled 'self._metric'. Change the title to "AC Power".
         tab.name = self.name
