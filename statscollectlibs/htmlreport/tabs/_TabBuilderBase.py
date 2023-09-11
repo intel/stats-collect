@@ -81,6 +81,16 @@ class TabBuilderBase:
 
         return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
+    def _build_dtab(self, outdir, dtabconfig):
+        """Build a data tab according to the tab configuration 'dtabconfig'."""
+
+        tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.tab_mdef, self._basedir)
+        tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
+                      hover_defs=dtabconfig.hover_defs)
+        tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
+
+        return tab.get_tab()
+
     def _build_ctab(self, outdir, ctabconfig):
         """
         Build a container tab according to the tab configuration 'ctabconfig'. If no sub-tabs can be
@@ -107,11 +117,7 @@ class TabBuilderBase:
                 continue
 
             try:
-                tab = _DTabBuilder.DTabBuilder(self._reports, outdir, tab_mdef, self._basedir)
-                tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
-                              hover_defs=dtabconfig.hover_defs)
-                tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
-                sub_tabs.append(tab.get_tab())
+                sub_tabs.append(self._build_dtab(outdir, dtabconfig))
             except Error as err:
                 _LOG.info("Skipping '%s' tab in '%s' tab: error occured during tab generation.",
                           tab_mdef, self.name)
