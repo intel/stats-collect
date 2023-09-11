@@ -84,7 +84,8 @@ class TabBuilderBase:
     def _build_dtab(self, outdir, dtabconfig):
         """Build a data tab according to the tab configuration 'dtabconfig'."""
 
-        tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.tab_mdef, self._basedir)
+        tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.tab_mdef["name"],
+                                       self._basedir)
         tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
                       hover_defs=dtabconfig.hover_defs)
         tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)

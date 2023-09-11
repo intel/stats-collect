@@ -13,6 +13,7 @@ This module provides the capability of populating a data tab.
 import logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
+from statscollectlibs.defs import DefsBase
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
 
@@ -85,7 +86,7 @@ class DTabBuilder:
         else:
             smry_path = ""
 
-        return _Tabs.DTabDC(self.title, ppaths, smry_path, self.fpreviews, self._alerts)
+        return _Tabs.DTabDC(self.tabname, ppaths, smry_path, self.fpreviews, self._alerts)
 
     @staticmethod
     def _warn_plot_skip_res(reportid, plottitle, mtitle):
@@ -229,7 +230,7 @@ class DTabBuilder:
             if not self._skip_metric_plot("cumulative histogram", mdef):
                 self._add_histogram(mdef, cumulative=True)
 
-    def __init__(self, reports, outdir, metric_def, basedir=None):
+    def __init__(self, reports, outdir, tabname, basedir=None):
         """
         The class constructor. Adding a data tab will create a sub-directory named after the metric
         in 'metric_def' and store plots and the summary table in it.
@@ -237,13 +238,14 @@ class DTabBuilder:
         Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
          * reports - dictionary containing the data for each report:
                      '{reportid: dataframe}'
-         * metric_def - dictionary containing the definition for this metric.
+         * tabname - the name of the tab. See 'DTabDC.name' for more information.
         """
 
         self._reports = reports
+        self.tabname = tabname
         # File system-friendly tab name.
-        self._fsname = metric_def["fsname"]
-        self.title = metric_def["name"]
+        self._fsname = DefsBase.get_fsname(self.tabname)
+
         self._outdir = outdir / self._fsname
         self.smry_path = self._outdir / "summary-table.txt"
         self._smrytbl = None

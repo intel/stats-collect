@@ -50,15 +50,7 @@ class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
         if not any(fp for fp in stats_paths.values()):
             raise Error("unable to add file previews since not all reports have a statistics dir")
 
-        # All of the names of 'SysInfo' tabs are file-safe and are also used as the title of the
-        # tab.
-        mdef = {
-            "name": name,
-            "fsname": name,
-            "title": name
-        }
-
-        super().__init__({}, outdir, mdef, basedir=basedir)
+        super().__init__({}, outdir, name, basedir=basedir)
 
         self.name = name
         self.files = files
