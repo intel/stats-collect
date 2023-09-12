@@ -22,11 +22,15 @@ class StatsTabBuilder:
 
     name = "Stats"
 
-    def get_tab(self, rsts):
+    def get_tab(self, rsts, tab_cfgs=None):
         """
         Generate and return the Stats container tab (as an instance of '_Tabs.CTab'). The statistics
-        tab includes metrics from the statistics collectors, such as 'turbostat'.
+        tab includes metrics from the statistics collectors, such as 'turbostat'. Arguments are the
+        same as in 'HTMLReport.generate_report()'.
         """
+
+        if tab_cfgs is None:
+            tab_cfgs = {}
 
         tab_bldr_classes = (_ACPowerTabBuilder.ACPowerTabBuilder,
                             _TurbostatTabBuilder.TurbostatTabBuilder)
@@ -73,7 +77,8 @@ class StatsTabBuilder:
 
             _LOG.info("Generating '%s' tab.", tbldr.name)
             try:
-                tabs.append(tbldr.get_tab())
+                tab_cfg = tab_cfgs.get(stname)
+                tabs.append(tbldr.get_tab(tab_cfg=tab_cfg))
             except Error as err:
                 _LOG.info("Skipping '%s' statistics: error occurred during tab generation.",
                           tab_builder.name)
