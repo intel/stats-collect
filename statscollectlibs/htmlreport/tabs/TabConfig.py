@@ -37,6 +37,10 @@ class DTabConfig:
         """
         self.scatter_plots.append((xdef, ydef,))
 
+    def add_alert(self, alert):
+        """Set the alert message for the data tab."""
+        self.alerts.append(alert)
+
     def set_smry_funcs(self, smry_funcs):
         """
         Set the summary functions which will be used in the summary table for the data tab.
@@ -44,10 +48,6 @@ class DTabConfig:
         Expects 'smry_funcs' to be a dictionary in the format '{metric: list[function_name]}'.
         """
         self.smry_funcs = smry_funcs
-
-    def set_alert(self, alert):
-        """Set the alert message for the data tab."""
-        self.alert = alert
 
     def set_hover_defs(self, hover_defs):
         """
@@ -71,7 +71,7 @@ class DTabConfig:
 
         self.smry_funcs = {}
         self.hover_defs = None
-        self.alert = None
+        self.alerts = []
 
 class CTabConfig:
     """This class provides the API used to configure the contents of a container tab."""

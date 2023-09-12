@@ -30,8 +30,10 @@ class DTabBuilder:
        * 'add_plots()'
     3. Add file previews to the tab.
        * 'add_fpreviews()'
-    4. Generate a '_Tabs.DTabDC' instance containing plots added with 'add_plots()' and a summary
-       table added with 'add_smrytbl()'.
+    4. Add an alert to the tab.
+       * 'add_alert()'
+    5. Generate a '_Tabs.DTabDC' instance containing all of the tab features added with the methods
+       listed above.
        * 'get_tab()'
     """
 
@@ -229,6 +231,10 @@ class DTabBuilder:
         for mdef in chist:
             if not self._skip_metric_plot("cumulative histogram", mdef):
                 self._add_histogram(mdef, cumulative=True)
+
+    def add_alert(self, alert):
+        """Add an alert to the data tab."""
+        self._alerts.append(alert)
 
     def __init__(self, reports, outdir, tabname, basedir=None):
         """

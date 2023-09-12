@@ -93,6 +93,8 @@ class TabBuilderBase:
         tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
                       hover_defs=dtabconfig.hover_defs)
         tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
+        for alert in dtabconfig.alerts:
+            tab.add_alert(alert)
 
         return tab.get_tab()
 
