@@ -69,7 +69,7 @@ class DTabConfig:
         self.chists = []
         self.hists = []
 
-        self.smry_funcs = []
+        self.smry_funcs = {}
         self.hover_defs = []
         self.alert = None
 
