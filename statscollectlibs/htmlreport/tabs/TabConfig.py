@@ -70,7 +70,7 @@ class DTabConfig:
         self.hists = []
 
         self.smry_funcs = {}
-        self.hover_defs = []
+        self.hover_defs = None
         self.alert = None
 
 class CTabConfig:
