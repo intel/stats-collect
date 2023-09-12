@@ -185,7 +185,7 @@ class HTMLReport:
         Generate an HTML report in 'outdir' (provided to the class constructor). Customise the
         contents of the report using the function parameters. Arguments are as follows:
          * tabs - a list of additional container tabs which should be included in the report. If,
-                  omitted, 'stats_paths' is required to generate statistics tabs.
+                  omitted, 'rsts' is required to generate statistics tabs.
          * rsts - a list of 'RORawResult' instances for different results with statistics which
                   should be included in the report.
          * intro_tbl - an '_IntroTable.IntroTable' instance which represents the table which will be
