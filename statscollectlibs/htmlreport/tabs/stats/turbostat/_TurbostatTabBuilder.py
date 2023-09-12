@@ -29,7 +29,7 @@ class TurbostatTabBuilder:
     name = "Turbostat"
     stname = "turbostat"
 
-    def get_tab(self):
+    def get_tab(self, tab_cfg=None):
         """
         Returns a '_Tabs.CTabDC' instance containing turbostat level 2 tabs:
 
@@ -42,7 +42,7 @@ class TurbostatTabBuilder:
 
         l2_tabs = []
         for stab_bldr in self.l2tab_bldrs:
-            l2_tabs.append(stab_bldr.get_tab())
+            l2_tabs.append(stab_bldr.get_tab(tab_cfg=tab_cfg))
 
         return _Tabs.CTabDC(self.name, l2_tabs)
 

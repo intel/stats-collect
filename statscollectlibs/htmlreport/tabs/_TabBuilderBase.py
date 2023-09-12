@@ -29,8 +29,13 @@ class TabBuilderBase:
     This base class requires child classes to implement the following methods:
     1. Read a raw statistics file and convert the statistics data into a 'pandas.DataFrame'.
        * '_read_stats_file()'
-    2. Generate a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represent statistics found in raw
-       statistics file. This method provides an interface for the child classes.
+    2. Optionally, retrieve the default 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance.
+       See 'TabConfig' for more information on tab configurations.
+       * 'get_default_tab_cfg()'
+    3. Generate a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
+       statistics files. Optionally provide a tab configuration ('DTabConfig' or 'CTabConfig') to
+       customise the tab. This can be based on the default configuration retrieved using
+       'get_default_tab_cfg()'.
        * 'get_tab()'
     """
 
@@ -133,13 +138,35 @@ class TabBuilderBase:
 
         raise Error(f"unable to generate a container tab for {self.name}.")
 
-    def get_tab(self):
+    def get_default_tab_cfg(self):
         """
-        Returns a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represent statistics found in raw
-        statistic files. This method should be implemented by a child class.
+        Generate a 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance representing the
+        default tab configuration.
         """
 
         raise NotImplementedError()
+
+    def get_tab(self, tab_cfg=None):
+        """
+        Returns a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
+        statistic files. Arguments are as follows:
+         * tab_cfg - an instance of 'TabConfig.CTabConfig' or 'Tab.DTabConfig'. If provided, the tab
+                     builder will attempt to build the tab according to the provided configuration.
+                     Otherwise, by default, the default tab configuration will be used to build the
+                     tab.
+        """
+
+        if tab_cfg is None:
+            return self.get_tab(self.get_default_tab_cfg())
+
+        if isinstance(tab_cfg, TabConfig.CTabConfig):
+            return self._build_ctab(self._outdir, tab_cfg)
+
+        if isinstance(tab_cfg, TabConfig.DTabConfig):
+            return self._build_dtab(self._outdir, tab_cfg)
+
+        raise Error(f"unkown tab configuration type '{type(tab_cfg)}, please provide "
+                    f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
 
     def __init__(self, dfs, outdir, basedir=None, defs=None):
         """

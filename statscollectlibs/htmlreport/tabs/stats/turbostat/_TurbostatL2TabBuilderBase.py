@@ -66,15 +66,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
 
-    def get_tab(self):
+    def get_default_tab_cfg(self):
         """
-        Returns a '_Tabs.CTabDC' instance, titled 'self.name', containing tabs which represent
-        different metrics within raw turbostat statistic files.
-
-        The container tab returned by this function will contain a "CC0%" data tab and a "C-states"
-        container tab. The "C-states" container tab will contain two further container tabs,
-        "Hardware" and "Requested", which will contain data tabs representing hardware and
-        requestable C-states respectively.
+        Returns a 'TabConfig.CTabConfig' instance, titled 'self.name', containing tab configurations
+        which represent different metrics within raw turbostat statistic files.
 
         Note that the hierarchy of the tabs will will only include turbostat metrics which are
         common to all results.
@@ -105,9 +100,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         # All raw turbostat statistic files have been parsed so we can now get a tab config with
         # tabs which are common to all sets of results.
-        tab_cfg = self._get_ctab_cfg(common_metrics, smry_funcs)
-
-        return self._build_ctab(self.outdir, tab_cfg)
+        return self._get_ctab_cfg(common_metrics, smry_funcs)
 
     def _init_cstates(self, dfs):
         """

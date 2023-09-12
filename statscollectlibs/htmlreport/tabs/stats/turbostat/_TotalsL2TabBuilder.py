@@ -39,14 +39,14 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
 
         return cfg
 
-    def get_tab(self):
+    def get_tab(self, tab_cfg=None):
         """
         Extends 'super.get_tab()' to populate the descriptions with details on how metrics are
         summarised by turbostat.
         """
 
         self._defs.mangle_descriptions()
-        return super().get_tab()
+        return super().get_tab(tab_cfg)
 
     def __init__(self, rsts, outdir, basedir):
         """

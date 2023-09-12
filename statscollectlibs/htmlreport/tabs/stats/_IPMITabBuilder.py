@@ -31,10 +31,10 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "IPMI"
     stnames = ("ipmi-inband", "ipmi-oob",)
 
-    def _get_tab_config(self, common_cols, smry_funcs):
+    def _get_tab_cfg(self, common_cols, smry_funcs):
         """
-        Helper function for 'get_tab()'. Get the tab config which is populated with IPMI column
-        names which are common to all raw IPMI statistic files 'common_cols'.
+        Helper function for 'get_def_tab_cfg()'. Get the tab config which is populated with IPMI
+        column names which are common to all raw IPMI statistic files 'common_cols'.
         """
 
         # Dedupe cols in 'self._metrics'.
@@ -59,34 +59,63 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 
-    def get_tab(self):
+    def get_default_tab_cfg(self):
         """
-        Generate a '_Tabs.CTabDC' instance containing tabs which display IPMI statistics. The
-        container tab will contain another container tab for each of the following categories:
+        Generate the default tab configuration as a 'TabConfig.CTabConfig' instance.
+        The default tab configuration will specify container tabs for each of the following
+        categories:
 
             1. "Fan Speed"
             2. "Temperature"
             3. "Power"
 
-        Each of these container tabs contain data tabs for each IPMI metric which is common to all
-        results. For example, the "Fan Speed" container tab might contain several data tabs titled
-        "Fan1", "Fan2" etc. if each raw IPMI statistics file contains these measurements. If there
-        were no common IPMI metrics between all of the results for a given category, the container
-        tab will not be generated.
+        Each of these container tab configurations contain data tab configurations for each IPMI
+        metric which is common to all results. For example, the "Fan Speed" container tab might
+        contain several data tabs titled "Fan1", "Fan2" etc. if each raw IPMI statistics file
+        contains these measurements. If there were no common IPMI metrics between all of the results
+        for a given category, the container tab will not be generated.
+        """
+
+        # Configure which axes plots will display in the data tabs.
+        plots = {}
+        smry_funcs = {}
+        for metric, colnames in self._metrics.items():
+            for col in colnames:
+                if col not in self._common_cols:
+                    continue
+
+                defs_info = self._defs.info
+                plots[col] = {
+                    "scatter": [(defs_info[self._time_metric], defs_info[col])],
+                    "hist": [defs_info[col]]
+                }
+
+        # Define which summary functions should be included in the generated summary table
+        # for a given metric.
+        for metric in self._common_cols:
+            smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
+                                  "med", "avg", "min", "std"]
+
+        return self._get_tab_cfg(self._common_cols, smry_funcs)
+
+    def get_tab(self, tab_cfg=None):
+        """
+        Preceeds 'super().get_tab()' by populating the available metrics with all of the 'ipmi'
+        column names parsed from raw statistics files. See 'super().get_tab()' for more information.
         """
 
         col_sets = [set(sdf.columns) for sdf in self._reports.values()]
-        common_cols = set.union(*col_sets)
+        self._common_cols = set.union(*col_sets)
 
         # Reports may have the "Time" column in common or none at all. In both of these cases, an
         # IPMI tab won't be generated.
-        if len(common_cols) < 2:
+        if len(self._common_cols) < 2:
             raise Error("unable to generate IPMI tab, no common IPMI metrics between reports.")
 
         # Update defs with IPMI column names for each column.
         for metric, colnames in self._metrics.items():
             for colname in colnames:
-                if colname not in common_cols:
+                if colname not in self._common_cols:
                     continue
 
                 # Since we use column names which aren't known until runtime as tab titles, use the
@@ -99,29 +128,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 col_def["name"] = colname
                 self._defs.info[colname] = col_def
 
-        # Configure which axes plots will display in the data tabs.
-        plots = {}
-        smry_funcs = {}
-        for metric, colnames in self._metrics.items():
-            for col in colnames:
-                if col not in common_cols:
-                    continue
-
-                defs_info = self._defs.info
-                plots[col] = {
-                    "scatter": [(defs_info[self._time_metric], defs_info[col])],
-                    "hist": [defs_info[col]]
-                }
-
-        # Define which summary functions should be included in the generated summary table
-        # for a given metric.
-        for metric in common_cols:
-            smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
-                                  "med", "avg", "min", "std"]
-
-        ctabconfig = self._get_tab_config(common_cols, smry_funcs)
-
-        return self._build_ctab(self._outdir, ctabconfig)
+        return super().get_tab(tab_cfg)
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -142,6 +149,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         # with empty column sets for each metric.
         defs = IPMIDefs.IPMIDefs()
         self._metrics = {}
+
+        self._common_cols = set()
 
         stnames = set()
         dfs = {}

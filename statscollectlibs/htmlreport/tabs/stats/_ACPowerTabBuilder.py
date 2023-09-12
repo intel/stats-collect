@@ -27,21 +27,18 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "AC Power"
     stname = "acpower"
 
-    def get_tab(self):
+    def get_default_tab_cfg(self):
         """
-        Returns a '_Tabs.DTabDC' instance containing a summary table and plots describing data in
-        raw AC Power statistics files.
+        Returns a 'TabConfig.DTabConfig' instance with the default 'AC Power' tab configuration.
         """
 
         smry_funcs = {self._power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",
                                            "min", "std"]}
         dtab_cfg = self._build_def_dtab_cfg(self._power_metric, self._time_metric, smry_funcs, None)
 
-        tab = self._build_dtab(self._outdir, dtab_cfg)
-
-        # By default the tab will be titled 'self._metric'. Change the title to "AC Power".
-        tab.name = self.name
-        return tab
+        # By default the tab will be titled 'self._power_metric'. Change the title to "AC Power".
+        dtab_cfg.name = self.name
+        return dtab_cfg
 
     def __init__(self, rsts, outdir, basedir=None):
         """
