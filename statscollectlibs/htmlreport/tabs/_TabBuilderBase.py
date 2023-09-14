@@ -61,8 +61,8 @@ class TabBuilderBase:
         """
 
         dtab = TabConfig.DTabConfig(y_metric)
-        dtab.add_scatter_plot(self._defs.info[x_metric], self._defs.info[y_metric])
-        dtab.add_hist(self._defs.info[y_metric])
+        dtab.add_scatter_plot(x_metric, y_metric)
+        dtab.add_hist(y_metric)
         dtab.set_smry_funcs({y_metric: smry_funcs[y_metric]})
         dtab.set_hover_defs(hover_defs)
 
@@ -86,12 +86,53 @@ class TabBuilderBase:
 
         return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
+    def _resolve_metric(self, metric):
+        """
+        Resolve 'metric' to a metric definition dictionary from 'self._defs'. If 'metric' is already
+        a metric definition dictionary, then do nothing. Else, try to find the relevant definition
+        dictionary from 'self._defs'.
+        """
+
+        if DefsBase.is_mdef(metric):
+            return metric
+
+        if metric not in self._defs.info:
+            raise Error(f"BUG: unsupported metric '{metric}'")
+
+        return self._defs.info[metric]
+
+    def _add_plots(self, dtabconfig, tab):
+        """Add plots to 'tab' based on the metrics specified in the configuration 'dtabconfig'."""
+
+        scatter = []
+        for xmetric, ymetric in dtabconfig.scatter_plots:
+            x_def = self._resolve_metric(xmetric)
+            y_def = self._resolve_metric(ymetric)
+            scatter.append((x_def, y_def))
+
+        hists = []
+        for metric in dtabconfig.hists:
+            hists.append(self._resolve_metric(metric))
+
+        chists = []
+        for metric in dtabconfig.chists:
+            chists.append(self._resolve_metric(metric))
+
+        hover_defs = {}
+        if dtabconfig.hover_defs:
+            for reportid, metrics in dtabconfig.hover_defs.items():
+                hover_defs[reportid] = [self._resolve_metric(metric) for metric in metrics]
+
+        hover_defs = hover_defs if hover_defs else None
+
+        tab.add_plots(plot_axes=scatter, hist=hists, chist=chists, hover_defs=hover_defs)
+        return tab
+
     def _build_dtab(self, outdir, dtabconfig):
         """Build a data tab according to the tab configuration 'dtabconfig'."""
 
         tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.name, self._basedir)
-        tab.add_plots(dtabconfig.scatter_plots, dtabconfig.hists, dtabconfig.chists,
-                      hover_defs=dtabconfig.hover_defs)
+        tab = self._add_plots(dtabconfig, tab)
         tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
         for alert in dtabconfig.alerts:
             tab.add_alert(alert)
