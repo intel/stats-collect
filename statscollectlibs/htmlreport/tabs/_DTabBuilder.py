@@ -57,7 +57,12 @@ class DTabBuilder:
                                      fmt="{:.2f}")
 
             for rep, df in self._reports.items():
-                smry_dict = DFSummary.calc_col_smry(df, mdef["name"], funcs)
+                mname = mdef["name"]
+
+                # Only try to calculate summary values if result 'rep' contains data for the metric.
+                if mname not in df:
+                    continue
+                smry_dict = DFSummary.calc_col_smry(df, mname, funcs)
                 for fname in funcs:
                     self._smrytbl.add_smry_func(rep, mdef["title"], fname, smry_dict[fname])
 
