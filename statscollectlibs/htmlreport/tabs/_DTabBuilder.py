@@ -23,6 +23,9 @@ class DTabBuilder:
     """
     This base class provides the capability of populating a data tab.
 
+    Note, each tab element is optional and can be added in any order. See '_Tabs.DTabDC' docstring
+    for more information on each tab element.
+
     Public methods overview:
     1. Add a summary table to the tab.
        * 'add_smrytbl()'
