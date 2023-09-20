@@ -13,6 +13,7 @@
 import logging
 import plotly
 from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
+from pepclibs.helperlibs import Human, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 
 # Default plotly diagram layout configuration.
@@ -56,35 +57,6 @@ _BASE_UNITS = {"s", "Hz"}
 class Plot:
     """This class provides the common defaults and logic for producing plotly diagrams."""
 
-    def _format_hover_val(self, val, mdef):
-        """
-        Helper function for '_create_hover_template_col()'. Formats a value 'val' based on the
-        metric definition 'mdef'. For example, values of type 'float' will be rounded to a set
-        number of significant figures.
-        """
-
-        name = mdef["name"]
-        frmat = self._formats.get(name)
-
-        if frmat is not None:
-            return f"{val:{frmat}}"
-
-        if mdef.get("type") == "float":
-            # If the data uses a unit with no SI-prefixes, let plotly scale it accordingly.
-            if mdef.get("short_unit") in _BASE_UNITS:
-                # "s" formatting is decimal notation with an SI prefix, rounded to significant
-                # digits. This should apply to floats which aren't represented as a percentage.
-                frmat = ".3s"
-                self._formats[name] = frmat
-                return f"{val:{frmat}}"
-
-            frmat = ".2f"
-            self._formats[name] = frmat
-            return f"{val:{frmat}}"
-
-        self._formats[name] = ""
-        return val
-
     def _create_hover_template_col(self, row, hov_defs, columns):
         """
         Helper function for 'create_hover_template()'. Returns the hover template for a given 'row'
@@ -92,6 +64,9 @@ class Plot:
         """
 
         templ = "(%{x}, %{y})<br>"
+
+        # Decimal places to provide in formatted hover text.
+        decp = 2
 
         for col in columns:
             if col not in hov_defs:
@@ -104,12 +79,14 @@ class Plot:
             if (mdef["title"] == self.xaxis_label) or (mdef["title"] == self.yaxis_label):
                 continue
 
-            templ += f"{col}: {self._format_hover_val(row[col], mdef)}"
+            if not Trivial.is_num(row[col]):
+                val = row[col]
+            elif mdef["short_unit"] == "%":
+                val = f"{row[col]:.{decp}f}"
+            else:
+                val = Human.num2si(row[col], unit=mdef["short_unit"], decp=decp)
 
-            unit = mdef.get("short_unit")
-            if unit and unit != "%":
-                templ += str(unit)
-            templ += "<br>"
+            templ += f"{col}: {val}<br>"
 
         return templ
 
