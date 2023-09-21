@@ -5,6 +5,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Make data points in HTML report plots more human-readable by scaling values
+   with SI-unit prefixes. For example, a value of '1200 MHz' will now be shown
+   as '1.20 GHz'.
 ### Added
 ### Removed
 ### Changed
