@@ -16,6 +16,7 @@ import numpy
 import pandas
 import plotly
 from pandas.core.dtypes.common import is_datetime64_any_dtype
+from pepclibs.helperlibs import Human
 from statscollectlibs.htmlreport import _Plot
 
 # List of diagram markers that we use in scatter plots.
@@ -141,10 +142,22 @@ class ScatterPlot(_Plot.Plot):
                 self._layout[axis]["tickformat"] = "%H:%M:%S"
                 self._layout[axis]["hoverformat"] = "%H:%M:%S"
 
+        # If data on x/y axis can be scaled to a base SI-unit, do it to let 'plotly' handle SI-unit
+        # prefixes for every datapoint.
+        if self.yaxis_baseunit and self.yaxis_unit:
+            ycol = Human.scale_si_val(df[self.ycolname], self.yaxis_unit)
+        else:
+            ycol = df[self.ycolname]
+
+        if self.xaxis_baseunit and self.xaxis_unit:
+            xcol = Human.scale_si_val(df[self.xcolname], self.xaxis_unit)
+        else:
+            xcol = df[self.xcolname]
+
         marker = {"size" : marker_size, "symbol" : marker_symbol, "opacity" : self.opacity}
-        gobj = plotly.graph_objs.Scattergl(x=df[self.xcolname], y=df[self.ycolname],
-                                           hovertemplate=hover_template, opacity=self.opacity,
-                                           marker=marker, mode="markers", name=name)
+        gobj = plotly.graph_objs.Scattergl(x=xcol, y=ycol, hovertemplate=hover_template,
+                                           opacity=self.opacity, marker=marker, mode="markers",
+                                           name=name)
         self._gobjs.append(gobj)
 
     def __init__(self, xcolname, ycolname, outpath, xaxis_label=None, yaxis_label=None,

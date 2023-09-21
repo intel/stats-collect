@@ -12,6 +12,7 @@
 
 import plotly
 from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs import Human
 from statscollectlibs.htmlreport import _Plot
 
 class Histogram(_Plot.Plot):
@@ -23,14 +24,21 @@ class Histogram(_Plot.Plot):
         'Plot.add_df()'.
         """
 
+        # If data on x-axis can be scaled to a base SI-unit, do it to let 'plotly' handle SI-unit
+        # prefixes for every datapoint.
+        if self.xaxis_baseunit and self.xaxis_unit:
+            xcol = Human.scale_si_val(df[self.xcolname], self.xaxis_unit)
+        else:
+            xcol = df[self.xcolname]
+
         try:
             if self.cumulative:
-                gobj = plotly.graph_objs.Histogram(x=df[self.xcolname], name=name, xbins=self.xbins,
+                gobj = plotly.graph_objs.Histogram(x=xcol, name=name, xbins=self.xbins,
                                                    cumulative={"enabled": True}, histnorm="percent",
                                                    opacity=self.opacity)
             else:
-                gobj = plotly.graph_objs.Histogram(x=df[self.xcolname], name=name,
-                                                   xbins=self.xbins, opacity=self.opacity,
+                gobj = plotly.graph_objs.Histogram(x=xcol, name=name, xbins=self.xbins,
+                                                   opacity=self.opacity,
                                                    hovertemplate=hover_template)
         except Exception as err:
             msg = Error(err).indent(2)

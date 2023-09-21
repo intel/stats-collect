@@ -48,12 +48,6 @@ _LEGEND = {"font"    : {"size" : 14},
 
 _LOG = logging.getLogger()
 
-# Some units contain SI-prefixes (such as "M" in "MHz"). For these units we want to tell 'plotly'
-# not to add extra SI-prefixes. This set is used to contain the base units to which 'plotly' can add
-# an SI-prefix. This list does not contain all possible units, only the ones supported by
-# 'stats-collect'.
-_BASE_UNITS = {"s", "Hz"}
-
 class Plot:
     """This class provides the common defaults and logic for producing plotly diagrams."""
 
@@ -164,23 +158,23 @@ class Plot:
         """
 
         xaxis = {**_AXIS,
-                 "ticksuffix": self.xaxis_unit,
+                 "ticksuffix": self.xaxis_baseunit if self.xaxis_baseunit else self.xaxis_unit,
                  "title": self.xaxis_label}
 
-        # The default axis configuration uses an SI prefix for units (e.g. ms, ks, etc.).  For
-        # percent values, just round the value to 3 significant figures and do not include an SI
-        # prefix.
-        if self.xaxis_unit not in _BASE_UNITS:
+        # The default axis configuration uses an SI prefix for units (e.g. ms, ks, etc.).  For units
+        # which do not support SI prefixes (such as '%'), just round the value to 3 significant
+        # figures and do not include an SI prefix.
+        if not self.xaxis_baseunit:
             fmt = ".3r"
             xaxis["tickformat"] = fmt
             xaxis["hoverformat"] = fmt
 
         yaxis = {**_AXIS,
-                 "ticksuffix": self.yaxis_unit,
+                 "ticksuffix": self.yaxis_baseunit if self.yaxis_baseunit else self.yaxis_unit,
                  "title": self.yaxis_label}
 
         # See comment above regarding SI prefixes. Here we do the same but for the Y-axis.
-        if self.yaxis_unit not in _BASE_UNITS:
+        if not self.yaxis_baseunit:
             fmt = ".3r"
             yaxis["tickformat"] = fmt
             yaxis["hoverformat"] = fmt
@@ -225,6 +219,10 @@ class Plot:
         self.yaxis_label = yaxis_label if yaxis_label else ycolname
         self.xaxis_unit = xaxis_unit if xaxis_unit else ""
         self.yaxis_unit = yaxis_unit if yaxis_unit else ""
+        _, xaxis_baseunit = Human.separate_si_prefix(self.xaxis_unit)
+        self.xaxis_baseunit = xaxis_baseunit if xaxis_baseunit in Human.SUPPORTED_UNITS else None
+        _, yaxis_baseunit = Human.separate_si_prefix(self.yaxis_unit)
+        self.yaxis_baseunit = yaxis_baseunit if yaxis_baseunit in Human.SUPPORTED_UNITS else None
         self.opacity = opacity if opacity else 0.8
 
         self._layout = self._configure_layout()
