@@ -22,7 +22,22 @@ class StatsTabBuilder:
 
     name = "Stats"
 
-    def get_tab(self, rsts, tab_cfgs=None):
+    def get_default_tab_cfgs(self, stname=None):
+        """
+        Get the default tab configuration for statistic 'stname'. If 'stname' is not provided,
+        returns all default tab configurations as a dictionary in the format
+        '{stname: 'TabConfig.CTabConfig'}' with an entry for each 'stname'.
+        """
+
+        if stname is None:
+            return {stname: tbldr.get_default_tab_cfg() for stname, tbldr in self._tbldrs.items()}
+
+        try:
+            return self._tbldrs[stname].get_default_tab_cfg()
+        except KeyError:
+            raise Error(f"unsupported statistic name '{stname}'") from None
+
+    def get_tab(self, tab_cfgs=None):
         """
         Generate and return the Stats container tab (as an instance of '_Tabs.CTab'). The statistics
         tab includes metrics from the statistics collectors, such as 'turbostat'. Arguments are the
@@ -31,6 +46,26 @@ class StatsTabBuilder:
 
         if tab_cfgs is None:
             tab_cfgs = {}
+
+        tabs = []
+        for stname, tbldr in self._tbldrs.items():
+            _LOG.info("Generating '%s' tab.", tbldr.name)
+            try:
+                tab_cfg = tab_cfgs.get(stname)
+                tabs.append(tbldr.get_tab(tab_cfg=tab_cfg))
+            except Error as err:
+                _LOG.info("Skipping '%s' statistics: error occurred during tab generation.",
+                          tbldr.name)
+                _LOG.debug(err)
+                continue
+
+        if not tabs:
+            raise Error(f"all '{self.name}' tabs were skipped")
+
+        return _Tabs.CTabDC(self.name, tabs)
+
+    def _init_tab_bldrs(self):
+        """Initialise tab builder classes."""
 
         tab_bldr_classes = (_ACPowerTabBuilder.ACPowerTabBuilder,
                             _TurbostatTabBuilder.TurbostatTabBuilder)
@@ -41,7 +76,7 @@ class StatsTabBuilder:
         for stname in _IPMITabBuilder.IPMITabBuilder.stnames:
             tab_builders[stname] = _IPMITabBuilder.IPMITabBuilder
 
-        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
+        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in self._rsts])
 
         filtered_stnames = set(stname for stname in collected_stnames if stname in tab_builders)
 
@@ -61,37 +96,25 @@ class StatsTabBuilder:
         # Create 'Stats' tabs directory.
         stats_dir = self._outdir / self.name
 
-        tabs = []
         for stname in tab_builders:
             if stname not in filtered_stnames:
                 continue
 
             tab_builder = tab_builders[stname]
             try:
-                tbldr = tab_builder(rsts, stats_dir, basedir=self._basedir)
+                self._tbldrs[stname] = tab_builder(self._rsts, stats_dir, basedir=self._basedir)
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder.name, tab_builder.name)
                 _LOG.debug(err)
                 continue
 
-            _LOG.info("Generating '%s' tab.", tbldr.name)
-            try:
-                tab_cfg = tab_cfgs.get(stname)
-                tabs.append(tbldr.get_tab(tab_cfg=tab_cfg))
-            except Error as err:
-                _LOG.info("Skipping '%s' statistics: error occurred during tab generation.",
-                          tab_builder.name)
-                _LOG.debug(err)
-                continue
-
-        if not tabs:
-            raise Error(f"all '{self.name}' tabs were skipped")
-
-        return _Tabs.CTabDC(self.name, tabs)
-
-    def __init__(self, outdir, basedir=None):
+    def __init__(self, rsts, outdir, basedir=None):
         """Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()'."""
 
+        self._rsts = rsts
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
+        self._tbldrs = {}
+
+        self._init_tab_bldrs()

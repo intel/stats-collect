@@ -161,9 +161,9 @@ class HTMLReport:
         collected_stnames -= {sysinfo_tab_bldr.stname}
         if collected_stnames:
             try:
-                stats_tab_bldr = _StatsTabBuilder.StatsTabBuilder(self._tabs_dir,
+                stats_tab_bldr = _StatsTabBuilder.StatsTabBuilder(rsts, self._tabs_dir,
                                                                   basedir=self._outdir)
-                tabs.append(stats_tab_bldr.get_tab(rsts, tab_cfgs=tab_cfgs))
+                tabs.append(stats_tab_bldr.get_tab(tab_cfgs=tab_cfgs))
             except Error as err:
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
 
