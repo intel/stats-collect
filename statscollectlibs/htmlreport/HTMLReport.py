@@ -150,34 +150,58 @@ class HTMLReport:
         """
         return self._tabs_dir
 
+    def _init_tab_builders(self, rsts):
+        """Initialise tab builders for all statistics collected in 'RORawResults' 'rsts'."""
+
+        # Only try and generate the statistics tab if statistics were collected.
+        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
+
+        sysinfo_tbldr = _SysInfoTabBuilder.SysInfoTabBuilder
+        if sysinfo_tbldr.name in collected_stnames:
+            self._sysinfo_tbldr = sysinfo_tbldr(self._tabs_dir, basedir=self._outdir)
+
+        collected_stnames -= {sysinfo_tbldr.name}
+
+        if collected_stnames:
+            try:
+                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self._tabs_dir,
+                                                                     basedir=self._outdir)
+            except Error as err:
+                _LOG.warning("Failed to generate statistics tabs: %s", err)
+
     def _generate_tabs(self, rsts, tab_cfgs):
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
 
         tabs = []
-        sysinfo_tab_bldr = _SysInfoTabBuilder.SysInfoTabBuilder
 
-        # Only try and generate the statistics tab if statistics were collected.
-        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
-        collected_stnames -= {sysinfo_tab_bldr.stname}
-        if collected_stnames:
-            try:
-                stats_tab_bldr = _StatsTabBuilder.StatsTabBuilder(rsts, self._tabs_dir,
-                                                                  basedir=self._outdir)
-                tabs.append(stats_tab_bldr.get_tab(tab_cfgs=tab_cfgs))
-            except Error as err:
-                _LOG.warning("Failed to generate statistics tabs: %s", err)
+        self._init_tab_builders(rsts)
+        if self._stats_tbldr:
+            tabs.append(self._stats_tbldr.get_tab(tab_cfgs=tab_cfgs))
 
-        if not any(sysinfo_tab_bldr.stname in res.info["stinfo"] for res in rsts):
+        if not self._sysinfo_tbldr:
             return tabs
 
         try:
-            tab_bldr = sysinfo_tab_bldr(self._tabs_dir, basedir=self._outdir)
-            sysinfo_tab = tab_bldr.get_tab(rsts)
+            sysinfo_tab = self._sysinfo_tbldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
-            _LOG.warning("Failed to generate '%s' tab: %s", sysinfo_tab_bldr.name, err)
+            _LOG.warning("Failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
 
         return tabs
+
+    def get_default_tab_cfgs(self, rsts):
+        """
+        Get the default tab configuration for all statistics collected in results 'rsts'. Returns
+        all default tab configurations as a dictionary in the format
+        '{stname: 'TabConfig.CTabConfig'}' with an entry for each 'stname'.
+        """
+
+        self._init_tab_builders(rsts)
+
+        if not self._stats_tbldr:
+            return {}
+
+        return self._stats_tbldr.get_default_tab_cfgs()
 
     def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None,
                         toolname=None, toolver=None, tab_cfgs=None):
@@ -267,4 +291,8 @@ class HTMLReport:
         self._outdir = Path(outdir)
         self._data_dir = self._outdir / "report-data"
         self._tabs_dir = self._data_dir / "tabs"
+
+        self._stats_tbldr = None
+        self._sysinfo_tbldr = None
+
         validate_outdir(outdir)
