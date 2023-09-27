@@ -22,7 +22,7 @@ _FONTFMT = {"family" : "Arial, sans-serif",
             "size"   : 18,
             "color"  : "black"}
 
-_AXIS = {"hoverformat" : ".4s",
+_AXIS = {"hoverformat" : ".3s",
          "showline"  : True,
          "showgrid"  : True,
          "titlefont" : _FONTFMT,
