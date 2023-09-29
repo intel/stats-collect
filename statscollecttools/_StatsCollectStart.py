@@ -13,7 +13,7 @@ import contextlib
 import logging
 from pathlib import Path
 from pepclibs import CPUInfo
-from pepclibs.helperlibs import Human, Logging
+from pepclibs.helperlibs import Trivial, Human, Logging
 from statscollecttools import _Common
 from statscollectlibs import Runner
 from statscollectlibs.collector import StatsCollectBuilder
@@ -46,7 +46,9 @@ def start_command(args):
         stack.enter_context(pman)
 
         if args.tlimit:
-            args.tlimit = Human.parse_duration(args.tlimit, default_unit="m", name="time limit")
+            if Trivial.is_num(args.tlimit):
+                args.tlimit = f"{args.tlimit}m"
+            args.tlimit = Human.parse_human(args.tlimit, unit="s", integer=True, name="time limit")
 
         args.reportid = generate_reportid(args, pman)
 
