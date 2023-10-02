@@ -61,9 +61,6 @@ class DFBuilderBase:
 
             df["label"] = label.get("name", None)
             for metric, val in label.get("metrics", {}).items():
-                if metric not in df.columns:
-                    df[metric] = None
-
                 # Assign 'val' in the column for the label metric for all of the datapoints which
                 # 'label' corresponds to.
                 df.loc[filtered_rows, metric] = val
