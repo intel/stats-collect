@@ -1,3 +1,11 @@
+stats-collect (1.0.18) unstable; urgency=low
+
+  * Make data points in HTML report plots more human-readable by scaling values
+    with SI-unit prefixes. For example, a value of '1200 MHz' will now be shown
+    as '1.20 GHz'.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 04 Oct 2023 00:00:00 +0200
+
 stats-collect (1.0.17) unstable; urgency=low
 
   * Fix units in HTML report plot hover texts sometimes containing two
