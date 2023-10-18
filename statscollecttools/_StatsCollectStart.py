@@ -41,6 +41,11 @@ def generate_reportid(args, pman):
 def start_command(args):
     """Implements the 'start' command."""
 
+    if args.list_stats:
+        from statscollectlibs.collector import StatsCollect #pylint: disable=import-outside-toplevel
+        StatsCollect.list_stats()
+        return
+
     with contextlib.ExitStack() as stack:
         pman = _Common.get_pman(args)
         stack.enter_context(pman)

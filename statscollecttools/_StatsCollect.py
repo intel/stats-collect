@@ -99,6 +99,9 @@ def build_arguments_parser():
                statistics are collected."""
     subpars.add_argument("--stats", default="default", help=text)
 
+    text = f"""Print information about the statistics '{ToolInfo.TOOLNAME}' can collect and exit."""
+    subpars.add_argument("--list-stats", action="store_true", help=text)
+
     text = """The intervals for statistics. Statistics collection is based on doing periodic
               snapshots of data. For example, by default the 'acpower' statistics collector reads
               SUT power consumption for the last second every second, and 'turbostat' default

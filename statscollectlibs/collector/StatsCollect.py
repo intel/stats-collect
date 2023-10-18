@@ -67,6 +67,17 @@ def check_stnames(stnames):
     for stname in stnames:
         get_stinfo(stname)
 
+def list_stats():
+    """Print information about statistics."""
+
+    for stname in get_stnames():
+        stinfo = get_stinfo(stname)
+
+        _LOG.info("* %s", stname)
+        if stinfo.get("interval"):
+            _LOG.info("  - Default interval: %.1fs", stinfo["interval"])
+        _LOG.info("  - %s", stinfo["description"])
+
 class StatsCollect(_SpecStatsCollect.SpecStatsCollect):
     """
     This class provides API for collecting SUT statistics, such as 'turbostat' data and AC power.
