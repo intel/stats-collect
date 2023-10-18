@@ -26,15 +26,15 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
        * '_turbostat_to_df()'
     """
 
-    def _get_ctab_cfg(self, common_metrics, smry_funcs):
+    def _get_ctab_cfg(self, metrics, smry_funcs):
         """
-        Get the tab config which is populated with 'common_metrics' and using the C-states in
+        Get the tab config which is populated with 'metrics' and using the C-states in
         'self._hw_cstates' and 'self._req_cstates'.
         """
 
-        def fltr(metrics):
-            """Helper function filters 'metrics' based on if they are in 'common_metrics'."""
-            return [m for m in metrics if m in common_metrics]
+        def fltr(unfiltered_metrics):
+            """Helper function filters 'unfiltered_metrics' based on if they are in 'metrics'."""
+            return [m for m in unfiltered_metrics if m in metrics]
 
         # Add frequency-related D-tabs to a separate C-tab.
         freq_tab = self._build_def_ctab_cfg("Frequency", fltr(self._freq_metrics),
@@ -75,18 +75,18 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         common to all results.
         """
 
-        # Find metrics which are common to all raw turbostat statistic files.
+        # Find metrics which appear in the raw turbostat statistic files.
         metric_sets = [set(sdf.columns) for sdf in self._reports.values()]
-        common_metrics = set.union(*metric_sets)
+        metrics = set.union(*metric_sets)
 
         # Limit metrics to only those with definitions.
-        common_metrics.intersection_update(set(self._defs.info.keys()))
+        metrics.intersection_update(set(self._defs.info.keys()))
 
         # Define which plots should be generated in the data tab and which summary functions
         # should be included in the generated summary table for a given metric.
         plots = {}
         smry_funcs = {}
-        for metric in common_metrics:
+        for metric in metrics:
             defs_info = self._defs.info
             plots[metric] = {
                 "scatter": [(defs_info[self._time_metric], defs_info[metric])],
@@ -100,7 +100,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         # All raw turbostat statistic files have been parsed so we can now get a tab config with
         # tabs which are common to all sets of results.
-        return self._get_ctab_cfg(common_metrics, smry_funcs)
+        return self._get_ctab_cfg(metrics, smry_funcs)
 
     def _init_cstates(self, dfs):
         """
