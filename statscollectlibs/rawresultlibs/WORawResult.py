@@ -34,12 +34,15 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         """Initialize the output directory for writing or appending test results."""
 
         if self.dirpath.exists():
-            # Only accept empty output directory.
+            # Only accept "clean" output directory (either empty or including empty
+            # sub-directories).
             paths = (self.info_path, self.logs_path, self.stats_path)
             for path in paths:
+                # If path exists fail, except for the case when it is an empty directory.
                 if path.exists():
-                    raise ErrorExists(f"cannot use path '{self.dirpath}' as the output directory, "
-                                      f"it already contains '{path.name}'")
+                    if not path.is_dir() or any(path.iterdir()):
+                        raise ErrorExists(f"cannot use path '{self.dirpath}' as the output "
+                                          f"directory, it already contains '{path.name}'")
         else:
             try:
                 self.dirpath.mkdir(parents=True, exist_ok=True)
