@@ -13,6 +13,8 @@ import dataclasses
 import logging
 import json
 from pathlib import Path
+import plotly
+from packaging import version
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorExists
 from pepclibs.helperlibs import LocalProcessManager
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
@@ -282,6 +284,19 @@ class HTMLReport:
 
         _LOG.info("Generated report in '%s'.", self._outdir)
 
+    def _check_plotly_ver(self):
+        """
+        Warn the user if they are generating a report with 'plotly < v5.18.0' as those versions
+        contain a bug.
+        """
+
+        plotly_ver = plotly.__version__
+        preferred_ver = "5.18.0"
+        if version.parse(plotly_ver) < version.parse(preferred_ver):
+            _LOG.warning("generating a report with 'plotly v%s' can cause time stamps in plots to "
+                         "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
+                         "to resolve this issue.", plotly_ver, preferred_ver)
+
     def __init__(self, outdir):
         """
         The class constructor. The arguments are as follows:
@@ -295,4 +310,5 @@ class HTMLReport:
         self._stats_tbldr = None
         self._sysinfo_tbldr = None
 
+        self._check_plotly_ver()
         validate_outdir(outdir)
