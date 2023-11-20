@@ -40,19 +40,19 @@ CPU%cx:
     unit: "%"
     short_unit: "%"
     drop_empty: True
-Pkg%pcx:
-    title: "PCx residency"
+Mod%cx:
+    title: "The MCx module C-state residency"
     descr: >-
-        The percentage of time spent in package PCx hardware C-state. Retrieved from the "Pkg%pcx"
+        The percentage of time spent in package PCx hardware C-state. Retrieved from the "Mod%cx"
         turbostat column.
     type: "float"
     unit: "%"
     short_unit: "%"
     drop_empty: True
-Mod%cx:
-    title: "The MCx module C-state residency"
+Pkg%pcx:
+    title: "PCx residency"
     descr: >-
-        The percentage of time spent in package PCx hardware C-state. Retrieved from the "Mod%cx"
+        The percentage of time spent in package PCx hardware C-state. Retrieved from the "Pkg%pcx"
         turbostat column.
     type: "float"
     unit: "%"
