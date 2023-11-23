@@ -5,6 +5,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix the order of turbostat hardware C-state tabs in HTML reports.
 ### Added
  - Add a link to the report generation log in the report info panel of HTML reports.
 ### Removed
