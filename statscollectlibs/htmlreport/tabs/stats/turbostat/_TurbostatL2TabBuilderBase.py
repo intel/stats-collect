@@ -58,7 +58,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
 
-        hw_cstates = [cs.metric for cs in self._cstates["hardware"]["core"]] + ["Busy%"]
+        hw_cstates =  ["Busy%"] + [cs.metric for cs in self._cstates["hardware"]["core"]]
         self._hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric,
                                                    smry_funcs, self._hover_defs)
 
