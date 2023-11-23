@@ -99,7 +99,7 @@ class StatsCollectHTMLReport:
 
         HTMLReport.reportids_dedup(self.rsts)
 
-        rep = HTMLReport.HTMLReport(self.outdir)
+        rep = HTMLReport.HTMLReport(self.outdir, self.logpath)
         captout_tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, rep.tabs_dir,
                                                                            basedir=self.outdir)
         captout_tab = captout_tbldr.get_tab()
@@ -109,8 +109,9 @@ class StatsCollectHTMLReport:
         rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=intro_tbl,
                             title="stats-collect report")
 
-    def __init__(self, rsts, outdir):
+    def __init__(self, rsts, outdir, logpath=None):
         """Class constructor."""
 
         self.rsts = rsts
         self.outdir = outdir
+        self.logpath = logpath

@@ -260,6 +260,9 @@ class HTMLReport:
         report_info = {"title": title, "descr": descr,
                        "toolname": toolname, "toolver": toolver}
 
+        if self.logpath is not None:
+            report_info["logpath"] = self.logpath
+
         if intro_tbl is not None:
             intro_tbl_path = self._data_dir / "intro_tbl.json"
             intro_tbl.generate(intro_tbl_path)
@@ -297,15 +300,18 @@ class HTMLReport:
                          "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
                          "to resolve this issue.", plotly_ver, preferred_ver)
 
-    def __init__(self, outdir):
+    def __init__(self, outdir, logpath=None):
         """
         The class constructor. The arguments are as follows:
          * outdir - the directory which will contain the report.
+         * logpath - the path to the report generation log file.
         """
 
         self._outdir = Path(outdir)
         self._data_dir = self._outdir / "report-data"
         self._tabs_dir = self._data_dir / "tabs"
+
+        self.logpath = logpath
 
         self._stats_tbldr = None
         self._sysinfo_tbldr = None
