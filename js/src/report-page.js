@@ -95,6 +95,7 @@ export class ScReportPage extends LitElement {
         this.reportDescr = this.reportInfo.descr
         this.toolname = this.reportInfo.toolname
         this.toolver = this.reportInfo.toolver
+        this.logPath = this.reportInfo.logpath
     }
 
     generateTabIDs (tabs) {
@@ -286,10 +287,16 @@ export class ScReportPage extends LitElement {
     reportInfoTemplate () {
         return html`
         <sl-dialog class="report-info-dialog" label="Report Info">
-            Report generated with:
-            <ul>
-                <li>${this.toolname} v${this.toolver}</li>
-            </ul>
+            ${this.toolname && this.toolver
+                ? html`Generated with <i>'${this.toolname} v${this.toolver}'</i>`
+                : html``
+            }
+            <br>
+            <br>
+            ${this.logPath
+                ? html`<u><i><a target="_blank" href=${this.logPath}>Report Generation Log</a></i></u>`
+                : html``
+            }
         </sl-dialog>
         `
     }
