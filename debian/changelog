@@ -1,3 +1,10 @@
+stats-collect (1.0.19) unstable; urgency=low
+
+  * Fix the order of turbostat hardware C-state tabs in HTML reports.
+  * Add a link to the report generation log in the report info panel of HTML reports.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 24 Nov 2023 00:00:00 +0200
+
 stats-collect (1.0.18) unstable; urgency=low
 
   * Make data points in HTML report plots more human-readable by scaling values
