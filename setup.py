@@ -68,7 +68,7 @@ setup(
     scripts=_TOOLNAMES + _PYTHON_HELPERS,
     packages=find_packages(),
     # Desired 'plotly' version is '>=5.18.0' as earlier versions contain a non-critical bug.
-    install_requires=["pepc>=1.4.35", "plotly>=4", "numpy", "pandas", "pyyaml", "colorama"],
+    install_requires=["pepc>=1.4.42", "plotly>=4", "numpy", "pandas", "pyyaml", "colorama"],
     long_description="""This package provides stats-collect - a Linux command-line tool which
                         collects and visualizes system statistics and telemetry.""",
     classifiers=[
