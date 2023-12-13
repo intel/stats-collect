@@ -78,6 +78,6 @@ class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Uninitialize the object."""
 
-        close_attrs=("_btchk")
+        close_attrs=("_btchk", )
         unref_attrs=("_spman", "_bpman", "_cpman")
         ClassHelpers.close(self, close_attrs=close_attrs, unref_attrs=unref_attrs)
