@@ -9,6 +9,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in addition to existing
    turbostat data collection).
 ### Removed
+ - Removed time-stamps from 'dmesg' SysInfo files.
 ### Changed
  - Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in HTML reports instead of
    longer data which was collected without specifying a CPU.
