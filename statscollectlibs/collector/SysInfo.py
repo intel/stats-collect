@@ -95,7 +95,7 @@ def _collect_totals(outdir, when, pman):
     cmdinfos["dmesg"] = cmdinfo = {}
     outfile = outdir / f"dmesg.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
-    cmdinfo["cmd"] = f"dmesg > '{outfile}' 2>&1"
+    cmdinfo["cmd"] = f"dmesg --notime > '{outfile}' 2>&1"
 
     cmdinfos["x86_energy_perf_policy"] = cmdinfo = {}
     outfile = outdir / f"x86_energy_perf_policy.{when}.raw.txt"
