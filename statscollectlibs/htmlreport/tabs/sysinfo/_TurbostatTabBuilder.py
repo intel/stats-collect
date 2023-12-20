@@ -14,7 +14,7 @@ collected with the 'turbostat' tool.
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
 
 _FILES = {
-    "turbostat": "sysinfo/turbostat-d.after.raw.txt"
+    "turbostat -c 0 -S": "sysinfo/turbostat-d-c0.after.raw.txt"
 }
 
 class TurbostatTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
