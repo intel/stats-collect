@@ -6,8 +6,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
+ - Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in addition to existing
+   turbostat data collection).
 ### Removed
 ### Changed
+ - Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in HTML reports instead of
+   longer data which was collected without specifying a CPU.
 
 ## [1.0.19] - 2023-11-24
 ### Fixed
