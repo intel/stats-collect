@@ -87,6 +87,11 @@ def _collect_totals(outdir, when, pman):
     cmdinfo["outfile"] = outfile
     cmdinfo["cmd"] = f"turbostat -- sleep 1 > '{outfile}' 2>&1"
 
+    cmdinfos["turbostat_c0"] = cmdinfo = {}
+    outfile = outdir / f"turbostat-d-c0.{when}.raw.txt"
+    cmdinfo["outfile"] = outfile
+    cmdinfo["cmd"] = f"turbostat -c 0 -S -- sleep 0.01 > '{outfile}' 2>&1"
+
     cmdinfos["dmesg"] = cmdinfo = {}
     outfile = outdir / f"dmesg.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
