@@ -1,3 +1,13 @@
+stats-collect (1.0.20) unstable; urgency=low
+
+  * Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in addition to existing
+    turbostat data collection).
+  * Removed time-stamps from 'dmesg' SysInfo files.
+  * Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in HTML reports instead of
+    longer data which was collected without specifying a CPU.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 22 Dec 2023 00:00:00 +0200
+
 stats-collect (1.0.19) unstable; urgency=low
 
   * Fix the order of turbostat hardware C-state tabs in HTML reports.
