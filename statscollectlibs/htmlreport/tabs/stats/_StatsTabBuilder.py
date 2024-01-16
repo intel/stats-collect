@@ -93,7 +93,6 @@ class StatsTabBuilder:
 
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(filtered_stnames))
 
-        # Create 'Stats' tabs directory.
         stats_dir = self._outdir / self.name
 
         for stname in tab_builders:
