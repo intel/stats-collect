@@ -10,7 +10,6 @@
 This module provides the capability of building 'pandas.DataFrames' out of IPMI statistics files.
 """
 
-import numpy
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.defs import IPMIDefs
@@ -73,12 +72,6 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Confirm that the time column is in the 'pandas.DataFrame'.
         if time_colname not in sdf:
             raise Error(f"column '{time_colname}' not found in statistics file '{path}'.")
-
-        # Convert time column format to be 'time since epoch in seconds' so it is consistent with
-        # other time columns for other statistics and so that labels can be applied using
-        # '_apply_labels()'.
-        sdf[time_colname] -= numpy.datetime64('1970-01-01T00:00:00')
-        sdf[time_colname] /= numpy.timedelta64(1, "s")
 
         if labels:
             self._apply_labels(sdf, labels, time_colname)

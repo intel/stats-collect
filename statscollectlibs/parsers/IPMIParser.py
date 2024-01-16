@@ -14,7 +14,6 @@ with the "timestamp | XYZ" lines.
 """
 
 import re
-import datetime
 from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import _ParserBase
 
@@ -24,7 +23,7 @@ class IPMIParser(_ParserBase.ParserBase):
     def _next_entry(self):
         """Generator which yields entries from IPMI log files."""
 
-        time_regex = re.compile(r"^(timestamp) \| (\d+_\d+_\d+_\d+:\d+:\d+)$")
+        time_regex = re.compile(r"^(timestamp) \| (\d+\.\d+)$")
         entry_regex = re.compile(r"^(.+)\|(.+)\|(.+)$")
 
         for line in self._lines:
@@ -32,7 +31,7 @@ class IPMIParser(_ParserBase.ParserBase):
             # timestamp | 2017_01_04_11:02:46
             match = re.match(time_regex, line.strip())
             if match:
-                timestamp = datetime.datetime.strptime(match.group(2).strip(), '%Y_%m_%d_%H:%M:%S')
+                timestamp = Trivial.str_to_num(match.group(2).strip())
                 yield (match.group(1).strip(), timestamp, "")
             else:
                 # Example of the string:

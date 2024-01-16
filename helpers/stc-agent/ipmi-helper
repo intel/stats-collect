@@ -118,7 +118,7 @@ def main():
                 retries += 1
                 continue
             else:
-                LOG.info("timestamp | %s", time.strftime("%Y_%m_%d_%T", time.localtime(start)))
+                LOG.info("timestamp | %s", time.time())
                 LOG.info(output)
                 retries = 0
                 delta = time.time() - start
