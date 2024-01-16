@@ -31,34 +31,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "IPMI"
     stnames = ("ipmi-inband", "ipmi-oob",)
 
-    def _get_tab_cfg(self, common_cols, smry_funcs):
-        """
-        Helper function for 'get_def_tab_cfg()'. Get the tab config which is populated with IPMI
-        column names which are common to all raw IPMI statistic files 'common_cols'.
-        """
-
-        # Dedupe cols in 'self._metrics'.
-        for metric in self._metrics:
-            self._metrics[metric] = Trivial.list_dedup(self._metrics[metric])
-
-        ctabs = []
-        # Add fan speed-related D-tabs to a separate C-tab.
-        fspeed_cols = [col for col in self._metrics["FanSpeed"] if col in common_cols]
-        ctabs.append(self._build_def_ctab_cfg("Fan Speed", fspeed_cols, self._time_metric,
-                                              smry_funcs, self._hover_defs))
-
-        # Add temperature-related D-tabs to a separate C-tab.
-        temp_cols = [col for col in self._metrics["Temperature"] if col in common_cols]
-        ctabs.append(self._build_def_ctab_cfg("Temperature", temp_cols, self._time_metric,
-                                              smry_funcs, self._hover_defs))
-
-        # Add power-related D-tabs to a separate C-tab.
-        pwr_cols = self._metrics["Power"] + self._metrics["Current"] + self._metrics["Voltage"]
-        ctabs.append(self._build_def_ctab_cfg("Power", pwr_cols, self._time_metric,
-                                              smry_funcs, self._hover_defs))
-
-        return TabConfig.CTabConfig(self.name, ctabs=ctabs)
-
     def get_default_tab_cfg(self):
         """
         Generate the default tab configuration as a 'TabConfig.CTabConfig' instance.
@@ -76,27 +48,34 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         for a given category, the container tab will not be generated.
         """
 
-        # Configure which axes plots will display in the data tabs.
-        plots = {}
-        smry_funcs = {}
-        for metric, colnames in self._metrics.items():
-            for col in colnames:
-                if col not in self._common_cols:
-                    continue
-
-                defs_info = self._defs.info
-                plots[col] = {
-                    "scatter": [(defs_info[self._time_metric], defs_info[col])],
-                    "hist": [defs_info[col]]
-                }
-
         # Define which summary functions should be included in the generated summary table
         # for a given metric.
+        smry_funcs = {}
         for metric in self._common_cols:
             smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
                                   "med", "avg", "min", "std"]
 
-        return self._get_tab_cfg(self._common_cols, smry_funcs)
+        # Dedupe cols in 'self._metrics'.
+        for metric in self._metrics:
+            self._metrics[metric] = Trivial.list_dedup(self._metrics[metric])
+
+        ctabs = []
+        # Add fan speed-related D-tabs to a separate C-tab.
+        fspeed_cols = [col for col in self._metrics["FanSpeed"] if col in self._common_cols]
+        ctabs.append(self._build_def_ctab_cfg("Fan Speed", fspeed_cols, self._time_metric,
+                                              smry_funcs, self._hover_defs))
+
+        # Add temperature-related D-tabs to a separate C-tab.
+        temp_cols = [col for col in self._metrics["Temperature"] if col in self._common_cols]
+        ctabs.append(self._build_def_ctab_cfg("Temperature", temp_cols, self._time_metric,
+                                              smry_funcs, self._hover_defs))
+
+        # Add power-related D-tabs to a separate C-tab.
+        pwr_cols = self._metrics["Power"] + self._metrics["Current"] + self._metrics["Voltage"]
+        ctabs.append(self._build_def_ctab_cfg("Power", pwr_cols, self._time_metric,
+                                              smry_funcs, self._hover_defs))
+
+        return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 
     def get_tab(self, tab_cfg=None):
         """
