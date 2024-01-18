@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -22,18 +22,38 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     files.
     """
 
-    def _categorise_cols(self, ipmi):
+    def decode_ipmi_colname(self, colname):
         """
-        Associates column names in the IPMIParser dict 'ipmi' to the metrics they represent. For
-        example, 'FanSpeed' can be represented by several columns such as 'Fan1', 'Fan Speed' etc.
-        This function will add those column names to the 'FanSpeed' metric.
+        IPMI 'pandas.DataFrames' are loaded with column names containing the original column name
+        and the relevant IPMI metric. Decode 'colname' to get a tuple containing the metric and the
+        original IPMi column name. If 'colname' is not a valid 'ipmi' column name, returns
+        'None, None'.
         """
+
+        split = colname.split("-", 1)
+        if len(split) < 2 or split[0] not in self._defs.info:
+            return None, None
+
+        original_colname = split[1] if len(split) > 1 else None
+        return split[0], original_colname
+
+    def _encode_colnames(self, ipmi):
+        """
+        Encode column names in the IPMIParser dict 'ipmi' to include the metrics they represent. For
+        example, 'FanSpeed' can be represented by several columns such as 'Fan1'. This function will
+        encode that column name as 'FanSpeed-Fan1'. Returns a dictionary in the format
+        '{colname: encoded_colname}'.
+        """
+
+        colnames = {}
 
         for colname, val in ipmi.items():
             unit = val[1]
             metric = self._defs.get_metric_from_unit(unit)
             if metric:
-                self.metrics[metric].append(colname)
+                colnames[colname] = f"{metric}-{colname}"
+
+        return colnames
 
     def _read_stats_file(self, path, labels=None):
         """
@@ -60,8 +80,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         except StopIteration:
             raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
 
-        # Populate 'self._metrics' using the columns from the first data point.
-        self._categorise_cols(i)
+        colnames = self._encode_colnames(i)
         sdf = _ipmi_to_df(i)
 
         for i in ipmi_gen:
@@ -80,7 +99,8 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         sdf[time_colname] = sdf[time_colname] - sdf[time_colname][0]
         sdf[time_colname] = pandas.to_datetime(sdf[time_colname], unit="s")
 
-        sdf = sdf.rename(columns={time_colname: self._time_metric})
+        rename_cols = {time_colname: self._time_metric, **colnames}
+        sdf = sdf.rename(columns=rename_cols)
         return sdf
 
     def __init__(self):
@@ -93,11 +113,5 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         self._time_metric = "Time"
         self._defs = IPMIDefs.IPMIDefs()
-
-        # Metrics in IPMI statistics can be represented by multiple columns. For example the
-        # "FanSpeed" of several different fans can be measured and represented in columns "Fan1",
-        # "Fan2" etc. This dictionary maps the metrics to the appropriate columns. Initialise it
-        # with empty column sets for each metric.
-        self.metrics = {metric: [] for metric in self._defs.info}
 
         super().__init__()

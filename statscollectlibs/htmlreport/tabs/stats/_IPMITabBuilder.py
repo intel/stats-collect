@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -48,6 +48,19 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         for a given category, the container tab will not be generated.
         """
 
+        def build_ctab_cfg(colnames, ctab_name):
+            """Construct an IPMI container tab called 'ctab_name' for each column in 'colnames'."""
+
+            dtabs = []
+            for colname in colnames:
+                metric, col = self._dfbldr.decode_ipmi_colname(colname)
+                if not col or metric not in self._defs.info:
+                    continue
+                dtabs.append(self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
+                                                      self._hover_defs, title=col))
+
+            return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
+
         # Define which summary functions should be included in the generated summary table
         # for a given metric.
         smry_funcs = {}
@@ -62,52 +75,17 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         ctabs = []
         # Add fan speed-related D-tabs to a separate C-tab.
         fspeed_cols = [col for col in self._metrics["FanSpeed"] if col in self._common_cols]
-        ctabs.append(self._build_def_ctab_cfg("Fan Speed", fspeed_cols, self._time_metric,
-                                              smry_funcs, self._hover_defs))
+        ctabs.append(build_ctab_cfg(fspeed_cols, "FanSpeed"))
 
         # Add temperature-related D-tabs to a separate C-tab.
         temp_cols = [col for col in self._metrics["Temperature"] if col in self._common_cols]
-        ctabs.append(self._build_def_ctab_cfg("Temperature", temp_cols, self._time_metric,
-                                              smry_funcs, self._hover_defs))
+        ctabs.append(build_ctab_cfg(temp_cols, "Temperature"))
 
         # Add power-related D-tabs to a separate C-tab.
         pwr_cols = self._metrics["Power"] + self._metrics["Current"] + self._metrics["Voltage"]
-        ctabs.append(self._build_def_ctab_cfg("Power", pwr_cols, self._time_metric,
-                                              smry_funcs, self._hover_defs))
+        ctabs.append(build_ctab_cfg(pwr_cols, "Power"))
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
-
-    def get_tab(self, tab_cfg=None):
-        """
-        Preceeds 'super().get_tab()' by populating the available metrics with all of the 'ipmi'
-        column names parsed from raw statistics files. See 'super().get_tab()' for more information.
-        """
-
-        col_sets = [set(sdf.columns) for sdf in self._reports.values()]
-        self._common_cols = set.union(*col_sets)
-
-        # Reports may have the "Time" column in common or none at all. In both of these cases, an
-        # IPMI tab won't be generated.
-        if len(self._common_cols) < 2:
-            raise Error("unable to generate IPMI tab, no common IPMI metrics between reports.")
-
-        # Update defs with IPMI column names for each column.
-        for metric, colnames in self._metrics.items():
-            for colname in colnames:
-                if colname not in self._common_cols:
-                    continue
-
-                # Since we use column names which aren't known until runtime as tab titles, use the
-                # defs for the metric but overwrite the 'name' and 'fsname' attributes. Use 'copy'
-                # so that 'defs.info' can be used to create the container tab.
-                col_def = self._defs.info[metric].copy()
-                # Don't overwrite the 'title' attribute so that the metric name is shown in plots
-                # and the summary table.
-                col_def["fsname"] = DefsBase.get_fsname(colname)
-                col_def["name"] = colname
-                self._defs.info[colname] = col_def
-
-        return super().get_tab(tab_cfg)
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -122,27 +100,27 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "Time"
 
+        defs = IPMIDefs.IPMIDefs()
+
         # Metrics in IPMI statistics can be represented by multiple columns. For example the
         # "FanSpeed" of several different fans can be measured and represented in columns "Fan1",
         # "Fan2" etc. This dictionary maps the metrics to the appropriate columns. Initialise it
         # with empty column sets for each metric.
-        defs = IPMIDefs.IPMIDefs()
-        self._metrics = {}
+        self._metrics = {metric: [] for metric in defs.info}
 
         self._common_cols = set()
 
         stnames = set()
         dfs = {}
-        dfbldr = IPMIDFBuilder.IPMIDFBuilder()
+        self._dfbldr = IPMIDFBuilder.IPMIDFBuilder()
         self._hover_defs = {}
         for res in rsts:
             for stname in self.stnames:
                 if stname not in res.info["stinfo"]:
                     continue
 
-                dfs[res.reportid] = res.load_stat(stname, dfbldr, f"{stname}.raw.txt")
+                dfs[res.reportid] = res.load_stat(stname, self._dfbldr, f"{stname}.raw.txt")
                 self._hover_defs[res.reportid] = res.get_label_defs(stname)
-                self._metrics.update(dfbldr.metrics)
                 stnames.add(stname)
                 break
 
@@ -151,3 +129,29 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                          "and out-of-band.", self.name)
 
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
+
+        col_sets = [set(sdf.columns) for sdf in self._reports.values()]
+        self._common_cols = set.union(*col_sets)
+
+        # Reports may have the "Time" column in common or none at all. In both of these cases, an
+        # IPMI tab won't be generated.
+        if len(self._common_cols) < 2:
+            raise Error("unable to generate IPMI tab, no common IPMI metrics between reports.")
+
+        # Update defs with IPMI column names for each column.
+        for colname in self._common_cols:
+            # Since we use column names which aren't known until runtime as tab titles, use the
+            # defs for the metric but overwrite the 'name' and 'fsname' attributes.
+
+            metric, col = self._dfbldr.decode_ipmi_colname(colname)
+            if not col:
+                continue
+
+            self._metrics[metric].append(colname)
+
+            col_def = self._defs.info[metric].copy()
+            # Don't overwrite the 'title' attribute so that the metric name is shown in plots
+            # and the summary table.
+            col_def["fsname"] = DefsBase.get_fsname(colname)
+            col_def["name"] = colname
+            self._defs.info[colname] = col_def
