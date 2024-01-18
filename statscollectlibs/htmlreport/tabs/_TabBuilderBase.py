@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -42,7 +42,7 @@ class TabBuilderBase:
     # The name of the statistics represented in the produced tab.
     name = None
 
-    def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs):
+    def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, title=None):
         """
         Provides a way to build a default data tab configuration. Returns an instance of
         'TabConfig.DTabConfig'. Arguments are as follows:
@@ -58,9 +58,11 @@ class TabBuilderBase:
           * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
                          list of metric definition dictionaries for the metrics which should be
                          included on plots as hover text for the relevant report with id 'reportid'.
+          * title - optionally customise the name of the tab. Defaults to 'y_metric'.
         """
 
-        dtab = TabConfig.DTabConfig(y_metric)
+        title = title if title is not None else y_metric
+        dtab = TabConfig.DTabConfig(title)
         dtab.add_scatter_plot(x_metric, y_metric)
         dtab.add_hist(y_metric)
         dtab.set_smry_funcs({y_metric: smry_funcs[y_metric]})
@@ -156,12 +158,6 @@ class TabBuilderBase:
         sub_tabs = []
 
         for dtabconfig in ctabconfig.dtabs:
-            results = {rid: sdf for rid, sdf in self._reports.items() if dtabconfig.name in sdf}
-            if not results:
-                _LOG.info("Skipping '%s' tab in '%s' tab: no results contain data for this "
-                          "metric.", dtabconfig.name, self.name)
-                continue
-
             try:
                 sub_tabs.append(self._build_dtab(outdir, dtabconfig))
             except Error as err:
