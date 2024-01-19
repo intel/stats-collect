@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2014-2021 Intel Corporation
+# Copyright (C) 2014-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Erik Veijola <erik.veijola@intel.com>
@@ -13,8 +13,10 @@ multiple snapshots of measurement data which we call "data sets". The data sets 
 with the "timestamp | XYZ" lines.
 """
 
+import datetime
 import re
 from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import _ParserBase
 
 class IPMIParser(_ParserBase.ParserBase):
@@ -23,20 +25,41 @@ class IPMIParser(_ParserBase.ParserBase):
     def _next_entry(self):
         """Generator which yields entries from IPMI log files."""
 
-        time_regex = re.compile(r"^(timestamp) \| (\d+\.\d+)$")
+        # Example of a line with the timestamp format:
+        # timestamp | 1705672515.054093
+        ts_regex = re.compile(r"^(timestamp) \| (\d+\.\d+)$")
         entry_regex = re.compile(r"^(.+)\|(.+)\|(.+)$")
+        get_ts = Trivial.str_to_num
+
+        # Timestamps in raw 'ipmi' statistics files were changed in 'stats-collect v1.0.21' from a
+        # human readable, but time-zone sensitive, format to an epoch timestamp. So catch and handle
+        # each case separately. To remove support for this format, simply remove the following code
+        # block. Example of a line with the old timestamp format: timestamp | 2017_01_04_11:02:46
+        ts_fmt = "%Y_%m_%d_%H:%M:%S"
+        old_ts_regex = re.compile(r"^(timestamp) \| (\d+_\d+_\d+_\d+:\d+:\d+)$")
+        ts_line = next(self._lines, None).strip()
+        if ts_line is None:
+            raise Error("empty 'ipmi' statistics file")
+        match = re.match(old_ts_regex, ts_line)
+        if match:
+            ts_regex = old_ts_regex
+            # pylint: disable=unnecessary-lambda-assignment
+            get_ts = lambda ts: int(datetime.datetime.strptime(ts, ts_fmt).strftime("%s"))
+            # pylint: enable=unnecessary-lambda-assignment
+        else:
+            match = re.match(ts_regex, ts_line)
+        yield (match.group(1).strip(), get_ts(match.group(2).strip()), "")
 
         for line in self._lines:
-            # Example of the string:
-            # timestamp | 2017_01_04_11:02:46
-            match = re.match(time_regex, line.strip())
+            line = line.strip()
+            match = re.match(ts_regex, line)
             if match:
-                timestamp = Trivial.str_to_num(match.group(2).strip())
+                timestamp = get_ts(match.group(2).strip())
                 yield (match.group(1).strip(), timestamp, "")
             else:
                 # Example of the string:
                 # System Fan 4     | 2491 RPM          | ok
-                match = re.match(entry_regex, line.strip())
+                match = re.match(entry_regex, line)
                 if match:
                     val = match.group(2).strip()
                     data = val.split(' ', 1)
