@@ -32,9 +32,10 @@ class IPMIParser(_ParserBase.ParserBase):
         get_ts = Trivial.str_to_num
 
         # Timestamps in raw 'ipmi' statistics files were changed in 'stats-collect v1.0.21' from a
-        # human readable, but time-zone sensitive, format to an epoch timestamp. So catch and handle
-        # each case separately. To remove support for this format, simply remove the following code
-        # block. Example of a line with the old timestamp format: timestamp | 2017_01_04_11:02:46
+        # human readable, but time-zone sensitive, format to an epoch timestamp in result format
+        # v1.3. So catch and handle each case separately. To remove support for this format, simply
+        # remove the following code block.
+        # Example of a line with the old timestamp format: timestamp | 2017_01_04_11:02:46
         ts_fmt = "%Y_%m_%d_%H:%M:%S"
         old_ts_regex = re.compile(r"^(timestamp) \| (\d+_\d+_\d+_\d+:\d+:\d+)$")
         ts_line = next(self._lines, None).strip()

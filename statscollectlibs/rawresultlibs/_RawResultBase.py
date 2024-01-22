@@ -19,7 +19,7 @@ from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 
 # The latest supported raw results format version.
-FORMAT_VERSION = "1.2"
+FORMAT_VERSION = "1.3"
 
 class RawResultBase:
     """Base class for the test result classes."""
