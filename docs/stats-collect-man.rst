@@ -2,7 +2,7 @@
 STATS-COLLECT
 =============
 
-:Date: 2023-12-22
+:Date: 2024-02-09
 
 .. contents::
    :depth: 3
@@ -105,8 +105,8 @@ COMMAND *'stats-collect* start'
 
 usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
 [-K PRIVKEY] [-T TIMEOUT] [--cpunum CPUNUM] [--time-limit LIMIT] [-o
-OUTDIR] [--reportid REPORTID] [--stats STATS] [--stats-intervals
-STATS_INTERVALS] [--report] cmd [cmd ...]
+OUTDIR] [--reportid REPORTID] [--stats STATS] [--list-stats]
+[--stats-intervals STATS_INTERVALS] [--report] cmd [cmd ...]
 
 Start collecting statistics.
 
@@ -175,6 +175,10 @@ OPTIONS *'stats-collect* start'
    not want to be collected by pre-pending the '!' symbol. For example,
    'all,!turbostat' would mean: collect all the statistics supported by
    the SUT, except for
+
+**--list-stats**
+   Print information about the statistics 'stats-collect' can collect
+   and exit.
 
 **--stats-intervals** *STATS_INTERVALS*
    The intervals for statistics. Statistics collection is based on doing

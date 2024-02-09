@@ -8,6 +8,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.21] - 2024-02-09
+### Changed
  - Replaced time-zone sensitive timestamps in 'ipmi' raw statistic files with
    epoch timestamps to allow labels to be applied to 'ipmi' data.
 

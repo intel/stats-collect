@@ -1,4 +1,4 @@
-.TH STATS\-COLLECT "1" "2023\-12\-22" "stats\-collect" "Generated Python Manual"
+.TH STATS\-COLLECT "1" "2024\-02\-09" "stats\-collect" "Generated Python Manual"
 .SH NAME
 stats\-collect
 .SH SYNOPSIS
@@ -83,7 +83,8 @@ Path to the private SSH key that should be used for logging into the remote host
 SSH connect timeout in seconds, default is 8.
 
 .SH COMMAND \fI\,'stats\-collect start'\/\fR
-usage: stats\-collect start [\-h] [\-q] [\-d] [\-H HOSTNAME] [\-U USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-cpunum CPUNUM] [\-\-time\-limit LIMIT] [\-o OUTDIR] [\-\-reportid REPORTID] [\-\-stats STATS] [\-\-stats\-intervals STATS_INTERVALS] [\-\-report]
+usage: stats\-collect start [\-h] [\-q] [\-d] [\-H HOSTNAME] [\-U USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-cpunum CPUNUM] [\-\-time\-limit LIMIT] [\-o OUTDIR] [\-\-reportid REPORTID] [\-\-stats STATS] [\-\-list\-stats] [\-\-stats\-intervals STATS_INTERVALS]
+                           [\-\-report]
                            cmd [cmd ...]
 
 Start collecting statistics.
@@ -144,6 +145,10 @@ Comma\-separated list of statistics to collect. They are stored in the the "stat
 \-\-stats=""' or '\-\-stats="none"' to disable statistics collection. If you know exactly what statistics you need, specify the comma\-separated list of statistics to collect. For example, use 'turbostat,acpower' if you need only turbostat
 and AC power meter statistics. You can also specify the statistics you do not want to be collected by pre\-pending the '!' symbol. For example, 'all,!turbostat' would mean: collect all the statistics supported by the SUT, except for
 'turbostat'. Use the '\-\-list\-stats' option to get more information about available statistics. By default, only 'sysinfo' statistics are collected.
+
+.TP
+\fB\-\-list\-stats\fR
+Print information about the statistics 'stats\-collect' can collect and exit.
 
 .TP
 \fB\-\-stats\-intervals\fR \fI\,STATS_INTERVALS\/\fR
