@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -22,9 +22,9 @@ SPEC_FILE="$BASEDIR/rpm/stats-collect.spec"
 # The CHANGELOG.md file path.
 CHANGELOG_FILE="$BASEDIR/CHANGELOG.md"
 
-# Documentation file paths.
-STCOLL_MAN_FILE="$BASEDIR/docs/man1/stats-collect.1"
-STCOLL_RST_FILE="$BASEDIR/docs/stats-collect-man.rst"
+# Documentation directory and files.
+STCOLL_MAN_DIR="$BASEDIR/docs/man1"
+STCOLL_RST_FILES="$BASEDIR/docs/stats-collect-man.rst"
 
 # Path to 'pepc' project sources.
 PEPC_SRC_PATH="$BASEDIR/../pepc"
@@ -121,12 +121,12 @@ sed -i -e "s/^VERSION = \"$VERSION_REGEX\"$/VERSION = \"$new_ver\"/" "$STCOLL_VE
 # Change RPM package version.
 sed -i -e "s/^Version:\(\s\+\)$VERSION_REGEX$/Version:\1$new_ver/" "$SPEC_FILE"
 
-# Update the man page.
-argparse-manpage --pyfile "$STCOLL_FILE" --function build_arguments_parser \
-                 --project-name 'stats-collect' --author 'Artem Bityutskiy' \
-                 --author-email 'dedekind1@gmail.com' --output "$STCOLL_MAN_FILE" \
-                 --url 'https://github.com/intel/stats-collect'
-pandoc --toc -t man -s "$STCOLL_MAN_FILE" -t rst -o "$STCOLL_RST_FILE"
+# Update the man pages.
+for file in $STCOLL_RST_FILES; do
+    manfile="${STCOLL_MAN_DIR}/$(basename "$file" ".rst").1"
+    pandoc -f rst -s "$file" -t man -o "$manfile"
+    git add "$manfile"
+done
 
 # Commit the changes.
 git -C "$BASEDIR" commit -a -s -m "Release version $new_ver"
