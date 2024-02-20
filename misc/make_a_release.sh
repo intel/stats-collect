@@ -24,7 +24,7 @@ CHANGELOG_FILE="$BASEDIR/CHANGELOG.md"
 
 # Documentation directory and files.
 STCOLL_MAN_DIR="$BASEDIR/docs/man1"
-STCOLL_RST_FILES="$BASEDIR/docs/stats-collect-man.rst"
+STCOLL_RST_FILES="$BASEDIR/docs/stats-collect.rst"
 
 # Path to 'pepc' project sources.
 PEPC_SRC_PATH="$BASEDIR/../pepc"
