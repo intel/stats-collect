@@ -52,6 +52,16 @@ def _run_commands(cmdinfos, pman):
             _LOG.warning("Not all the system statistics were collected, here are the failures\n%s",
                          "\nNext error:\n".join(errors))
 
+def _get_find_cmd(include, outfile):
+    """
+    Create a 'find' command which will dump the contents of files found with regex 'include' into
+    'outfile'.
+    """
+
+    pattern = fr"""find /sys/devices/system/cpu/ -type f -regex '.*/{include}/.*' """
+    pattern += fr"""-exec sh -c "echo '{{}}:'; cat '{{}}'; echo" \; > '{outfile}' 2>&1"""
+    return pattern
+
 def _collect_totals(outdir, when, pman):
     """
     This is a helper for collecting the global statistics which may change after a workload has been
@@ -64,23 +74,20 @@ def _collect_totals(outdir, when, pman):
 
     cmdinfos = {}
 
-    pattern = r"""find /sys/devices/system/cpu/ -type f -regex '.*/%s/.*' """ \
-              r"""-exec sh -c "echo '{}:'; cat '{}'; echo" \; > '%s' 2>&1"""
-
     cmdinfos["cpuidle"] = cmdinfo = {}
     outfile = outdir / f"sys-cpuidle.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
-    cmdinfo["cmd"] = pattern % ("cpuidle", outfile)
+    cmdinfo["cmd"] = _get_find_cmd("cpuidle", outfile)
 
     cmdinfos["cpufreq"] = cmdinfo = {}
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
-    cmdinfo["cmd"] = pattern % ("cpufreq", outfile)
+    cmdinfo["cmd"] = _get_find_cmd("cpufreq", outfile)
 
     cmdinfos["thermal_throttle"] = cmdinfo = {}
     outfile = outdir / f"sys-thermal_throttle.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
-    cmdinfo["cmd"] = pattern % ("thermal_throttle", outfile)
+    cmdinfo["cmd"] = _get_find_cmd("thermal_throttle", outfile)
 
     cmdinfos["turbostat"] = cmdinfo = {}
     outfile = outdir / f"turbostat-d.{when}.raw.txt"
