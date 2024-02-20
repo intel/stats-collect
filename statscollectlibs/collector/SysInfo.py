@@ -52,13 +52,15 @@ def _run_commands(cmdinfos, pman):
             _LOG.warning("Not all the system statistics were collected, here are the failures\n%s",
                          "\nNext error:\n".join(errors))
 
-def _get_find_cmd(include, outfile):
+def _get_find_cmd(include, outfile, exclude=None):
     """
     Create a 'find' command which will dump the contents of files found with regex 'include' into
-    'outfile'.
+    'outfile'. Optionally, use 'exclude' to provide regex to exclude certain files.
     """
 
     pattern = fr"""find /sys/devices/system/cpu/ -type f -regex '.*/{include}/.*' """
+    if exclude:
+        pattern += fr"""-not -regex '{exclude}' """
     pattern += fr"""-exec sh -c "echo '{{}}:'; cat '{{}}'; echo" \; > '{outfile}' 2>&1"""
     return pattern
 
@@ -82,7 +84,7 @@ def _collect_totals(outdir, when, pman):
     cmdinfos["cpufreq"] = cmdinfo = {}
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
-    cmdinfo["cmd"] = _get_find_cmd("cpufreq", outfile)
+    cmdinfo["cmd"] = _get_find_cmd("cpufreq", outfile, exclude=".*/scaling_cur_freq")
 
     cmdinfos["thermal_throttle"] = cmdinfo = {}
     outfile = outdir / f"sys-thermal_throttle.{when}.raw.txt"
