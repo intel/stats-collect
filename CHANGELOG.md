@@ -9,6 +9,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
  - Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize and diff generation
    times.
+ - Remove 'usage', 'time', 'above' and 'below' from 'SysInfo' 'cpuidle' files to reduce filesize and
+   diff generation times.
 ### Changed
  - Fix 'numpy' dependency version to '>2.1.0' to avoid 'FutureWarning'
    appearing during HTML report generation.
