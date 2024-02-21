@@ -79,7 +79,7 @@ def _collect_totals(outdir, when, pman):
     cmdinfos["cpuidle"] = cmdinfo = {}
     outfile = outdir / f"sys-cpuidle.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
-    cmdinfo["cmd"] = _get_find_cmd("cpuidle", outfile)
+    cmdinfo["cmd"] = _get_find_cmd("cpuidle", outfile, exclude=r".*/\(usage\|time\|above\|below\)")
 
     cmdinfos["cpufreq"] = cmdinfo = {}
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
