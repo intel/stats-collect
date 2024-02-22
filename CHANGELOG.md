@@ -8,6 +8,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Fix 'numpy' dependency version to '>2.1.0' to avoid 'FutureWarning'
+   appearing during HTML report generation.
 
 ## [1.0.21] - 2024-02-09
 ### Changed
