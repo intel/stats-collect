@@ -88,7 +88,7 @@ class ScatterPlot(_Plot.Plot):
 
         # Scale the histogram down. Do not change the buckets with few datapoints (< lo_thresh),
         # scale down all the other buckets so that they would have maximum 'hi_thresh' datapoints.
-        hist = hist.applymap(lambda f: max(int(f * factor), lo_thresh) if f > lo_thresh else f)
+        hist = hist.map(lambda f: max(int(f * factor), lo_thresh) if f > lo_thresh else f)
 
         # Create a copy of the histogram, but populate it with zeroes.
         cur_hist = pandas.DataFrame(0, columns=hist.columns, index=hist.index)
