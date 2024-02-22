@@ -2,7 +2,7 @@
 -*- coding: utf-8 -*-
 vim: ts=4 sw=4 tw=100 et ai si
 
-Copyright (C) 2022-2023 Intel, Inc.
+Copyright (C) 2022-2024 Intel, Inc.
 SPDX-License-Identifier: BSD-3-Clause
 
 Author: Adam Hawley <adam.james.hawley@intel.com>
@@ -29,7 +29,7 @@ it.
 
 ## Fedora
 
-'stats-collect' is part of Fedora starting from Fedora 35. To install 'stats-collect', run
+'stats-collect' is available on Fedora 38 and Fedora 39. To install 'stats-collect', run
 
 ```
 sudo dnf install stats-collect
@@ -37,24 +37,11 @@ sudo dnf install stats-collect
 
 Fedora packages are maintained by Ali Erdinç Köroğlu <ali.erdinc.koroglu@intel.com>.
 
-In case of Fedora 34 or older Fedora, use the 'pip' installation method.
+In case of Fedora 37 or older Fedora, use the 'pip' installation method.
 
-## CentOS 8 Stream
+## CentOS, Ubuntu and Debian
 
-To install 'stats-collect' in CentOS stream, you can use the
-["copr"](https://copr.fedorainfracloud.org/coprs/aekoroglu/c8s-py39/) repository
-maintained by Ali Erdinç Köroğlu <ali.erdinc.koroglu@intel.com>.
-
-Run the following commands.
-
-```
-sudo dnf copr enable aekoroglu/c8s-py39 centos-stream-8-x86_64
-sudo dnf install stats-collect
-```
-
-## Ubuntu and Debian
-
-We do not provide Ubuntu/Debian packages, so you'll need to use the 'pip' installation method.
+We do not provide CentOS/Ubuntu/Debian packages, so you'll need to use the 'pip' installation method.
 
 ## Installing with 'pip'
 
