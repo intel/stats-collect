@@ -79,11 +79,15 @@ def _collect_totals(outdir, when, pman):
     cmdinfos["cpuidle"] = cmdinfo = {}
     outfile = outdir / f"sys-cpuidle.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
+    # Exclude 'usage', 'time', 'above' and 'below' from 'cpuidle' SysInfo files to reduce their
+    # overall size. This makes diff generation quicker and reduces the size of 'cpuidle' 'SysInfo'
+    # files.
     cmdinfo["cmd"] = _get_find_cmd("cpuidle", outfile, exclude=r".*/\(usage\|time\|above\|below\)")
 
     cmdinfos["cpufreq"] = cmdinfo = {}
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
+    # Exclude 'scaling_cpu_freq' files for the same reason as above with 'cpuidle' files.
     cmdinfo["cmd"] = _get_find_cmd("cpufreq", outfile, exclude=".*/scaling_cur_freq")
 
     cmdinfos["thermal_throttle"] = cmdinfo = {}
