@@ -7,6 +7,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
 ### Added
 ### Removed
+### Changed
+
+## [1.0.22] - 2024-03-08
+### Removed
  - Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize and diff generation
    times.
  - Remove 'usage', 'time', 'above' and 'below' from 'SysInfo' 'cpuidle' files to reduce filesize and
