@@ -22,7 +22,6 @@ except ImportError:
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploylibs import _Deploy
-from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.collector import StatsCollectBuilder
 from statscollecttools import ToolInfo
 
@@ -63,6 +62,7 @@ def build_arguments_parser():
     descr = """Start collecting statistics."""
     subpars = subparsers.add_parser("start", help=text, description=descr)
     subpars.set_defaults(func=_start_command)
+    man_msg = "Please, refer to 'stats-collect-start' manual page for more information."
 
     ArgParse.add_ssh_options(subpars)
 
@@ -79,35 +79,23 @@ def build_arguments_parser():
     if argcomplete:
         arg.completer = argcomplete.completers.DirectoriesCompleter()
 
-    text = f"""Any string which may serve as an identifier of this run. By default report ID is the
-               current date, prefixed with the remote host name in case the '-H' option was used:
-               [hostname-]YYYYMMDD. For example, "20150323" is a report ID for a run made on March
-               23, 2015. The allowed characters are: {ReportID.get_charset_descr()}."""
+    text = """Report ID which will serve as an identifier for this run. By default report ID is
+              the current date, prefixed with the remote host name in case the '-H' option was 
+              used. """ + man_msg
     subpars.add_argument("--reportid", help=text)
 
     default_stats = ", ".join(StatsCollectBuilder.DEFAULT_STNAMES)
-    text = f"""Comma-separated list of statistics to collect. They are stored in the the "stats"
-               sub-directory of the output directory. By default, only '{default_stats}' statistics
-               are collected. Use 'all' to collect all possible statistics. Use '--stats=""' or
-               '--stats="none"' to disable statistics collection. If you know exactly what
-               statistics you need, specify the comma-separated list of statistics to collect. For
-               example, use 'turbostat,acpower' if you need only turbostat and AC power meter
-               statistics. You can also specify the statistics you do not want to be collected by
-               pre-pending the '!' symbol. For example, 'all,!turbostat' would mean: collect all the
-               statistics supported by the SUT, except for 'turbostat'. Use the '--list-stats'
-               option to get more information about available statistics. By default, only 'sysinfo'
-               statistics are collected."""
+    text = f"""Comma-separated list of statistics to collect. By default, only '{default_stats}'
+               statistics are collected. """ + man_msg
     subpars.add_argument("--stats", default="default", help=text)
 
     text = f"""Print information about the statistics '{ToolInfo.TOOLNAME}' can collect and exit."""
     subpars.add_argument("--list-stats", action="store_true", help=text)
 
-    text = """The intervals for statistics. Statistics collection is based on doing periodic
-              snapshots of data. For example, by default the 'acpower' statistics collector reads
-              SUT power consumption for the last second every second, and 'turbostat' default
-              interval is 5 seconds. Use 'acpower:5,turbostat:10' to increase the intervals to 5 and
-              10 seconds correspondingly.  Use the '--list-stats' to get the default interval
-              values."""
+    text = """The intervals for statistics collection as a comma-separated list, e.g.
+              'acpower:5,turbostat:10' to collect SUT power consumption every 5 seconds and
+              turbostat data every 10 seconds. Use the '--list-stats' to get the default interval
+              values. """ + man_msg
     subpars.add_argument("--stats-intervals", help=text)
     subpars.add_argument("--report", action="store_true")
 
@@ -123,21 +111,17 @@ def build_arguments_parser():
     descr = """Create an HTML report for one or multiple test results."""
     subpars = subparsers.add_parser("report", help=text, description=descr)
     subpars.set_defaults(func=_report_command)
+    man_msg = "Please, refer to 'stats-collect-report' manual page for more information."
 
-    text = f"""Path to the directory to store the report at. By default the report is stored in the
-               '{ToolInfo.TOOLNAME}-report-<reportid>' sub-directory of the test result directory.
-               If there are multiple test results, the report is stored in the current directory.
-               The '<reportid>' is report ID of {ToolInfo.TOOLNAME} test result."""
+    text = f"""Path to the directory in which the report will be generated. By default the report
+               is stored in the '{ToolInfo.TOOLNAME}-report-<reportid>' sub-directory of the test
+               result directory. If there are multiple test results, the report is stored in the
+               current directory. The '<reportid>' is report ID of {ToolInfo.TOOLNAME} test
+               result."""
     subpars.add_argument("-o", "--outdir", type=Path, help=text)
 
-    text = """Every input raw result comes with a report ID. This report ID is basically a short
-            name for the test result, and it used in the HTML report to refer to the test result.
-            However, sometimes it is helpful to temporarily override the report IDs just for the
-            HTML report, and this is what the '--reportids' option does. Please, specify a
-            comma-separated list of report IDs for every input raw test result. The first report ID
-            will be used for the first raw rest result, the second report ID will be used for the
-            second raw test result, and so on. Please, refer to the '--reportid' option description
-            in the 'start' command for more information about the report ID."""
+    text = """A comma-separated list containing a report ID for every input raw test
+              result. """ + man_msg
     subpars.add_argument("--reportids", help=text)
 
     text = f"""One or multiple {ToolInfo.TOOLNAME} test result paths."""
