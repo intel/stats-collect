@@ -19,6 +19,9 @@ The 'stats-collect' man page is available [here](docs/stats-collect-man.rst).
 
 # Installation
 
+Note, while 'stats-collect' is available via OS packages, they typically do not provide the latest
+version. Use the "pip" installation method to get the latest 'stats-collect' version.
+
 ## Dependency on 'pepc'
 
 Note, the 'stats-collect' project is dependent on the ['pepc' tool](https://github.com/intel/pepc).
