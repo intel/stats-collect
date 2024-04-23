@@ -74,8 +74,8 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     def load_stat(self, stname, dfbldr, default_name):
         """
-        Loads data for statistic 'stname' into 'self.dfs'. Returns a 'pandas.DataFrame' containing
-        'stname' data for this result. Arguments are as follows:
+        Loads data for statistic 'stname'. Returns a 'pandas.DataFrame' containing 'stname' data for
+        this result. Arguments are as follows:
          * stname - the name of the statistic for which a 'pandas.DataFrame' should be retrieved.
          * dfbldr - an instance of '_DFBuilderBase.DFBuilderBase' to use to build a
                     'pandas.DataFrame' from the raw statistics file.
@@ -83,14 +83,9 @@ class RORawResult(_RawResultBase.RawResultBase):
                           defined in 'info.yml'.
         """
 
-        if stname in self.dfs:
-            return self.dfs[stname]
-
         path = self._get_stats_path(stname, default_name)
         labels_path = self._get_labels_path(stname)
-        self.dfs[stname] = dfbldr.load_df(path, labels_path)
-
-        return self.dfs[stname]
+        return dfbldr.load_df(path, labels_path)
 
     def __init__(self, dirpath, reportid=None):
         """
@@ -136,10 +131,6 @@ class RORawResult(_RawResultBase.RawResultBase):
         toolver = self.info.get("toolver")
         if not toolver:
             raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
-
-        # Store each loaded 'pandas.DataFrame' so that it does not need to be re-loaded in future.
-        # This dictionary maps statistic names to 'pandas.DataFrames'.
-        self.dfs = {}
 
         # Store label metric definitions provided to 'set_label_defs()'.
         self._labels_defs = {}
