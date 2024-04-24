@@ -42,5 +42,5 @@ def find_project_web_assets(prjname, subpath, pman=None, what=None):
       * in '/usr/share/javascript/<prjname>/', if it exists.
     """
 
-    return search_project_data(f"javascript/{prjname}", subpath, pman, what,
-                               get_project_web_assets_envvar(prjname))
+    return next(search_project_data(f"javascript/{prjname}", subpath, pman, what,
+                                    get_project_web_assets_envvar(prjname)))
