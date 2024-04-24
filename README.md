@@ -15,8 +15,6 @@ collects system statistics and telemetry, and visualizes them. It’s for debugg
 purposes only. It is for lab usage, not for production usage. The users are software engineers
 debugging a problem in the Linux operating system.
 
-The 'stats-collect' man page is available [here](docs/stats-collect-man.rst).
-
 # Installation
 
 Note, while 'stats-collect' is available via OS packages, they typically do not provide the latest
@@ -75,8 +73,7 @@ Below outlines basic local usage of the 'stats-collect' tool involving how to co
 statistics.
 
 All of the commands listed below can be used in conjunction with the `-h` option to learn more about
-the command and other options that can be used with it. For more information, it is recommended that
-users refer to the 'stats-collect' [man page](docs/stats-collect-man.rst).
+the command and other options that can be used with it.
 
 ## Start Statistics Collection
 
@@ -141,6 +138,13 @@ the statistics collection step (using the `-o` option).
 ```
 stats-collect report stats-result
 ```
+
+# Documentation
+
+For more information, documentation is available for each 'stats-collect' command accordingly:
+ * `stats-collect deploy` - [Documentation](docs/stats-collect-deploy.rst)
+ * `stats-collect start` - [Documentation](docs/stats-collect-start.rst)
+ * `stats-collect report` - [Documentation](docs/stats-collect-report.rst)
 
 # Authors and contributors
 
