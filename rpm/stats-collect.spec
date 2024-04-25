@@ -20,7 +20,7 @@ Requires:	pepc
 
 %description
 Pepc stands for "Power, Energy, and Performance Configurator".
-This is a command-line tool for configuring various Linux and Hardware 
+This is a command-line tool for configuring various Linux and Hardware
 power management features.
 
 %package -n python3-%{name}
@@ -40,7 +40,8 @@ Pepc Python libraries
 
 %install
 %py3_install
-install -pDm644 docs/man1/stats-collect.1 %{buildroot}/%{_mandir}/man1/stats-collect.1
+mkdir -p %{buildroot}/%{_mandir}/man1/stats-collect
+install -pDm644 docs/man1/*.1 %{buildroot}/%{_mandir}/man1/stats-collect
 
 %check
 %if %{with tests}
@@ -51,7 +52,7 @@ install -pDm644 docs/man1/stats-collect.1 %{buildroot}/%{_mandir}/man1/stats-col
 %doc README.md
 %license debian/LICENSE.md
 %{_bindir}/stats-collect
-%{_mandir}/man1/stats-collect.1*
+%{_mandir}/man1/stats-collect-*.1
 
 %files -n python3-%{name}
 %{python3_sitelib}/statscollectlibs
