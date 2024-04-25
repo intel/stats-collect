@@ -9,6 +9,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.24] - 2024-04-25
+### Changed
+ - Fix debianiaztion/rpm-ization to include new split man pages.
+
 ## [1.0.23] - 2024-04-25
 ### Fixed
  - Fix 'stats-collect report' populating totals turbostat tabs with measured CPU
