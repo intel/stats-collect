@@ -5,11 +5,14 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix 'stats-collect report' populating totals turbostat tabs with measured CPU
-   data since v1.0.4.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.23] - 2024-04-25
+### Fixed
+ - Fix 'stats-collect report' populating totals turbostat tabs with measured CPU
+   data since v1.0.4.
 
 ## [1.0.22] - 2024-03-08
 ### Removed

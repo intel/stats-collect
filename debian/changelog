@@ -1,3 +1,10 @@
+stats-collect (1.0.23) unstable; urgency=low
+
+  * Fix 'stats-collect report' populating totals turbostat tabs with measured CPU
+    data since v1.0.4.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Thu, 25 Apr 2024 00:00:00 +0200
+
 stats-collect (1.0.22) unstable; urgency=low
 
   * Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize and diff generation
