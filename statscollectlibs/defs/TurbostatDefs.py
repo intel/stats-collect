@@ -121,11 +121,15 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
                 mdef["descr"] = f"{mdef['descr']} Calculated by finding the {method} of " \
                                 f"\"{mdef['name']}\" across the system."
 
-    def __init__(self, cstates):
+    def __init__(self, cstates, uncfreq_defs=None):
         """
         The class constructor. Arguments are as follows:
          * cstates - a list of C-states parsed from raw turbostat statistic files.
+         * uncfreq_defs - a list of 'UncoreFreqDef' instances representing uncore frequency metrics
+                          from raw turbostat statistic files.
         """
+
+        uncfreq_defs = [] if uncfreq_defs is None else [udef.metric for udef in uncfreq_defs]
 
         super().__init__("turbostat")
 
@@ -134,5 +138,6 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
         if "POLL" in cstates:
             cstates.remove("POLL")
 
-        placeholders_info = [{"placeholder": "Cx", "values": cstates, "casesensitive" : False}]
-        self._mangle_placeholders(placeholders_info)
+        placeholders = [{"placeholder": "Cx", "values": cstates, "casesensitive" : False},
+                        {"placeholder": "UncMHz", "values": uncfreq_defs, "casesensitive" : True}]
+        self._mangle_placeholders(placeholders)
