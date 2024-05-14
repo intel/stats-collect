@@ -94,6 +94,21 @@ class ModuleCSDef(_CSTypeBase):
         """Returns the name of the C-state represented in 'metric'."""
         return metric[4:]
 
+class UncoreFreqDef:
+    """This class represents the 'Uncore Frequency' metric definition."""
+
+    @staticmethod
+    def check_metric(metric):
+        """Checks if 'metric' represents the uncore frequency of a domain."""
+
+        # 'turbostat' versions older than '2024.04.27' use 'UncMHz' to represent uncore frequency,
+        # newer versions use the format 'UMHzX.Y' where 'X' = domain ID and 'Y' = fabric cluster.
+        return metric == "UncMHz" or metric.startswith("UMHz")
+
+    def __init__(self, metric):
+        """The class constructor. """
+        self.metric = metric
+
 class TurbostatDefs(_STCDefsBase.STCDefsBase):
     """This module provides API to turbostat metrics definitions (AKA 'defs')."""
 
