@@ -8,6 +8,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Change the order of hardware C-state residency turbostat tabs in the HTML
+   report tab tree so that module C-state residency tabs appear above package
+   C-state residency tabs.
 
 ## [1.0.24] - 2024-04-25
 ### Changed
