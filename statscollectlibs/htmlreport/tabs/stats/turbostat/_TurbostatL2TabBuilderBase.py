@@ -102,10 +102,11 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         # tabs which are common to all sets of results.
         return self._get_ctab_cfg(metrics, smry_funcs)
 
-    def _init_cstates(self, dfs):
+    def _parse_colnames(self, dfs):
         """
-        Find common C-states present in all results in 'dfs' and categorise them into the
-        'self._cstates' dictionary. Returns a list of all of the common C-states.
+        Iterate through columns in 'dfs' to find common C-states and uncore frequency columns
+        present in all results and categorise them into the 'self._cstates' dictionary and
+        'self._uncfreq_defs' list respectively. Returns a list of all of the common C-states.
         """
 
         req_rsdncy_cstates = []
@@ -132,6 +133,8 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
                 mod_cstates.append(TurbostatDefs.ModuleCSDef(colname))
             elif TurbostatDefs.PackageCSDef.check_metric(colname):
                 pkg_cstates.append(TurbostatDefs.PackageCSDef(colname))
+            elif TurbostatDefs.UncoreFreqDef.check_metric(colname):
+                self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(colname))
 
         self._cstates["hardware"]["core"] = core_cstates
         self._cstates["hardware"]["package"] = pkg_cstates
@@ -188,7 +191,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
             }
         }
 
+        # Store metrics representing uncore frequency to update 'self._defs' accordingly.
+        self._uncfreq_defs = []
+
         super().__init__(dfs, outdir, basedir=basedir)
 
-        all_cstates = self._init_cstates(dfs)
-        self._defs = TurbostatDefs.TurbostatDefs(all_cstates)
+        all_cstates = self._parse_colnames(dfs)
+        self._defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
