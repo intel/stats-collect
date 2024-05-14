@@ -128,10 +128,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
                 req_cnt_cstates.append(TurbostatDefs.ReqCSDefCount(colname))
             elif TurbostatDefs.CoreCSDef.check_metric(colname):
                 core_cstates.append(TurbostatDefs.CoreCSDef(colname))
-            elif TurbostatDefs.PackageCSDef.check_metric(colname):
-                pkg_cstates.append(TurbostatDefs.PackageCSDef(colname))
             elif TurbostatDefs.ModuleCSDef.check_metric(colname):
                 mod_cstates.append(TurbostatDefs.ModuleCSDef(colname))
+            elif TurbostatDefs.PackageCSDef.check_metric(colname):
+                pkg_cstates.append(TurbostatDefs.PackageCSDef(colname))
 
         self._cstates["hardware"]["core"] = core_cstates
         self._cstates["hardware"]["package"] = pkg_cstates
