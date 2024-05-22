@@ -53,8 +53,12 @@ class FilePreviewBuilder:
         """
 
         if filecmp.cmp(*paths, shallow=False):
-            _LOG.info("Skipping '%s' diff as both files are identical.", diff_name)
-            return None
+            identical_diff_path = self.outdir / "diffs" / "identical.diff"
+            if not identical_diff_path.exists():
+                identical_diff_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(identical_diff_path, "w", encoding="utf-8") as f:
+                    f.write("Diff not generated: identical content.")
+            return identical_diff_path.relative_to(self._basedir)
 
         # Read the contents of the files into 'lines'.
         lines = []
