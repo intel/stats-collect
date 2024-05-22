@@ -52,7 +52,7 @@ class FilePreviewBuilder:
         relative to 'outdir'.
         """
 
-        if filecmp.cmp(*paths):
+        if filecmp.cmp(*paths, shallow=False):
             _LOG.info("Skipping '%s' diff as both files are identical.", diff_name)
             return None
 
