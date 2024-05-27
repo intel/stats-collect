@@ -65,7 +65,7 @@ class Plot:
         for col in columns:
             if col not in hov_defs:
                 continue
-            if not row[columns.get_loc(col)]:
+            if not row.iloc[columns.get_loc(col)]:
                 continue
 
             mdef = hov_defs[col]
