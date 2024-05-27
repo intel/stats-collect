@@ -7,6 +7,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
  - Fix an issue where 'stats-collect report' would not generate diffs for files
    with minor differences.
+ - Fix a 'FutureWarning' from a dependency being printed during HTML report
+   generation.
 ### Added
  - Add support for new turbostat uncore frequency columns in HTML reports.
  - Add 'Diff' tabs with messages clarifying when diff generation has been
@@ -16,6 +18,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Change the order of hardware C-state residency turbostat tabs in the HTML
    report tab tree so that module C-state residency tabs appear above package
    C-state residency tabs.
+ - Change redundant log message about deleted directories (when no statistics
+   are collected) so that it only appears as a debug message.
 
 ## [1.0.24] - 2024-04-25
 ### Changed
