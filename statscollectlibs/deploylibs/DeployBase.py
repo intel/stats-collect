@@ -206,7 +206,7 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
         installable = self._get_installable_by_deployable(deployable)
         what = self._get_deployable_print_name(installable, deployable)
 
-        _LOG.warning("%s may be out of date%s\nConsider running '%s'",
+        _LOG.warning("%s may be out of date%s, consider running '%s'",
                      what, self._spman.hostmsg, get_deploy_cmd(self._spman, self._toolname))
 
     def _check_deployable_up_to_date(self, deployable, srcpath, dstpath):
@@ -227,7 +227,7 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
         dst_mtime = self._spman.get_mtime(dstpath)
 
         if src_mtime > self._time_delta + dst_mtime:
-            _LOG.debug("src mtime %d > %d + dst mtime %d\nsrc: %s\ndst %s",
+            _LOG.debug("src mtime %d > %d + dst mtime %d, src: %s, dst %s",
                        src_mtime, self._time_delta, dst_mtime, srcpath, dstpath)
             self._warn_deployable_out_of_date(deployable)
 
@@ -275,7 +275,6 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Uninitialize the object."""
         ClassHelpers.close(self, close_attrs=("_spman",))
-
 
 class DeployBase(ClassHelpers.SimpleCloseContext):
     """This module provides the base class that includes sharable pieces of the 'Deploy' class."""
@@ -369,7 +368,7 @@ class DeployBase(ClassHelpers.SimpleCloseContext):
           * lbuild - by default, everything is built on the SUT, but if 'lbuild' is 'True', then
                      everything is built on the local host.
           * tmpdir_path - if provided, use this path as a temporary directory (by default, a random
-                           temporary directory is created).
+                          temporary directory is created).
           * keep_tmpdir - if 'False', remove the temporary directory when finished. If 'True', do
                           not remove it.
           * debug - if 'True', be more verbose.
