@@ -9,6 +9,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
    with minor differences.
  - Fix a 'FutureWarning' from a dependency being printed during HTML report
    generation.
+ - Fix 'stats-collect report' crashing when 'ipmi' statistics contain 'nan'
+   values.
 ### Added
  - Add support for new turbostat uncore frequency columns in HTML reports.
  - Add 'Diff' tabs with messages clarifying when diff generation has been
