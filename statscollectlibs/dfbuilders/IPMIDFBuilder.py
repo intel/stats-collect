@@ -10,11 +10,15 @@
 This module provides the capability of building 'pandas.DataFrames' out of IPMI statistics files.
 """
 
+import logging
+import numpy
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.defs import IPMIDefs
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import IPMIParser
+
+_LOG = logging.getLogger()
 
 class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
@@ -94,6 +98,16 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         if labels:
             self._apply_labels(sdf, labels, time_colname)
+
+        # Remove any 'infinite' values which can appear in raw ACPower files.
+        sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
+        if sdf.isnull().values.any():
+            _LOG.warning("dropping one or more 'nan' values from statistics file '%s'", path)
+            sdf.dropna(inplace=True)
+
+            # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
+            # indexing. Reset the index to avoid any of these problems.
+            sdf.reset_index(inplace=True)
 
         # Convert Time column from time stamp to time since the first data point was recorded.
         sdf[time_colname] = sdf[time_colname] - sdf[time_colname][0]
