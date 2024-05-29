@@ -51,7 +51,12 @@ CATEGORIES = {"drivers"    : "kernel driver",
               "bpfhelpers" : "eBPF helper program"}
 
 def get_deploy_cmd(pman, toolname):
-    """Returns the command that should be run to deploy the 'toolname' tool."""
+    """
+    Return the command that should be run to deploy the 'toolname' tool. The arguments are as
+    follows.
+      * pman - the process manager object for the host 'toolname' would be deployed to.
+      * toolname - name of the tool to return the deploy command for.
+    """
 
     cmd = f"{toolname} deploy"
     if pman.is_remote:
