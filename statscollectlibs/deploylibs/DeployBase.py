@@ -115,7 +115,7 @@ def get_insts_cats(deploy_info):
     """
 
     insts = {}
-    cats = {cat : {} for cat in CATEGORIES}
+    cats = {cat: {} for cat in CATEGORIES}
 
     for name, info in deploy_info["installables"].items():
         info = copy.deepcopy(info)
