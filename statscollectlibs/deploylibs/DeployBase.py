@@ -356,6 +356,15 @@ class DeployBase(ClassHelpers.SimpleCloseContext):
             _LOG.info("Preserved the following temporary directories:\n * %s",
                       "\n * ".join(preserved))
 
+    def _drop_installable(self, installable):
+        """Drop an installable."""
+
+        _LOG.debug("dropping the '%s' installable", installable)
+
+        cat = self._insts[installable]["category"]
+        del self._insts[installable]
+        del self._cats[cat][installable]
+
     def __init__(self, prjname, toolname, deploy_info, pman=None, lbuild=False, tmpdir_path=None,
                  keep_tmpdir=False, debug=False):
         """
