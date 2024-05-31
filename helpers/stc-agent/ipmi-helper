@@ -53,6 +53,9 @@ def parse_arguments():
     text = "IPMI password file (will be passed to 'ipmitool -f')."
     parser.add_argument("-f", "--password-file", help=text)
 
+    text = "IPMI interface (will be passed to 'ipmitool -I'). Default is 'lanplus'."
+    parser.add_argument("-I", "--interface", help=text, default="lanplus")
+
     # This is a hidden option which makes 'ipmi-helper' print paths to its dependencies and exit.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
@@ -91,7 +94,7 @@ def main():
 
     cmd = "ipmitool"
     if args.host:
-        cmd += f" -I lanplus -H '{args.host}'"
+        cmd += f" -I '{args.interface}' -H '{args.host}'"
     if args.user:
         cmd += f" -U '{args.user}'"
     if args.password_file:
