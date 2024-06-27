@@ -68,7 +68,6 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
         sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
         sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
 
-
         return sdf
 
     def __init__(self):
