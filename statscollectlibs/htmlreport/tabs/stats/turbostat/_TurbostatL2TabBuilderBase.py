@@ -26,10 +26,11 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
        * '_turbostat_to_df()'
     """
 
-    def _get_ctab_cfg(self, metrics, smry_funcs):
+    def _get_default_tab_cfg(self, metrics, smry_funcs):
         """
-        Get the tab config which is populated with 'metrics' and using the C-states in
-        'self._hw_cstates' and 'self._req_cstates'.
+        Helper function for 'get_default_tab_cfg()'. Get the default tab configuration which is
+        populated with 'metrics', 'smry_funcs' and using the C-states in 'self._hw_cstates' and
+        'self._req_cstates'.
         """
 
         def fltr(unfiltered_metrics):
@@ -102,7 +103,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         # All raw turbostat statistic files have been parsed so we can now get a tab config with
         # tabs which are common to all sets of results.
-        return self._get_ctab_cfg(metrics, smry_funcs)
+        return self._get_default_tab_cfg(metrics, smry_funcs)
 
     def _parse_colnames(self, dfs):
         """

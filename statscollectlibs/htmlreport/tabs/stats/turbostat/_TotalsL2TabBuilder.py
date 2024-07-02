@@ -20,14 +20,14 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
 
     name = "Totals"
 
-    def _get_ctab_cfg(self, metrics, smry_funcs):
+    def _get_default_tab_cfg(self, metrics, smry_funcs):
         """
-        Extends '_get_ctab_cfg()' from the parent class to add tabs specifically for this
-        level 2 turbostat tab as they are not added by 'super()._get_ctab_cfg()'. Arguments are
-        the same as 'super()._get_ctab_cfg()'.
+        Extends '_get_default_tab_cfg()' from the parent class to add tabs specifically for this
+        level 2 turbostat tab as they are not added by 'super()._get_default_tab_cfg()'. Arguments
+        are the same as 'super()._get_default_tab_cfg()'.
         """
 
-        cfg = super()._get_ctab_cfg(metrics, smry_funcs)
+        cfg = super()._get_default_tab_cfg(metrics, smry_funcs)
 
         # Add package & module C-states.
         for scope in ("module", "package",):
