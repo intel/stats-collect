@@ -90,14 +90,9 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
 
     def _get_cpus_tstat(self, tstat):
         """
-        Get a dictionary in the format {'cpu': 'tstat_subdict'}' from the 'tstat' dictionary
-        produced by 'TurbostatParser', where 'tstat_subdict' is a sub-dictionary of 'tstat' limited
-        to turbostat statistics only for the 'cpu' CPU.
+        Get a dictionary containing the turbostat statistics for the measured CPU. The dictionary
+        contains values from the package, core, and CPU levels.
         """
-
-        cpus_tstat = {}
-
-        # Only return turbostat data for measured CPUs.
 
         # Traverse dictionary looking for measured CPUs.
         for package in tstat["packages"].values():
@@ -109,9 +104,7 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
 
                 # Include the package and core totals as for metrics which are not available at the
                 # CPU level.
-                cpus_tstat[self._mcpu] = {**package["totals"], **core["totals"], **tstats}
-
-                return cpus_tstat
+                return {**package["totals"], **core["totals"], **tstats}
 
         raise Error(f"no data for measured cpu '{self._mcpu}'")
 
@@ -121,25 +114,10 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
         """
 
-        _time_colname = "Time_Of_Day_Seconds"
-        totals = tstat["totals"]
-        cpu_tstat = self._get_cpus_tstat(tstat)
+        cpus_tstat = self._get_cpus_tstat(tstat)
+        cpus_tstat[self._time_metric] = [tstat["totals"]["Time_Of_Day_Seconds"]]
 
-        # 'tstat_reduced' is a reduced version of the 'tstat' which contains only the columns we
-        # want to include in the report. Initialize it by adding the timestamp column.
-        tstat_reduced = {self._time_metric: [totals[_time_colname]]}
-
-        for metric in totals:
-            if metric == self._time_metric:
-                continue
-
-            try:
-                tstat_reduced[metric] = [cpu_tstat[self._mcpu][metric]]
-            except KeyError:
-                raise Error(f"no value available for metric '{metric}' for cpu "
-                            f"'{self._mcpu}'.") from None
-
-        return pandas.DataFrame.from_dict(tstat_reduced)
+        return pandas.DataFrame.from_dict(cpus_tstat)
 
     def __init__(self, mcpu):
         """
@@ -164,17 +142,5 @@ class TotalsDFBuilder(TurbostatDFBuilderBase):
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
         """
 
-        _time_colname = "Time_Of_Day_Seconds"
-        totals = tstat["totals"]
-
-        # 'tstat_reduced' is a reduced version of the 'tstat' which contains only the columns we
-        # want to include in the report. Initialise it by adding the timestamp column.
-        tstat_reduced = {self._time_metric: [totals[_time_colname]]}
-
-        for metric in totals:
-            if metric == self._time_metric:
-                continue
-
-            tstat_reduced[metric] = [totals[metric]]
-
-        return pandas.DataFrame.from_dict(tstat_reduced)
+        tstat = {self._time_metric: [tstat["totals"]["Time_Of_Day_Seconds"]], **tstat["totals"]}
+        return pandas.DataFrame.from_dict(tstat)
