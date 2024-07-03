@@ -126,15 +126,15 @@ class DefsBase:
                 # which will replace the 'CCx' sub-dictionary with metric names (e.g., 'CC1' and
                 # 'CC6').
                 replacement = {}
-                for value in values:
-                    # pylint: disable=cell-var-from-loop
+                for val in values:
+                    # pylint: disable=cell-var-from-loop,unnecessary-lambda-assignment
                     if case_sensitive:
-                        func = lambda mo: value
+                        func = lambda mo: val
                     else:
                         # The replacement function. Will replace with upper-cased or lower-cased
-                        # 'value' depending on whether the replaced sub-string starts with a capital
+                        # 'val' depending on whether the replaced sub-string starts with a capital
                         # letter.
-                        func = lambda mo: value.upper() if mo.group(0).istitle() else value.lower()
+                        func = lambda mo: val.upper() if mo.group(0)[0].isupper() else val.lower()
 
                     metric = regex.sub(func, placeholder_metric)
                     replacement[metric] = self.info[placeholder_metric].copy()

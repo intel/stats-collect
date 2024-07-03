@@ -138,6 +138,7 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
         if "POLL" in cstates:
             cstates.remove("POLL")
 
-        placeholders = [{"placeholder": "Cx", "values": cstates, "casesensitive" : False},
+        placeholders = [{"placeholder": "PCx", "values": cstates, "casesensitive" : False},
+                        {"placeholder": "Cx", "values": cstates, "casesensitive" : False},
                         {"placeholder": "UncMHz", "values": uncfreq_defs, "casesensitive" : True}]
         self._mangle_placeholders(placeholders)
