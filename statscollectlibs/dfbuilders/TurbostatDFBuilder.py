@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -113,7 +113,7 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
 
                 return cpus_tstat
 
-        raise Error(f"not data for measured cpu '{self._mcpu}'")
+        raise Error(f"no data for measured cpu '{self._mcpu}'")
 
     def _turbostat_to_df(self, tstat, path):
         """
