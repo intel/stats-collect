@@ -100,11 +100,9 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
                 if self._mcpu not in core["cpus"]:
                     continue
 
-                tstats = core["cpus"][self._mcpu]
-
                 # Include the package and core totals as for metrics which are not available at the
                 # CPU level.
-                return {**package["totals"], **core["totals"], **tstats}
+                return {**package["totals"], **core["totals"], **core["cpus"][self._mcpu]}
 
         raise Error(f"no data for measured cpu '{self._mcpu}'")
 
