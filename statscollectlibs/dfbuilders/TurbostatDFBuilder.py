@@ -22,12 +22,10 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
     statistics files.
     """
 
-    def _turbostat_to_df(self, tstat, path):
+    def _turbostat_to_df(self, tstat):
         """
         Convert the 'tstat' dictionary to a 'pandas.DataFrame'. Arguments are as follows:
          * tstat - dictionary produced by 'TurbostatParser'.
-         * path - path of the original raw turbostat statistics file which was parsed to produce
-                  'tstat'.
         """
 
         raise NotImplementedError()
@@ -47,11 +45,11 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
 
             # Initialise the stats 'pandas.DataFrame' ('sdf') with data from the first 'tstat'
             # dictionary.
-            sdf = self._turbostat_to_df(tstat, path)
+            sdf = self._turbostat_to_df(tstat)
 
             # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
             for tstat in tstat_gen:
-                df = self._turbostat_to_df(tstat, path)
+                df = self._turbostat_to_df(tstat)
                 sdf = pandas.concat([sdf, df], ignore_index=True)
         except Exception as err:
             msg = Error(err).indent(2)
@@ -106,7 +104,7 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
 
         raise Error(f"no data for measured cpu '{self._mcpu}'")
 
-    def _turbostat_to_df(self, tstat, path):
+    def _turbostat_to_df(self, tstat):
         """
         Convert the 'tstat' dictionary produced by 'TurbostatParser' to a 'pandas.DataFrame'. See
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
@@ -134,7 +132,7 @@ class TotalsDFBuilder(TurbostatDFBuilderBase):
     'pandas.DataFrame'.
     """
 
-    def _turbostat_to_df(self, tstat, path=None):
+    def _turbostat_to_df(self, tstat):
         """
         Convert the 'tstat' dictionary produced by 'TurbostatParser' to a 'pandas.DataFrame'. See
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
