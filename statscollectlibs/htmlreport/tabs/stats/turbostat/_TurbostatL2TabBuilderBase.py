@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -49,17 +49,15 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         misc_tab = self._build_def_ctab_cfg("Misc", fltr(self._misc_metrics), self._time_metric,
                                             smry_funcs, self._hover_defs)
 
-        req_res_cstates = [cs.metric for cs in self._cstates["requested"]["residency"]]
-        req_res_tab = self._build_def_ctab_cfg("Residency", req_res_cstates, self._time_metric,
-                                               smry_funcs, self._hover_defs)
+        req_res_tab = self._build_def_ctab_cfg("Residency", self._cstates["requested"]["residency"],
+                                               self._time_metric, smry_funcs, self._hover_defs)
 
-        req_cnt_cstates = [cs.metric for cs in self._cstates["requested"]["count"]]
-        req_cnt_tab = self._build_def_ctab_cfg("Count", req_cnt_cstates, self._time_metric,
-                                               smry_funcs, self._hover_defs)
+        req_cnt_tab = self._build_def_ctab_cfg("Count", self._cstates["requested"]["count"],
+                                               self._time_metric, smry_funcs, self._hover_defs)
 
         req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
 
-        hw_cstates =  ["Busy%"] + [cs.metric for cs in self._cstates["hardware"]["core"]]
+        hw_cstates =  ["Busy%"] + self._cstates["hardware"]["core"]
         self._hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric,
                                                    smry_funcs, self._hover_defs)
 
@@ -118,6 +116,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         core_cstates = []
         pkg_cstates = []
         mod_cstates = []
+        all_cstates = []
 
         # Maintain the order that C-states appear in turbostat so that they are not jumbled.
         all_colnames = []
@@ -128,15 +127,20 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         for colname in all_colnames:
             if TurbostatDefs.ReqCSDef.check_metric(colname):
-                req_rsdncy_cstates.append(TurbostatDefs.ReqCSDef(colname))
+                req_rsdncy_cstates.append(colname)
+                all_cstates.append(TurbostatDefs.ReqCSDef(colname).cstate)
             elif TurbostatDefs.ReqCSDefCount.check_metric(colname):
-                req_cnt_cstates.append(TurbostatDefs.ReqCSDefCount(colname))
+                req_cnt_cstates.append(colname)
+                all_cstates.append(TurbostatDefs.ReqCSDefCount(colname).cstate)
             elif TurbostatDefs.CoreCSDef.check_metric(colname):
-                core_cstates.append(TurbostatDefs.CoreCSDef(colname))
+                core_cstates.append(colname)
+                all_cstates.append(TurbostatDefs.CoreCSDef(colname).cstate)
             elif TurbostatDefs.ModuleCSDef.check_metric(colname):
-                mod_cstates.append(TurbostatDefs.ModuleCSDef(colname))
+                mod_cstates.append(colname)
+                all_cstates.append(TurbostatDefs.ModuleCSDef(colname).cstate)
             elif TurbostatDefs.PackageCSDef.check_metric(colname):
-                pkg_cstates.append(TurbostatDefs.PackageCSDef(colname))
+                pkg_cstates.append(colname)
+                all_cstates.append(TurbostatDefs.PackageCSDef(colname).cstate)
             elif TurbostatDefs.UncoreFreqDef.check_metric(colname):
                 self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(colname))
 
@@ -146,9 +150,7 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         self._cstates["requested"]["residency"] = req_rsdncy_cstates
         self._cstates["requested"]["count"] = req_cnt_cstates
 
-        all_cstates = req_rsdncy_cstates + req_cnt_cstates + core_cstates
-        all_cstates += pkg_cstates + mod_cstates
-        return [csdef.cstate for csdef in all_cstates]
+        return all_cstates
 
     def __init__(self, dfs, outdir, basedir, hover_defs=None):
         """

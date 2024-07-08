@@ -31,9 +31,9 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
 
         # Add package & module C-states.
         for scope in ("module", "package",):
-            hw_pkg_cs = [m for m in self._cstates["hardware"][scope] if m.metric in metrics]
-            for csdef in hw_pkg_cs:
-                dtab_cfg = self._build_def_dtab_cfg(csdef.metric, self._time_metric, smry_funcs,
+            hw_pkg_cs = [cs for cs in self._cstates["hardware"][scope] if cs in metrics]
+            for cs in hw_pkg_cs:
+                dtab_cfg = self._build_def_dtab_cfg(cs, self._time_metric, smry_funcs,
                                                     self._hover_defs)
                 self._hw_cs_tab.dtabs.append(dtab_cfg)
 
