@@ -73,6 +73,8 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         Note that the hierarchy of the tabs will will only include turbostat metrics which are
         common to all results.
+
+        See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
 
         # Find metrics which appear in the raw turbostat statistic files.

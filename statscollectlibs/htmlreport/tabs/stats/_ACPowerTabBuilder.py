@@ -30,6 +30,8 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     def get_default_tab_cfg(self):
         """
         Returns a 'TabConfig.DTabConfig' instance with the default 'AC Power' tab configuration.
+
+        See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
 
         smry_funcs = {self._power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",

@@ -46,6 +46,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         contain several data tabs titled "Fan1", "Fan2" etc. if each raw IPMI statistics file
         contains these measurements. If there were no common IPMI metrics between all of the results
         for a given category, the container tab will not be generated.
+
+        See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
 
         def build_ctab_cfg(colnames, ctab_name):
