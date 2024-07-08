@@ -106,7 +106,8 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         """
         Iterate through columns in 'dfs' to find common C-states and uncore frequency columns
         present in all results and categorise them into the 'self._cstates' dictionary and
-        'self._uncfreq_defs' list respectively. Returns a list of all of the common C-states.
+        'self._uncfreq_defs' list respectively. Returns a list of all of the C-states with data in
+        one or more of 'dfs'.
         """
 
         req_rsdncy_cstates = []
