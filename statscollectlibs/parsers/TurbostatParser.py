@@ -77,7 +77,7 @@ def _construct_totals(packages):
         if agg_method == SUM:
             return sum(vals)
         if agg_method == AVG:
-            return sum(vals)/len(vals)
+            return sum(vals) / len(vals)
         if agg_method == MAX:
             return max(vals)
         raise Error(f"BUG: unable to summarise turbostat column '{key}' with method '{agg_method}'")
@@ -200,30 +200,31 @@ def _add_nontable_data(nontable, line):
     useful bits and add them to the "nontable" dictionary.
     """
 
+    # pylint: disable=pepc-comment-no-dot
     # Example:
     # turbostat version 2022.07.28 - Len Brown <lenb@kernel.org>
-    match = re.match(r'turbostat version ([^\s]+) .*', line)
+    match = re.match(r"turbostat version ([^\s]+) .*", line)
     if match:
         nontable["TurbostatVersion"] = match.group(0)
         return
 
     # Example:
     # 10 * 100 = 1000 MHz max efficiency frequency
-    match = re.match(r'\d+ \* [.\d]+ = ([.\d]+) MHz max efficiency frequency', line)
+    match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max efficiency frequency", line)
     if match:
         nontable["MaxEfcFreq"] = float(match.group(1))
         return
 
     # Example:
     # 18 * 100 = 1800 MHz base frequency
-    match = re.match(r'\d+ \* [.\d]+ = ([.\d]+) MHz base frequency', line)
+    match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz base frequency", line)
     if match:
         nontable["BaseFreq"] = float(match.group(1))
         return
 
     # Example:
     # 22 * 100 = 2200 MHz max turbo 8 active cores
-    match = re.match(r'\d+ \* [.\d]+ = ([.\d]+) MHz max turbo (\d+) active cores', line)
+    match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max turbo (\d+) active cores", line)
     if match:
         if not "MaxTurbo" in nontable:
             nontable["MaxTurbo"] = {}
@@ -232,7 +233,7 @@ def _add_nontable_data(nontable, line):
 
     # Example:
     # cpu0: MSR_PKG_POWER_INFO: 0xf0ce803980528 (165 W TDP, RAPL 115 - 413 W, 0.014648 sec.)
-    match = re.match(r'cpu\d+: MSR_PKG_POWER_INFO: .+ \(([.\d]+) W TDP, .+\)', line)
+    match = re.match(r"cpu\d+: MSR_PKG_POWER_INFO: .+ \(([.\d]+) W TDP, .+\)", line)
     if match:
         nontable["TDP"] = int(match.group(1))
         return
@@ -296,7 +297,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # The next line is total statistics across all CPUs, except if there is only one
                 # single CPU in the system.
 
-                # False pylint warning, see issue: https://github.com/PyCQA/pylint/issues/1830
+                # False pylint warning, see issue: https://github.com/PyCQA/pylint/issues/1830.
                 line = next(self._lines).split() # pylint: disable=stop-iteration-return
 
                 # On systems with a single core turbostat does not include the "Core" colum. Similar
@@ -314,12 +315,12 @@ class TurbostatParser(_ParserBase.ParserBase):
 
     def __init__(self, path=None, lines=None, cols_regex=None):
         """
-        TurbostatParser constructor. Arguments:
-        * path: same as in ParserBase.__init__()
-        * lines: same as in ParserBase.__init__()
-        * cols_regex: the regular expression to match against the 'turbostat' heading line (first
-                      line printed with 'turbostat -q -S'). Has to be uses in case 'turbostat' was
-                      run with custom columns selection (see 'turbostat --show').
+        TurbostatParser constructor. Arguments are as follows:
+         * path - same as in ParserBase.__init__()
+         * lines - same as in ParserBase.__init__()
+         * cols_regex - the regular expression to match against the 'turbostat' heading line (first
+                        line printed with 'turbostat -q -S'). Has to be uses in case 'turbostat' was
+                        run with custom columns selection (see 'turbostat --show').
         """
 
         super().__init__(path, lines)
