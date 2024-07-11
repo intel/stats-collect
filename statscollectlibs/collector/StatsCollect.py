@@ -378,8 +378,9 @@ class StatsCollect(_SpecStatsCollect.SpecStatsCollect):
                 raise Error(f"cannot configure aggregate statistic '{astname}' - none of the "
                             f"following specific statistics are supported:\n  {stnames}")
 
-        _LOG.log(self._infolvl, "Configuring the following statistics: %s",
-                 ", ".join(self._get_enabled_stats()))
+        if self._get_enabled_stats():
+            _LOG.log(self._infolvl, "Configuring the following statistics: %s",
+                     ", ".join(self._get_enabled_stats()))
 
         super().configure()
 
