@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 from pepclibs import CPUInfo
 from pepclibs.helperlibs import Trivial, Human, Logging
+from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common
 from statscollectlibs import Runner
 from statscollectlibs.collector import StatsCollectBuilder
@@ -85,6 +86,10 @@ def start_command(args):
                 stcoll_builder.parse_intervals(args.stats_intervals)
 
             stcoll = stcoll_builder.build_stcoll(pman, res, local_outdir=args.outdir)
+            if not stcoll:
+                raise Error("no statistics discovered. Use '--stats=none' to explicitly "
+                            "run the tool without statistics collection.")
+
             if stcoll:
                 stack.enter_context(stcoll)
 
