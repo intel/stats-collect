@@ -145,8 +145,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             # Since we use column names which aren't known until runtime as tab titles, use the
             # defs for the metric but overwrite the 'name' and 'fsname' attributes.
 
-            metric, col = self._dfbldr.decode_ipmi_colname(colname)
-            if not col:
+            metric, ipmi_name = self._dfbldr.decode_ipmi_colname(colname)
+            if not ipmi_name:
                 continue
 
             self._metrics[metric].append(colname)
@@ -156,4 +156,5 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             # and the summary table.
             col_def["fsname"] = DefsBase.get_fsname(colname)
             col_def["name"] = colname
+            col_def["title"] = ipmi_name
             self._defs.info[colname] = col_def
