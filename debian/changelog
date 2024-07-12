@@ -1,3 +1,10 @@
+stats-collect (1.0.26) unstable; urgency=low
+
+  * Fix some turbostat package C-state residency tabs being missed in HTML
+    reports.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 12 Jul 2024 00:00:00 +0200
+
 stats-collect (1.0.25) unstable; urgency=low
 
   * Fix an issue where 'stats-collect report' would not generate diffs for files

@@ -5,11 +5,14 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix some turbostat package C-state residency tabs being missed in HTML
-   reports.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.26] - 2024-07-12
+### Fixed
+ - Fix some turbostat package C-state residency tabs being missed in HTML
+   reports.
 
 ## [1.0.25] - 2024-06-05
 ### Fixed
