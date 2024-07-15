@@ -282,7 +282,6 @@ class TurbostatParser(_ParserBase.ParserBase):
                         # as the CPU information.
                         cpus[0] = totals
                     yield _construct_the_result(totals, cpus, nontable)
-                    nontable = {}
                     cpus = {}
 
                 heading = {}
