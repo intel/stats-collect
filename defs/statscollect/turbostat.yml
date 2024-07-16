@@ -99,6 +99,15 @@ PkgWatt:
     type: "float"
     unit: "Watt"
     short_unit: "W"
+PkgWatt%TDP:
+    title: "Package power as percentage of TDP"
+    descr: >-
+        Package power as a percentage of TDP. RAPL package power is retrieved from the "PkgWatt"
+        turbostat column. TDP is retrieved from the turbostat header. Note that on multi-socket
+        systems, values for "TDP" and "PkgWatt" are the sum of the values for all packages.
+    type: "float"
+    unit: "%"
+    short_unit: "%"
 GFXWatt:
     title: "Graphics power"
     descr: >-

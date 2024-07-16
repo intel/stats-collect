@@ -73,7 +73,7 @@ class TotalsL2TabBuilder(_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase):
         super().__init__(dfs, outdir / self.name, basedir, hover_defs)
 
         # Add non-CPU specific power metrics to the "Temperature/Power" tab.
-        self._tp_metrics += ["PkgWatt", "GFXWatt", "RAMWatt", "PkgTmp"]
+        self._tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
 
         # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat' display
         # uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0 UMHz1.0".
