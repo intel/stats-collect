@@ -140,5 +140,11 @@ class TotalsDFBuilder(TurbostatDFBuilderBase):
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
         """
 
+        # Note: on multi-socket systems, this is the sum of TDP across sockets (packages).
+        tdp = tstat["nontable"]["TDP"]
         tstat = {self._time_metric: [tstat["totals"]["Time_Of_Day_Seconds"]], **tstat["totals"]}
+
+        # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
+        # column) as a percentage of TDP (from the turbostat header).
+        tstat["PkgWatt%TDP"] = (tstat["PkgWatt"] / tdp) * 100.0
         return pandas.DataFrame.from_dict(tstat)
