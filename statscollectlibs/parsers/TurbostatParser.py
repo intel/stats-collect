@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2016-2021 Intel Corporation
+# Copyright (C) 2016-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -11,11 +11,14 @@ This module implements parsing for the output of the "turbostat" Linux tool. The
 consist of one or multiple turbostat data tables.
 """
 
+import logging
 import re
 from itertools import zip_longest
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import _ParserBase
+
+_LOG = logging.getLogger()
 
 # The default regular expression for turbostat columns to parse.
 _COLS_REGEX = r".*\s*Avg_MHz\s+(Busy%|%Busy)\s+Bzy_MHz\s+.*"
@@ -39,6 +42,27 @@ def get_aggregation_method(metric):
     if metric.endswith("Tmp"):
         return MAX
     return AVG
+
+def _result_is_valid(result):
+    """Sanity check 'result' to make sure that it does not contain any obviously wrong data."""
+
+    # Skip the data point if it contains power values which are greater than twice the TDP of the
+    # package. This check is to look for values which are extremely off and are likely the result
+    # of a bug in another program. Double the TDP to account for values which are slightly over the
+    # TDP.
+    tdp = result["nontable"]["TDP"]
+    pwr_col = "PkgWatt"
+    multiplier = 2
+
+    for package in result["packages"].values():
+        totals = package["totals"]
+        threshold = tdp * multiplier
+        val = totals.get(pwr_col, 0)
+        if val > threshold:
+            _LOG.warning("skipping a turbostat datapoint with '%s' value (%sW) greater than %s "
+                         "times the TDP of the package (%sW)", pwr_col, val, multiplier, tdp)
+            return False
+    return True
 
 def _parse_turbostat_line(heading, line):
     """Parse a single turbostat line."""
@@ -254,12 +278,23 @@ class TurbostatParser(_ParserBase.ParserBase):
         nontable = {}
         heading = totals = None
 
+        # Keep track of how many lines are skipped because they contain invalid data so that we can
+        # warn the user if the file contains a large amount.
+        lines_cnt = 0
+        skipped_lines = 0
+
+        # Also limit how many consecutive lines can be skipped because of invalid data.
+        consecutively_skipped_lines = 0
+        limit = 4
+
         tbl_regex = re.compile(self._cols_regex)
 
         for line in self._lines:
             # Ignore empty and 'jitter' lines like "turbostat: cpu65 jitter 2574 5881".
             if not line or line.startswith("turbostat: "):
                 continue
+
+            lines_cnt += 1
 
             # Match the beginning of the turbostat table.
             if not table_started and not re.match(tbl_regex, line):
@@ -281,7 +316,16 @@ class TurbostatParser(_ParserBase.ParserBase):
                         # print the totals because there is only one CPU and totals is the the same
                         # as the CPU information.
                         cpus[0] = totals
-                    yield _construct_the_result(totals, cpus, nontable)
+                    result = _construct_the_result(totals, cpus, nontable)
+                    if _result_is_valid(result):
+                        skipped_lines += consecutively_skipped_lines
+                        consecutively_skipped_lines = 0
+                        yield result
+                    else:
+                        consecutively_skipped_lines += 1
+                        if consecutively_skipped_lines > limit:
+                            raise Error(f"more than {limit} consecutive turbostat lines contain "
+                                        "invalid data")
                     cpus = {}
 
                 heading = {}
@@ -310,7 +354,15 @@ class TurbostatParser(_ParserBase.ParserBase):
 
             table_started = True
 
-        yield _construct_the_result(totals, cpus, nontable)
+        result = _construct_the_result(totals, cpus, nontable)
+        if _result_is_valid(result):
+            yield result
+        else:
+            skipped_lines += 1
+
+        if skipped_lines > lines_cnt / 2:
+            pcnt = int((skipped_lines / lines_cnt) * 100)
+            raise Error(f"more than half ({pcnt}%) of the turbostat lines contain invalid data")
 
     def __init__(self, path=None, lines=None, cols_regex=None):
         """
