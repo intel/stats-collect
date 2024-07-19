@@ -88,32 +88,28 @@ Cx%:
 CorWatt:
     title: "Core power"
     descr: >-
-        CPU core power. Measured using the core RAPL domain. Retrieved from the "CorWatt" turbostat
-        column.
+        RAPL CPU core power. Retrieved from the "CorWatt" turbostat column.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 PkgWatt:
     title: "Package power"
     descr: >-
-        Package power. Measured using the core RAPL domain. Retrieved from the "PkgWatt" turbostat
-        column.
+        RAPL package power. Retrieved from the "PkgWatt" turbostat column.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 GFXWatt:
     title: "Graphics power"
     descr: >-
-        Graphics power. Measured using the GPU RAPL domain. Retrieved from the "GFXWatt" turbostat
-        column.
+        RAPL graphics power. Retrieved from the "GFXWatt" turbostat column.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 RAMWatt:
     title: "RAM power"
     descr: >-
-        RAM power. Measured using the DRAM RAPL domain. Retrieved from the "RAMWatt" turbostat
-        column.
+        RAPL RAM power. Retrieved from the "RAMWatt" turbostat column.
     type: "float"
     unit: "Watt"
     short_unit: "W"
