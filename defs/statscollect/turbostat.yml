@@ -95,7 +95,9 @@ CorWatt:
 PkgWatt:
     title: "Package power"
     descr: >-
-        RAPL package power. Retrieved from the "PkgWatt" turbostat column.
+        RAPL package power. Retrieved from the "PkgWatt" turbostat column. Note that "PkgWatt"
+        provides per-package values. Therefore on multi-socket systems, the values for "PkgWatt"
+        are the sum of the values for all packages.
     type: "float"
     unit: "Watt"
     short_unit: "W"
