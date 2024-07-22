@@ -435,6 +435,8 @@ class IPMIOOBCollector(_IPMICollector):
             self._command += f" --user '{self.props['user']}'"
         if self.props["pwdfile"] != UNINITIALIZED["str"]:
             self._command += f" --password-file '{self.props['pwdfile']}'"
+        if self.props["interface"] != UNINITIALIZED["str"]:
+            self._command += f" -I '{self.props['interface']}'"
 
         self._stale_search += f".*{hostopt}"
 
@@ -445,6 +447,7 @@ class IPMIOOBCollector(_IPMICollector):
         self.props["host"] = UNINITIALIZED["required-str"]
         self.props["user"] = UNINITIALIZED["str"]
         self.props["pwdfile"] = UNINITIALIZED["str"]
+        self.props["interface"] = UNINITIALIZED["str"]
 
 class ACPowerCollector(_BaseCollector):
     """This class represents the ACPower statistics collector."""

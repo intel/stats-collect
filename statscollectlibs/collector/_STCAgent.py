@@ -98,6 +98,7 @@ STINFO = {
             "host" : None,
             "user" : None,
             "pwdfile" : None,
+            "interface" : None,
         }
     },
     "ipmi-inband" : {
