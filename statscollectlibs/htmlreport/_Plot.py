@@ -73,12 +73,13 @@ class Plot:
             if (mdef["title"] == self.xaxis_label) or (mdef["title"] == self.yaxis_label):
                 continue
 
+            short_unit = mdef.get("short_unit")
             if not Trivial.is_num(row[col]):
                 val = row[col]
-            elif mdef["short_unit"] == "%":
+            elif short_unit == "%":
                 val = f"{row[col]:.{decp}f}"
             else:
-                val = Human.num2si(row[col], unit=mdef["short_unit"], decp=decp)
+                val = Human.num2si(row[col], unit=short_unit, decp=decp)
 
             templ += f"{col}: {val}<br>"
 
