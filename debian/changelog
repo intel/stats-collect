@@ -1,3 +1,12 @@
+stats-collect (1.0.27) unstable; urgency=low
+
+  * Fix an issue which caused HTML report generation to crash when hover-text
+    contained values with no unit.
+  * Add relative package power data to the turbostat totals tab in HTML reports.
+    The new tab contains package power data relative to TDP.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 23 Jul 2024 00:00:00 +0200
+
 stats-collect (1.0.26) unstable; urgency=low
 
   * Fix some turbostat package C-state residency tabs being missed in HTML
