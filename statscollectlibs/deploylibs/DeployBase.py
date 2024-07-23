@@ -138,7 +138,7 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
 
     @staticmethod
     def _get_newest_mtime(path):
-        """Find and return the most recent modification time of files in paths 'paths'."""
+        """Find and return the most recent modification time of files of 'path'."""
 
         newest = 0
         if not path.is_dir():
