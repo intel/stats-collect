@@ -12,7 +12,7 @@ statistics collection.
 """
 
 import logging
-from pepclibs.helperlibs import ClassHelpers
+from pepclibs.helperlibs import ClassHelpers, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import _StatsConfig
 from statscollectlibs.collector import _STCAgent
@@ -461,11 +461,14 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
             inb_outdir = local_outdir
             oob_outdir = -1 # Just a bogus value, should not be used.
 
-        self._inbagent = _STCAgent.InBandCollector(pman, outdir=inb_outdir)
+        inb_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent", pman)
+        self._inbagent = _STCAgent.InBandCollector(pman, outdir=inb_outdir, stca_path=inb_stca_path)
         if pman.is_remote:
             # Do not create the out-of-band collector if 'pman' represents the local host.
             # Out-of-band collectors by definition run on a host different to the SUT.
-            self._oobagent = _STCAgent.OutOfBandCollector(pman.hostname, outdir=oob_outdir)
+            oob_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent")
+            self._oobagent = _STCAgent.OutOfBandCollector(pman.hostname, outdir=oob_outdir,
+                                                          stca_path=oob_stca_path)
             self.local_outdir = self._oobagent.outdir
             self.remote_outdir = self._inbagent.outdir
         else:
