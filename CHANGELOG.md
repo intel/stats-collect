@@ -5,6 +5,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix an issue which caused HTML report generation to crash when hover-text
+   contained values with no unit.
 ### Added
  - Add relative package power data to the turbostat totals tab in HTML reports.
    The new tab contains package power data relative to TDP.
