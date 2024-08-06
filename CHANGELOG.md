@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix support for package C-state residencies with longer names in HTML report turbostat hardware
    C-state tabs. For example, the package C-state residency for 'PC10' will now be included in the
    hardware C-state tabs.
+ - Fix HTML report generation crashing when turbostat files contain one or more "(neg)" values.
 ### Added
 ### Removed
 ### Changed
