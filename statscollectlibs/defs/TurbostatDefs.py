@@ -76,11 +76,11 @@ class PackageCSDef(_CSTypeBase):
     @staticmethod
     def check_metric(metric):
         """Checks if 'metric' represents the usage of a package C-state."""
-        return metric.startswith("Pkg%")
+        return metric.startswith("Pkg%") or metric.startswith("Pk%")
 
     def _get_cs_from_metric(self, metric):
         """Returns the name of the C-state represented in 'metric'."""
-        return metric[4:]
+        return metric.split("%", 1)[-1]
 
 class ModuleCSDef(_CSTypeBase):
     """This class represents the 'Module C-state' type of C-state."""
@@ -141,4 +141,8 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
         placeholders = [{"placeholder": "PCx", "values": cstates, "casesensitive" : False},
                         {"placeholder": "Cx", "values": cstates, "casesensitive" : False},
                         {"placeholder": "UncMHz", "values": uncfreq_defs, "casesensitive" : True}]
+        # For package C-states with a name longer than 7 characters, 'turbostat' shortens the
+        # column from 'Pkg%pcX' to 'Pk%pcX'. We should mangle the metric definitions to account for
+        # this.
+        placeholders.append({"placeholder": "Pkg", "values": ["Pk"], "casesensitive" : True})
         self._mangle_placeholders(placeholders)
