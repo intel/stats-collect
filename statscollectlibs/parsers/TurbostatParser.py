@@ -69,7 +69,9 @@ def _parse_turbostat_line(heading, line):
 
     line_data = {}
     for key, value in zip_longest(heading.keys(), line):
-        if value is not None and value != "-":
+        # Turbostat adds "(neg)" values when it expects a positive value but reads a negative one.
+        # In this case the data point should be considered invalid, so skip it.
+        if value is not None and value != "-" and value != "(neg)":
             if not heading[key]:
                 if Trivial.is_int(value):
                     heading[key] = int
