@@ -1,3 +1,12 @@
+stats-collect (1.0.28) unstable; urgency=low
+
+  * Fix support for package C-state residencies with longer names in HTML report turbostat hardware
+    C-state tabs. For example, the package C-state residency for 'PC10' will now be included in the
+    hardware C-state tabs.
+  * Fix HTML report generation crashing when turbostat files contain one or more "(neg)" values.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 07 Aug 2024 00:00:00 +0200
+
 stats-collect (1.0.27) unstable; urgency=low
 
   * Fix an issue which caused HTML report generation to crash when hover-text
