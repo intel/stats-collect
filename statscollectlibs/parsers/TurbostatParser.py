@@ -43,6 +43,26 @@ def get_aggregation_method(metric):
         return MAX
     return AVG
 
+def _check_totals_val(result, colname, multiplier):
+    """
+    Helper function for '_result_is_valid()'. Check if values for 'colname' in 'result' are less
+    than 'multiplier' times the package TDP. Arguments are as follows:
+     * result - the turbostat result dictionary.
+     * colname - the name of the column to check. 
+     * multiplier - the number of times the TDP to compare the 'colname' values against.
+    """
+
+    tdp = result["nontable"]["TDP"]
+    for package in result["packages"].values():
+        totals = package["totals"]
+        threshold = tdp * multiplier
+        val = totals.get(colname, 0)
+        if val > threshold:
+            _LOG.warning("skipping a turbostat datapoint with '%s' value (%sW) greater than %s "
+                         "times the TDP of the package (%sW)", colname, val, multiplier, tdp)
+            return False
+    return True
+
 def _result_is_valid(result):
     """Sanity check 'result' to make sure that it does not contain any obviously wrong data."""
 
@@ -50,19 +70,13 @@ def _result_is_valid(result):
     # package. This check is to look for values which are extremely off and are likely the result
     # of a bug in another program. Double the TDP to account for values which are slightly over the
     # TDP.
-    tdp = result["nontable"]["TDP"]
-    pwr_col = "PkgWatt"
-    multiplier = 2
+    valid = _check_totals_val(result, "PkgWatt", 2)
 
-    for package in result["packages"].values():
-        totals = package["totals"]
-        threshold = tdp * multiplier
-        val = totals.get(pwr_col, 0)
-        if val > threshold:
-            _LOG.warning("skipping a turbostat datapoint with '%s' value (%sW) greater than %s "
-                         "times the TDP of the package (%sW)", pwr_col, val, multiplier, tdp)
-            return False
-    return True
+    # Also skip if the data point contains RAM power values which are greater than 10 times the TDP
+    # of the package to check for extremely high values.
+    if valid:
+        valid = _check_totals_val(result, "RAMWatt", 10)
+    return valid
 
 def _parse_turbostat_line(heading, line):
     """Parse a single turbostat line."""
