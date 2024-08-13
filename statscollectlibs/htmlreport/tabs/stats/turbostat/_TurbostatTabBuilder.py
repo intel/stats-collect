@@ -80,15 +80,15 @@ class TurbostatTabBuilder:
                   should be included in the turbostat tabs.
         """
 
+        outdir = outdir / self.name
         self.l2tab_bldrs = {}
 
         try:
-            mcpu_bldr = _MCPUL2TabBuilder.MCPUL2TabBuilder
-            self.l2tab_bldrs[mcpu_bldr.name] = mcpu_bldr(rsts, outdir / self.name, basedir=basedir)
+            mcpu_bldr = _MCPUL2TabBuilder.MCPUL2TabBuilder(rsts, outdir, basedir=basedir)
+            self.l2tab_bldrs[mcpu_bldr.name] = mcpu_bldr
         except ErrorNotFound:
             _LOG.info("No measured CPUs specified for any results so excluding '%s' %s tab.",
                       mcpu_bldr.name, self.name)
 
-
-        totals_bldr = _TotalsL2TabBuilder.TotalsL2TabBuilder
-        self.l2tab_bldrs[totals_bldr.name] = totals_bldr(rsts, outdir / self.name, basedir=basedir)
+        totals_bldr = _TotalsL2TabBuilder.TotalsL2TabBuilder(rsts, outdir, basedir=basedir)
+        self.l2tab_bldrs[totals_bldr.name] = totals_bldr
