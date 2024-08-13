@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -13,7 +13,7 @@ This module provides the capability of populating the turbostat statistics tab.
 import logging
 from pepclibs.helperlibs.Exceptions import ErrorNotFound, Error
 from statscollectlibs.htmlreport.tabs import _Tabs, TabConfig
-from statscollectlibs.htmlreport.tabs.stats.turbostat import _MCPUL2TabBuilder, _TotalsL2TabBuilder
+from statscollectlibs.htmlreport.tabs.stats.turbostat import _TurbostatL2TabBuilderBase
 
 _LOG = logging.getLogger()
 
@@ -84,11 +84,12 @@ class TurbostatTabBuilder:
         self.l2tab_bldrs = {}
 
         try:
-            mcpu_bldr = _MCPUL2TabBuilder.MCPUL2TabBuilder(rsts, outdir, basedir=basedir)
+            mcpu_bldr = _TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase(rsts, outdir, basedir)
             self.l2tab_bldrs[mcpu_bldr.name] = mcpu_bldr
         except ErrorNotFound:
             _LOG.info("No measured CPUs specified for any results so excluding '%s' %s tab.",
                       mcpu_bldr.name, self.name)
 
-        totals_bldr = _TotalsL2TabBuilder.TotalsL2TabBuilder(rsts, outdir, basedir=basedir)
+        totals_bldr = _TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase(rsts, outdir, basedir,
+                                                                           totals=True)
         self.l2tab_bldrs[totals_bldr.name] = totals_bldr

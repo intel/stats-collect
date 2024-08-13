@@ -15,6 +15,7 @@ base class expects child classes to implement '_turbostat_to_df()'.
 """
 
 from statscollectlibs.defs import TurbostatDefs
+from statscollectlibs.dfbuilders import TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
 class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
@@ -57,7 +58,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
 
-        hw_cstates =  ["Busy%"] + self._cstates["hardware"]["core"]
+        hw_cstates = ["Busy%"] + self._cstates["hardware"]["core"]
+        if self._totals:
+            hw_cstates += self._cstates["hardware"]["module"]
+            hw_cstates += self._cstates["hardware"]["package"]
         self._hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric,
                                                    smry_funcs, self._hover_defs)
 
@@ -135,10 +139,10 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
             elif TurbostatDefs.CoreCSDef.check_metric(colname):
                 core_cstates.append(colname)
                 all_cstates.append(TurbostatDefs.CoreCSDef(colname).cstate)
-            elif TurbostatDefs.ModuleCSDef.check_metric(colname):
+            elif self._totals and TurbostatDefs.ModuleCSDef.check_metric(colname):
                 mod_cstates.append(colname)
                 all_cstates.append(TurbostatDefs.ModuleCSDef(colname).cstate)
-            elif TurbostatDefs.PackageCSDef.check_metric(colname):
+            elif self._totals and TurbostatDefs.PackageCSDef.check_metric(colname):
                 pkg_cstates.append(colname)
                 all_cstates.append(TurbostatDefs.PackageCSDef(colname).cstate)
             elif TurbostatDefs.UncoreFreqDef.check_metric(colname):
@@ -152,20 +156,26 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         return all_cstates
 
-    def __init__(self, dfs, outdir, basedir, hover_defs=None):
+    def __init__(self, rsts, outdir, basedir, totals=None, hover_defs=None):
         """
         The class constructor. Adding a turbostat level 2 tab will create a sub-directory and store
         data tabs inside it for metrics stored in the raw turbostat statistics file. The arguments
         are the same as in '_TabBuilderBase.TabBuilderBase' except for:
-         * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where the
-                 'pandas.DataFrame' contains that statistics data for that result.
+         * rsts - a list of 'RORawResult' instances for which data should be included in the built
+                  tab.
+         * totals - a boolean indicating whether the tab should include "totals" data summarising
+                    'turbostat' statistics. By default, False and this class will attempt to show
+                    data for the measured CPU of each result.
          * hover_defs - a mapping from 'reportid' to definition dictionaries of metrics which
                         should be included in the hovertext of scatter plots.
         """
 
         self._time_metric = "Time"
         self.outdir = outdir
-        self._hover_defs = hover_defs
+        self._hover_defs = hover_defs if hover_defs else {}
+        self._totals = totals
+
+        self.name = "Totals" if totals else "Measured CPU"
 
         # After C-states have been extracted from the first raw turbostat statistics file, this
         # property will be assigned a 'TurbostatDefs.TurbostatDefs' instance.
@@ -181,6 +191,9 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         self._freq_metrics = ["Bzy_MHz", "Avg_MHz"]
         # Temperature/Power tab.
         self._tp_metrics = ["CorWatt", "CoreTmp"]
+        if self._totals:
+            # Add non-CPU specific power metrics to the "Temperature/Power" tab.
+            self._tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
         # Misc tab.
         self._misc_metrics = ["IRQ", "SMI", "IPC"]
 
@@ -200,7 +213,29 @@ class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
         # Store metrics representing uncore frequency to update 'self._defs' accordingly.
         self._uncfreq_defs = []
 
+        # Load 'pandas.DataFrames' from raw turbostat statistics files.
+        dfs = {}
+        for res in rsts:
+            if "turbostat" not in res.info["stinfo"]:
+                continue
+
+            if self._totals:
+                dfbldr = TurbostatDFBuilder.TotalsDFBuilder()
+            else:
+                cpunum = res.info.get("cpunum", None)
+                dfbldr = TurbostatDFBuilder.MCPUDFBuilder(str(cpunum))
+
+            dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
+            self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
+
         super().__init__(dfs, outdir, basedir=basedir)
 
         all_cstates = self._parse_colnames(dfs)
         self._defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
+
+        if self._totals:
+            self._defs.mangle_descriptions()
+            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat'
+            # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
+            # UMHz1.0". So sort them into ascending order so that they are more intuitive.
+            self._freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
