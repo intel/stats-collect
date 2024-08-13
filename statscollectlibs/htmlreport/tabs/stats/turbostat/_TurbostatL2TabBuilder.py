@@ -18,14 +18,8 @@ from statscollectlibs.defs import TurbostatDefs
 from statscollectlibs.dfbuilders import TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
-class TurbostatL2TabBuilderBase(_TabBuilderBase.TabBuilderBase):
-    """
-    The base class for turbostat level 2 tab builder classes.
-
-    This base class requires child classes to implement the following methods:
-    1. Convert the 'tstat' dictionary produced by 'TurbostatParser' to a 'pandas.DataFrame'.
-       * '_turbostat_to_df()'
-    """
+class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
+    """This class provides the capability of populating a "level 2" turbostat statistics tab."""
 
     def _get_default_tab_cfg(self, metrics, smry_funcs):
         """
