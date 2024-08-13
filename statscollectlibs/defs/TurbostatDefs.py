@@ -144,5 +144,5 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
         # For package C-states with a name longer than 7 characters, 'turbostat' shortens the
         # column from 'Pkg%pcX' to 'Pk%pcX'. We should mangle the metric definitions to account for
         # this.
-        placeholders.append({"placeholder": "Pkg", "values": ["Pk"], "casesensitive" : True})
+        placeholders.append({"placeholder": "Pkg", "values": ["Pkg", "Pk"], "casesensitive" : True})
         self._mangle_placeholders(placeholders)
