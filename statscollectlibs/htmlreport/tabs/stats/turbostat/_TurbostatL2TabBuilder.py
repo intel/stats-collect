@@ -149,35 +149,9 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return all_cstates
 
-    def __init__(self, rsts, outdir, basedir, totals=None, hover_defs=None):
-        """
-        The class constructor. Adding a turbostat level 2 tab will create a sub-directory and store
-        data tabs inside it for metrics stored in the raw turbostat statistics file. The arguments
-        are the same as in '_TabBuilderBase.TabBuilderBase' except for:
-         * rsts - a list of 'RORawResult' instances for which data should be included in the built
-                  tab.
-         * totals - a boolean indicating whether the tab should include "totals" data summarising
-                    'turbostat' statistics. By default, False and this class will attempt to show
-                    data for the measured CPU of each result.
-         * hover_defs - a mapping from 'reportid' to definition dictionaries of metrics which
-                        should be included in the hovertext of scatter plots.
-        """
+    def _load_dfs(self, rsts):
+        """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
 
-        self._time_metric = "Time"
-        self.outdir = outdir
-        self._hover_defs = hover_defs if hover_defs else {}
-        self._totals = totals
-
-        self.name = "Totals" if totals else "Measured CPU"
-
-        # Store C-states for which there is data in each raw turbostat statistics file. Initialised
-        # in 'self._parse_colnames()'.
-        self._cstates = None
-
-        # Store metrics representing uncore frequency to update 'self._defs' accordingly.
-        self._uncfreq_defs = []
-
-        # Load 'pandas.DataFrames' from raw turbostat statistics files.
         dfs = {}
         for res in rsts:
             if "turbostat" not in res.info["stinfo"]:
@@ -192,9 +166,38 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
-        super().__init__(dfs, outdir, basedir=basedir)
+        return dfs
 
+    def __init__(self, rsts, outdir, basedir, totals=None, hover_defs=None):
+        """
+        The class constructor. Adding a turbostat level 2 tab will create a sub-directory and store
+        data tabs inside it for metrics stored in the raw turbostat statistics file. The arguments
+        are the same as in 'TabBuilderBase.__init__()' except for:
+         * rsts - a list of 'RORawResult' instances for which data should be included in the built
+                  tab.
+         * totals - a boolean indicating whether the tab should include "totals" data summarising
+                    'turbostat' statistics. By default, False and this class will attempt to show
+                    data for the measured CPU of each result.
+         * hover_defs - a mapping from 'reportid' to definition dictionaries of metrics which
+                        should be included in the hovertext of scatter plots.
+        """
+
+        self._hover_defs = hover_defs if hover_defs else {}
+        self._totals = totals
+
+        self._time_metric = "Time"
+        self.name = "Totals" if totals else "Measured CPU"
+
+        # Store C-states for which there is data in each raw turbostat statistics file. Initialised
+        # in 'self._parse_colnames()'.
+        self._cstates = None
+
+        # Store metrics representing uncore frequency to update 'self._defs' accordingly.
+        self._uncfreq_defs = []
+
+        dfs = self._load_dfs(rsts)
         all_cstates = self._parse_colnames(dfs)
-        self._defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
+        defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
         if self._totals:
-            self._defs.mangle_descriptions()
+            defs.mangle_descriptions()
+        super().__init__(dfs, outdir, basedir=basedir, defs=defs)
