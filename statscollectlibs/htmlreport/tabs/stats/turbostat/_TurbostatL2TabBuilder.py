@@ -164,10 +164,6 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self.name = "Totals" if totals else "Measured CPU"
 
-        # After C-states have been extracted from the first raw turbostat statistics file, this
-        # property will be assigned a 'TurbostatDefs.TurbostatDefs' instance.
-        self._defs = None
-
         # Categorise 'turbostat' metrics into different tabs. Child classes can
         # modify these attributes to change which metrics will appear in the
         # tabs.
