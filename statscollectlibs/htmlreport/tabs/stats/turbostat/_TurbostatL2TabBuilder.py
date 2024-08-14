@@ -28,37 +28,33 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         'self._req_cstates'.
         """
 
-        def fltr(unfiltered_metrics):
-            """Helper function filters 'unfiltered_metrics' based on if they are in 'metrics'."""
-            return [m for m in unfiltered_metrics if m in metrics]
-
-        # Add frequency-related D-tabs to a separate C-tab.
-        freq_tab = self._build_def_ctab_cfg("Frequency", fltr(self._freq_metrics),
+        def build_ctab_cfg(ctab_name, tab_metrics):
+            """Helper function to build a C-tab config named 'ctab_name' for 'tab_metrics'."""
+            return self._build_def_ctab_cfg(ctab_name, [m for m in tab_metrics if m in metrics],
                                             self._time_metric, smry_funcs, self._hover_defs)
 
+        # Add frequency-related D-tabs to a separate C-tab.
+        freq_tab = build_ctab_cfg("Frequency", self._freq_metrics)
+
         # Add temperature/power-related D-tabs to a separate C-tab.
-        tmp_tab = self._build_def_ctab_cfg("Temperature / Power", fltr(self._tp_metrics),
-                                           self._time_metric, smry_funcs, self._hover_defs)
+        tmp_tab = build_ctab_cfg("Temperature / Power", self._tp_metrics)
 
         # Add miscellaneous D-tabs to a separate C-tab.
-        misc_tab = self._build_def_ctab_cfg("Misc", fltr(self._misc_metrics), self._time_metric,
-                                            smry_funcs, self._hover_defs)
+        misc_tab = build_ctab_cfg("Misc", self._misc_metrics)
 
-        req_res_tab = self._build_def_ctab_cfg("Residency", self._cstates["requested"]["residency"],
-                                               self._time_metric, smry_funcs, self._hover_defs)
-
-        req_cnt_tab = self._build_def_ctab_cfg("Count", self._cstates["requested"]["count"],
-                                               self._time_metric, smry_funcs, self._hover_defs)
-
+        # Add requested C-state residency tabs to a separate C-tab.
+        req_res_tab = build_ctab_cfg("Residency", self._cstates["requested"]["residency"])
+        req_cnt_tab = build_ctab_cfg("Count", self._cstates["requested"]["count"])
         req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
 
+        # Add hardware C-state residency tabs to a separate C-tab.
         hw_cstates = ["Busy%"] + self._cstates["hardware"]["core"]
         if self._totals:
             hw_cstates += self._cstates["hardware"]["module"]
             hw_cstates += self._cstates["hardware"]["package"]
+        hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
 
-        hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric, smry_funcs,
-                                             self._hover_defs)
+        # Combine requeseted and hardware C-states into a single C-tab.
         cs_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
         return TabConfig.CTabConfig(self.name, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
