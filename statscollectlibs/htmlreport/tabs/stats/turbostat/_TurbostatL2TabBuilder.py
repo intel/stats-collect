@@ -81,16 +81,9 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         # Limit metrics to only those with definitions.
         metrics.intersection_update(set(self._defs.info.keys()))
 
-        # Define which plots should be generated in the data tab and which summary functions
-        # should be included in the generated summary table for a given metric.
-        plots = {}
+        # Define which summary functions should be included in the summary table for each metric.
         smry_funcs = {}
         for metric in metrics:
-            defs_info = self._defs.info
-            plots[metric] = {
-                "scatter": [(defs_info[self._time_metric], defs_info[metric])],
-                "hist": [defs_info[metric]]
-            }
             if metric in ("IRQ", "SMI"):
                 smry_funcs[metric] = ["max", "avg", "min", "std"]
             else:
