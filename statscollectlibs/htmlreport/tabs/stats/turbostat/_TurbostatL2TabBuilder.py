@@ -102,13 +102,6 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         one or more of 'dfs'.
         """
 
-        req_rsdncy_cstates = []
-        req_cnt_cstates = []
-        core_cstates = []
-        pkg_cstates = []
-        mod_cstates = []
-        all_cstates = []
-
         # Maintain the order that C-states appear in turbostat so that they are not jumbled.
         all_colnames = []
         for df in dfs.values():
@@ -116,30 +109,25 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
                 if column not in all_colnames:
                     all_colnames.append(column)
 
+        all_cstates = []
         for colname in all_colnames:
             if TurbostatDefs.ReqCSDef.check_metric(colname):
-                req_rsdncy_cstates.append(colname)
+                self._cstates["requested"]["residency"].append(colname)
                 all_cstates.append(TurbostatDefs.ReqCSDef(colname).cstate)
             elif TurbostatDefs.ReqCSDefCount.check_metric(colname):
-                req_cnt_cstates.append(colname)
+                self._cstates["requested"]["count"].append(colname)
                 all_cstates.append(TurbostatDefs.ReqCSDefCount(colname).cstate)
             elif TurbostatDefs.CoreCSDef.check_metric(colname):
-                core_cstates.append(colname)
+                self._cstates["hardware"]["core"].append(colname)
                 all_cstates.append(TurbostatDefs.CoreCSDef(colname).cstate)
             elif self._totals and TurbostatDefs.ModuleCSDef.check_metric(colname):
-                mod_cstates.append(colname)
+                self._cstates["hardware"]["module"].append(colname)
                 all_cstates.append(TurbostatDefs.ModuleCSDef(colname).cstate)
             elif self._totals and TurbostatDefs.PackageCSDef.check_metric(colname):
-                pkg_cstates.append(colname)
+                self._cstates["hardware"]["package"].append(colname)
                 all_cstates.append(TurbostatDefs.PackageCSDef(colname).cstate)
             elif TurbostatDefs.UncoreFreqDef.check_metric(colname):
                 self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(colname))
-
-        self._cstates["hardware"]["core"] = core_cstates
-        self._cstates["hardware"]["package"] = pkg_cstates
-        self._cstates["hardware"]["module"] = mod_cstates
-        self._cstates["requested"]["residency"] = req_rsdncy_cstates
-        self._cstates["requested"]["count"] = req_cnt_cstates
 
         return all_cstates
 
