@@ -102,6 +102,18 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         one or more of 'dfs'.
         """
 
+        self._cstates = {
+            "requested": {
+                "residency": [],
+                "count": []
+            },
+            "hardware": {
+                "core": [],
+                "package": [],
+                "module": []
+            }
+        }
+
         # Maintain the order that C-states appear in turbostat so that they are not jumbled.
         all_colnames = []
         for df in dfs.values():
@@ -169,18 +181,9 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         # Misc tab.
         self._misc_metrics = ["IRQ", "SMI", "IPC"]
 
-        # Store C-states for which there is data in each raw turbostat statistics file.
-        self._cstates = {
-            "requested": {
-                "residency": [],
-                "count": []
-            },
-            "hardware": {
-                "core": [],
-                "package": [],
-                "module": []
-            }
-        }
+        # Store C-states for which there is data in each raw turbostat statistics file. Initialised
+        # in 'self._parse_colnames()'.
+        self._cstates = None
 
         # Store metrics representing uncore frequency to update 'self._defs' accordingly.
         self._uncfreq_defs = []
