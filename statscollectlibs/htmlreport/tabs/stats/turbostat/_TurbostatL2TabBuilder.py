@@ -34,13 +34,23 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
                                             self._time_metric, smry_funcs, self._hover_defs)
 
         # Add frequency-related D-tabs to a separate C-tab.
-        freq_tab = build_ctab_cfg("Frequency", self._freq_metrics)
+        freq_metrics = ["Bzy_MHz", "Avg_MHz"]
+        if self._totals:
+            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat'
+            # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
+            # UMHz1.0". So sort them into ascending order so that they are more intuitive.
+            freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
+        freq_tab = build_ctab_cfg("Frequency", freq_metrics)
 
         # Add temperature/power-related D-tabs to a separate C-tab.
-        tmp_tab = build_ctab_cfg("Temperature / Power", self._tp_metrics)
+        tp_metrics = ["CorWatt", "CoreTmp"]
+        if self._totals:
+            # Add non-CPU specific power metrics to the "Temperature/Power" tab.
+            tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
+        tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
 
         # Add miscellaneous D-tabs to a separate C-tab.
-        misc_tab = build_ctab_cfg("Misc", self._misc_metrics)
+        misc_tab = build_ctab_cfg("Misc", ["IRQ", "SMI", "IPC"])
 
         # Add requested C-state residency tabs to a separate C-tab.
         req_res_tab = build_ctab_cfg("Residency", self._cstates["requested"]["residency"])
@@ -160,19 +170,6 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self.name = "Totals" if totals else "Measured CPU"
 
-        # Categorise 'turbostat' metrics into different tabs. Child classes can
-        # modify these attributes to change which metrics will appear in the
-        # tabs.
-        # Frequency tab.
-        self._freq_metrics = ["Bzy_MHz", "Avg_MHz"]
-        # Temperature/Power tab.
-        self._tp_metrics = ["CorWatt", "CoreTmp"]
-        if self._totals:
-            # Add non-CPU specific power metrics to the "Temperature/Power" tab.
-            self._tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
-        # Misc tab.
-        self._misc_metrics = ["IRQ", "SMI", "IPC"]
-
         # Store C-states for which there is data in each raw turbostat statistics file. Initialised
         # in 'self._parse_colnames()'.
         self._cstates = None
@@ -199,10 +196,5 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         all_cstates = self._parse_colnames(dfs)
         self._defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
-
         if self._totals:
             self._defs.mangle_descriptions()
-            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat'
-            # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
-            # UMHz1.0". So sort them into ascending order so that they are more intuitive.
-            self._freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
