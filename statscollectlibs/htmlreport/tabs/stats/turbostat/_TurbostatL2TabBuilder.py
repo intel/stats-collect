@@ -91,7 +91,7 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
                 "scatter": [(defs_info[self._time_metric], defs_info[metric])],
                 "hist": [defs_info[metric]]
             }
-            if metric in ('IRQ', 'SMI'):
+            if metric in ("IRQ", "SMI"):
                 smry_funcs[metric] = ["max", "avg", "min", "std"]
             else:
                 smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
