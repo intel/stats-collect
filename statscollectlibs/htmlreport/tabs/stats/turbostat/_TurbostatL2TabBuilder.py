@@ -56,10 +56,10 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         if self._totals:
             hw_cstates += self._cstates["hardware"]["module"]
             hw_cstates += self._cstates["hardware"]["package"]
-        self._hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric,
-                                                   smry_funcs, self._hover_defs)
 
-        cs_tab = TabConfig.CTabConfig("C-states", ctabs=[self._hw_cs_tab, req_tabs])
+        hw_cs_tab = self._build_def_ctab_cfg("Hardware", hw_cstates, self._time_metric, smry_funcs,
+                                             self._hover_defs)
+        cs_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
         return TabConfig.CTabConfig(self.name, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
 
@@ -174,9 +174,6 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         # After C-states have been extracted from the first raw turbostat statistics file, this
         # property will be assigned a 'TurbostatDefs.TurbostatDefs' instance.
         self._defs = None
-
-        # Expose the "C-states -> Hardware" tab so that child classes can add to it.
-        self._hw_cs_tab = None
 
         # Categorise 'turbostat' metrics into different tabs. Child classes can
         # modify these attributes to change which metrics will appear in the
