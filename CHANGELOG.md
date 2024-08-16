@@ -5,13 +5,16 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.29] - 2024-08-16
+### Fixed
  - Fix a regression introduced in v1.0.28 which meant that package C-state residency tabs with
    shorter names (e.g. PC1) are excluded from the turbostat tab in HTML reports.
  - Fix an issue where metric descriptions in "Turbostat Totals" tabs contained
    duplicate sentences.
-### Added
-### Removed
-### Changed
 
 ## [1.0.28] - 2024-08-07
 ### Fixed

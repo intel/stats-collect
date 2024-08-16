@@ -1,3 +1,12 @@
+stats-collect (1.0.29) unstable; urgency=low
+
+  * Fix a regression introduced in v1.0.28 which meant that package C-state residency tabs with
+    shorter names (e.g. PC1) are excluded from the turbostat tab in HTML reports.
+  * Fix an issue where metric descriptions in "Turbostat Totals" tabs contained
+    duplicate sentences.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 16 Aug 2024 00:00:00 +0200
+
 stats-collect (1.0.28) unstable; urgency=low
 
   * Fix support for package C-state residencies with longer names in HTML report turbostat hardware
