@@ -35,7 +35,7 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         try:
             # 'skipfooter' parameter only available with Python pandas engine.
-            sdf = pandas.read_csv(path, skipfooter=1, engine="python", dtype='float64')
+            sdf = pandas.read_csv(path, skipfooter=1, engine="python", dtype="float64")
         except (pandas.errors.ParserError, ValueError) as err:
             # Failed 'dtype' conversion can cause 'ValueError', otherwise most parsing exceptions
             # are of type 'pandas.errors.ParserError'.
@@ -56,7 +56,7 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Remove any 'infinite' values which can appear in raw ACPower files.
         sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
         if sdf.isnull().values.any():
-            _LOG.warning("dropping one or more 'nan' values from statistics file '%s'.", path)
+            _LOG.warning("dropping one or more 'nan' values from statistics file '%s'", path)
             sdf.dropna(inplace=True)
 
             # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
