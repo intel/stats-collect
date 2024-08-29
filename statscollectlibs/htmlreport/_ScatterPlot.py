@@ -20,7 +20,7 @@ from pepclibs.helperlibs import Human
 from statscollectlibs.htmlreport import _Plot
 
 # List of diagram markers that we use in scatter plots.
-_SCATTERPLOT_MARKERS = ['circle', 'square', 'diamond', 'cross', 'triangle-up', 'pentagon']
+_SCATTERPLOT_MARKERS = ["circle", "square", "diamond", "cross", "triangle-up", "pentagon"]
 
 _LOG = logging.getLogger()
 
@@ -29,11 +29,18 @@ class ScatterPlot(_Plot.Plot):
 
     def reduce_df_density(self, rawdf, reportid):
         """
-        This function reduces the density of the 'pandas.DataFrame' 'rawdf'. The problem it solves
-        is that that there are thousands and thousands of "uninteresting" datapoints per one
-        "interesting" datapoint (an outlier). And if the total amount of datapoints is huge (say,
-        10000000), a web browser simply cannot show it because the plot is too large (gigabytes). So
-        what we are trying to do is to:
+        Reduce the density of a 'pandas.DataFrame' object. The arguments are as follows.
+          * rawdf - the raw wult data 'pandas.DataFrame' object to reduce.
+          * reportid - the ReportID corresponding to the dataframe.
+
+        The problem: the raw data dataframe may be large (say, 10000000 datapoint), resulting in a
+        large plotly scatter plot (gigabytes in size), and the web browser simply refuses to display
+        it.
+
+        Observation: there are many "uninteresting" datapoints per one "interesting" datapoint (an
+        outlier) in the raw results dataframe.
+
+        Solution:
         1. Split the scatter plot on NxN squares, where N is the bins count.
         2. Calculate how many datapoints each square contains (the 2D histogram).
         3. If a square has few datapoints, these are outliers, we leave them alone. "Few" is defined
@@ -53,7 +60,7 @@ class ScatterPlot(_Plot.Plot):
             """
 
             if not self._is_scalar_col(df, colname):
-                num_rmap = {name : idx for idx, name in enumerate(df[colname].unique())}
+                num_rmap = {name: idx for idx, name in enumerate(df[colname].unique())}
                 return df[colname].map(num_rmap)
 
             return df[colname]
@@ -120,8 +127,11 @@ class ScatterPlot(_Plot.Plot):
 
     def add_df(self, df, name, hover_template=None):
         """
-        Overrides the 'add_df' function in the base class 'Plot'. See more details in
-        'Plot.add_df()'.
+        Add a 'pandas.DataFrame' of data to the scatter plot.
+         * df - 'pandas.DataFrame' containing the data to be plotted.
+         * name - the legend name (scatter plots with multiple sets of data will include a legend
+                  indicating which plot points are from which set of data).
+         * hover_template - a 'plotly'-compatible hover text template for each datapoint.
         """
 
         # Non-numeric columns will have only few unique values, e.g. 'ReqState' might have
@@ -162,7 +172,17 @@ class ScatterPlot(_Plot.Plot):
 
     def __init__(self, xcolname, ycolname, outpath, xaxis_label=None, yaxis_label=None,
                  xaxis_unit=None, yaxis_unit=None, opacity=None):
-        """The class constructor. The arguments are the same as in 'Plot()'."""
+        """
+        The class constructor. The arguments are as follows.
+         * xcolname - same as in '_Plot.__init__()'.
+         * ycolname - same as in '_Plot.__init__()'.
+         * outpath - same as in '_Plot.__init__()'.
+         * xaxis_label - same as in '_Plot.__init__()'.
+         * yaxis_label - same as in '_Plot.__init__()'.
+         * xaxis_unit - same as in '_Plot.__init__()'.
+         * yaxis_unit - same as in '_Plot.__init__()'.
+         * opacity - same as in '_Plot.__init__()'.
+        """
 
         super().__init__(xcolname, ycolname, outpath, xaxis_label=xaxis_label,
                          yaxis_label=yaxis_label, xaxis_unit=xaxis_unit, yaxis_unit=yaxis_unit,
