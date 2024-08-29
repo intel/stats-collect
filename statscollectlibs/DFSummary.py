@@ -26,7 +26,6 @@ _SMRY_FUNCS = {"min"       : "the minimum value",
                "N%"        : "N-th percentile, 0 < N < 100",
                "nzcnt"     : "datapoints with non-zero value"}
 
-
 def get_smry_funcs():
     """
     Yields all the supported summary function names along with short description as a tuple.
@@ -43,8 +42,7 @@ def _get_percentile(funcname):
 
     percent = Trivial.str_to_num(funcname[:-1])
     if percent <= 0 or percent >= 100:
-        raise Error(f"bad percentile number in '{funcname}', should be in range of "
-                    f"(0, 100)")
+        raise Error(f"bad percentile number in '{funcname}', should be in range of (0, 100)")
     return percent
 
 def get_smry_func_descr(funcname):
@@ -62,9 +60,15 @@ def get_smry_func_descr(funcname):
 
 def calc_col_smry(df, colname, funcnames=None):
     """
-    Calculate summary function 'funcname' for 'pandas.DataFrame' column 'colname' in
-    'pandas.DataFrame' 'df' and return the resulting dictionary. If a function can't be calculated
-    for 'colname', it will be given a 'None' value. Note, 'smry' comes from "summary".
+    Calculate and return a dictionary containing summary functions and values for a column. The
+    arguments are as follows.
+      * df - the 'pandas.DataFrame' object to calculate the summary functions for.
+      * colname - name of the column in 'df' to calculate the summary functions for.
+      * funcnames - a collection of summary function names to calculate.
+
+    If a function can't be calculated for 'colname', it will be given a 'None' value. Return the
+    result in the form of a dictionary with keys being function names and values being the summary
+    function calculation results.
     """
 
     fmap = {"min" : "idxmin", "min_index" : "idxmin", "max" : "idxmax", "max_index" : "idxmax",
