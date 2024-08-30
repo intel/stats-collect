@@ -8,6 +8,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - By default, disable 'IRQ' turbostat data. This can be re-enabled by disabling
+   the 'hide-irq' turbostat property in a stats-collect configuration file.
 
 ## [1.0.29] - 2024-08-16
 ### Fixed
