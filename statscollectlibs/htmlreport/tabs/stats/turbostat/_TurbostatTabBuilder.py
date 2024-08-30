@@ -87,8 +87,8 @@ class TurbostatTabBuilder:
             mcpu_bldr = _TurbostatL2TabBuilder.TurbostatL2TabBuilder(rsts, outdir, basedir)
             self.l2tab_bldrs[mcpu_bldr.name] = mcpu_bldr
         except ErrorNotFound:
-            _LOG.info("No measured CPUs specified for any results so excluding '%s' %s tab.",
-                      mcpu_bldr.name, self.name)
+            _LOG.info("No measured CPUs specified for any results so excluding 'Measured CPU' %s "
+                      "tab.", self.name)
 
         totals_bldr = _TurbostatL2TabBuilder.TurbostatL2TabBuilder(rsts, outdir, basedir,
                                                                    totals=True)

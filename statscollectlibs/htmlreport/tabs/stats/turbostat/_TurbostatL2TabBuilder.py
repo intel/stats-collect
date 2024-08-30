@@ -14,6 +14,7 @@ For each level 2 turbostat tab, we parse raw turbostat statistics files differen
 base class expects child classes to implement '_turbostat_to_df()'.
 """
 
+from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.defs import TurbostatDefs
 from statscollectlibs.dfbuilders import TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
@@ -153,18 +154,23 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
 
         dfs = {}
-        for res in rsts:
-            if "turbostat" not in res.info["stinfo"]:
-                continue
+        tstat_rsts = [res for res in rsts if "turbostat" in res.info["stinfo"]]
 
+        for res in tstat_rsts:
             if self._totals:
                 dfbldr = TurbostatDFBuilder.TotalsDFBuilder()
             else:
-                cpunum = res.info.get("cpunum", None)
+                try:
+                    cpunum = res.info["cpunum"]
+                except KeyError:
+                    continue
                 dfbldr = TurbostatDFBuilder.MCPUDFBuilder(str(cpunum))
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
+
+        if not dfs and not self._totals:
+            raise ErrorNotFound("no CPU specified for any results")
 
         return dfs
 
