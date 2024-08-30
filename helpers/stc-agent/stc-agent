@@ -371,7 +371,8 @@ class TurbostatCollector(_BaseCollector):
         super().configure()
 
         self._command = f"{self.props['toolpath']} --enable Time_Of_Day_Seconds " \
-                        f"--interval '{self.props['interval']}'"
+                        f"--interval '{self.props['interval']}' " \
+                        f"{'--hide IRQ' if self.props['hide-irq'] else ''}"
 
         toolname = os.path.basename(self.props["toolpath"])
         self._stale_search = f"{toolname} --enable Time_Of_Day_Seconds --interval "
@@ -387,6 +388,7 @@ class TurbostatCollector(_BaseCollector):
 
         super().__init__("turbostat")
         self.props["toolpath"] = "turbostat"
+        self.props["hide-irq"] = False
 
 class _IPMICollector(_BaseCollector):
     """Base class for IPMI statistics collectors."""
