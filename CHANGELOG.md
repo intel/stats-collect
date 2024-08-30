@@ -5,6 +5,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix a regression introduced in v1.0.29 which meant HTML reports could not be
+   generated for results which were collected without the '--cpunum' option.
 ### Added
 ### Removed
 ### Changed
