@@ -43,6 +43,14 @@ from the different packages that have been bundled together. For example, this p
 2. Use the `npm install <package_name>` command to install the latest version of a package. If you
    would like to specify a version use the `npm install <package_name>@<version>` command.
 
+### Address Security Alerts
+If we are alerted of a security alert in any of the dependencies of this package, the most common
+fix is to upgrade the depedency to an unaffected version.
+
+Usually this is best done using the `npm audit fix` command which should work if the security alert
+is public. Otherwise, it might be required to install the package using `npm update <package_name>`
+or `npm install <package_name>@<version>`.
+
 ### Create a New Web Component
 1. Create a new JavaScript file in `src/` containing your web component. This project currently
    uses the 'lit' library for creating web components and it is recommended to view their
