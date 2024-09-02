@@ -16,8 +16,9 @@ import time
 from pepclibs.helperlibs.Exceptions import Error
 
 MAX_REPORID_LEN = 128
-# The special characters allowed in the report ID.
-SPECIAL_CHARS = "-.,_~"
+# The special characters allowed in the report ID. The author of this code avoided using characters
+# that are unsafe for URLs.
+SPECIAL_CHARS = "-.,_:"
 
 def get_charset_descr(additional_chars=""):
     """
