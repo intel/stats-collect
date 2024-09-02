@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -21,23 +21,32 @@ SPECIAL_CHARS = "-.,_~"
 
 def get_charset_descr(additional_chars=""):
     """
-    Returns a string describing the allow report ID characters. The 'additional_chars' argument is a
-    string containing the characters allowed in the report ID on top of the default characters
-    (alphabetical and those in 'SPECIAL_CHARS'). For example, passing 'additional_chars=":^"' will
-    include characters ':' and '^' into the allowed characters set.
+    Return a string describing the allowable report ID characters. The arguments are as follows.
+      * additional_chars - a string containing the characters allowed in the report ID on top of the
+                           default characters (alphabetical and those in 'SPECIAL_CHARS'). For
+                           example, passing 'additional_chars=":^"' will include characters ':' and
+                           '^' into the allowed characters set.
     """
 
     chars_list = [f"'{char}'" for char in SPECIAL_CHARS + additional_chars]
     chars = ", ".join(chars_list[:-1])
     chars += f", and {chars_list[-1]}"
-    return f"ACSII alphanumeric, {chars}"
+    return f"ASCII alphanumeric, {chars}"
 
 def format_reportid(prefix=None, separator="-", reportid=None, strftime="%Y%m%d-%H%M%S",
                     append=None, additional_chars=""):
     """
-    Format a default report ID: 'prefix' + 'separator' + ID, where ID is 'reportid' if it is not
-    'None', or current time string formatted with 'time.strftime()' using the 'strftime' pattern.
-    The 'additional_chars' argument is the same as in 'get_charset_descr()'.
+    Format and return a report ID. The arguments are as follows.
+      * prefix - the report ID prefix.
+      * separator - the report ID components (AKA monikers) separator.
+      * reportid - the report ID string to extend and return.
+      * strftime - in case the 'reportid' argument is 'None', the current date and time is used, and
+                   this argument defines the pattern (will be passed to 'time.strftime()').
+      * append - a string to append to the report ID.
+      * additional_chars - a string containing the characters allowed in the report ID on top of the
+                           default characters (alphabetical and those in 'SPECIAL_CHARS'). For
+                           example, passing 'additional_chars=":^"' will include characters ':' and
+                           '^' into the allowed characters set.
     """
 
     if not reportid:
@@ -60,10 +69,12 @@ def format_reportid(prefix=None, separator="-", reportid=None, strftime="%Y%m%d-
 
 def validate_reportid(reportid, additional_chars=None):
     """
-    We limit the characters which can be used in report IDs to those which are safe to use in URLs,
-    and this function validates a report ID in 'reportid' against the allowed set of characters. The
-    characters are ACSII alphanumeric characters, "-", ".", "_", and "~". The 'additional_chars'
-    argument is the same as in 'get_charset_descr()'.
+    Validate a report ID string. The arguments are as follows.
+      * reportid - the report ID string to validate.
+      * additional_chars - a string containing the characters allowed in the report ID on top of the
+                           default characters (alphabetical and those in 'SPECIAL_CHARS'). For
+                           example, passing 'additional_chars=":^"' will include characters ':' and
+                           '^' into the allowed characters set.
     """
 
     if len(reportid) > MAX_REPORID_LEN:
