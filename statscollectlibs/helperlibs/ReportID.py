@@ -76,7 +76,7 @@ def validate_reportid(reportid, additional_chars=None):
     chars = SPECIAL_CHARS + additional_chars
     if not re.match(rf"^[A-Za-z0-9{chars}]+$", reportid):
         charset_descr = get_charset_descr() + additional_chars
-        raise Error(f"bad run ID '{reportid}'\n"
+        raise Error(f"bad report ID '{reportid}'\n"
                     f"Please, use only the following characters: {charset_descr}")
 
     return reportid
