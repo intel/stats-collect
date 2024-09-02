@@ -15,7 +15,7 @@ import re
 import time
 from pepclibs.helperlibs.Exceptions import Error
 
-MAX_REPORID_LEN = 128
+MAX_REPORTID_LEN = 128
 # The special characters allowed in the report ID. The author of this code avoided using characters
 # that are unsafe for URLs.
 SPECIAL_CHARS = "-.,_:"
@@ -80,9 +80,9 @@ def validate_reportid(reportid, special_chars=None):
                         'SPECIAL_CHARS'.
     """
 
-    if len(reportid) > MAX_REPORID_LEN:
+    if len(reportid) > MAX_REPORTID_LEN:
         raise Error(f"too long run ID ({len(reportid)} characters), the maximum allowed length is "
-                    f"{MAX_REPORID_LEN} characters")
+                    f"{MAX_REPORTID_LEN} characters")
 
     if special_chars is None:
         special_chars = SPECIAL_CHARS
