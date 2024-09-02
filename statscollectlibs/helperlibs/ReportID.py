@@ -20,22 +20,24 @@ MAX_REPORID_LEN = 128
 # that are unsafe for URLs.
 SPECIAL_CHARS = "-.,_:"
 
-def get_charset_descr(additional_chars=""):
+def get_charset_descr(special_chars=None):
     """
     Return a string describing the allowable report ID characters. The arguments are as follows.
-      * additional_chars - a string containing the characters allowed in the report ID on top of the
-                           default characters (alphabetical and those in 'SPECIAL_CHARS'). For
-                           example, passing 'additional_chars=":^"' will include characters ':' and
-                           '^' into the allowed characters set.
+      * special_chars - a string containing the special characters allowed in the report ID. By
+                        default, alphanumeric characters and characters in 'SPECIAL_CHARS' are
+                        allowed, and this argument makes it possible to override the characters in
+                        'SPECIAL_CHARS'.
     """
+    if special_chars is None:
+        special_chars = SPECIAL_CHARS
 
-    chars_list = [f"'{char}'" for char in SPECIAL_CHARS + additional_chars]
+    chars_list = [f"'{char}'" for char in special_chars]
     chars = ", ".join(chars_list[:-1])
     chars += f", and {chars_list[-1]}"
     return f"ASCII alphanumeric, {chars}"
 
 def format_reportid(prefix=None, separator="-", reportid=None, strftime="%Y%m%d-%H%M%S",
-                    append=None, additional_chars=""):
+                    append=None, special_chars=None):
     """
     Format and return a report ID. The arguments are as follows.
       * prefix - the report ID prefix.
@@ -44,10 +46,10 @@ def format_reportid(prefix=None, separator="-", reportid=None, strftime="%Y%m%d-
       * strftime - in case the 'reportid' argument is 'None', the current date and time is used, and
                    this argument defines the pattern (will be passed to 'time.strftime()').
       * append - a string to append to the report ID.
-      * additional_chars - a string containing the characters allowed in the report ID on top of the
-                           default characters (alphabetical and those in 'SPECIAL_CHARS'). For
-                           example, passing 'additional_chars=":^"' will include characters ':' and
-                           '^' into the allowed characters set.
+      * special_chars - a string containing the special characters allowed in the report ID. By
+                        default, alphanumeric characters and characters in 'SPECIAL_CHARS' are
+                        allowed, and this argument makes it possible to override the characters in
+                        'SPECIAL_CHARS'.
     """
 
     if not reportid:
@@ -66,28 +68,28 @@ def format_reportid(prefix=None, separator="-", reportid=None, strftime="%Y%m%d-
             result += separator
         result += append.lstrip(separator)
 
-    return validate_reportid(result, additional_chars=additional_chars)
+    return validate_reportid(result, special_chars=special_chars)
 
-def validate_reportid(reportid, additional_chars=None):
+def validate_reportid(reportid, special_chars=None):
     """
     Validate a report ID string. The arguments are as follows.
       * reportid - the report ID string to validate.
-      * additional_chars - a string containing the characters allowed in the report ID on top of the
-                           default characters (alphabetical and those in 'SPECIAL_CHARS'). For
-                           example, passing 'additional_chars=":^"' will include characters ':' and
-                           '^' into the allowed characters set.
+      * special_chars - a string containing the special characters allowed in the report ID. By
+                        default, alphanumeric characters and characters in 'SPECIAL_CHARS' are
+                        allowed, and this argument makes it possible to override the characters in
+                        'SPECIAL_CHARS'.
     """
 
     if len(reportid) > MAX_REPORID_LEN:
         raise Error(f"too long run ID ({len(reportid)} characters), the maximum allowed length is "
                     f"{MAX_REPORID_LEN} characters")
 
-    if not additional_chars:
-        additional_chars = ""
+    if special_chars is None:
+        special_chars = SPECIAL_CHARS
 
-    chars = SPECIAL_CHARS + additional_chars
+    chars = SPECIAL_CHARS
     if not re.match(rf"^[A-Za-z0-9{chars}]+$", reportid):
-        charset_descr = get_charset_descr() + additional_chars
+        charset_descr = get_charset_descr()
         raise Error(f"bad report ID '{reportid}'\n"
                     f"Please, use only the following characters: {charset_descr}")
 
