@@ -28,7 +28,8 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
          * tstat - dictionary produced by 'TurbostatParser'.
         """
 
-        raise NotImplementedError()
+        tstat[self._time_metric] = [tstat["Time_Of_Day_Seconds"]]
+        return pandas.DataFrame.from_dict(tstat)
 
     def _read_stats_file(self, path, labels=None):
         """
@@ -110,10 +111,7 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
         """
 
-        cpus_tstat = self._get_cpus_tstat(tstat)
-        cpus_tstat[self._time_metric] = [tstat["totals"]["Time_Of_Day_Seconds"]]
-
-        return pandas.DataFrame.from_dict(cpus_tstat)
+        return super()._turbostat_to_df(self._get_cpus_tstat(tstat))
 
     def __init__(self, mcpu):
         """
@@ -138,11 +136,12 @@ class TotalsDFBuilder(TurbostatDFBuilderBase):
         base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
         """
 
+        totals_tstat = tstat["totals"]
+
         # Note: on multi-socket systems, this is the sum of TDP across sockets (packages).
         tdp = tstat["nontable"]["TDP"]
-        tstat = {self._time_metric: [tstat["totals"]["Time_Of_Day_Seconds"]], **tstat["totals"]}
 
         # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
         # column) as a percentage of TDP (from the turbostat header).
-        tstat["PkgWatt%TDP"] = (tstat["PkgWatt"] / tdp) * 100.0
-        return pandas.DataFrame.from_dict(tstat)
+        totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdp) * 100.0
+        return super()._turbostat_to_df(totals_tstat)
