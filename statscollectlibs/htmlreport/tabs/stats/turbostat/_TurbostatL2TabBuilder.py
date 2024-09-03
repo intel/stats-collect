@@ -31,8 +31,15 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         def build_ctab_cfg(ctab_name, tab_metrics):
             """Helper function to build a C-tab config named 'ctab_name' for 'tab_metrics'."""
-            return self._build_def_ctab_cfg(ctab_name, [m for m in tab_metrics if m in metrics],
-                                            self._time_metric, smry_funcs, self._hover_defs)
+
+            tab_metrics = [col for col, raw in self._colnames.items() if raw in tab_metrics]
+            dtabs = []
+            for m in tab_metrics:
+                if m not in self._defs.info or m not in metrics:
+                    continue
+                dtabs.append(self._build_def_dtab_cfg(m, self._time_metric, smry_funcs,
+                                                      self._hover_defs, title=self._colnames[m]))
+            return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
         # Add frequency-related D-tabs to a separate C-tab.
         freq_metrics = ["Bzy_MHz", "Avg_MHz"]
@@ -130,23 +137,29 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         all_cstates = []
         for colname in all_colnames:
-            if TurbostatDefs.ReqCSDef.check_metric(colname):
-                self._cstates["requested"]["residency"].append(colname)
-                all_cstates.append(TurbostatDefs.ReqCSDef(colname).cstate)
-            elif TurbostatDefs.ReqCSDefCount.check_metric(colname):
-                self._cstates["requested"]["count"].append(colname)
-                all_cstates.append(TurbostatDefs.ReqCSDefCount(colname).cstate)
-            elif TurbostatDefs.CoreCSDef.check_metric(colname):
-                self._cstates["hardware"]["core"].append(colname)
-                all_cstates.append(TurbostatDefs.CoreCSDef(colname).cstate)
-            elif self._totals and TurbostatDefs.ModuleCSDef.check_metric(colname):
-                self._cstates["hardware"]["module"].append(colname)
-                all_cstates.append(TurbostatDefs.ModuleCSDef(colname).cstate)
-            elif self._totals and TurbostatDefs.PackageCSDef.check_metric(colname):
-                self._cstates["hardware"]["package"].append(colname)
-                all_cstates.append(TurbostatDefs.PackageCSDef(colname).cstate)
-            elif TurbostatDefs.UncoreFreqDef.check_metric(colname):
-                self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(colname))
+
+            try:
+                rawname = self._colnames[colname]
+            except KeyError:
+                continue
+
+            if TurbostatDefs.ReqCSDef.check_metric(rawname):
+                self._cstates["requested"]["residency"].append(rawname)
+                all_cstates.append(TurbostatDefs.ReqCSDef(rawname).cstate)
+            elif TurbostatDefs.ReqCSDefCount.check_metric(rawname):
+                self._cstates["requested"]["count"].append(rawname)
+                all_cstates.append(TurbostatDefs.ReqCSDefCount(rawname).cstate)
+            elif TurbostatDefs.CoreCSDef.check_metric(rawname):
+                self._cstates["hardware"]["core"].append(rawname)
+                all_cstates.append(TurbostatDefs.CoreCSDef(rawname).cstate)
+            elif self._totals and TurbostatDefs.ModuleCSDef.check_metric(rawname):
+                self._cstates["hardware"]["module"].append(rawname)
+                all_cstates.append(TurbostatDefs.ModuleCSDef(rawname).cstate)
+            elif self._totals and TurbostatDefs.PackageCSDef.check_metric(rawname):
+                self._cstates["hardware"]["package"].append(rawname)
+                all_cstates.append(TurbostatDefs.PackageCSDef(rawname).cstate)
+            elif TurbostatDefs.UncoreFreqDef.check_metric(rawname):
+                self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(rawname))
 
         return all_cstates
 
@@ -167,6 +180,7 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
                 dfbldr = TurbostatDFBuilder.MCPUDFBuilder(str(cpunum))
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
+            self._colnames.update(dfbldr.colnames)
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         if not dfs and not self._totals:
@@ -201,9 +215,20 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
         # Store metrics representing uncore frequency to update 'self._defs' accordingly.
         self._uncfreq_defs = []
 
+        # Store a mapping between 'pandas.DataFrame' column names and the raw names used in the raw
+        # turbostat statistics files.
+        self._colnames = {}
+
         dfs = self._load_dfs(rsts)
         all_cstates = self._parse_colnames(dfs)
         defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
         if self._totals:
             defs.mangle_descriptions()
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
+
+        for colname, rawname in self._colnames.items():
+            if rawname not in self._defs.info:
+                continue
+
+            self._defs.info[colname] = self._defs.info[rawname].copy()
+            self._defs.info[colname]["name"] = colname

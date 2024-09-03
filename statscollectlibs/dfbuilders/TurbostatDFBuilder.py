@@ -16,11 +16,17 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
 
+TOTALS_SCOPE = "Totals"
+
 class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
     """
     This class provides the capability of building a 'pandas.DataFrames' out of raw turbostat
     statistics files.
     """
+
+    def _encode_colname(self, rawname):
+        """Encode 'rawname' to a column name suitable for a 'pandas.DataFrame'."""
+        raise NotImplementedError()
 
     def _turbostat_to_df(self, tstat):
         """
@@ -28,8 +34,13 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
          * tstat - dictionary produced by 'TurbostatParser'.
         """
 
-        tstat[self._time_metric] = [tstat["Time_Of_Day_Seconds"]]
-        return pandas.DataFrame.from_dict(tstat)
+        encoded_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
+        for rawname, value in tstat.items():
+            colname = self._encode_colname(rawname)
+            self.colnames[colname] = rawname
+            encoded_tstat[colname] = value
+
+        return pandas.DataFrame.from_dict(encoded_tstat)
 
     def _read_stats_file(self, path, labels=None):
         """
@@ -79,6 +90,10 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
 
         self._time_metric = "Time"
 
+        # Expose the mapping between "raw names" which are the names used in raw turbostat statistic
+        # files and "column names" which are the names used in the 'pandas.DataFrame'.
+        self.colnames = {}
+
         super().__init__()
 
 class MCPUDFBuilder(TurbostatDFBuilderBase):
@@ -105,6 +120,9 @@ class MCPUDFBuilder(TurbostatDFBuilderBase):
 
         raise Error(f"no data for measured cpu '{self._mcpu}'")
 
+    def _encode_colname(self, rawname):
+        return f"CPU{self._mcpu}-{rawname}"
+
     def _turbostat_to_df(self, tstat):
         """
         Convert the 'tstat' dictionary produced by 'TurbostatParser' to a 'pandas.DataFrame'. See
@@ -129,6 +147,9 @@ class TotalsDFBuilder(TurbostatDFBuilderBase):
     statistics files. Specifically, this class will aggregate the data for all CPUs into the
     'pandas.DataFrame'.
     """
+
+    def _encode_colname(self, rawname):
+        return f"{TOTALS_SCOPE}-{rawname}"
 
     def _turbostat_to_df(self, tstat):
         """
