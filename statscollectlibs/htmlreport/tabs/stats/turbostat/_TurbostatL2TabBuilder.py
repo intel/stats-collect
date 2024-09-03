@@ -171,13 +171,13 @@ class TurbostatL2TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         for res in tstat_rsts:
             if self._totals:
-                dfbldr = TurbostatDFBuilder.TotalsDFBuilder()
+                dfbldr = TurbostatDFBuilder.TurbostatDFBuilder()
             else:
                 try:
                     cpunum = res.info["cpunum"]
                 except KeyError:
                     continue
-                dfbldr = TurbostatDFBuilder.MCPUDFBuilder(str(cpunum))
+                dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(str(cpunum))
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
             self._colnames.update(dfbldr.colnames)

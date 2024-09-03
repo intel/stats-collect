@@ -18,15 +18,61 @@ from statscollectlibs.parsers import TurbostatParser
 
 TOTALS_SCOPE = "Totals"
 
-class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
+class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
     This class provides the capability of building a 'pandas.DataFrames' out of raw turbostat
     statistics files.
     """
 
-    def _encode_colname(self, rawname):
-        """Encode 'rawname' to a column name suitable for a 'pandas.DataFrame'."""
-        raise NotImplementedError()
+    def _encode_tstat(self, tstat, totals=False):
+        """
+        Encode the keys of the 'tstat' dictionary so that the resultant 'pandas.DataFrame' can
+        contain data for totals data and one or more CPUs. Arguments are as follows:
+         * tstat - the dictionary containing the turbostat statistics which should be encoded.
+         * totals - a boolean indicating whether the 'tstat' dictionary contains totals data and
+                    should be encoded as such.
+        """
+
+        encoded_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
+        for rawname, value in tstat.items():
+            colprefix = TOTALS_SCOPE if totals else f"CPU{self._mcpu}"
+            colname = f"{colprefix}-{rawname}"
+            self.colnames[colname] = rawname
+            encoded_tstat[colname] = value
+
+        return encoded_tstat
+
+    def _extract_totals(self, tstat):
+        """Extract the 'totals' data from the 'tstat' dictionary."""
+
+        totals_tstat = tstat["totals"]
+
+        # Note: on multi-socket systems, this is the sum of TDP across sockets (packages).
+        tdp = tstat["nontable"]["TDP"]
+
+        # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
+        # column) as a percentage of TDP (from the turbostat header).
+        totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdp) * 100.0
+        return self._encode_tstat(totals_tstat, totals=True)
+
+    def _extract_cpu(self, tstat):
+        """
+        Get a dictionary containing the turbostat statistics for the measured CPU. The dictionary
+        contains values from the package, core, and CPU levels.
+        """
+
+        # Traverse dictionary looking for measured CPUs.
+        for package in tstat["packages"].values():
+            for core in package["cores"].values():
+                if self._mcpu not in core["cpus"]:
+                    continue
+
+                # Include the package and core totals as for metrics which are not available at the
+                # CPU level.
+                return self._encode_tstat({**package["totals"], **core["totals"],
+                                           **core["cpus"][self._mcpu]})
+
+        raise Error(f"no data for measured cpu '{self._mcpu}'")
 
     def _turbostat_to_df(self, tstat):
         """
@@ -34,13 +80,11 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
          * tstat - dictionary produced by 'TurbostatParser'.
         """
 
-        encoded_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
-        for rawname, value in tstat.items():
-            colname = self._encode_colname(rawname)
-            self.colnames[colname] = rawname
-            encoded_tstat[colname] = value
+        new_tstat = self._extract_totals(tstat)
+        if self._mcpu:
+            new_tstat.update(self._extract_cpu(tstat))
 
-        return pandas.DataFrame.from_dict(encoded_tstat)
+        return pandas.DataFrame.from_dict(new_tstat)
 
     def _read_stats_file(self, path, labels=None):
         """
@@ -80,89 +124,21 @@ class TurbostatDFBuilderBase(_DFBuilderBase.DFBuilderBase):
 
         return sdf
 
-    def __init__(self):
+    def __init__(self, mcpu=None):
         """
         The class constructor.
 
         Note, the constructor does not load the potentially huge test result data into the memory.
-        The data are loaded "on-demand" by 'load_df()'.
+        The data are loaded "on-demand" by 'load_df()'. Arguments are as follows:
+         * mcpu - the name of the measured CPU for which data should be extracted from the raw
+                  turbostat statistics file.
         """
 
         self._time_metric = "Time"
+        self._mcpu = mcpu
 
         # Expose the mapping between "raw names" which are the names used in raw turbostat statistic
         # files and "column names" which are the names used in the 'pandas.DataFrame'.
         self.colnames = {}
 
         super().__init__()
-
-class MCPUDFBuilder(TurbostatDFBuilderBase):
-    """
-    This class provides the capability of building a 'pandas.DataFrames' out of raw turbostat
-    statistics files for a specific CPU.
-    """
-
-    def _get_cpus_tstat(self, tstat):
-        """
-        Get a dictionary containing the turbostat statistics for the measured CPU. The dictionary
-        contains values from the package, core, and CPU levels.
-        """
-
-        # Traverse dictionary looking for measured CPUs.
-        for package in tstat["packages"].values():
-            for core in package["cores"].values():
-                if self._mcpu not in core["cpus"]:
-                    continue
-
-                # Include the package and core totals as for metrics which are not available at the
-                # CPU level.
-                return {**package["totals"], **core["totals"], **core["cpus"][self._mcpu]}
-
-        raise Error(f"no data for measured cpu '{self._mcpu}'")
-
-    def _encode_colname(self, rawname):
-        return f"CPU{self._mcpu}-{rawname}"
-
-    def _turbostat_to_df(self, tstat):
-        """
-        Convert the 'tstat' dictionary produced by 'TurbostatParser' to a 'pandas.DataFrame'. See
-        base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
-        """
-
-        return super()._turbostat_to_df(self._get_cpus_tstat(tstat))
-
-    def __init__(self, mcpu):
-        """
-        The class constructor. Arguments are as follows:
-         * mcpu - the name of the measured CPU for which data should be extracted from the raw
-                  turbostat statistics file.
-        """
-
-        self._mcpu = mcpu
-        super().__init__()
-
-class TotalsDFBuilder(TurbostatDFBuilderBase):
-    """
-    This class provides the capability of building a 'pandas.DataFrames' out of raw turbostat
-    statistics files. Specifically, this class will aggregate the data for all CPUs into the
-    'pandas.DataFrame'.
-    """
-
-    def _encode_colname(self, rawname):
-        return f"{TOTALS_SCOPE}-{rawname}"
-
-    def _turbostat_to_df(self, tstat):
-        """
-        Convert the 'tstat' dictionary produced by 'TurbostatParser' to a 'pandas.DataFrame'. See
-        base class '_TurbostatL2TabBuilderBase.TurbostatL2TabBuilderBase' for arguments.
-        """
-
-        totals_tstat = tstat["totals"]
-
-        # Note: on multi-socket systems, this is the sum of TDP across sockets (packages).
-        tdp = tstat["nontable"]["TDP"]
-
-        # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
-        # column) as a percentage of TDP (from the turbostat header).
-        totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdp) * 100.0
-        return super()._turbostat_to_df(totals_tstat)
