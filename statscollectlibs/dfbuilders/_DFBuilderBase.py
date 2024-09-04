@@ -35,7 +35,7 @@ class DFBuilderBase:
         time_col = df[time_colname]
 
         if labels[0]["ts"] > time_col.iloc[-1]:
-            raise Error("first label's timestamp is after the last datapoint was measured.")
+            raise Error("first label's timestamp is after the last datapoint was measured")
 
         lcnt = len(labels)
         df["label"] = None
@@ -95,7 +95,12 @@ class DFBuilderBase:
         return labels
 
     def load_df(self, path, labels_path=None):
-        """Read the raw statistics file at 'path' into the 'self.df' 'pandas.DataFrame'."""
+        """
+        Read the data in the raw statistics file into 'self.df'. Arguments are as follows:
+         * path - the path of the raw statistics file to load.
+         * labels_path - optional path of the labels file to apply to the loaded data. Loads no
+                         labels by default.
+        """
 
         if not path.exists():
             raise ErrorNotFound(f"failed to load raw statistics file at path '{path}': file does "
