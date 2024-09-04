@@ -55,7 +55,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return colnames
 
-    def _read_stats_file(self, path, labels=None):
+    def _read_stats_file(self, path):
         """
         Returns a 'pandas.DataFrame' containing the data stored in the raw IPMI statistics file at
         'path'.

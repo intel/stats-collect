@@ -94,7 +94,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return pandas.DataFrame.from_dict(new_tstat)
 
-    def _read_stats_file(self, path, labels=None):
+    def _read_stats_file(self, path):
         """
         Returns a 'pandas.DataFrame' containing the data stored in the raw turbostat statistics file
         at 'path'.

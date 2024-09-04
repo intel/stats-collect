@@ -73,7 +73,7 @@ class DFBuilderBase:
         # indexing. Reset the index to avoid any of these problems.
         df.reset_index(inplace=True)
 
-    def _read_stats_file(self, path, labels=None):
+    def _read_stats_file(self, path):
         """
         Returns a 'pandas.DataFrame' containing the data stored in the raw statistics file at
         'path'.
@@ -116,7 +116,7 @@ class DFBuilderBase:
             labels = None
 
         try:
-            sdf = self._read_stats_file(path, labels)
+            sdf = self._read_stats_file(path)
         except Error as err:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
                         f"{err.indent(2)}") from None
