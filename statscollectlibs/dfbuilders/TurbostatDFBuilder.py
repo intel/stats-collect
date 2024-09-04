@@ -119,17 +119,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
             msg = Error(err).indent(2)
             raise Error(f"error reading raw statistics file '{path}':\n{msg}.") from None
 
-        # Confirm that the time column is in the 'pandas.DataFrame'.
-        if self._time_metric not in sdf:
-            raise Error(f"timestamps could not be parsed in raw statistics file '{path}'.")
-
-        if labels:
-            self._apply_labels(sdf, labels)
-
-        # Convert 'Time' column from time since epoch to time since first data point was recorded.
-        sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
-        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
-
         return sdf
 
     def __init__(self, mcpu=None):

@@ -10,15 +10,11 @@
 This module provides the capability of building 'pandas.DataFrames' out of IPMI statistics files.
 """
 
-import logging
-import numpy
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.defs import IPMIDefs
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import IPMIParser
-
-_LOG = logging.getLogger()
 
 class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
@@ -90,29 +86,9 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             # Append dataset for a single timestamp to the main 'pandas.DataFrame'.
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
-        # Confirm that the time column is in the 'pandas.DataFrame'.
-        if self._time_metric not in sdf:
-            raise Error(f"column '{self._time_metric}' not found in statistics file '{path}'.")
-
-        if labels:
-            self._apply_labels(sdf, labels)
-
-        # Remove any 'infinite' values which can appear in raw ACPower files.
-        sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
-        if sdf.isnull().values.any():
-            _LOG.warning("dropping one or more 'nan' values from statistics file '%s'", path)
-            sdf.dropna(inplace=True)
-
-            # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
-            # indexing. Reset the index to avoid any of these problems.
-            sdf.reset_index(inplace=True)
-
-        # Convert Time column from time stamp to time since the first data point was recorded.
-        sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric][0]
-        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
-
-        rename_cols = {self._time_metric: "Time", **colnames}
+        rename_cols = {"timestamp": self._time_metric, **colnames}
         sdf = sdf.rename(columns=rename_cols)
+
         return sdf
 
     def __init__(self):
@@ -125,4 +101,4 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         self._defs = IPMIDefs.IPMIDefs()
 
-        super().__init__("timestamp")
+        super().__init__("Time")

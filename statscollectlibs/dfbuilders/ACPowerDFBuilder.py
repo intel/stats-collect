@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -11,13 +11,9 @@ This module provides the capability of building a 'pandas.DataFrame' out of a ra
 statistics file.
 """
 
-import logging
-import numpy
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFBuilderBase
-
-_LOG = logging.getLogger()
 
 class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
@@ -41,27 +37,6 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
             # are of type 'pandas.errors.ParserError'.
             msg = Error(err).indent(2)
             raise Error(f"unable to parse CSV '{path}':\n{msg}.") from None
-
-        # Confirm that the time metric is in the CSV headers.
-        if self._time_metric not in sdf:
-            raise Error(f"column '{self._time_metric}' not found in statistics file '{path}'.")
-
-        if labels:
-            self._apply_labels(sdf, labels)
-
-        # Convert Time column from time since epoch to time since the first data point was recorded.
-        sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
-        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
-
-        # Remove any 'infinite' values which can appear in raw ACPower files.
-        sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
-        if sdf.isnull().values.any():
-            _LOG.warning("dropping one or more 'nan' values from statistics file '%s'", path)
-            sdf.dropna(inplace=True)
-
-            # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
-            # indexing. Reset the index to avoid any of these problems.
-            sdf.reset_index(inplace=True)
 
         return sdf
 

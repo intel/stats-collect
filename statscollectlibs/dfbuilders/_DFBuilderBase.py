@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Adam Hawley <adam.james.hawley@intel.com>
@@ -12,7 +12,12 @@ a raw statistics file.
 """
 
 import json
+import logging
+import numpy
+import pandas
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+
+_LOG = logging.getLogger()
 
 class DFBuilderBase:
     """
@@ -111,11 +116,33 @@ class DFBuilderBase:
             labels = None
 
         try:
-            self.df = self._read_stats_file(path, labels)
+            sdf = self._read_stats_file(path, labels)
         except Error as err:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
                         f"{err.indent(2)}") from None
 
+        # Confirm that the time column is in the 'pandas.DataFrame'.
+        if self._time_metric not in sdf:
+            raise Error(f"column '{self._time_metric}' not found in statistics file '{path}'.")
+
+        if labels:
+            self._apply_labels(sdf, labels)
+
+        # Remove any 'infinite' values which can appear in raw statistics files.
+        sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
+        if sdf.isnull().values.any():
+            _LOG.warning("dropping one or more 'nan' values from statistics file '%s'", path)
+            sdf.dropna(inplace=True)
+
+            # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
+            # indexing. Reset the index to avoid any of these problems.
+            sdf.reset_index(inplace=True)
+
+        # Convert Time column from time stamp to time since the first data point was recorded.
+        sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
+        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
+
+        self.df = sdf
         return self.df
 
     def __init__(self, time_metric):
