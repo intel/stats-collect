@@ -24,18 +24,19 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     def decode_ipmi_colname(self, colname):
         """
-        IPMI 'pandas.DataFrames' are loaded with column names containing the original column name
-        and the relevant IPMI metric. Decode 'colname' to get a tuple containing the metric and the
-        original IPMi column name. If 'colname' is not a valid 'ipmi' column name, returns
-        'None, None'.
+        IPMI 'pandas.DataFrames' are loaded with column names containing the "rawname" which refers
+        to the original name used in the raw IPMI statistics file and the relevant IPMI metric
+        (which represents a category of IPMI statistics, e.g. "FanSpeed", "Power", etc.). Decode
+        'colname' to get a tuple containing the metric and the raw IPMI name. If 'colname' is not a
+        valid 'ipmi' column name, returns 'None, None'.
         """
 
         split = colname.split("-", 1)
         if len(split) < 2 or split[0] not in self._defs.info:
             return None, None
 
-        original_colname = split[1] if len(split) > 1 else None
-        return split[0], original_colname
+        rawname = split[1] if len(split) > 1 else None
+        return split[0], rawname
 
     def _encode_colnames(self, ipmi):
         """
