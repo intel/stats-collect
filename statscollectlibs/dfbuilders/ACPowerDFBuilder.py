@@ -27,18 +27,14 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         file at 'path'.
         """
 
-        sdf = pandas.DataFrame()
-
         try:
-            # 'skipfooter' parameter only available with Python pandas engine.
-            sdf = pandas.read_csv(path, skipfooter=1, engine="python", dtype="float64")
+            # 'skipfooter' parameter only available with Python the pandas engine.
+            return pandas.read_csv(path, skipfooter=1, engine="python", dtype="float64")
         except (pandas.errors.ParserError, ValueError) as err:
             # Failed 'dtype' conversion can cause 'ValueError', otherwise most parsing exceptions
             # are of type 'pandas.errors.ParserError'.
             msg = Error(err).indent(2)
             raise Error(f"unable to parse CSV '{path}':\n{msg}.") from None
-
-        return sdf
 
     def __init__(self):
         """
