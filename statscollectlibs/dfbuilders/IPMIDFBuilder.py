@@ -42,7 +42,8 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         Encode column names in the IPMIParser dict 'ipmi' to include the metrics they represent. For
         example, 'FanSpeed' can be represented by several columns such as 'Fan1'. This function will
         encode that column name as 'FanSpeed-Fan1'. Returns a dictionary in the format
-        '{colname: encoded_colname}'.
+        '{rawname: encoded_colname}' where 'rawname' represents the name used in the raw IPMI file
+        and 'encoded_colname' is the name including the metric name as well as the rawname.
         """
 
         colnames = {}
