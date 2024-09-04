@@ -24,15 +24,14 @@ class DFBuilderBase:
        * '_read_stats_file()'
     """
 
-    def _apply_labels(self, df, labels, time_colname):
+    def _apply_labels(self, df, labels):
         """
         Apply 'labels' to 'pandas.DataFrame' 'df'. Arguments are as follows:
          * df - the 'pandas.DataFrame' to which the labels should be applied.
          * labels - a list of label dictionaries parsed from the labels file.
-         * time_colname - the name of the column in 'df' which contains the datapoint timestamps.
         """
 
-        time_col = df[time_colname]
+        time_col = df[self._time_metric]
 
         if labels[0]["ts"] > time_col.iloc[-1]:
             raise Error("first label's timestamp is after the last datapoint was measured")
@@ -119,7 +118,12 @@ class DFBuilderBase:
 
         return self.df
 
-    def __init__(self):
-        """The class constructor."""
+    def __init__(self, time_metric):
+        """
+        The class constructor. Arguments are as follows:
+         * time_metric - the name of the metric which represents the time at which the datapoints
+                         in the raw statistics file(s) were recorded.
+        """
 
         self.df = None
+        self._time_metric = time_metric

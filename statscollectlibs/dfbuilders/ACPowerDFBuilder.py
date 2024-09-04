@@ -47,7 +47,7 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
             raise Error(f"column '{self._time_metric}' not found in statistics file '{path}'.")
 
         if labels:
-            self._apply_labels(sdf, labels, self._time_metric)
+            self._apply_labels(sdf, labels)
 
         # Convert Time column from time since epoch to time since the first data point was recorded.
         sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
@@ -73,6 +73,4 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         The data are loaded "on-demand" by 'load_df()'.
         """
 
-        self._time_metric = "T"
-
-        super().__init__()
+        super().__init__("T")

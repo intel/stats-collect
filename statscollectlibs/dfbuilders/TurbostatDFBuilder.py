@@ -124,7 +124,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
             raise Error(f"timestamps could not be parsed in raw statistics file '{path}'.")
 
         if labels:
-            self._apply_labels(sdf, labels, self._time_metric)
+            self._apply_labels(sdf, labels)
 
         # Convert 'Time' column from time since epoch to time since first data point was recorded.
         sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
@@ -142,11 +142,10 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
                   turbostat statistics file.
         """
 
-        self._time_metric = "Time"
         self._mcpu = mcpu
 
         # Expose the mapping between "raw names" which are the names used in raw turbostat statistic
         # files and "column names" which are the names used in the 'pandas.DataFrame'.
         self.colnames = {}
 
-        super().__init__()
+        super().__init__("Time")

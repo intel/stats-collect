@@ -65,8 +65,6 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         'path'.
         """
 
-        time_colname = "timestamp"
-
         def _ipmi_to_df(ipmi):
             """Convert IPMIParser dict to 'pandas.DataFrame'."""
 
@@ -93,11 +91,11 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
         # Confirm that the time column is in the 'pandas.DataFrame'.
-        if time_colname not in sdf:
-            raise Error(f"column '{time_colname}' not found in statistics file '{path}'.")
+        if self._time_metric not in sdf:
+            raise Error(f"column '{self._time_metric}' not found in statistics file '{path}'.")
 
         if labels:
-            self._apply_labels(sdf, labels, time_colname)
+            self._apply_labels(sdf, labels)
 
         # Remove any 'infinite' values which can appear in raw ACPower files.
         sdf.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
@@ -110,10 +108,10 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             sdf.reset_index(inplace=True)
 
         # Convert Time column from time stamp to time since the first data point was recorded.
-        sdf[time_colname] = sdf[time_colname] - sdf[time_colname][0]
-        sdf[time_colname] = pandas.to_datetime(sdf[time_colname], unit="s")
+        sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric][0]
+        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
 
-        rename_cols = {time_colname: self._time_metric, **colnames}
+        rename_cols = {self._time_metric: "Time", **colnames}
         sdf = sdf.rename(columns=rename_cols)
         return sdf
 
@@ -125,7 +123,6 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         The data are loaded "on-demand" by 'load_df()'.
         """
 
-        self._time_metric = "Time"
         self._defs = IPMIDefs.IPMIDefs()
 
-        super().__init__()
+        super().__init__("timestamp")
