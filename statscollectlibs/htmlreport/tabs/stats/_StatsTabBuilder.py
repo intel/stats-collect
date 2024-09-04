@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -11,9 +11,9 @@
 import logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabBuilder
+from statscollectlibs.htmlreport.tabs.stats import (_ACPowerTabBuilder, _IPMITabBuilder,
+                                                    _TurbostatTabBuilder)
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
-from statscollectlibs.htmlreport.tabs.stats.turbostat import _TurbostatTabBuilder
 
 _LOG = logging.getLogger()
 
