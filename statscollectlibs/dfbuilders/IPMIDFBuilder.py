@@ -86,6 +86,10 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             # Append dataset for a single timestamp to the main 'pandas.DataFrame'.
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
+        # The timestamps will be converted to represent time elapsed since the beginning of the
+        # statistics collection, therefore rename the 'timestamp' column to 'self._timecolname'
+        # which represents this better. Also rename the IPMI columns to include the metric they
+        # represent as well as the rawname.
         rename_cols = {"timestamp": self._time_metric, **colnames}
         sdf = sdf.rename(columns=rename_cols)
 
