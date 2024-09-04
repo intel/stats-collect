@@ -128,7 +128,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         if len(stnames) > 1:
             _LOG.warning("generating '%s' tab with a combination of data collected both inband "
-                         "and out-of-band.", self.name)
+                         "and out-of-band", self.name)
 
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
@@ -138,7 +138,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         # Reports may have the "Time" column in common or none at all. In both of these cases, an
         # IPMI tab won't be generated.
         if len(self._common_cols) < 2:
-            raise Error("unable to generate IPMI tab, no common IPMI metrics between reports.")
+            raise Error("unable to generate IPMI tab, no common IPMI metrics between reports")
 
         # Update defs with IPMI column names for each column.
         for colname in self._common_cols:
