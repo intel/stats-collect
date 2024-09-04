@@ -10,14 +10,11 @@
 This module provides the capability of populating the turbostat statistics tab.
 """
 
-import logging
-from pepclibs.helperlibs.Exceptions import ErrorNotFound, Error
-from statscollectlibs.htmlreport.tabs import _Tabs, TabConfig
-from statscollectlibs.htmlreport.tabs.stats.turbostat import _TurbostatL2TabBuilder
+from statscollectlibs.defs import TurbostatDefs
+from statscollectlibs.dfbuilders import TurbostatDFBuilder
+from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
-_LOG = logging.getLogger()
-
-class TurbostatTabBuilder:
+class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """
     This class provides the capability of populating the turbostat statistics tab.
 
@@ -34,40 +31,172 @@ class TurbostatTabBuilder:
     name = "Turbostat"
     stname = "turbostat"
 
+    def _get_default_tab_cfg(self, metrics, smry_funcs, scope):
+        """
+        Helper function for 'get_default_tab_cfg()'. Get the default tab configuration which is
+        populated with 'metrics', 'smry_funcs' and using the C-states in 'self._hw_cstates' and
+        'self._req_cstates'.
+        """
+
+        def build_ctab_cfg(ctab_name, tab_metrics):
+            """Helper function to build a C-tab config named 'ctab_name' for 'tab_metrics'."""
+
+            tab_metrics = [col for col, raw in self._colnames.items() if raw in tab_metrics]
+            dtabs = []
+            for m in tab_metrics:
+                if m not in self._defs.info or m not in metrics:
+                    continue
+                dtabs.append(self._build_def_dtab_cfg(m, self._time_metric, smry_funcs,
+                                                      self._hover_defs, title=self._colnames[m]))
+            return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
+
+        # Add frequency-related D-tabs to a separate C-tab.
+        freq_metrics = ["Bzy_MHz", "Avg_MHz"]
+        if scope == TurbostatDFBuilder.TOTALS_SCOPE:
+            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat'
+            # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
+            # UMHz1.0". So sort them into ascending order so that they are more intuitive.
+            freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
+        freq_tab = build_ctab_cfg("Frequency", freq_metrics)
+
+        # Add temperature/power-related D-tabs to a separate C-tab.
+        tp_metrics = ["CorWatt", "CoreTmp"]
+        if scope == TurbostatDFBuilder.TOTALS_SCOPE:
+            tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
+        tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
+
+        # Add miscellaneous D-tabs to a separate C-tab.
+        misc_tab = build_ctab_cfg("Misc", ["IRQ", "SMI", "IPC"])
+
+        # Add requested C-state residency tabs to a separate C-tab.
+        req_res_tab = build_ctab_cfg("Residency", self._cstates["requested"]["residency"])
+        req_cnt_tab = build_ctab_cfg("Count", self._cstates["requested"]["count"])
+        req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
+
+        # Add hardware C-state residency tabs to a separate C-tab.
+        hw_cstates = ["Busy%"] + self._cstates["hardware"]["core"]
+        if scope == TurbostatDFBuilder.TOTALS_SCOPE:
+            hw_cstates += self._cstates["hardware"]["module"] + self._cstates["hardware"]["package"]
+        hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
+
+        # Combine requeseted and hardware C-states into a single C-tab.
+        cs_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
+
+        return TabConfig.CTabConfig(scope, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
+
     def get_default_tab_cfg(self):
-        """Same as 'TabBuilderBase.get_default_tab_cfg()'."""
-
-        ctabs = [tbldr.get_default_tab_cfg() for tbldr in self.l2tab_bldrs.values()]
-        return TabConfig.CTabConfig(self.name, ctabs=ctabs)
-
-    def get_tab(self, tab_cfg=None):
         """
-        Returns a '_Tabs.CTabDC' instance containing turbostat level 2 tabs:
+        Returns a 'TabConfig.CTabConfig' instance, titled 'self.name', containing tab configurations
+        which represent different metrics within raw turbostat statistic files.
 
-        1. If 'measured_cpus' was provided to the constructor, a "Measured CPU" container tab will
-        be generated containing turbostat tabs which visualise turbostat data for the CPU under
-        test.
-        2. A "Totals" container tab will be generated containing turbostat tabs which
-        visualise the turbostat system summaries.
+        Note that the hierarchy of the tabs will will only include turbostat metrics which are
+        common to all results.
+
+        See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
+
+        # Find metrics which appear in the raw turbostat statistic files.
+        metric_sets = [set(sdf.columns) for sdf in self._reports.values()]
+        metrics = set.union(*metric_sets)
+
+        # Limit metrics to only those with definitions.
+        metrics.intersection_update(set(self._defs.info.keys()))
+
+        # Define which summary functions should be included in the summary table for each metric.
+        smry_funcs = {}
+        for metric in metrics:
+            if metric in ("IRQ", "SMI"):
+                smry_funcs[metric] = ["max", "avg", "min", "std"]
+            else:
+                smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
+                                      "med", "avg", "min", "std"]
+
+        categorised_metrics = {}
+        for metric in metrics:
+            scope, _ = TurbostatDFBuilder.decode_colname(metric)
+            if not scope:
+                continue
+            if scope not in categorised_metrics:
+                categorised_metrics[scope] = {metric}
+            else:
+                categorised_metrics[scope].add(metric)
 
         l2_tabs = []
+        for scope, scope_metrics in categorised_metrics.items():
+            l2_tabs.append(self._get_default_tab_cfg(scope_metrics, smry_funcs, scope))
 
-        if not tab_cfg:
-            for stab_bldr in self.l2tab_bldrs.values():
-                l2_tabs.append(stab_bldr.get_tab())
-            return _Tabs.CTabDC(self.name, l2_tabs)
+        return TabConfig.CTabConfig(self.name, ctabs=l2_tabs)
 
-        # Turbostat tab configs must contain either 'Measured CPU' or 'Totals' container tabs.
-        for l2tab_cfg in tab_cfg.ctabs:
+    def _parse_colnames(self, dfs):
+        """
+        Iterate through columns in 'dfs' to find common C-states and uncore frequency columns
+        present in all results and categorise them into the 'self._cstates' dictionary and
+        'self._uncfreq_defs' list respectively. Returns a list of all of the C-states with data in
+        one or more of 'dfs'.
+        """
+
+        self._cstates = {
+            "requested": {
+                "residency": [],
+                "count": []
+            },
+            "hardware": {
+                "core": [],
+                "package": [],
+                "module": []
+            }
+        }
+
+        # Maintain the order that C-states appear in turbostat so that they are not jumbled.
+        all_colnames = []
+        for df in dfs.values():
+            for column in df.columns:
+                if column not in all_colnames:
+                    all_colnames.append(column)
+
+        all_cstates = []
+        for colname in all_colnames:
+
             try:
-                l2_tabs.append(self.l2tab_bldrs[l2tab_cfg.name].get_tab(tab_cfg=l2tab_cfg))
+                rawname = self._colnames[colname]
             except KeyError:
-                l2_names = ", ".join(bldr.name for bldr in self.l2tab_bldrs)
-                raise Error(f"{self.name} tab configuration should contain one or both of the "
-                            f"following container tabs: {l2_names}") from None
+                continue
 
-        return _Tabs.CTabDC(tab_cfg.name, l2_tabs)
+            if TurbostatDefs.ReqCSDef.check_metric(rawname):
+                self._cstates["requested"]["residency"].append(rawname)
+                all_cstates.append(TurbostatDefs.ReqCSDef(rawname).cstate)
+            elif TurbostatDefs.ReqCSDefCount.check_metric(rawname):
+                self._cstates["requested"]["count"].append(rawname)
+                all_cstates.append(TurbostatDefs.ReqCSDefCount(rawname).cstate)
+            elif TurbostatDefs.CoreCSDef.check_metric(rawname):
+                self._cstates["hardware"]["core"].append(rawname)
+                all_cstates.append(TurbostatDefs.CoreCSDef(rawname).cstate)
+            elif TurbostatDefs.ModuleCSDef.check_metric(rawname):
+                self._cstates["hardware"]["module"].append(rawname)
+                all_cstates.append(TurbostatDefs.ModuleCSDef(rawname).cstate)
+            elif TurbostatDefs.PackageCSDef.check_metric(rawname):
+                self._cstates["hardware"]["package"].append(rawname)
+                all_cstates.append(TurbostatDefs.PackageCSDef(rawname).cstate)
+            elif TurbostatDefs.UncoreFreqDef.check_metric(rawname):
+                self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(rawname))
+
+        return all_cstates
+
+    def _load_dfs(self, rsts):
+        """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
+
+        dfs = {}
+        tstat_rsts = [res for res in rsts if "turbostat" in res.info["stinfo"]]
+
+        for res in tstat_rsts:
+            cpunum = res.info.get("cpunum")
+            dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(str(cpunum) if cpunum else None)
+
+            dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
+            self._colnames.update(dfbldr.colnames)
+            self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
+
+        return dfs
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -81,15 +210,28 @@ class TurbostatTabBuilder:
         """
 
         outdir = outdir / self.name
-        self.l2tab_bldrs = {}
+        self._time_metric = "Time"
+        self._hover_defs = {}
 
-        try:
-            mcpu_bldr = _TurbostatL2TabBuilder.TurbostatL2TabBuilder(rsts, outdir, basedir)
-            self.l2tab_bldrs[mcpu_bldr.name] = mcpu_bldr
-        except ErrorNotFound:
-            _LOG.info("No measured CPUs specified for any results so excluding 'Measured CPU' %s "
-                      "tab.", self.name)
+        # Store C-states for which there is data in each raw turbostat statistics file. Initialised
+        # in 'self._parse_colnames()'.
+        self._cstates = None
 
-        totals_bldr = _TurbostatL2TabBuilder.TurbostatL2TabBuilder(rsts, outdir, basedir,
-                                                                   totals=True)
-        self.l2tab_bldrs[totals_bldr.name] = totals_bldr
+        # Store metrics representing uncore frequency to update 'self._defs' accordingly.
+        self._uncfreq_defs = []
+
+        # Store a mapping between 'pandas.DataFrame' column names and the raw names used in the raw
+        # turbostat statistics files.
+        self._colnames = {}
+
+        dfs = self._load_dfs(rsts)
+        all_cstates = self._parse_colnames(dfs)
+        defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
+        super().__init__(dfs, outdir, basedir=basedir, defs=defs)
+
+        for colname, rawname in self._colnames.items():
+            if rawname not in self._defs.info:
+                continue
+
+            self._defs.info[colname] = self._defs.info[rawname].copy()
+            self._defs.info[colname]["name"] = colname

@@ -18,6 +18,14 @@ from statscollectlibs.parsers import TurbostatParser
 
 TOTALS_SCOPE = "Totals"
 
+def decode_colname(colname):
+    """Decode 'colname' into a tuple of (scope, rawname)."""
+
+    split = colname.split("-")
+    if len(split) == 1:
+        return None, split[0]
+    return split[0], split[1]
+
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
     This class provides the capability of building a 'pandas.DataFrames' out of raw turbostat
