@@ -57,20 +57,21 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return colnames
 
+    @staticmethod
+    def _ipmi_to_df(ipmi):
+        """Convert IPMIParser dict to 'pandas.DataFrame'."""
+
+        # Reduce IPMI values from ('value', 'unit') to just 'value'.
+        # If "no reading" is parsed in a line of a raw IPMI file, 'None' is returned. In this
+        # case, we should exclude that IPMI metric.
+        i = {k:[v[0]] for k, v in ipmi.items() if v[0] is not None}
+        return pandas.DataFrame.from_dict(i)
+
     def _read_stats_file(self, path):
         """
         Returns a 'pandas.DataFrame' containing the data stored in the raw IPMI statistics file at
         'path'.
         """
-
-        def _ipmi_to_df(ipmi):
-            """Convert IPMIParser dict to 'pandas.DataFrame'."""
-
-            # Reduce IPMI values from ('value', 'unit') to just 'value'.
-            # If "no reading" is parsed in a line of a raw IPMI file, 'None' is returned. In this
-            # case, we should exclude that IPMI metric.
-            i = {k:[v[0]] for k, v in ipmi.items() if v[0] is not None}
-            return pandas.DataFrame.from_dict(i)
 
         ipmi_gen = IPMIParser.IPMIParser(path).next()
 
@@ -81,10 +82,10 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
 
         colnames = self._encode_colnames(i)
-        sdf = _ipmi_to_df(i)
+        sdf = self._ipmi_to_df(i)
 
         for i in ipmi_gen:
-            df = _ipmi_to_df(i)
+            df = self._ipmi_to_df(i)
             # Append dataset for a single timestamp to the main 'pandas.DataFrame'.
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
