@@ -38,7 +38,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         rawname = split[1] if len(split) > 1 else None
         return split[0], rawname
 
-    def _encode_colnames(self, ipmi):
+    def _get_new_colnames(self, ipmi):
         """
         Encode column names in the IPMIParser dict 'ipmi' to include the metrics they represent. For
         example, 'FanSpeed' can be represented by several columns such as 'Fan1'. This function will
@@ -85,7 +85,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         # column names will include the raw names used in the raw IPMI statistics file as well as
         # the metric category they belong to such as "FanSpeed", "Temperature" etc. See
         # 'self._encode_colnames()' for more information.
-        renaming_cols = self._encode_colnames(parsed_dp)
+        renaming_cols = self._get_new_colnames(parsed_dp)
 
         # Initialise 'sdf' with the first datapoint in the raw statistics file.
         sdf = self._ipmi_to_df(parsed_dp)
