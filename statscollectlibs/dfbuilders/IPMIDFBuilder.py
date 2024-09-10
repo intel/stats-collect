@@ -73,28 +73,33 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         'path'.
         """
 
-        ipmi_gen = IPMIParser.IPMIParser(path).next()
+        parser = IPMIParser.IPMIParser(path).next()
 
         try:
             # Try to read the first data point from raw statistics file.
-            i = next(ipmi_gen)
+            parsed_dp = next(parser)
         except StopIteration:
             raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
 
-        colnames = self._encode_colnames(i)
-        sdf = self._ipmi_to_df(i)
+        # The first data point is used to determine the column names of the 'pandas.DataFrame'. The
+        # column names will include the raw names used in the raw IPMI statistics file as well as
+        # the metric category they belong to such as "FanSpeed", "Temperature" etc. See
+        # 'self._encode_colnames()' for more information.
+        renaming_cols = self._encode_colnames(parsed_dp)
 
-        for i in ipmi_gen:
-            df = self._ipmi_to_df(i)
-            # Append dataset for a single timestamp to the main 'pandas.DataFrame'.
+        # Initialise 'sdf' with the first datapoint in the raw statistics file.
+        sdf = self._ipmi_to_df(parsed_dp)
+
+        # Add the rest of the data from the raw IPMI statistics file to 'sdf'.
+        for parsed_dp in parser:
+            df = self._ipmi_to_df(parsed_dp)
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
         # The timestamps will be converted to represent time elapsed since the beginning of the
         # statistics collection, therefore rename the 'timestamp' column to 'self._timecolname'
-        # which represents this better. Also rename the IPMI columns to include the metric they
-        # represent as well as the rawname.
-        rename_cols = {"timestamp": self._time_metric, **colnames}
-        sdf = sdf.rename(columns=rename_cols)
+        # which represents this better.
+        renaming_cols["timestamp"] = self._time_metric
+        sdf = sdf.rename(columns=renaming_cols)
 
         return sdf
 
