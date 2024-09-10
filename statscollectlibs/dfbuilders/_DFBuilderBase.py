@@ -117,9 +117,9 @@ class DFBuilderBase:
 
         try:
             sdf = self._read_stats_file(path)
-        except Error as err:
+        except Exception as err:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
-                        f"{err.indent(2)}") from None
+                        f"{Error(err).indent(2)}") from None
 
         # Confirm that the time column is in the 'pandas.DataFrame'.
         if self._time_metric not in sdf:

@@ -100,26 +100,22 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         at 'path'.
         """
 
+        tstat_gen = TurbostatParser.TurbostatParser(path).next()
+
         try:
-            tstat_gen = TurbostatParser.TurbostatParser(path).next()
+            # Try to read the first data point from raw statistics file.
+            tstat = next(tstat_gen)
+        except StopIteration:
+            raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
 
-            try:
-                # Try to read the first data point from raw statistics file.
-                tstat = next(tstat_gen)
-            except StopIteration:
-                raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
+        # Initialise the stats 'pandas.DataFrame' ('sdf') with data from the first 'tstat'
+        # dictionary.
+        sdf = self._turbostat_to_df(tstat)
 
-            # Initialise the stats 'pandas.DataFrame' ('sdf') with data from the first 'tstat'
-            # dictionary.
-            sdf = self._turbostat_to_df(tstat)
-
-            # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
-            for tstat in tstat_gen:
-                df = self._turbostat_to_df(tstat)
-                sdf = pandas.concat([sdf, df], ignore_index=True)
-        except Exception as err:
-            msg = Error(err).indent(2)
-            raise Error(f"error reading raw statistics file '{path}':\n{msg}.") from None
+        # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
+        for tstat in tstat_gen:
+            df = self._turbostat_to_df(tstat)
+            sdf = pandas.concat([sdf, df], ignore_index=True)
 
         return sdf
 
