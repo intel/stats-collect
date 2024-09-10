@@ -31,7 +31,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stname = "turbostat"
 
-    def _get_default_tab_cfg(self, metrics, smry_funcs, scope):
+    def _get_default_tab_cfg(self, metrics, smry_funcs, sname):
         """
         Helper function for 'get_default_tab_cfg()'. Get the default tab configuration which is
         populated with 'metrics', 'smry_funcs' and using the C-states in 'self._hw_cstates' and
@@ -52,7 +52,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add frequency-related D-tabs to a separate C-tab.
         freq_metrics = ["Bzy_MHz", "Avg_MHz"]
-        if scope == TurbostatDFBuilder.TOTALS_SCOPE:
+        if sname == TurbostatDFBuilder.TOTALS_SNAME:
             # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat'
             # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
             # UMHz1.0". So sort them into ascending order so that they are more intuitive.
@@ -61,7 +61,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add temperature/power-related D-tabs to a separate C-tab.
         tp_metrics = ["CorWatt", "CoreTmp"]
-        if scope == TurbostatDFBuilder.TOTALS_SCOPE:
+        if sname == TurbostatDFBuilder.TOTALS_SNAME:
             tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
         tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
 
@@ -75,14 +75,14 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add hardware C-state residency tabs to a separate C-tab.
         hw_cstates = ["Busy%"] + self._cstates["hardware"]["core"]
-        if scope == TurbostatDFBuilder.TOTALS_SCOPE:
+        if sname == TurbostatDFBuilder.TOTALS_SNAME:
             hw_cstates += self._cstates["hardware"]["module"] + self._cstates["hardware"]["package"]
         hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
 
         # Combine requeseted and hardware C-states into a single C-tab.
         cs_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
-        return TabConfig.CTabConfig(scope, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
+        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
 
     def get_default_tab_cfg(self):
         """
@@ -113,17 +113,17 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         categorised_metrics = {}
         for metric in metrics:
-            scope, _ = TurbostatDFBuilder.decode_colname(metric)
-            if not scope:
+            sname, _ = TurbostatDFBuilder.decode_colname(metric)
+            if not sname:
                 continue
-            if scope not in categorised_metrics:
-                categorised_metrics[scope] = {metric}
+            if sname not in categorised_metrics:
+                categorised_metrics[sname] = {metric}
             else:
-                categorised_metrics[scope].add(metric)
+                categorised_metrics[sname].add(metric)
 
         l2_tabs = []
-        for scope, scope_metrics in categorised_metrics.items():
-            l2_tabs.append(self._get_default_tab_cfg(scope_metrics, smry_funcs, scope))
+        for sname, scope_metrics in categorised_metrics.items():
+            l2_tabs.append(self._get_default_tab_cfg(scope_metrics, smry_funcs, sname))
 
         return TabConfig.CTabConfig(self.name, ctabs=l2_tabs)
 
