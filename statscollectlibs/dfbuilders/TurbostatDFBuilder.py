@@ -16,10 +16,10 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
 
-TOTALS_SCOPE = "Totals"
+TOTALS_SNAME = "Totals"
 
 def decode_colname(colname):
-    """Decode 'colname' into a tuple of (scope, rawname)."""
+    """Decode 'colname' into a tuple of (sname, rawname)."""
 
     split = colname.split("-")
     if len(split) == 1:
@@ -43,7 +43,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         encoded_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
         for rawname, value in tstat.items():
-            colprefix = TOTALS_SCOPE if totals else f"CPU{self._mcpu}"
+            colprefix = TOTALS_SNAME if totals else f"CPU{self._mcpu}"
             colname = f"{colprefix}-{rawname}"
             self.colnames[colname] = rawname
             encoded_tstat[colname] = value
