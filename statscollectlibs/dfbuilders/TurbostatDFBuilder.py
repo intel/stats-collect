@@ -133,8 +133,9 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         self._mcpu = mcpu
 
-        # Expose the mapping between "raw names" which are the names used in raw turbostat statistic
-        # files and "column names" which are the names used in the 'pandas.DataFrame'.
+        # Expose the mapping between "column names" which are the names used in the
+        # 'pandas.DataFrame' and "raw names" which are the names used in raw turbostat statistic
+        # files.
         self.colnames = {}
 
         super().__init__("Time")
