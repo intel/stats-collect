@@ -193,7 +193,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(str(cpunum) if cpunum else None)
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
-            self._colnames.update(dfbldr.colnames)
+            self._colnames.update(dfbldr.col2rawnames)
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         return dfs

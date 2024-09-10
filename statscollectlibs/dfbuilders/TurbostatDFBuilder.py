@@ -45,7 +45,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         for rawname, value in tstat.items():
             colprefix = TOTALS_SNAME if totals else f"CPU{self._mcpu}"
             colname = f"{colprefix}-{rawname}"
-            self.colnames[colname] = rawname
+            self.col2rawnames[colname] = rawname
             encoded_tstat[colname] = value
 
         return encoded_tstat
@@ -136,6 +136,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Expose the mapping between "column names" which are the names used in the
         # 'pandas.DataFrame' and "raw names" which are the names used in raw turbostat statistic
         # files.
-        self.colnames = {}
+        self.col2rawnames = {}
 
         super().__init__("Time")
