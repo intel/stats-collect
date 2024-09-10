@@ -103,9 +103,11 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         try:
             tstat_gen = TurbostatParser.TurbostatParser(path).next()
 
-            # Use the first turbostat snapshot to see which hardware and requestable C-states the
-            # platform under test has.
-            tstat = next(tstat_gen)
+            try:
+                # Try to read the first data point from raw statistics file.
+                tstat = next(tstat_gen)
+            except StopIteration:
+                raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
 
             # Initialise the stats 'pandas.DataFrame' ('sdf') with data from the first 'tstat'
             # dictionary.
