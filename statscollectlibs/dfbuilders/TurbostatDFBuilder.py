@@ -18,13 +18,16 @@ from statscollectlibs.parsers import TurbostatParser
 
 TOTALS_SNAME = "Totals"
 
-def decode_colname(colname):
-    """Decode 'colname' into a tuple of (sname, rawname)."""
+def get_col_scope(colname):
+    """
+    Return the scope name of 'colname', returns 'None' if 'colname' does not apply to a single
+    scope.
+    """
 
     split = colname.split("-")
     if len(split) == 1:
-        return None, split[0]
-    return split[0], split[1]
+        return None
+    return split[0]
 
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """

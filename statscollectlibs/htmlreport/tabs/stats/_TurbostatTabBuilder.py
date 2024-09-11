@@ -114,7 +114,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         categorised_metrics = {}
         for metric in metrics:
-            sname, _ = TurbostatDFBuilder.decode_colname(metric)
+            sname = TurbostatDFBuilder.get_col_scope(metric)
             if not sname:
                 continue
             if sname not in categorised_metrics:
