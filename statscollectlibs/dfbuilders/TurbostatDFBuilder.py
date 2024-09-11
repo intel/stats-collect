@@ -35,23 +35,23 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     statistics files.
     """
 
-    def _encode_tstat(self, tstat, totals=False):
+    def _add_tstat_scope(self, tstat, totals=False):
         """
-        Encode the keys of the 'tstat' dictionary so that the resultant 'pandas.DataFrame' can
-        contain data for totals data and one or more CPUs. Arguments are as follows:
-         * tstat - the dictionary containing the turbostat statistics which should be encoded.
-         * totals - a boolean indicating whether the 'tstat' dictionary contains totals data and
-                    should be encoded as such.
+        The 'tstat' dictionary contains the turbostat statistics for a particular scope (e.g. for
+        a specific CPU or a summary of the whole system). Add that scope to the keys in the
+        dictionary. Arguments are as follows:
+         * tstat - a dictionary containing the turbostat statistics.
+         * totals - a boolean indicating whether the 'tstat' dictionary contains totals data.
         """
 
-        encoded_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
+        renamed_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
         for rawname, value in tstat.items():
             colprefix = TOTALS_SNAME if totals else f"CPU{self._mcpu}"
             colname = f"{colprefix}-{rawname}"
             self.col2rawnames[colname] = rawname
-            encoded_tstat[colname] = value
+            renamed_tstat[colname] = value
 
-        return encoded_tstat
+        return renamed_tstat
 
     def _extract_totals(self, tstat):
         """Extract the 'totals' data from the 'tstat' dictionary."""
@@ -64,7 +64,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
         # column) as a percentage of TDP (from the turbostat header).
         totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdp) * 100.0
-        return self._encode_tstat(totals_tstat, totals=True)
+        return self._add_tstat_scope(totals_tstat, totals=True)
 
     def _extract_cpu(self, tstat):
         """
@@ -80,8 +80,8 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
                 # Include the package and core totals as for metrics which are not available at the
                 # CPU level.
-                return self._encode_tstat({**package["totals"], **core["totals"],
-                                           **core["cpus"][self._mcpu]})
+                return self._add_tstat_scope({**package["totals"], **core["totals"],
+                                              **core["cpus"][self._mcpu]})
 
         raise Error(f"no data for measured cpu '{self._mcpu}'")
 
