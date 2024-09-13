@@ -41,13 +41,14 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         def build_ctab_cfg(ctab_name, tab_metrics):
             """Helper function to build a C-tab config named 'ctab_name' for 'tab_metrics'."""
 
-            tab_metrics = [col for col, raw in self._colnames.items() if raw in tab_metrics]
+            tab_metrics = [col for col, raw in self._col2rawnames.items() if raw in tab_metrics]
             dtabs = []
-            for m in tab_metrics:
-                if m not in self._defs.info or m not in metrics:
+            for metric in tab_metrics:
+                if metric not in self._defs.info or metric not in metrics:
                     continue
-                dtabs.append(self._build_def_dtab_cfg(m, self._time_metric, smry_funcs,
-                                                      self._hover_defs, title=self._colnames[m]))
+                dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
+                                                self._hover_defs, title=self._col2rawnames[metric])
+                dtabs.append(dtab)
             return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
         # Add frequency-related D-tabs to a separate C-tab.
@@ -158,7 +159,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         for colname in all_colnames:
 
             try:
-                rawname = self._colnames[colname]
+                rawname = self._col2rawnames[colname]
             except KeyError:
                 continue
 
@@ -193,7 +194,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(str(cpunum) if cpunum else None)
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
-            self._colnames.update(dfbldr.col2rawnames)
+            self._col2rawnames.update(dfbldr.col2rawnames)
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         return dfs
@@ -222,14 +223,14 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Store a mapping between 'pandas.DataFrame' column names and the raw names used in the raw
         # turbostat statistics files.
-        self._colnames = {}
+        self._col2rawnames = {}
 
         dfs = self._load_dfs(rsts)
         all_cstates = self._parse_colnames(dfs)
         defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
-        for colname, rawname in self._colnames.items():
+        for colname, rawname in self._col2rawnames.items():
             if rawname not in self._defs.info:
                 continue
 
