@@ -5,10 +5,14 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix a regression introduced in v1.0.29 which meant HTML reports could not be
-   generated for results which were collected without the '--cpunum' option.
 ### Added
 ### Removed
+### Changed
+
+## [1.0.30] - 2024-09-16
+### Fixed
+ - Fix a regression introduced in v1.0.29 which meant HTML reports could not be
+   generated for results which were collected without the '--cpunum' option.
 ### Changed
  - By default, disable 'IRQ' turbostat data. This can be re-enabled by disabling
    the 'hide-irq' turbostat property in a stats-collect configuration file.

@@ -1,3 +1,12 @@
+stats-collect (1.0.30) unstable; urgency=low
+
+  * Fix a regression introduced in v1.0.29 which meant HTML reports could not be
+    generated for results which were collected without the '--cpunum' option.
+  * By default, disable 'IRQ' turbostat data. This can be re-enabled by disabling
+    the 'hide-irq' turbostat property in a stats-collect configuration file.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Mon, 16 Sep 2024 00:00:00 +0200
+
 stats-collect (1.0.29) unstable; urgency=low
 
   * Fix a regression introduced in v1.0.28 which meant that package C-state residency tabs with
