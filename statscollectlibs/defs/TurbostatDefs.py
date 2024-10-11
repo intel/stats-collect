@@ -70,18 +70,6 @@ class CoreCSDef(_CSTypeBase):
         """Returns the name of the C-state represented in 'metric'."""
         return metric[4:]
 
-class PackageCSDef(_CSTypeBase):
-    """This class represents the 'Package C-state' type of C-state."""
-
-    @staticmethod
-    def check_metric(metric):
-        """Checks if 'metric' represents the usage of a package C-state."""
-        return metric.startswith("Pkg%") or metric.startswith("Pk%")
-
-    def _get_cs_from_metric(self, metric):
-        """Returns the name of the C-state represented in 'metric'."""
-        return metric.split("%", 1)[-1]
-
 class ModuleCSDef(_CSTypeBase):
     """This class represents the 'Module C-state' type of C-state."""
 
@@ -93,6 +81,18 @@ class ModuleCSDef(_CSTypeBase):
     def _get_cs_from_metric(self, metric):
         """Returns the name of the C-state represented in 'metric'."""
         return metric[4:]
+
+class PackageCSDef(_CSTypeBase):
+    """This class represents the 'Package C-state' type of C-state."""
+
+    @staticmethod
+    def check_metric(metric):
+        """Checks if 'metric' represents the usage of a package C-state."""
+        return metric.startswith("Pkg%") or metric.startswith("Pk%")
+
+    def _get_cs_from_metric(self, metric):
+        """Returns the name of the C-state represented in 'metric'."""
+        return metric.split("%", 1)[-1]
 
 class UncoreFreqDef:
     """This class represents the 'Uncore Frequency' metric definition."""

@@ -143,8 +143,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             },
             "hardware": {
                 "core": [],
-                "package": [],
-                "module": []
+                "module": [],
+                "package": []
             }
         }
 
