@@ -71,8 +71,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             hw_cstates += self._cstates["hardware"]["module"] + self._cstates["hardware"]["package"]
         hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
 
-        # Combine requeseted and hardware C-states into a single C-tab.
-        cs_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
+        # Combine C-states into a single C-tab.
+        idle_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
         # Add temperature/power-related D-tabs to a separate C-tab.
         tp_metrics = ["CorWatt", "CoreTmp"]
@@ -83,7 +83,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Add miscellaneous D-tabs to a separate C-tab.
         misc_tab = build_ctab_cfg("Misc", ["IRQ", "SMI", "IPC"])
 
-        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, cs_tab, tmp_tab, misc_tab])
+        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, idle_tab, tmp_tab, misc_tab])
 
     def get_default_tab_cfg(self):
         """
@@ -150,14 +150,15 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Maintain the order that C-states appear in turbostat so that they are not jumbled.
         all_colnames = []
+        all_colnames_set = set()
         for df in dfs.values():
-            for column in df.columns:
-                if column not in all_colnames:
-                    all_colnames.append(column)
+            for colname in df.columns:
+                if colname not in all_colnames_set:
+                    all_colnames.append(colname)
+                    all_colnames_set.add(colname)
 
         all_cstates = []
         for colname in all_colnames:
-
             try:
                 rawname = self._col2rawnames[colname]
             except KeyError:
