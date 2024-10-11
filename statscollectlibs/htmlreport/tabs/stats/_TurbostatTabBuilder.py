@@ -128,12 +128,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=l2_tabs)
 
-    def _parse_colnames(self, dfs):
+    def _parse_colnames(self, colnames):
         """
-        Iterate through columns in 'dfs' to find common C-states and uncore frequency columns
-        present in all results and categorise them into the 'self._cstates' dictionary and
-        'self._uncfreq_defs' list respectively. Returns a list of all of the C-states with data in
-        one or more of 'dfs'.
+        Categorize C-states and uncore frequency columns into the 'self._cstates' dictionary and
+        'self._uncfreq_defs' list. Returns a list of all of the C-states with data in one or more of
+        'dfs'.
         """
 
         self._cstates = {
@@ -148,17 +147,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             }
         }
 
-        # Maintain the order that C-states appear in turbostat so that they are not jumbled.
-        all_colnames = []
-        all_colnames_set = set()
-        for df in dfs.values():
-            for colname in df.columns:
-                if colname not in all_colnames_set:
-                    all_colnames.append(colname)
-                    all_colnames_set.add(colname)
-
         all_cstates = []
-        for colname in all_colnames:
+        for colname in colnames:
             try:
                 rawname = self._col2rawnames[colname]
             except KeyError:
@@ -227,7 +217,18 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._col2rawnames = {}
 
         dfs = self._load_dfs(rsts)
-        all_cstates = self._parse_colnames(dfs)
+
+        # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
+        # order.
+        all_colnames = []
+        all_colnames_set = set()
+        for df in dfs.values():
+            for colname in df.columns:
+                if colname not in all_colnames_set:
+                    all_colnames.append(colname)
+                    all_colnames_set.add(colname)
+
+        all_cstates = self._parse_colnames(all_colnames)
         defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
