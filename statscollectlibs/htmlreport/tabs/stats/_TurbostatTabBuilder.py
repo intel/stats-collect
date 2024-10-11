@@ -60,15 +60,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
         freq_tab = build_ctab_cfg("Frequency", freq_metrics)
 
-        # Add temperature/power-related D-tabs to a separate C-tab.
-        tp_metrics = ["CorWatt", "CoreTmp"]
-        if sname == TurbostatDFBuilder.TOTALS_SNAME:
-            tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
-        tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
-
-        # Add miscellaneous D-tabs to a separate C-tab.
-        misc_tab = build_ctab_cfg("Misc", ["IRQ", "SMI", "IPC"])
-
         # Add requested C-state residency tabs to a separate C-tab.
         req_res_tab = build_ctab_cfg("Residency", self._cstates["requested"]["residency"])
         req_cnt_tab = build_ctab_cfg("Count", self._cstates["requested"]["count"])
@@ -83,7 +74,16 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Combine requeseted and hardware C-states into a single C-tab.
         cs_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
-        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, tmp_tab, misc_tab, cs_tab])
+        # Add temperature/power-related D-tabs to a separate C-tab.
+        tp_metrics = ["CorWatt", "CoreTmp"]
+        if sname == TurbostatDFBuilder.TOTALS_SNAME:
+            tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
+        tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
+
+        # Add miscellaneous D-tabs to a separate C-tab.
+        misc_tab = build_ctab_cfg("Misc", ["IRQ", "SMI", "IPC"])
+
+        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, cs_tab, tmp_tab, misc_tab])
 
     def get_default_tab_cfg(self):
         """
