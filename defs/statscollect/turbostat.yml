@@ -6,8 +6,9 @@
 Busy%:
     title: "Busy percent"
     descr: >-
-        The proportion of time spent in a busy state, as opposed to an idle state. In other words,
-        this is the C0 state residency. Retrieved from the "Busy%" turbostat column.
+        The proportion of time the CPU was busy executing instructions, as opposed to stying in an
+        idle state (not executing instructions). In other words, this is the C0 state residency.
+        Turbostat calculates it as (delta MPERF / delta TSC) * 100%.
     unit: "%"
     short_unit: "%"
 Bzy_MHz:
@@ -15,27 +16,27 @@ Bzy_MHz:
     descr: >-
         The average CPU frequency in C0 state (C0 state is the state when the CPU executes
         instructions, as opposed to an idle state, where the CPU does not execute instructions).
-        Retrieved from the "Bzy_MHz" turbostat column.
+        Turbostat calculates it as (delta APERF / delta MPERF) * 100%.
     unit: "megahertz"
     short_unit: "MHz"
 Avg_MHz:
     title: "Average frequency"
     descr: >-
-        The average CPU frequency. Includes both idle and non-idle periods. Retrieved from the
-        "Avg_MHz" turbostat column.
+        The average CPU frequency. Includes both idle and non-idle periods. Turbostat calculates it
+        as (delta APERF / delta TSC) * 100%.
     unit: "megahertz"
     short_unit: "MHz"
 UncMHz:
     title: "Uncore frequency"
     descr: >-
-        Instantaneous samples of the uncore frequency. Retrieved from the "UncMHz" turbostat column.
+        Instantaneous samples of the uncore frequency. Turbostat reads them from sysfs files at
+        '/sys/devices/system/cpu/intel_uncore_frequency/'.
     unit: "megahertz"
     short_unit: "MHz"
 CPU%cx:
     title: "CCx residency"
     descr: >-
-        The percentage of time spent in core Cx hardware C-state. Retrieved from the "CPU%cx"
-        turbostat column.
+        The percentage of time spent in core Cx hardware C-state.
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -43,8 +44,7 @@ CPU%cx:
 Mod%cx:
     title: "The MCx module C-state residency"
     descr: >-
-        The percentage of time spent in package PCx hardware C-state. Retrieved from the "Mod%cx"
-        turbostat column.
+        The percentage of time spent in package PCx hardware C-state.
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -52,8 +52,7 @@ Mod%cx:
 Pkg%pcx:
     title: "PCx residency"
     descr: >-
-        The percentage of time spent in package PCx hardware C-state. Retrieved from the "Pkg%pcx"
-        turbostat column.
+        The percentage of time spent in package PCx hardware C-state.
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -62,7 +61,7 @@ POLL%:
     title: "POLL requested percent"
     descr: >-
         The percentage of time spent in the POLL state. Note, this number does not come from the
-        hardware, it is calculated by the operating system. Retrieved from the "POLL%" turbostat
+        hardware, it is calculated by the operating system.
         column.
     type: "float"
     unit: "%"
@@ -72,15 +71,13 @@ Cx:
     title: "Cx requested count"
     descr: >-
         The number times Linux requested the Cx idle state during the measurement interval.
-        Retrieved from the "Cx" turbostat column.
     type: "float"
     drop_empty: True
 Cx%:
     title: "Cx requested percent"
     descr: >-
         The percentage of time spent in the Cx requestable C-state. Note, this number does not come
-        from the hardware, it is calculated by the operating system. Retrieved from the "Cx%"
-        turbostat column.
+        from the hardware, it is calculated by the operating system.
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -88,74 +85,69 @@ Cx%:
 CorWatt:
     title: "Core power"
     descr: >-
-        RAPL CPU core power. Retrieved from the "CorWatt" turbostat column.
+        RAPL CPU core power.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 PkgWatt:
-    title: "Package power"
+    title: "Package(s) power"
     descr: >-
-        RAPL package power. Retrieved from the "PkgWatt" turbostat column. Note that "PkgWatt"
-        provides per-package values. Therefore on multi-socket systems, the values for "PkgWatt"
-        are the sum of the values for all packages.
+        RAPL package(s) power. On multi-package systems, this is the sum of RAPL package power for
+        all packages.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 PkgWatt%TDP:
-    title: "Package power as percentage of TDP"
+    title: "Package(s) power as percentage of TDP"
     descr: >-
-        Package power as a percentage of TDP. RAPL package power is retrieved from the "PkgWatt"
-        turbostat column. TDP is retrieved from the turbostat header. Note that on multi-socket
-        systems, values for "TDP" and "PkgWatt" are the sum of the values for all packages.
+        RAPL package(s) power as a percentage of TDP. RAPL package power is retrieved from the
+        "PkgWatt" turbostat column. TDP is retrieved from the turbostat header. On multi-package
+        systems, the values for "TDP" and "PkgWatt" are the sum of the values for all packages.
     type: "float"
     unit: "%"
     short_unit: "%"
 GFXWatt:
     title: "Graphics power"
     descr: >-
-        RAPL graphics power. Retrieved from the "GFXWatt" turbostat column.
+        RAPL graphics power.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 RAMWatt:
     title: "RAM power"
     descr: >-
-        RAPL RAM power. Retrieved from the "RAMWatt" turbostat column.
+        RAPL RAM power.
     type: "float"
     unit: "Watt"
     short_unit: "W"
 CoreTmp:
     title: "Core temperature"
     descr: >-
-        Core temperature. Reported by the per-core Digital Thermal Sensor. Retrieved from the
-        "CoreTmp" turbostat column.
+        Core temperature. Reported by the per-core Digital Thermal Sensor.
     type: "float"
     unit: "degrees C"
     short_unit: "°C"
 PkgTmp:
     title: "Package temperature"
     descr: >-
-        Package temperature. Reported by the per-package Package Thermal Monitor. Retrieved from the
-        "PkgTmp" turbostat column.
+        Package temperature. Reported by the per-package Package Thermal Monitor.
     type: "float"
     unit: "degrees C"
     short_unit: "°C"
 IRQ:
     title: "Interrupts"
     descr: >-
-        The number of interrupts serviced by a CPU. Retrieved from the "IRQ" turbostat column.
+        The number of interrupts serviced by all CPUs.
     type: "int"
 SMI:
     title: "System management interrupts"
     descr: >-
-        The number of system management interrupts serviced by a CPU. Retrieved from the "SMI"
-        turbostat column.
+        The number of system management interrupts serviced by the system.
     type: "int"
 IPC:
     title: "Instructions per cycle"
     descr: >-
-        The number of instructions executed per-cycle by a CPU. Retrieved from the "IPC" turbostat
-        column.
+        The number of instructions executed per-cycle by a CPU.
     type: "int"
 Time:
     title: "Time Elapsed"
