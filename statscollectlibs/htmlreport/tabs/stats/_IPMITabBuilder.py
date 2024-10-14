@@ -14,7 +14,7 @@ import logging
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.defs import DefsBase, IPMIDefs
-from statscollectlibs.dfbuilders import IPMIDFBuilder
+from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
 _LOG = logging.getLogger()
@@ -114,7 +114,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         stnames = set()
         dfs = {}
-        self._dfbldr = IPMIDFBuilder.IPMIDFBuilder()
+        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
         self._hover_defs = {}
         for res in rsts:
             for stname in self.stnames:

@@ -11,7 +11,7 @@ Build and populate the turbostat statistics tab.
 """
 
 from statscollectlibs.defs import TurbostatDefs
-from statscollectlibs.dfbuilders import TurbostatDFBuilder
+from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
@@ -52,7 +52,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add frequency-related D-tabs to a separate C-tab.
         freq_metrics = ["Bzy_MHz", "Avg_MHz"]
-        if sname == TurbostatDFBuilder.TOTALS_SNAME:
+        if sname == _TurbostatDFBuilder.TOTALS_SNAME:
             freq_metrics += self._categories["uncore"]["frequency"]
         # Add uncore frequency tabs to the "Frequency" C-tab.
         freq_tab = build_ctab_cfg("Frequency", freq_metrics)
@@ -64,7 +64,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add hardware C-state residency tabs to a separate C-tab.
         hw_cstates = ["Busy%"] + self._categories["hardware"]["core"]
-        if sname == TurbostatDFBuilder.TOTALS_SNAME:
+        if sname == _TurbostatDFBuilder.TOTALS_SNAME:
             hw_cstates += self._categories["hardware"]["module"]
             hw_cstates += self._categories["hardware"]["package"]
         hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
@@ -74,7 +74,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add temperature/power-related D-tabs to a separate C-tab.
         tp_metrics = ["CorWatt", "CoreTmp"]
-        if sname == TurbostatDFBuilder.TOTALS_SNAME:
+        if sname == _TurbostatDFBuilder.TOTALS_SNAME:
             tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
         tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
 
@@ -112,7 +112,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         categorised_metrics = {}
         for metric in metrics:
-            sname = TurbostatDFBuilder.get_col_scope(metric)
+            sname = _TurbostatDFBuilder.get_col_scope(metric)
             if not sname:
                 continue
             if sname not in categorised_metrics:
@@ -182,7 +182,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         for res in tstat_rsts:
             cpunum = res.info.get("cpunum")
-            dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(cpunum=cpunum)
+            dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpunum=cpunum)
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
             self._col2rawnames.update(dfbldr.col2rawnames)

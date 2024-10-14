@@ -11,7 +11,7 @@ This module provides the capability of populating the AC Power statistics tab.
 """
 
 from statscollectlibs.defs import ACPowerDefs
-from statscollectlibs.dfbuilders import ACPowerDFBuilder
+from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 
 class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
@@ -56,7 +56,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._time_metric = "T"
 
         dfs = {}
-        dfbldr = ACPowerDFBuilder.ACPowerDFBuilder()
+        dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
         self._hover_defs = {}
         for res in rsts:
             if self.stname not in res.info["stinfo"]:
