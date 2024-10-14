@@ -53,21 +53,20 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Add frequency-related D-tabs to a separate C-tab.
         freq_metrics = ["Bzy_MHz", "Avg_MHz"]
         if sname == TurbostatDFBuilder.TOTALS_SNAME:
-            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'turbostat'
-            # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
-            # UMHz1.0". So sort them into ascending order so that they are more intuitive.
-            freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
+            freq_metrics += self._categories["uncore"]["frequency"]
+        # Add uncore frequency tabs to the "Frequency" C-tab.
         freq_tab = build_ctab_cfg("Frequency", freq_metrics)
 
         # Add requested C-state residency tabs to a separate C-tab.
-        req_res_tab = build_ctab_cfg("Residency", self._cstates["requested"]["residency"])
-        req_cnt_tab = build_ctab_cfg("Count", self._cstates["requested"]["count"])
+        req_res_tab = build_ctab_cfg("Residency", self._categories["requested"]["residency"])
+        req_cnt_tab = build_ctab_cfg("Count", self._categories["requested"]["count"])
         req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
 
         # Add hardware C-state residency tabs to a separate C-tab.
-        hw_cstates = ["Busy%"] + self._cstates["hardware"]["core"]
+        hw_cstates = ["Busy%"] + self._categories["hardware"]["core"]
         if sname == TurbostatDFBuilder.TOTALS_SNAME:
-            hw_cstates += self._cstates["hardware"]["module"] + self._cstates["hardware"]["package"]
+            hw_cstates += self._categories["hardware"]["module"]
+            hw_cstates += self._categories["hardware"]["package"]
         hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
 
         # Combine C-states into a single C-tab.
@@ -129,12 +128,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def _parse_colnames(self, colnames):
         """
-        Categorize C-states and uncore frequency columns into the 'self._cstates' dictionary and
-        'self._uncfreq_defs' list. Return a list of all of the C-states with data in one or more of
-        'dfs'.
+        Categorize C-states and uncore frequency columns into the 'self._categories' dictionary.
+        Return a list of all of the C-states with data in one or more of 'dfs'.
         """
 
-        self._cstates = {
+        self._categories = {
             "requested": {
                 "residency": [],
                 "count": []
@@ -143,6 +141,9 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 "core": [],
                 "module": [],
                 "package": []
+            },
+            "uncore": {
+                "frequency": []
             }
         }
 
@@ -154,22 +155,22 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 continue
 
             if TurbostatDefs.ReqCSDef.check_metric(rawname):
-                self._cstates["requested"]["residency"].append(rawname)
+                self._categories["requested"]["residency"].append(rawname)
                 all_cstates.append(TurbostatDefs.ReqCSDef(rawname).cstate)
             elif TurbostatDefs.ReqCSDefCount.check_metric(rawname):
-                self._cstates["requested"]["count"].append(rawname)
+                self._categories["requested"]["count"].append(rawname)
                 all_cstates.append(TurbostatDefs.ReqCSDefCount(rawname).cstate)
             elif TurbostatDefs.CoreCSDef.check_metric(rawname):
-                self._cstates["hardware"]["core"].append(rawname)
+                self._categories["hardware"]["core"].append(rawname)
                 all_cstates.append(TurbostatDefs.CoreCSDef(rawname).cstate)
             elif TurbostatDefs.ModuleCSDef.check_metric(rawname):
-                self._cstates["hardware"]["module"].append(rawname)
+                self._categories["hardware"]["module"].append(rawname)
                 all_cstates.append(TurbostatDefs.ModuleCSDef(rawname).cstate)
             elif TurbostatDefs.PackageCSDef.check_metric(rawname):
-                self._cstates["hardware"]["package"].append(rawname)
+                self._categories["hardware"]["package"].append(rawname)
                 all_cstates.append(TurbostatDefs.PackageCSDef(rawname).cstate)
             elif TurbostatDefs.UncoreFreqDef.check_metric(rawname):
-                self._uncfreq_defs.append(TurbostatDefs.UncoreFreqDef(rawname))
+                self._categories["uncore"]["frequency"].append(TurbostatDefs.UncoreFreqDef(rawname))
 
         return all_cstates
 
@@ -205,12 +206,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._time_metric = "Time"
         self._hover_defs = {}
 
-        # Store C-states for which there is data in each raw turbostat statistics file. Initialised
-        # in 'self._parse_colnames()'.
-        self._cstates = None
-
-        # Store metrics representing uncore frequency to update 'self._defs' accordingly.
-        self._uncfreq_defs = []
+        # Categories of turbostat metrics.
+        self._categories = None
 
         # Store a mapping between 'pandas.DataFrame' column names and the raw names used in the raw
         # turbostat statistics files.
@@ -229,7 +226,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                     all_colnames_set.add(colname)
 
         all_cstates = self._parse_colnames(all_colnames)
-        defs = TurbostatDefs.TurbostatDefs(all_cstates, self._uncfreq_defs)
+        defs = TurbostatDefs.TurbostatDefs(all_cstates, self._categories["uncore"]["frequency"])
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
         for colname, rawname in self._col2rawnames.items():
