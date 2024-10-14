@@ -129,7 +129,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     def _parse_colnames(self, colnames):
         """
         Categorize C-states and uncore frequency columns into the 'self._categories' dictionary.
-        Return a list of all of the C-states with data in one or more of 'dfs'.
         """
 
         self._categories = {
@@ -170,9 +169,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 self._categories["hardware"]["package"].append(rawname)
                 all_cstates.append(TurbostatDefs.PackageCSDef(rawname).cstate)
             elif TurbostatDefs.UncoreFreqDef.check_metric(rawname):
-                self._categories["uncore"]["frequency"].append(TurbostatDefs.UncoreFreqDef(rawname))
-
-        return all_cstates
+                self._categories["uncore"]["frequency"].append(rawname)
 
     def _load_dfs(self, rsts):
         """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
@@ -225,8 +222,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                     all_colnames.append(colname)
                     all_colnames_set.add(colname)
 
-        all_cstates = self._parse_colnames(all_colnames)
-        defs = TurbostatDefs.TurbostatDefs(all_cstates, self._categories["uncore"]["frequency"])
+        self._parse_colnames(all_colnames)
+        defs = TurbostatDefs.TurbostatDefs(self._categories)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
         for colname, rawname in self._col2rawnames.items():

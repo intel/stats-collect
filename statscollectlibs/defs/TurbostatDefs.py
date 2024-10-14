@@ -121,28 +121,43 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
                 mdef["descr"] = f"{mdef['descr']} Calculated by finding the {method} of " \
                                 f"\"{mdef['name']}\" across the system."
 
-    def __init__(self, cstates, uncfreq_defs=None):
+    def __init__(self, categories):
         """
-        The class constructor. Arguments are as follows:
-         * cstates - a list of C-states parsed from raw turbostat statistic files.
-         * uncfreq_defs - a list of 'UncoreFreqDef' instances representing uncore frequency metrics
-                          from raw turbostat statistic files.
+        The class constructor. The arguments are as follows:
+         * categories - a dictionary describing turbostat metrics categories.
         """
-
-        uncfreq_defs = [] if uncfreq_defs is None else [udef.metric for udef in uncfreq_defs]
 
         super().__init__("turbostat")
 
-        # The "POLL" state has its own definition so does not need to be mangled into the template
-        # C-state definitions.
-        if "POLL" in cstates:
-            cstates.remove("POLL")
+        cstates = []
+        for metric in categories["hardware"]["core"]:
+            if CoreCSDef.check_metric(metric):
+                cstates.append(CoreCSDef(metric).cstate)
+        for metric in categories["hardware"]["module"]:
+            if ModuleCSDef.check_metric(metric):
+                cstates.append(ModuleCSDef(metric).cstate)
+        for metric in categories["hardware"]["package"]:
+            if PackageCSDef.check_metric(metric):
+                cstates.append(PackageCSDef(metric).cstate)
+        for metric in categories["requested"]["residency"]:
+            if ReqCSDef.check_metric(metric):
+                cstates.append(ReqCSDef(metric).cstate)
 
-        placeholders = [{"placeholder": "PCx", "values": cstates, "casesensitive" : False},
-                        {"placeholder": "Cx", "values": cstates, "casesensitive" : False},
-                        {"placeholder": "UncMHz", "values": uncfreq_defs, "casesensitive" : True}]
-        # For package C-states with a name longer than 7 characters, 'turbostat' shortens the
-        # column from 'Pkg%pcX' to 'Pk%pcX'. We should mangle the metric definitions to account for
-        # this.
-        placeholders.append({"placeholder": "Pkg", "values": ["Pkg", "Pk"], "casesensitive" : True})
+        placeholders = [{"placeholder": "PCx",
+                         "values": cstates,
+                         "casesensitive" : False},
+                        {"placeholder": "Cx",
+                         "values": cstates,
+                         "casesensitive" : False},
+                        {"placeholder": "UncMHz",
+                         "values": cstates,
+                         "casesensitive" : True},
+                        # For package C-states with a name longer than 7 characters, 'turbostat'
+                        # shortens the column from 'Pkg%pcX' to 'Pk%pcX'. We should mangle the
+                        # metric definitions to account for # this.
+                        {"placeholder": "Pkg",
+                         "values": ["Pkg", "Pk"],
+                         "casesensitive": True}
+                        ]
+
         self._mangle_placeholders(placeholders)
