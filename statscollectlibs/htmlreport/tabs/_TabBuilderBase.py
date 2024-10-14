@@ -173,7 +173,7 @@ class TabBuilderBase:
             try:
                 sub_tabs.append(self._build_dtab(outdir, dtabconfig))
             except Error as err:
-                _LOG.info("Skipping '%s' tab in '%s' tab: error occured during tab generation.",
+                _LOG.info("Skipping '%s' tab in '%s' tab: error occurred during tab generation.",
                           dtabconfig.name, self.name)
                 _LOG.debug(err)
 
@@ -216,7 +216,7 @@ class TabBuilderBase:
         if isinstance(tab_cfg, TabConfig.DTabConfig):
             return self._build_dtab(self._outdir, tab_cfg)
 
-        raise Error(f"unkown tab configuration type '{type(tab_cfg)}, please provide "
+        raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
                     f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
 
     def __init__(self, dfs, outdir, basedir=None, defs=None):

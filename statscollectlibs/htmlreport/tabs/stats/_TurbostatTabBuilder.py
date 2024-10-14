@@ -7,7 +7,7 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of populating the turbostat statistics tab.
+Build and populate the turbostat statistics tab.
 """
 
 from statscollectlibs.defs import TurbostatDefs
@@ -16,14 +16,14 @@ from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """
-    This class provides the capability of populating the turbostat statistics tab.
+    Build and populate the turbostat statistics tab.
 
     Public methods overview:
     1. Optionally, retrieve the default 'TabConfig.CTabConfig' instance. See 'TabConfig' for more
        information on tab configurations.
        * 'get_default_tab_cfg()'
     2. Generate a '_Tabs.CTabDC' instance containing turbostat level 2 tabs. Optionally provide a
-       tab configuration as a 'CTabConfig' to customise the tab. This can be based on the default
+       tab configuration as a 'CTabConfig' to customize the tab. This can be based on the default
        configuration retrieved using 'get_default_tab_cfg()'.
        * 'get_tab()'
     """
@@ -33,13 +33,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def _get_default_tab_cfg(self, metrics, smry_funcs, sname):
         """
-        Helper function for 'get_default_tab_cfg()'. Get the default tab configuration which is
-        populated with 'metrics', 'smry_funcs' and using the C-states in 'self._hw_cstates' and
-        'self._req_cstates'.
+        Get the default tab configuration which is populated with 'metrics', 'smry_funcs' and using
+        the C-states in 'self._hw_cstates' and 'self._req_cstates'.
         """
 
         def build_ctab_cfg(ctab_name, tab_metrics):
-            """Helper function to build a C-tab config named 'ctab_name' for 'tab_metrics'."""
+            """Build a C-tab config named 'ctab_name' for 'tab_metrics'."""
 
             tab_metrics = [col for col, raw in self._col2rawnames.items() if raw in tab_metrics]
             dtabs = []
@@ -54,7 +53,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Add frequency-related D-tabs to a separate C-tab.
         freq_metrics = ["Bzy_MHz", "Avg_MHz"]
         if sname == TurbostatDFBuilder.TOTALS_SNAME:
-            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'tubostat'
+            # Add uncore frequency tabs to the "Frequency" C-tab. Some versions of 'turbostat'
             # display uncore frequencies in descending order of domain ID, e.g. "UMHz3.0 UMHz2.0
             # UMHz1.0". So sort them into ascending order so that they are more intuitive.
             freq_metrics += sorted(udef.metric for udef in self._uncfreq_defs)
@@ -87,11 +86,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def get_default_tab_cfg(self):
         """
-        Returns a 'TabConfig.CTabConfig' instance, titled 'self.name', containing tab configurations
-        which represent different metrics within raw turbostat statistic files.
+        Build and return a 'TabConfig.CTabConfig' instance, titled 'self.name', containing tab
+        configurations which represent different metrics within raw turbostat statistic files.
 
-        Note that the hierarchy of the tabs will will only include turbostat metrics which are
-        common to all results.
+        The hierarchy of the tabs will will only include turbostat metrics which are common to all
+        results.
 
         See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
@@ -131,7 +130,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     def _parse_colnames(self, colnames):
         """
         Categorize C-states and uncore frequency columns into the 'self._cstates' dictionary and
-        'self._uncfreq_defs' list. Returns a list of all of the C-states with data in one or more of
+        'self._uncfreq_defs' list. Return a list of all of the C-states with data in one or more of
         'dfs'.
         """
 
@@ -192,13 +191,14 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def __init__(self, rsts, outdir, basedir=None):
         """
-        The class constructor. Adding a turbostat statistics container tab will create a "Turbostat"
-        sub-directory and store level 2 tabs inside it. Level 2 tabs will represent metrics stored
-        in the raw turbostat statistics file using data tabs.
+        The class constructor. Add a turbostat statistics container tab, which will create a
+        "Turbostat" sub-directory and store level 2 tabs inside it. Level 2 tabs will represent
+        metrics stored in the raw turbostat statistics file using data tabs.
 
-        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
-         * rsts - a list of 'RORawResult' instances for different results with statistics which
-                  should be included in the turbostat tabs.
+        The arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the
+        following:
+          * rsts - a collection of 'RORawResult' instances for different results with statistics
+                   which should be included in the turbostat tabs.
         """
 
         outdir = outdir / self.name
