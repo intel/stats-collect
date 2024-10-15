@@ -45,10 +45,10 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         renamed_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
-        for rawname, value in tstat.items():
+        for metric, value in tstat.items():
             colprefix = TOTALS_SNAME if totals else f"CPU{self.cpunum}"
-            colname = f"{colprefix}-{rawname}"
-            self.col2rawnames[colname] = rawname
+            colname = f"{colprefix}-{metric}"
+            self.col2metric[colname] = metric
             renamed_tstat[colname] = value
 
         return renamed_tstat
@@ -134,9 +134,8 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         self.cpunum = cpunum
 
-        # Expose the mapping between "column names" which are the names used in the
-        # 'pandas.DataFrame' and "raw names" which are the names used in raw turbostat statistic
-        # files.
-        self.col2rawnames = {}
+        # A dictionary mapping 'pandas.DataFrame' column names (built by 'load_df()') to the
+        # corresponding turbostat metric name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
+        self.col2metric = {}
 
         super().__init__("Time")

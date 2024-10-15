@@ -40,13 +40,13 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         def build_ctab_cfg(ctab_name, tab_metrics):
             """Build a C-tab config named 'ctab_name' for 'tab_metrics'."""
 
-            tab_metrics = [col for col, raw in self._col2rawnames.items() if raw in tab_metrics]
+            tab_metrics = [col for col, raw in self._col2metric.items() if raw in tab_metrics]
             dtabs = []
             for metric in tab_metrics:
                 if metric not in self._defs.info or metric not in metrics:
                     continue
                 dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
-                                                self._hover_defs, title=self._col2rawnames[metric])
+                                                self._hover_defs, title=self._col2metric[metric])
                 dtabs.append(dtab)
             return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
@@ -149,27 +149,27 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         all_cstates = []
         for colname in colnames:
             try:
-                rawname = self._col2rawnames[colname]
+                metric = self._col2metric[colname]
             except KeyError:
                 continue
 
-            if TurbostatDefs.ReqCSDef.check_metric(rawname):
-                self._categories["requested"]["residency"].append(rawname)
-                all_cstates.append(TurbostatDefs.ReqCSDef(rawname).cstate)
-            elif TurbostatDefs.ReqCSDefCount.check_metric(rawname):
-                self._categories["requested"]["count"].append(rawname)
-                all_cstates.append(TurbostatDefs.ReqCSDefCount(rawname).cstate)
-            elif TurbostatDefs.CoreCSDef.check_metric(rawname):
-                self._categories["hardware"]["core"].append(rawname)
-                all_cstates.append(TurbostatDefs.CoreCSDef(rawname).cstate)
-            elif TurbostatDefs.ModuleCSDef.check_metric(rawname):
-                self._categories["hardware"]["module"].append(rawname)
-                all_cstates.append(TurbostatDefs.ModuleCSDef(rawname).cstate)
-            elif TurbostatDefs.PackageCSDef.check_metric(rawname):
-                self._categories["hardware"]["package"].append(rawname)
-                all_cstates.append(TurbostatDefs.PackageCSDef(rawname).cstate)
-            elif TurbostatDefs.UncoreFreqDef.check_metric(rawname):
-                self._categories["uncore"]["frequency"].append(rawname)
+            if TurbostatDefs.ReqCSDef.check_metric(metric):
+                self._categories["requested"]["residency"].append(metric)
+                all_cstates.append(TurbostatDefs.ReqCSDef(metric).cstate)
+            elif TurbostatDefs.ReqCSDefCount.check_metric(metric):
+                self._categories["requested"]["count"].append(metric)
+                all_cstates.append(TurbostatDefs.ReqCSDefCount(metric).cstate)
+            elif TurbostatDefs.CoreCSDef.check_metric(metric):
+                self._categories["hardware"]["core"].append(metric)
+                all_cstates.append(TurbostatDefs.CoreCSDef(metric).cstate)
+            elif TurbostatDefs.ModuleCSDef.check_metric(metric):
+                self._categories["hardware"]["module"].append(metric)
+                all_cstates.append(TurbostatDefs.ModuleCSDef(metric).cstate)
+            elif TurbostatDefs.PackageCSDef.check_metric(metric):
+                self._categories["hardware"]["package"].append(metric)
+                all_cstates.append(TurbostatDefs.PackageCSDef(metric).cstate)
+            elif TurbostatDefs.UncoreFreqDef.check_metric(metric):
+                self._categories["uncore"]["frequency"].append(metric)
 
     def _load_dfs(self, rsts):
         """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
@@ -182,7 +182,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpunum=cpunum)
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
-            self._col2rawnames.update(dfbldr.col2rawnames)
+            self._col2metric.update(dfbldr.col2metric)
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         return dfs
@@ -206,9 +206,9 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Categories of turbostat metrics.
         self._categories = None
 
-        # Store a mapping between 'pandas.DataFrame' column names and the raw names used in the raw
-        # turbostat statistics files.
-        self._col2rawnames = {}
+        # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
+        # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
+        self._col2metric = {}
 
         dfs = self._load_dfs(rsts)
 
@@ -226,9 +226,9 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         defs = TurbostatDefs.TurbostatDefs(self._categories)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
-        for colname, rawname in self._col2rawnames.items():
-            if rawname not in self._defs.info:
+        for colname, metric in self._col2metric.items():
+            if metric not in self._defs.info:
                 continue
 
-            self._defs.info[colname] = self._defs.info[rawname].copy()
+            self._defs.info[colname] = self._defs.info[metric].copy()
             self._defs.info[colname]["name"] = colname
