@@ -1,6 +1,13 @@
+stats-collect (1.0.32) unstable; urgency=low
+
+  * Minor cleanups, no real functional changes.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 15 Oct 2024 00:00:00 +0200
+
 stats-collect (1.0.31) unstable; urgency=low
 
-
+  * Fix a regression introduced in v1.0.30  * the turbostat HTML tab for the
+    measured CPU was removed  * bring it back.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 15 Oct 2024 00:00:00 +0200
 
@@ -8,15 +15,17 @@ stats-collect (1.0.30) unstable; urgency=low
 
   * Fix a regression introduced in v1.0.29 which meant HTML reports could not be
     generated for results which were collected without the '--cpunum' option.
-  * By default, disable 'IRQ' turbostat data. This can be re-enabled by disabling
-    the 'hide-irq' turbostat property in a stats-collect configuration file.
+  * By default, disable 'IRQ' turbostat data. This can be re-enabled by
+    disabling the 'hide-irq' turbostat property in a stats-collect configuration
+    file.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Mon, 16 Sep 2024 00:00:00 +0200
 
 stats-collect (1.0.29) unstable; urgency=low
 
-  * Fix a regression introduced in v1.0.28 which meant that package C-state residency tabs with
-    shorter names (e.g. PC1) are excluded from the turbostat tab in HTML reports.
+  * Fix a regression introduced in v1.0.28 which meant that package C-state
+    residency tabs with shorter names (e.g. PC1) are excluded from the turbostat
+    tab in HTML reports.
   * Fix an issue where metric descriptions in "Turbostat Totals" tabs contained
     duplicate sentences.
 
@@ -24,10 +33,11 @@ stats-collect (1.0.29) unstable; urgency=low
 
 stats-collect (1.0.28) unstable; urgency=low
 
-  * Fix support for package C-state residencies with longer names in HTML report turbostat hardware
-    C-state tabs. For example, the package C-state residency for 'PC10' will now be included in the
-    hardware C-state tabs.
-  * Fix HTML report generation crashing when turbostat files contain one or more "(neg)" values.
+  * Fix support for package C-state residencies with longer names in HTML report
+    turbostat hardware C-state tabs. For example, the package C-state residency
+    for 'PC10' will now be included in the hardware C-state tabs.
+  * Fix HTML report generation crashing when turbostat files contain one or more
+    "(neg)" values.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 07 Aug 2024 00:00:00 +0200
 
@@ -74,17 +84,17 @@ stats-collect (1.0.24) unstable; urgency=low
 
 stats-collect (1.0.23) unstable; urgency=low
 
-  * Fix 'stats-collect report' populating totals turbostat tabs with measured CPU
-    data since v1.0.4.
+  * Fix 'stats-collect report' populating totals turbostat tabs with measured
+    CPU data since v1.0.4.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Thu, 25 Apr 2024 00:00:00 +0200
 
 stats-collect (1.0.22) unstable; urgency=low
 
-  * Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize and diff generation
-    times.
-  * Remove 'usage', 'time', 'above' and 'below' from 'SysInfo' 'cpuidle' files to reduce filesize and
-    diff generation times.
+  * Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize
+    and diff generation times.
+  * Remove 'usage', 'time', 'above' and 'below' from 'SysInfo' 'cpuidle' files
+    to reduce filesize and diff generation times.
   * Fix 'pandas' dependency version to '>2.1.0' to avoid 'FutureWarning'
     appearing during HTML report generation.
 
@@ -99,18 +109,20 @@ stats-collect (1.0.21) unstable; urgency=low
 
 stats-collect (1.0.20) unstable; urgency=low
 
-  * Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in addition to existing
-    turbostat data collection).
+  * Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in
+    addition to existing turbostat data collection).
   * Removed time-stamps from 'dmesg' SysInfo files.
-  * Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in HTML reports instead of
-    longer data which was collected without specifying a CPU.
+  * Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in
+    HTML reports instead of longer data which was collected without specifying a
+    CPU.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 22 Dec 2023 00:00:00 +0200
 
 stats-collect (1.0.19) unstable; urgency=low
 
   * Fix the order of turbostat hardware C-state tabs in HTML reports.
-  * Add a link to the report generation log in the report info panel of HTML reports.
+  * Add a link to the report generation log in the report info panel of HTML
+    reports.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 24 Nov 2023 00:00:00 +0200
 
