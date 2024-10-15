@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Minor cleanups, no real functional changes.
 
 ## [1.0.31] - 2024-10-15
  - Fix a regression introduced in v1.0.30 - the turbostat HTML tab for the
