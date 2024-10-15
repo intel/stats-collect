@@ -11,6 +11,8 @@ Busy%:
         Turbostat calculates it as (delta MPERF / delta TSC) * 100%.
     unit: "%"
     short_unit: "%"
+    # This metric represents C0 residency, so categorized as a C-state.
+    categories: ["C-state", "Hardware"]
 Bzy_MHz:
     title: "Busy frequency"
     descr: >-
@@ -19,6 +21,7 @@ Bzy_MHz:
         Turbostat calculates it as (delta APERF / delta MPERF) * 100%.
     unit: "megahertz"
     short_unit: "MHz"
+    categories: ["Frequency", "CPU"]
 Avg_MHz:
     title: "Average frequency"
     descr: >-
@@ -26,6 +29,7 @@ Avg_MHz:
         as (delta APERF / delta TSC) * 100%.
     unit: "megahertz"
     short_unit: "MHz"
+    categories: ["Frequency", "CPU"]
 UncMHz:
     title: "Uncore frequency"
     descr: >-
@@ -33,6 +37,7 @@ UncMHz:
         '/sys/devices/system/cpu/intel_uncore_frequency/'.
     unit: "megahertz"
     short_unit: "MHz"
+    categories: ["Frequency", "Uncore"]
 CPU%cx:
     title: "CCx residency"
     descr: >-
@@ -40,6 +45,7 @@ CPU%cx:
     type: "float"
     unit: "%"
     short_unit: "%"
+    categories: ["C-state", "Hardware"]
 Mod%cx:
     title: "The MCx module C-state residency"
     descr: >-
@@ -47,6 +53,7 @@ Mod%cx:
     type: "float"
     unit: "%"
     short_unit: "%"
+    categories: ["C-state", "Hardware"]
 Pkg%pcx:
     title: "PCx residency"
     descr: >-
@@ -54,6 +61,7 @@ Pkg%pcx:
     type: "float"
     unit: "%"
     short_unit: "%"
+    categories: ["C-state", "Hardware"]
 POLL%:
     title: "POLL requested percent"
     descr: >-
@@ -63,11 +71,13 @@ POLL%:
     type: "float"
     unit: "%"
     short_unit: "%"
+    categories: ["C-state", "Requested"]
 Cx:
     title: "Cx requested count"
     descr: >-
         The number times Linux requested the Cx idle state during the measurement interval.
     type: "float"
+    categories: ["C-state", "Requested"]
 Cx%:
     title: "Cx requested percent"
     descr: >-
@@ -76,6 +86,7 @@ Cx%:
     type: "float"
     unit: "%"
     short_unit: "%"
+    categories: ["C-state", "Requested"]
 CorWatt:
     title: "Core power"
     descr: >-
@@ -83,6 +94,7 @@ CorWatt:
     type: "float"
     unit: "Watt"
     short_unit: "W"
+    categories: ["Power"]
 PkgWatt:
     title: "Package(s) power"
     descr: >-
@@ -91,6 +103,7 @@ PkgWatt:
     type: "float"
     unit: "Watt"
     short_unit: "W"
+    categories: ["Power"]
 PkgWatt%TDP:
     title: "Package(s) power as percentage of TDP"
     descr: >-
@@ -100,6 +113,7 @@ PkgWatt%TDP:
     type: "float"
     unit: "%"
     short_unit: "%"
+    categories: ["Power"]
 GFXWatt:
     title: "Graphics power"
     descr: >-
@@ -107,6 +121,7 @@ GFXWatt:
     type: "float"
     unit: "Watt"
     short_unit: "W"
+    categories: ["Power"]
 RAMWatt:
     title: "RAM power"
     descr: >-
@@ -114,6 +129,7 @@ RAMWatt:
     type: "float"
     unit: "Watt"
     short_unit: "W"
+    categories: ["Power"]
 CoreTmp:
     title: "Core temperature"
     descr: >-
@@ -121,6 +137,7 @@ CoreTmp:
     type: "float"
     unit: "degrees C"
     short_unit: "°C"
+    categories: ["Temperature"]
 PkgTmp:
     title: "Package temperature"
     descr: >-
@@ -128,21 +145,25 @@ PkgTmp:
     type: "float"
     unit: "degrees C"
     short_unit: "°C"
+    categories: ["Temperature"]
 IRQ:
     title: "Interrupts"
     descr: >-
         The number of interrupts serviced by all CPUs.
     type: "int"
+    categories: ["Interrupts"]
 SMI:
     title: "System management interrupts"
     descr: >-
         The number of system management interrupts serviced by the system.
     type: "int"
+    categories: ["Interrupts"]
 IPC:
     title: "Instructions per cycle"
     descr: >-
         The number of instructions executed per-cycle by a CPU.
     type: "int"
+    categories: ["Instructions"]
 Time:
     title: "Time Elapsed"
     descr: >-
