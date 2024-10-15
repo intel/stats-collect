@@ -40,7 +40,6 @@ CPU%cx:
     type: "float"
     unit: "%"
     short_unit: "%"
-    drop_empty: True
 Mod%cx:
     title: "The MCx module C-state residency"
     descr: >-
@@ -48,7 +47,6 @@ Mod%cx:
     type: "float"
     unit: "%"
     short_unit: "%"
-    drop_empty: True
 Pkg%pcx:
     title: "PCx residency"
     descr: >-
@@ -56,7 +54,6 @@ Pkg%pcx:
     type: "float"
     unit: "%"
     short_unit: "%"
-    drop_empty: True
 POLL%:
     title: "POLL requested percent"
     descr: >-
@@ -66,13 +63,11 @@ POLL%:
     type: "float"
     unit: "%"
     short_unit: "%"
-    drop_empty: True
 Cx:
     title: "Cx requested count"
     descr: >-
         The number times Linux requested the Cx idle state during the measurement interval.
     type: "float"
-    drop_empty: True
 Cx%:
     title: "Cx requested percent"
     descr: >-
@@ -81,7 +76,6 @@ Cx%:
     type: "float"
     unit: "%"
     short_unit: "%"
-    drop_empty: True
 CorWatt:
     title: "Core power"
     descr: >-
