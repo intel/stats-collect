@@ -126,9 +126,9 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=l2_tabs)
 
-    def _parse_colnames(self, colnames):
+    def _categorize_metrics(self, metrics):
         """
-        Categorize C-states and uncore frequency columns into the 'self._categories' dictionary.
+        Categorize C-states and uncore frequency metrics into the 'self._categories' dictionary.
         """
 
         self._categories = {
@@ -146,28 +146,17 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             }
         }
 
-        all_cstates = []
-        for colname in colnames:
-            try:
-                metric = self._col2metric[colname]
-            except KeyError:
-                continue
-
+        for metric in metrics:
             if TurbostatDefs.ReqCSDef.check_metric(metric):
                 self._categories["requested"]["residency"].append(metric)
-                all_cstates.append(TurbostatDefs.ReqCSDef(metric).cstate)
             elif TurbostatDefs.ReqCSDefCount.check_metric(metric):
                 self._categories["requested"]["count"].append(metric)
-                all_cstates.append(TurbostatDefs.ReqCSDefCount(metric).cstate)
             elif TurbostatDefs.CoreCSDef.check_metric(metric):
                 self._categories["hardware"]["core"].append(metric)
-                all_cstates.append(TurbostatDefs.CoreCSDef(metric).cstate)
             elif TurbostatDefs.ModuleCSDef.check_metric(metric):
                 self._categories["hardware"]["module"].append(metric)
-                all_cstates.append(TurbostatDefs.ModuleCSDef(metric).cstate)
             elif TurbostatDefs.PackageCSDef.check_metric(metric):
                 self._categories["hardware"]["package"].append(metric)
-                all_cstates.append(TurbostatDefs.PackageCSDef(metric).cstate)
             elif TurbostatDefs.UncoreFreqDef.check_metric(metric):
                 self._categories["uncore"]["frequency"].append(metric)
 
@@ -214,15 +203,14 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
         # order.
-        all_colnames = []
-        all_colnames_set = set()
-        for df in dfs.values():
-            for colname in df.columns:
-                if colname not in all_colnames_set:
-                    all_colnames.append(colname)
-                    all_colnames_set.add(colname)
+        metrics = []
+        metrics_set = set()
+        for metric in self._col2metric.values():
+            if metric not in metrics_set:
+                metrics.append(metric)
+                metrics_set.add(metric)
 
-        self._parse_colnames(all_colnames)
+        self._categorize_metrics(metrics)
         defs = TurbostatDefs.TurbostatDefs(self._categories)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
