@@ -10,28 +10,33 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Changed
 
 ## [1.0.31] - 2024-10-15
+ - Fix a regression introduced in v1.0.30 - the turbostat HTML tab for the
+   measured CPU was removed - bring it back.
 
 ## [1.0.30] - 2024-09-16
 ### Fixed
  - Fix a regression introduced in v1.0.29 which meant HTML reports could not be
    generated for results which were collected without the '--cpunum' option.
 ### Changed
- - By default, disable 'IRQ' turbostat data. This can be re-enabled by disabling
-   the 'hide-irq' turbostat property in a stats-collect configuration file.
+ - By default, disable 'IRQ' turbostat data. This can be re-enabled by
+   disabling the 'hide-irq' turbostat property in a stats-collect configuration
+   file.
 
 ## [1.0.29] - 2024-08-16
 ### Fixed
- - Fix a regression introduced in v1.0.28 which meant that package C-state residency tabs with
-   shorter names (e.g. PC1) are excluded from the turbostat tab in HTML reports.
+ - Fix a regression introduced in v1.0.28 which meant that package C-state
+   residency tabs with shorter names (e.g. PC1) are excluded from the turbostat
+   tab in HTML reports.
  - Fix an issue where metric descriptions in "Turbostat Totals" tabs contained
    duplicate sentences.
 
 ## [1.0.28] - 2024-08-07
 ### Fixed
- - Fix support for package C-state residencies with longer names in HTML report turbostat hardware
-   C-state tabs. For example, the package C-state residency for 'PC10' will now be included in the
-   hardware C-state tabs.
- - Fix HTML report generation crashing when turbostat files contain one or more "(neg)" values.
+ - Fix support for package C-state residencies with longer names in HTML report
+   turbostat hardware C-state tabs. For example, the package C-state residency
+   for 'PC10' will now be included in the hardware C-state tabs.
+ - Fix HTML report generation crashing when turbostat files contain one or more
+   "(neg)" values.
 
 ## [1.0.27] - 2024-07-23
 ### Fixed
@@ -71,15 +76,15 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [1.0.23] - 2024-04-25
 ### Fixed
- - Fix 'stats-collect report' populating totals turbostat tabs with measured CPU
-   data since v1.0.4.
+ - Fix 'stats-collect report' populating totals turbostat tabs with measured
+   CPU data since v1.0.4.
 
 ## [1.0.22] - 2024-03-08
 ### Removed
- - Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize and diff generation
-   times.
- - Remove 'usage', 'time', 'above' and 'below' from 'SysInfo' 'cpuidle' files to reduce filesize and
-   diff generation times.
+ - Remove 'scaling_cur_freq' from 'SysInfo' 'cpufreq' files to reduce filesize
+   and diff generation times.
+ - Remove 'usage', 'time', 'above' and 'below' from 'SysInfo' 'cpuidle' files
+   to reduce filesize and diff generation times.
 ### Changed
  - Fix 'pandas' dependency version to '>2.1.0' to avoid 'FutureWarning'
    appearing during HTML report generation.
@@ -91,19 +96,21 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [1.0.20] - 2023-12-22
 ### Added
- - Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in addition to existing
-   turbostat data collection).
+ - Add summarised turbostat data for CPU 0, as a part of SysInfo statistics (in
+   addition to existing turbostat data collection).
 ### Removed
  - Removed time-stamps from 'dmesg' SysInfo files.
 ### Changed
- - Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in HTML reports instead of
-   longer data which was collected without specifying a CPU.
+ - Show summarised turbostat data for CPU 0 in the turbostat SysInfo tab in
+   HTML reports instead of longer data which was collected without specifying a
+   CPU.
 
 ## [1.0.19] - 2023-11-24
 ### Fixed
  - Fix the order of turbostat hardware C-state tabs in HTML reports.
 ### Added
- - Add a link to the report generation log in the report info panel of HTML reports.
+ - Add a link to the report generation log in the report info panel of HTML
+   reports.
 
 ## [1.0.18] - 2023-10-04
 ### Fixed
