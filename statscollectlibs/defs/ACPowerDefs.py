@@ -17,3 +17,4 @@ class ACPowerDefs(_STCDefsBase.STCDefsBase):
         """The class constructor."""
 
         super().__init__("acpower")
+        self.mangle()

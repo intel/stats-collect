@@ -42,61 +42,75 @@ UncMHz:
     short_unit: "MHz"
     scope: "package"
     categories: ["Frequency", "Uncore"]
-CPU%cx:
-    title: "CCx residency"
+UMHzX.Y:
+    title: "Uncore frequency (domain {groups[0]}, cluster {groups[1]})"
     descr: >-
-        The percentage of time spent in core Cx hardware C-state.
+        Instantaneous samples of the uncore frequency for TPMI domain {groups[0]} cluster
+        {groups[1]}. Turbostat reads them from sysfs files at
+        '/sys/devices/system/cpu/intel_uncore_frequency/'.
+    unit: "megahertz"
+    short_unit: "MHz"
+    scope: "package"
+    categories: ["Frequency", "Uncore"]
+    patterns:
+        - 'UMHz(\d+).(\d+)'
+CPU%cx:
+    title: "C{GROUPS[0]} residency"
+    descr: >-
+        The percentage of time spent in core {GROUPS[0]} hardware C-state.
     type: "float"
     unit: "%"
     short_unit: "%"
     scope: "core"
     categories: ["C-state", "Hardware"]
+    patterns:
+        - 'CPU%(c\d+)'
 Mod%cx:
-    title: "The MCx module C-state residency"
+    title: "M{GROUPS[0]} residency"
     descr: >-
-        The percentage of time spent in package PCx hardware C-state.
+        The percentage of time spent in module {GROUPS[0]} hardware C-state.
     type: "float"
     unit: "%"
     short_unit: "%"
     scope: "module"
     categories: ["C-state", "Hardware"]
+    patterns:
+        - 'Mod%(c\d+)'
 Pkg%pcx:
-    title: "PCx residency"
+    title: "P{GROUPS[0]} residency"
     descr: >-
-        The percentage of time spent in package PCx hardware C-state.
+        The percentage of time spent in package {GROUPS[0]} hardware C-state.
     type: "float"
     unit: "%"
     short_unit: "%"
     scope: "package"
     categories: ["C-state", "Hardware"]
-POLL%:
-    title: "POLL requested percent"
-    descr: >-
-        The percentage of time spent in the POLL state. Note, this number does not come from the
-        hardware, it is calculated by the operating system.
-        column.
-    type: "float"
-    unit: "%"
-    short_unit: "%"
-    scope: "CPU"
-    categories: ["C-state", "Requested"]
+    patterns:
+        - 'Pkg%p(c\d+)'
+        - 'Pk%p(c\d+)'
 Cx:
-    title: "Cx requested count"
+    title: "{groups[0]} requests count"
     descr: >-
-        The number times Linux requested the Cx idle state during the measurement interval.
+        The number times Linux requested the {groups[0]} C-state during the measurement interval.
     type: "float"
     scope: "CPU"
     categories: ["C-state", "Requested"]
+    patterns:
+        - '(POLL)'
+        - '(C\d+[ESP]*)'
 Cx%:
-    title: "Cx requested percent"
+    title: "{groups[0]} residency"
     descr: >-
-        The percentage of time spent in the Cx requestable C-state. Note, this number does not come
-        from the hardware, it is calculated by the operating system.
+        The percentage of time the CPU spent in the {groups[0]} requestable C-state. Note, this
+        number does not come from the hardware, it is calculated by Linux.
     type: "float"
     unit: "%"
     short_unit: "%"
     scope: "CPU"
     categories: ["C-state", "Requested"]
+    patterns:
+        - '(POLL)%'
+        - '(C\d+[ESP]*)%'
 CorWatt:
     title: "Core power"
     descr: >-
@@ -189,5 +203,6 @@ Time:
     descr: >-
         Time elapsed since the start of the measurements. Derived from the "Time_Of_Day_Seconds"
         turbostat column.
+    original_name: "Time_Of_Day_Seconds"
     unit: "second"
     short_unit: "s"

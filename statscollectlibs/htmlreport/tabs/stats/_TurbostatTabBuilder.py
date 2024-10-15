@@ -211,7 +211,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics_set.add(metric)
 
         self._categorize_metrics(metrics)
-        defs = TurbostatDefs.TurbostatDefs(self._categories)
+        defs = TurbostatDefs.TurbostatDefs(metrics)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
         for colname, metric in self._col2metric.items():

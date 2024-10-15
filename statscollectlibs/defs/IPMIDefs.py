@@ -33,3 +33,4 @@ class IPMIDefs(_STCDefsBase.STCDefsBase):
         """The class constructor."""
 
         super().__init__("ipmi")
+        super().mangle()
