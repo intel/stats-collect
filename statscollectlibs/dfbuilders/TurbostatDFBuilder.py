@@ -72,18 +72,20 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         contains values from the package, core, and CPU levels.
         """
 
+        mcpu = str(self._mcpu)
+
         # Traverse dictionary looking for measured CPUs.
         for package in tstat["packages"].values():
             for core in package["cores"].values():
-                if self._mcpu not in core["cpus"]:
+                if mcpu not in core["cpus"]:
                     continue
 
                 # Include the package and core totals as for metrics which are not available at the
                 # CPU level.
                 return self._add_tstat_scope({**package["totals"], **core["totals"],
-                                              **core["cpus"][self._mcpu]})
+                                              **core["cpus"][mcpu]})
 
-        raise Error(f"no data for measured cpu '{self._mcpu}'")
+        raise Error(f"no data for measured CPU '{self._mcpu}'")
 
     def _turbostat_to_df(self, tstat):
         """
@@ -92,7 +94,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         new_tstat = self._extract_totals(tstat)
-        if self._mcpu:
+        if self._mcpu is not None:
             new_tstat.update(self._extract_cpu(tstat))
 
         return pandas.DataFrame.from_dict(new_tstat)
@@ -123,12 +125,11 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     def __init__(self, mcpu=None):
         """
-        The class constructor.
+        The class constructor. The arguments are as follows:
+          * mcpu - the measured CPU number.
 
         Note, the constructor does not load the potentially huge test result data into the memory.
-        The data are loaded "on-demand" by 'load_df()'. Arguments are as follows:
-         * mcpu - the name of the measured CPU for which data should be extracted from the raw
-                  turbostat statistics file.
+        The data are loaded "on-demand" by 'load_df()'.
         """
 
         self._mcpu = mcpu
