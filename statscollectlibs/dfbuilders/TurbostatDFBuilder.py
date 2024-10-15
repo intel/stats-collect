@@ -46,7 +46,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         renamed_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
         for rawname, value in tstat.items():
-            colprefix = TOTALS_SNAME if totals else f"CPU{self._mcpu}"
+            colprefix = TOTALS_SNAME if totals else f"CPU{self.cpunum}"
             colname = f"{colprefix}-{rawname}"
             self.col2rawnames[colname] = rawname
             renamed_tstat[colname] = value
@@ -72,20 +72,20 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         contains values from the package, core, and CPU levels.
         """
 
-        mcpu = str(self._mcpu)
+        cpunum = str(self.cpunum)
 
         # Traverse dictionary looking for measured CPUs.
         for package in tstat["packages"].values():
             for core in package["cores"].values():
-                if mcpu not in core["cpus"]:
+                if cpunum not in core["cpus"]:
                     continue
 
                 # Include the package and core totals as for metrics which are not available at the
                 # CPU level.
                 return self._add_tstat_scope({**package["totals"], **core["totals"],
-                                              **core["cpus"][mcpu]})
+                                              **core["cpus"][cpunum]})
 
-        raise Error(f"no data for measured CPU '{self._mcpu}'")
+        raise Error(f"no data for measured CPU '{self.cpunum}'")
 
     def _turbostat_to_df(self, tstat):
         """
@@ -94,7 +94,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         new_tstat = self._extract_totals(tstat)
-        if self._mcpu is not None:
+        if self.cpunum is not None:
             new_tstat.update(self._extract_cpu(tstat))
 
         return pandas.DataFrame.from_dict(new_tstat)
@@ -123,16 +123,16 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return sdf
 
-    def __init__(self, mcpu=None):
+    def __init__(self, cpunum=None):
         """
         The class constructor. The arguments are as follows:
-          * mcpu - the measured CPU number.
+          * cpunum - the measured CPU number.
 
         Note, the constructor does not load the potentially huge test result data into the memory.
         The data are loaded "on-demand" by 'load_df()'.
         """
 
-        self._mcpu = mcpu
+        self.cpunum = cpunum
 
         # Expose the mapping between "column names" which are the names used in the
         # 'pandas.DataFrame' and "raw names" which are the names used in raw turbostat statistic

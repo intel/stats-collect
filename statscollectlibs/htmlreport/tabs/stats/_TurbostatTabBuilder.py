@@ -191,7 +191,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         for res in tstat_rsts:
             cpunum = res.info.get("cpunum")
-            dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(str(cpunum) if cpunum else None)
+            dfbldr = TurbostatDFBuilder.TurbostatDFBuilder(cpunum=cpunum)
 
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr, "turbostat.raw.txt")
             self._col2rawnames.update(dfbldr.col2rawnames)

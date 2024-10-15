@@ -23,7 +23,7 @@ class DFBuilderBase:
     """
     This base class provides common methods that will help child classes to build a
     'pandas.DataFrame' out of a raw statistics file.
-    
+
     This base class requires child classes to implement the following method:
     1. Read a raw statistics file and convert the statistics data into a 'pandas.DataFrame'.
        * '_read_stats_file()'
