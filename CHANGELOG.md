@@ -9,6 +9,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.31] - 2024-10-15
+
 ## [1.0.30] - 2024-09-16
 ### Fixed
  - Fix a regression introduced in v1.0.29 which meant HTML reports could not be
