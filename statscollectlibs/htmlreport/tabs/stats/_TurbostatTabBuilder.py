@@ -31,7 +31,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stname = "turbostat"
 
-    def _get_default_tab_cfg(self, metrics, smry_funcs, sname):
+    def _get_default_tab_cfg(self, metric_names, smry_funcs, sname):
         """
         Get the default tab configuration which is populated with 'metrics', 'smry_funcs' and using
         the C-states in 'self._hw_cstates' and 'self._req_cstates'.
@@ -43,45 +43,59 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             tab_metrics = [col for col, raw in self._col2metric.items() if raw in tab_metrics]
             dtabs = []
             for metric in tab_metrics:
-                if metric not in self._defs.info or metric not in metrics:
+                if metric not in self._defs.info or metric not in metric_names:
                     continue
                 dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
                                                 self._hover_defs, title=self._col2metric[metric])
                 dtabs.append(dtab)
             return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
-        # Add frequency-related D-tabs to a separate C-tab.
-        freq_metrics = ["Bzy_MHz", "Avg_MHz"]
-        if sname == _TurbostatDFBuilder.TOTALS_SNAME:
-            freq_metrics += self._categories["uncore"]["frequency"]
-        # Add uncore frequency tabs to the "Frequency" C-tab.
-        freq_tab = build_ctab_cfg("Frequency", freq_metrics)
+        # Add frequency D-tabs to a separate C-tab.
+        metrics = []
+        for names in self._defs.categories["Frequency"].values():
+            metrics += names
+        freq_tab = build_ctab_cfg("Frequency", metrics)
 
-        # Add requested C-state residency tabs to a separate C-tab.
-        req_res_tab = build_ctab_cfg("Residency", self._categories["requested"]["residency"])
-        req_cnt_tab = build_ctab_cfg("Count", self._categories["requested"]["count"])
-        req_tabs = TabConfig.CTabConfig("Requested", ctabs=[req_res_tab, req_cnt_tab])
+        # Add requested C-state residency/count D-tabs tabs to separate C-tabs.
+        res_metrics = []
+        cnt_metrics = []
+        for name in self._defs.categories["C-state"]["Requested"]:
+            if self._defs.info[name].get("unit") == "%":
+                res_metrics.append(name)
+            else:
+                cnt_metrics.append(name)
+        res_tab = build_ctab_cfg("Residency", res_metrics)
+        cnt_tab = build_ctab_cfg("Count", cnt_metrics)
+        req_tabs = TabConfig.CTabConfig("Requested", ctabs=[res_tab, cnt_tab])
 
-        # Add hardware C-state residency tabs to a separate C-tab.
-        hw_cstates = ["Busy%"] + self._categories["hardware"]["core"]
-        if sname == _TurbostatDFBuilder.TOTALS_SNAME:
-            hw_cstates += self._categories["hardware"]["module"]
-            hw_cstates += self._categories["hardware"]["package"]
-        hw_cs_tab = build_ctab_cfg("Hardware", hw_cstates)
+        # Add hardware C-state residency D-tabs to a separate C-tab.
+        metrics = ["Busy%"]
+        for name in self._defs.categories["C-state"]["Hardware"]:
+            if sname == _TurbostatDFBuilder.TOTALS_SNAME:
+                metrics.append(name)
+            elif self._defs.info[name].get("scope") in ("CPU", "core"):
+                metrics.append(name)
+        hw_cs_tab = build_ctab_cfg("Hardware", metrics)
 
-        # Combine C-states into a single C-tab.
-        idle_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
+        # Combine requested and hardware C-state C-tags into a single C-tab.
+        cstates_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
         # Add temperature/power-related D-tabs to a separate C-tab.
-        tp_metrics = ["CorWatt", "CoreTmp"]
+        all_tp_metrics = self._defs.categories["Power"] + self._defs.categories["Temperature"]
         if sname == _TurbostatDFBuilder.TOTALS_SNAME:
-            tp_metrics += ["PkgWatt", "PkgWatt%TDP", "GFXWatt", "RAMWatt", "PkgTmp"]
-        tmp_tab = build_ctab_cfg("Temperature / Power", tp_metrics)
+            metrics = all_tp_metrics
+        else:
+            metrics = []
+            for name in all_tp_metrics:
+                if self._defs.info[name].get("scope") in ("CPU", "core"):
+                    metrics.append(name)
+        tp_tab = build_ctab_cfg("Temperature / Power", metrics)
 
         # Add miscellaneous D-tabs to a separate C-tab.
-        misc_tab = build_ctab_cfg("Misc", ["IRQ", "SMI", "IPC"])
+        metrics = self._defs.categories["Interrupts"] + self._defs.categories["Instructions"]
+        misc_tab = build_ctab_cfg("Misc", metrics)
 
-        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, idle_tab, tmp_tab, misc_tab])
+        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, cstates_tab, tp_tab, misc_tab])
 
     def get_default_tab_cfg(self):
         """
@@ -126,40 +140,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=l2_tabs)
 
-    def _categorize_metrics(self, metrics):
-        """
-        Categorize C-states and uncore frequency metrics into the 'self._categories' dictionary.
-        """
-
-        self._categories = {
-            "requested": {
-                "residency": [],
-                "count": []
-            },
-            "hardware": {
-                "core": [],
-                "module": [],
-                "package": []
-            },
-            "uncore": {
-                "frequency": []
-            }
-        }
-
-        for metric in metrics:
-            if TurbostatDefs.ReqCSDef.check_metric(metric):
-                self._categories["requested"]["residency"].append(metric)
-            elif TurbostatDefs.ReqCSDefCount.check_metric(metric):
-                self._categories["requested"]["count"].append(metric)
-            elif TurbostatDefs.CoreCSDef.check_metric(metric):
-                self._categories["hardware"]["core"].append(metric)
-            elif TurbostatDefs.ModuleCSDef.check_metric(metric):
-                self._categories["hardware"]["module"].append(metric)
-            elif TurbostatDefs.PackageCSDef.check_metric(metric):
-                self._categories["hardware"]["package"].append(metric)
-            elif TurbostatDefs.UncoreFreqDef.check_metric(metric):
-                self._categories["uncore"]["frequency"].append(metric)
-
     def _load_dfs(self, rsts):
         """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
 
@@ -192,9 +172,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._time_metric = "Time"
         self._hover_defs = {}
 
-        # Categories of turbostat metrics.
-        self._categories = None
-
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self._col2metric = {}
@@ -210,7 +187,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics.append(metric)
                 metrics_set.add(metric)
 
-        self._categorize_metrics(metrics)
         defs = TurbostatDefs.TurbostatDefs(metrics)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 

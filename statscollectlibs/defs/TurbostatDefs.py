@@ -121,6 +121,28 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
                 mdef["descr"] = f"{mdef['descr']} Calculated by finding the {method} of " \
                                 f"\"{mdef['name']}\" across the system."
 
+    def _categorize(self):
+        """Arrange metrics into a multi-level dictionary by their categories."""
+
+        for metric, info in self.info.items():
+            catnames = info.get("categories")
+            if not catnames:
+                continue
+
+            last = len(info["categories"]) - 1
+            leaf = self.categories
+
+            for idx, category in enumerate(catnames):
+                if category not in leaf:
+                    if idx == last:
+                        leaf[category] = []
+                    else:
+                        leaf[category] = {}
+
+                leaf = leaf[category]
+
+            leaf.append(metric)
+
     def __init__(self, metrics):
         """
         The class constructor. The arguments are as follows:
@@ -128,6 +150,10 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
                      definition dictionary ('self.info').
         """
 
-        super().__init__("turbostat")
+        # Metric names arrange by the category.
+        self.categories = {}
 
+        super().__init__("turbostat")
         self.mangle(metrics=metrics)
+
+        self._categorize()
