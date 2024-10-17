@@ -92,20 +92,6 @@ class DefsBase:
 
         self.info = new_info
 
-        # Remove unnecessary metric definitions.
-        metrics_set = set(metrics)
-        for key in list(self.info):
-            if key in metrics_set:
-                continue
-
-            # Some metrics were renamed. For example turbostat column "Time_Of_Day_Seconds" is named
-            # "Time" in the metrics definition dictionary.
-            original_name = self.info[key].get("original_name")
-            if original_name in metrics_set:
-                continue
-
-            del self.info[key]
-
     def _add_subkeys(self):
         """Add some more sub-keys to the metrics definition dictionary."""
 

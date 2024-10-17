@@ -203,6 +203,5 @@ Time:
     descr: >-
         Time elapsed since the start of the measurements. Derived from the "Time_Of_Day_Seconds"
         turbostat column.
-    original_name: "Time_Of_Day_Seconds"
     unit: "second"
     short_unit: "s"
