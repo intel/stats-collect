@@ -135,7 +135,8 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         self.cpunum = cpunum
 
         # A dictionary mapping 'pandas.DataFrame' column names (built by 'load_df()') to the
-        # corresponding turbostat metric name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
+        # corresponding turbostat metric name. E.g., column "Totals-CPU%c1" will be mapped to
+        # 'CPU%c1'.
         self.col2metric = {}
 
         super().__init__("Time")
