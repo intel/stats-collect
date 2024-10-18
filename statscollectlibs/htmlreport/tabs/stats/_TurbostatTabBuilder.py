@@ -31,7 +31,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stname = "turbostat"
 
-    def _get_default_tab_cfg(self, metric_names, smry_funcs, sname):
+    def _get_default_tab_cfg(self, colnames, smry_funcs, sname):
         """
         Get the default tab configuration which is populated with 'metrics', 'smry_funcs' and using
         the C-states in 'self._hw_cstates' and 'self._req_cstates'.
@@ -43,7 +43,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             tab_metrics = [col for col, raw in self._col2metric.items() if raw in tab_metrics]
             dtabs = []
             for metric in tab_metrics:
-                if metric not in self._defs.info or metric not in metric_names:
+                if metric not in self._defs.info or metric not in colnames:
                     continue
                 dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
                                                 self._hover_defs, title=self._col2metric[metric])
