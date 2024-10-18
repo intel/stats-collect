@@ -80,6 +80,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Combine requested and hardware C-state C-tags into a single C-tab.
         cstates_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
 
+        # Add frequency D-tabs to a separate C-tab.
+        metrics = []
+        for name in self._defs.categories["S-state"]:
+            metrics.append(name)
+        sstates_tab = build_ctab_cfg("S-states", metrics)
+
         # Add temperature/power-related D-tabs to a separate C-tab.
         all_tp_metrics = self._defs.categories["Power"] + self._defs.categories["Temperature"]
         if sname == _TurbostatDFBuilder.TOTALS_SNAME:
@@ -95,7 +101,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         metrics = self._defs.categories["Interrupts"] + self._defs.categories["Instructions"]
         misc_tab = build_ctab_cfg("Misc", metrics)
 
-        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, cstates_tab, tp_tab, misc_tab])
+        return TabConfig.CTabConfig(sname, ctabs=[freq_tab, cstates_tab, sstates_tab, tp_tab,
+                                                  misc_tab])
 
     def get_default_tab_cfg(self):
         """

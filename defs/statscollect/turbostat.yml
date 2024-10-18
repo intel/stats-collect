@@ -111,6 +111,15 @@ Cx%:
     patterns:
         - '(POLL)%'
         - '(C\d+[ESP]*)%'
+SYS%LPI:
+    title: "S0ix residency"
+    descr: >-
+        The percentage of time the system spent in the the S0ix sleep state.
+    type: "float"
+    unit: "%"
+    short_unit: "%"
+    scope: "CPU"
+    categories: ["S-state"]
 CorWatt:
     title: "Core power"
     descr: >-
