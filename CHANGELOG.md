@@ -6,9 +6,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
- - Add turbostat 'SYS%LPI' metric.
 ### Removed
 ### Changed
+
+## [1.0.33] - 2024-10-21
+### Added
+ - Add turbostat 'SYS%LPI' metric.
 
 ## [1.0.32] - 2024-10-15
 ### Changed
