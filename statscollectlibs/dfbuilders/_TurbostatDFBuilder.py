@@ -58,12 +58,11 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         totals_tstat = tstat["totals"]
 
-        # Note: on multi-socket systems, this is the sum of TDP across sockets (packages).
-        tdp = tstat["nontable"]["TDP"]
+        tdpsum = tstat["nontable"]["TDP"] * tstat["pkg_count"]
 
         # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
         # column) as a percentage of TDP (from the turbostat header).
-        totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdp) * 100.0
+        totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdpsum) * 100.0
         return self._add_tstat_scope(totals_tstat, totals=True)
 
     def _extract_cpu(self, tstat):
