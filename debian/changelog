@@ -1,3 +1,10 @@
+stats-collect (1.0.34) unstable; urgency=low
+
+  * Fix turbostat "PkgWatt%TDP" statistics for results collected with
+    multisocket systems.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 29 Nov 2024 00:00:00 +0200
+
 stats-collect (1.0.33) unstable; urgency=low
 
   * Add turbostat 'SYS%LPI' metric.

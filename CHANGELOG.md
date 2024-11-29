@@ -5,11 +5,14 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix turbostat "PkgWatt%TDP" statistics for results collected with
-   multisocket systems.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.34] - 2024-11-29
+### Fixed
+ - Fix turbostat "PkgWatt%TDP" statistics for results collected with
+   multisocket systems.
 
 ## [1.0.33] - 2024-10-21
 ### Added
