@@ -98,6 +98,7 @@ Cx:
     patterns:
         - '(POLL)'
         - '(C\d+[ESP]*)'
+        - '(C\d+ACPI)'
 Cx%:
     title: "{groups[0]} residency"
     descr: >-
@@ -111,6 +112,7 @@ Cx%:
     patterns:
         - '(POLL)%'
         - '(C\d+[ESP]*)%'
+        - '(C\d+ACPI)%'
 SYS%LPI:
     title: "S0ix residency"
     descr: >-
