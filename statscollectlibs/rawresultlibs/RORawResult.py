@@ -6,7 +6,7 @@
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""This module provides API for reading raw test results."""
+"""API for reading raw 'stats-collect' test results."""
 
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
@@ -14,9 +14,8 @@ from statscollectlibs.rawresultlibs import _RawResultBase
 
 class RORawResult(_RawResultBase.RawResultBase):
     """
-    This class represents a read-only raw test result. The class API works with the following
-    concepts:
-     * labels - labels are created during statistics collection and provide extra data about
+    A read-only raw test result class. Class API works with the following concepts:
+     * labels - labels are created during statistics collection and provide extra information about
                 datapoints.
      * label definitions - dictionaries defining the metrics which label data measure. For example,
                            if a label contains data about power consumption, the label definition
@@ -25,25 +24,31 @@ class RORawResult(_RawResultBase.RawResultBase):
     Public method overview:
      * set_label_defs() - set label definitions for a specific statistic.
      * get_label_defs() - get label definitions for a specific statistic.
-     * load_stat() - loads and returns a 'pandas.DataFrame' containing statistics data for this
+     * load_stat() - load and return a 'pandas.DataFrame' containing statistics data for this
                      result.
     """
 
     def set_label_defs(self, stname, defs):
-        """Set metric definitions for the 'stname' labels."""
+        """
+        Set label definitions. The arguments are as follows.
+          * stname - name of the statistics to set label for.
+          * defs - the definitions to set for the label.
+        """
 
         self._labels_defs[stname] = defs
 
     def get_label_defs(self, stname):
-        """Returns metric definitions for 'stname' data."""
+        """
+        Return label definitions. The arguments are as follows.
+          * stname - name of the statistics to return the label definitions for.
+        """
 
         return self._labels_defs.get(stname, {})
 
     def _get_stats_path(self, stname, default_name):
         """
-        A helper function which returns a path to the raw statistics file for statistic 'stname'.
-        Arguments are as follows:
-         * stname - the name of the statistic for which statistics paths should be found.
+        Return path to the raw statistics file for statistic 'stname'. The arguments are as follows.
+         * stname - the name of the statistic for which paths should be found.
          * default_name - the path that will be used if one is not specified by the result.
         """
 
@@ -59,7 +64,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         raise ErrorNotFound(f"raw '{stname}' statistics file not found at path: {path}")
 
     def _get_labels_path(self, stname):
-        """A helper function which returns the path to the labels file for statistic 'stname'."""
+        """Return path to the labels file for statistic 'stname'."""
 
         try:
             subpath = self.info["stinfo"][stname]["paths"]["labels"]
@@ -74,8 +79,8 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     def load_stat(self, stname, dfbldr, default_name):
         """
-        Loads data for statistic 'stname'. Returns a 'pandas.DataFrame' containing 'stname' data for
-        this result. Arguments are as follows:
+        Load data for statistic 'stname'. Returns a 'pandas.DataFrame' containing statistics data.
+        The arguments are as follows.
          * stname - the name of the statistic for which a 'pandas.DataFrame' should be retrieved.
          * dfbldr - an instance of '_DFBuilderBase.DFBuilderBase' to use to build a
                     'pandas.DataFrame' from the raw statistics file.
