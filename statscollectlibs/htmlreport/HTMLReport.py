@@ -299,7 +299,7 @@ class HTMLReport:
                          "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
                          "to resolve this issue., plotly_ver, preferred_ver")
 
-    def __init__(self, outdir, logpath=None, rawpath=None):
+    def __init__(self, outdir, logpath=None):
         """
         The class constructor. The arguments are as follows:
          * outdir - the directory which will contain the report.
