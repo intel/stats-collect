@@ -110,7 +110,13 @@ class StatsCollectHTMLReport:
                             title="stats-collect report")
 
     def __init__(self, rsts, outdir, logpath=None):
-        """Class constructor."""
+        """
+        Class constructor. The arguments are as follows.
+          * rsts - an iterable collection of aw test results objects ('RORawResult') generate the
+                   HTML report for.
+          * outdir - the output directory to place the HTML report to.
+          * logpath - the path to the report generation log file.
+        """
 
         self.rsts = rsts
         self.outdir = outdir

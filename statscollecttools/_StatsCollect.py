@@ -7,7 +7,7 @@
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""stats-collect - a tool for collecting and visualising system statistics and telemetry."""
+"""stats-collect - a tool for collecting and visualizing system statistics and telemetry."""
 
 import sys
 import logging
@@ -40,7 +40,7 @@ Logging.setup_logger(prefix=ToolInfo.TOOLNAME)
 def build_arguments_parser():
     """Build and return the arguments parser object."""
 
-    text = "stats-collect - a tool for collecting and visualising system statistics and telemetry."
+    text = "stats-collect - a tool for collecting and visualizing system statistics and telemetry."
     parser = ArgParse.SSHOptsAwareArgsParser(description=text, prog=ToolInfo.TOOLNAME,
                                              ver=ToolInfo.VERSION)
 
@@ -175,7 +175,7 @@ def main():
         args = parse_arguments()
 
         if not getattr(args, "func", None):
-            _LOG.error("please, run '%s -h' for help.", ToolInfo.TOOLNAME)
+            _LOG.error("please, run '%s -h' for help", ToolInfo.TOOLNAME)
             return -1
 
         args.func(args)

@@ -60,7 +60,7 @@ def copy_dir(srcdir, dstpath):
         # This block of code helps on SELinux-enabled systems when the output directory
         # ('self.outdir') is exposed via HTTP. In this case, the output directory should
         # have the right SELinux attributes (e.g., 'httpd_user_content_t' in Fedora 35).
-        # The raw wult data that we just copied does not have the SELinux attribute, and
+        # The raw data that we just copied does not have the SELinux attribute, and
         # won't be accessible via HTTPs. Run 'restorecon' tool to fix up the SELinux
         # attributes.
         with LocalProcessManager.LocalProcessManager() as lpman:
@@ -83,7 +83,7 @@ def _copy_assets(outdir):
         ("bundled JavaScript", "js/dist/main.js", outdir / "js/dist/main.js"),
         ("bundled CSS", "js/dist/main.css", outdir / "js/dist/main.css"),
         ("bundled dependency licenses", "js/dist/main.js.LICENSE.txt",
-            outdir / "js/dist/main.js.LICENSE.txt"),
+         outdir / "js/dist/main.js.LICENSE.txt"),
     ]
 
     for asset in js_assets:
@@ -93,9 +93,9 @@ def _copy_assets(outdir):
     misc_assets = [
         ("root HTML page of the report.", "js/index.html", outdir / "index.html"),
         ("script to serve report directories.", "misc/servedir/serve_directory.py",
-            outdir / "serve_directory.py"),
+         outdir / "serve_directory.py"),
         ("README file for local viewing scripts", "misc/servedir/README.md",
-            outdir / "README.md"),
+         outdir / "README.md"),
     ]
 
     for asset in misc_assets:
@@ -104,7 +104,7 @@ def _copy_assets(outdir):
 
 def _dump_json(obj, path, descr):
     """
-    Helper function wrapping 'json.dump' operation with a standardised error message so that the
+    Helper function wrapping 'json.dump' operation with a standardized error message so that the
     error messages are consistent. Arguments are as follows:
         * obj - Python object to dump to JSON.
         * path - path to create JSON file at.
@@ -135,7 +135,7 @@ class HTMLReport:
     """
     This class provides the API for generating HTML reports.
 
-    The reports generated using this class are highly customisable. The caller
+    The reports generated using this class are highly customizable. The caller
     is responsible for optionally providing an introduction table, extra tabs,
     and 'RORawResult' instances to create the 'Stats' tab.
 
@@ -169,7 +169,7 @@ class HTMLReport:
                 self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self._tabs_dir,
                                                                      basedir=self._outdir)
             except Error as err:
-                _LOG.warning("Failed to generate statistics tabs: %s", err)
+                _LOG.warning("failed to generate statistics tabs: %s", err)
 
     def _generate_tabs(self, rsts, tab_cfgs):
         """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
@@ -187,7 +187,7 @@ class HTMLReport:
             sysinfo_tab = self._sysinfo_tbldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
-            _LOG.warning("Failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
+            _LOG.warning("failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
 
         return tabs
 
@@ -208,7 +208,7 @@ class HTMLReport:
     def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None,
                         toolname=None, toolver=None, tab_cfgs=None):
         """
-        Generate an HTML report in 'outdir' (provided to the class constructor). Customise the
+        Generate an HTML report in 'outdir' (provided to the class constructor). Customize the
         contents of the report using the function parameters. Arguments are as follows:
          * tabs - a list of additional container tabs which should be included in the report. If,
                   omitted, 'rsts' is required to generate statistics tabs.
@@ -225,7 +225,7 @@ class HTMLReport:
                      current version of 'stats-collect'. Should be used in conjunction with the
                      'toolname' parameter.
          * tab_cfgs - a dictionary in the format '{stname: TabConfig.TabConfig}', where each tab
-                      configuration is used to customise the contents of the 'stname' statistics
+                      configuration is used to customize the contents of the 'stname' statistics
                       tab. By default, if an 'stname' is not provided in 'tab_cfgs', then a default
                       tab configuration will be used.
         """
@@ -257,8 +257,7 @@ class HTMLReport:
         # 'report_info' stores data used by the Javascript to generate the main report page
         # including the intro table, the file path of the tabs JSON dump plus the report title and
         # description.
-        report_info = {"title": title, "descr": descr,
-                       "toolname": toolname, "toolver": toolver}
+        report_info = {"title": title, "descr": descr, "toolname": toolname, "toolver": toolver}
 
         if self.logpath is not None:
             report_info["logpath"] = self.logpath
@@ -272,7 +271,7 @@ class HTMLReport:
             reportids_dedup(rsts)
             tabs += self._generate_tabs(rsts, tab_cfgs)
 
-        # Convert Dataclasses to dictionaries so that they are JSON serialisable.
+        # Convert Dataclasses to dictionaries so that they are JSON serializable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]
         tabs_path = self._data_dir / "tabs.json"
         _dump_json(json_tabs, tabs_path, "tab container")
@@ -298,9 +297,9 @@ class HTMLReport:
         if version.parse(plotly_ver) < version.parse(preferred_ver):
             _LOG.warning("generating a report with 'plotly v%s' can cause time stamps in plots to "
                          "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
-                         "to resolve this issue.", plotly_ver, preferred_ver)
+                         "to resolve this issue., plotly_ver, preferred_ver")
 
-    def __init__(self, outdir, logpath=None):
+    def __init__(self, outdir, logpath=None, rawpath=None):
         """
         The class constructor. The arguments are as follows:
          * outdir - the directory which will contain the report.

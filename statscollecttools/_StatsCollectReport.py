@@ -52,7 +52,10 @@ def open_raw_results(respaths, reportids=None):
     return rsts
 
 def report_command(args):
-    """Implements the 'report' command."""
+    """
+    Implements the 'report' command. The arguments are as follows.
+      * args - the command-line arguments.
+    """
 
     rsts = open_raw_results(args.respaths, args.reportids)
 
