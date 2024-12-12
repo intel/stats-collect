@@ -28,17 +28,16 @@ class ParserBase:
 
     def __init__(self, path=None, lines=None):
         """
-        Initialize a class instance. The 'input_data' parameter can be one of the following:
-          o  path to the input file which should be parsed
-          o  an iterable object which provides the lines to parse one-by-one. For example, this
-             can be a file object or 'iter(list)'.
+        Initialize a class instance. The arguments are as follows.
+          * path - path to the turbostat output file that should be parsed.
+          * lines - an iterable object which provides the turbostat output to parse one-by-one.
         """
 
         self._path = path
         self._lines = lines
 
         if path and lines:
-            raise Error("Please, specify either 'path' or 'lines', but not both")
+            raise Error("please, specify either 'path' or 'lines', but not both")
 
         if path:
             try:
