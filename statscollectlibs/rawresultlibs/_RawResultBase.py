@@ -42,6 +42,7 @@ class RawResultBase:
         self.info_path = self.dirpath.joinpath("info.yml")
         self.logs_path = self.dirpath.joinpath("logs")
         self.stats_path = self.dirpath.joinpath("stats")
+        self.wldata_path = self.dirpath.joinpath("wldata")
 
         if self.info_path.exists() and not self.info_path.is_file():
             raise Error(f"path '{self.info_path}' exists, but it is not a regular file")

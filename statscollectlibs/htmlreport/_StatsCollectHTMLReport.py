@@ -10,6 +10,7 @@
 
 import logging
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder
 
@@ -30,11 +31,10 @@ class StatsCollectHTMLReport:
 
     def _copy_logs(self):
         """
-        Helper function for '_generate_intro_table()'. Copies log files to the outdir.
+        Copy logs from the raw result directory to the output directory.
         """
 
         copied_paths = {}
-
         results_dir = self.outdir / "results"
 
         for res in self.rsts:
@@ -49,10 +49,34 @@ class StatsCollectHTMLReport:
 
             except (OSError, Error) as err:
                 _LOG.warning("unable to copy log files to the generated report: %s", err)
-                logs_dst = None
-
-            if logs_dst:
+            else:
                 copied_paths[res.reportid] = logs_dst.relative_to(self.outdir)
+
+        return copied_paths
+
+    def _link_wldata(self):
+        """
+        If the raw results include the workload data sub-directory, add create symbolic links in the
+        output directory pointing to the raw workload data directory.
+        """
+
+        copied_paths = {}
+        results_dir = self.outdir / "results"
+
+        for res in self.rsts:
+            if not res.wldata_path.exists():
+                continue
+            dst_dir = results_dir / f"raw-{res.reportid}"
+            src_dir = res.wldata_path
+            try:
+                dst_dir.mkdir(parents=True, exist_ok=True)
+
+                wldata_dst = dst_dir / "raw"
+                FSHelpers.move_copy_link(src_dir, wldata_dst, action="symlink", exist_ok=True)
+            except (OSError, Error) as err:
+                _LOG.warning("unable to copy log files to the generated report: %s", err)
+            else:
+                copied_paths[res.reportid] = wldata_dst.relative_to(self.outdir)
 
         return copied_paths
 
@@ -92,7 +116,18 @@ class StatsCollectHTMLReport:
             else:
                 log_row.add_cell(res.reportid, None)
 
-        return intro_tbl
+        # Add lings log workload data.
+        wldata_paths = self._link_wldata()
+        if wldata_paths:
+            wldata_row = intro_tbl.create_row("Workload data")
+            for res in rsts:
+                if res.reportid in wldata_paths:
+                    wldata_row.add_cell(res.reportid, "Workload data",
+                                        link=wldata_paths.get(res.reportid))
+                else:
+                    wldata_row.add_cell(res.reportid, None)
+
+            return intro_tbl
 
     def generate(self):
         """Generate a 'stats-collect' report from the results 'rsts' with 'outdir'."""
