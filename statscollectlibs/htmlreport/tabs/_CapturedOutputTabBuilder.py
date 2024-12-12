@@ -7,7 +7,8 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of populating the 'Captured Output' tab.
+Provide the tab builder for the "Captured Output" tab, which just shows and compares the stdout and
+stderr of the workload(s).
 """
 
 import logging
@@ -24,7 +25,8 @@ _MAX_FILE_END = 256
 
 class CapturedOutputTabBuilder():
     """
-    This class provides the capability of populating the 'Captured Output' tab.
+    The tab builder class for the "Captured Output" tab, which just shows and compares the stdout
+    and stderr of the workload(s).
 
     Public methods overview:
      * 'get_tab()' - Generate a '_Tabs.DTabDC' instance containing file previews of the captured
@@ -47,9 +49,8 @@ class CapturedOutputTabBuilder():
 
     def _trim_lines(self, lines, top, bottom):
         """
-        Helper function for 'generate_captured_output_tab()'. Copies the file at 'srcpath' to
-        'dstpath' and removes all but the top 'top' lines and bottom 'bottom' lines. Returns a
-        boolean representing if the file was trimmed or not.
+        Copy the file at 'srcpath' to 'dstpath' and removes all but the top 'top' lines and bottom
+        'bottom' lines. Return a boolean representing if the file was trimmed or not.
         """
 
         trim_notice_lines = [
@@ -67,7 +68,7 @@ class CapturedOutputTabBuilder():
 
     def get_tab(self):
         """
-        Returns a '_Tabs.DTabDC' instance containing file previews of the captured 'stdout' and
+        Return a '_Tabs.DTabDC' instance containing file previews of the captured 'stdout' and
         'stderr' logs from 'stats-collect start'.
         """
 
@@ -128,12 +129,12 @@ class CapturedOutputTabBuilder():
 
     def __init__(self, rsts, outdir, basedir=None):
         """
-        The class constructor. Adding a "Captured Output" tab will create an 'CapturedOutput'
-        sub-directory and store 'stdout' and 'stderr' log files in it.
-
-        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
+        The class constructor. The arguments are as follows.
          * rsts - a list of 'RORawResult' instances for which data should be included in the built
                   tab.
+         * outdir - the output directory in which to create the sub-directory for the container tab.
+         * basedir - base directory of the report. All paths should be made relative to this.
+                     Defaults to 'outdir'.
         """
 
         self._rsts = rsts
