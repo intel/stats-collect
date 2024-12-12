@@ -12,7 +12,8 @@ import logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
-from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder
+from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
+from statscollectlibs.rawresultlibs import RORawResult
 
 _LOG = logging.getLogger()
 
@@ -129,17 +130,49 @@ class StatsCollectHTMLReport:
 
         return intro_tbl
 
+    def _get_results_tab(self, tabs_dir):
+        """Create and return the results tab object."""
+
+        wltypes = {}
+        wltypes_set = set()
+
+        for res in self.rsts:
+            wltypes[res.reportid] = res.wltype
+            wltypes_set.add(res.wltype)
+
+        if len(wltypes_set) > 1:
+            msgs = []
+            for res in self.rsts:
+                msgs.append(f"{res.reportid}: {wltypes[res.reportid]} "
+                            f"({RORawResult.SUPPORTED_WORKLOADS[res.wltype]})")
+            msg = " * " + "\n * ".join(msgs)
+            wltype = "generic"
+            _LOG.warning("multiple workload types detected, assuming a generic workload:\n%s", msg)
+        else:
+            wltype = next(iter(wltypes_set))
+
+        _LOG.info("Workload type: %s (%s)",
+                  wltypes[res.reportid], RORawResult.SUPPORTED_WORKLOADS[res.wltype])
+        if wltype == "generic":
+            tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, tabs_dir,
+                                                                       basedir=self.outdir)
+            return tbldr.get_tab()
+        if wltype == "specjbb2015":
+            tbldr = _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self.rsts, tabs_dir,
+                                                                 basedir=self.outdir)
+            return tbldr.get_tab()
+
+        raise Error(f"BUG: unsupported workload type '{wltype}'")
+
     def generate(self):
         """Generate a 'stats-collect' report from the results 'rsts' with 'outdir'."""
 
         HTMLReport.reportids_dedup(self.rsts)
-
         rep = HTMLReport.HTMLReport(self.outdir, self.logpath)
-        captout_tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, rep.tabs_dir,
-                                                                           basedir=self.outdir)
-        captout_tab = captout_tbldr.get_tab()
 
-        tabs = [captout_tab] if captout_tab else None
+        results_tab = self._get_results_tab(rep.tabs_dir)
+        tabs = [results_tab] if results_tab else None
+
         intro_tbl = self._generate_intro_table(self.rsts)
         rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=intro_tbl,
                             title="stats-collect report")

@@ -1,16 +1,26 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """API for reading raw 'stats-collect' test results."""
 
+import logging
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
+from statscollectlibs.parsers import SPECjbb2015Parser
 from statscollectlibs.rawresultlibs import _RawResultBase
+
+_LOG = logging.getLogger()
+
+# Supported workload types.
+SUPPORTED_WORKLOADS = {
+    "generic": "generic workload",
+    "specjbb2015": "SPECjbb2015 benchmark"
+}
 
 class RORawResult(_RawResultBase.RawResultBase):
     """
@@ -90,6 +100,42 @@ class RORawResult(_RawResultBase.RawResultBase):
         labels_path = self._get_labels_path(stname)
         return dfbldr.load_df(path, labels_path)
 
+    def _is_specjbb2015(self):
+        """Return 'True' if the workload is SPECjbb2015."""
+
+        # Really basic SPECjbb2015 detection. Obviously needs to be improved.
+        path = self.wldata_path / "controller.out"
+        if not path.exists():
+            return False
+
+        parser = SPECjbb2015Parser.SPECjbb2015Parser(path=path)
+
+        try:
+            next(parser.next())
+            return True
+        except StopIteration:
+            raise Error(f"failed to parse SPECjbb2015 controller output file at '{path}'") from None
+
+        return False
+
+    def _detect_wltype(self):
+        """
+        Detect the workload that was running while the statistics in this raw result were
+        collected.
+        """
+
+        try:
+            if not self.wldata_path.exists():
+                self.wltype = "generic"
+            elif self._is_specjbb2015():
+                self.wltype = "specjbb2015"
+        except (Error, OSError) as err:
+            _LOG.warning("workload type detection failed:\n%s", err.indent(2))
+            self.wltype = "generic"
+
+        _LOG.debug("%s: workload type is '%s (%s)'",
+                   self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
+
     def __init__(self, dirpath, reportid=None):
         """
         The class constructor. The arguments are as follows.
@@ -105,6 +151,11 @@ class RORawResult(_RawResultBase.RawResultBase):
         """
 
         super().__init__(dirpath)
+
+        # Type of the workload that was running while statistics were collected.
+        self.wltype = None
+        # Label metric definitions.
+        self._labels_defs = {}
 
         # Check few special error cases upfront in order to provide a clear error message:
         # the info file should exist and be non-empty.
@@ -135,5 +186,4 @@ class RORawResult(_RawResultBase.RawResultBase):
         if not toolver:
             raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
 
-        # Store label metric definitions provided to 'set_label_defs()'.
-        self._labels_defs = {}
+        self._detect_wltype()
