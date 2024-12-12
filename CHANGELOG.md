@@ -5,6 +5,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix mis-placing of ACPI C-states like C1_ACPI in HTML reports.
 ### Added
 ### Removed
 ### Changed
