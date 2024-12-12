@@ -45,17 +45,17 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         return self._labels_defs.get(stname, {})
 
-    def _get_stats_path(self, stname, default_name):
+    def _get_stats_path(self, stname):
         """
         Return path to the raw statistics file for statistic 'stname'. The arguments are as follows.
          * stname - the name of the statistic for which paths should be found.
-         * default_name - the path that will be used if one is not specified by the result.
         """
 
         try:
             subpath = self.info["stinfo"][stname]["paths"]["stats"]
         except KeyError:
-            subpath = default_name
+            raise ErrorNotFound(f"raw '{stname}' statistics file path not found in "
+                                f"'{self.info_path}'") from None
 
         path = self.stats_path / subpath
         if path.exists():
@@ -77,18 +77,16 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         raise ErrorNotFound(f"no labels file found for statistic '{stname}' at path: {path} '")
 
-    def load_stat(self, stname, dfbldr, default_name):
+    def load_stat(self, stname, dfbldr):
         """
         Load data for statistic 'stname'. Returns a 'pandas.DataFrame' containing statistics data.
         The arguments are as follows.
          * stname - the name of the statistic for which a 'pandas.DataFrame' should be retrieved.
          * dfbldr - an instance of '_DFBuilderBase.DFBuilderBase' to use to build a
                     'pandas.DataFrame' from the raw statistics file.
-         * default_name - the name of the raw statistics file which will be used if one is not
-                          defined in 'info.yml'.
         """
 
-        path = self._get_stats_path(stname, default_name)
+        path = self._get_stats_path(stname)
         labels_path = self._get_labels_path(stname)
         return dfbldr.load_df(path, labels_path)
 

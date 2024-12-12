@@ -121,7 +121,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 if stname not in res.info["stinfo"]:
                     continue
 
-                dfs[res.reportid] = res.load_stat(stname, self._dfbldr, f"{stname}.raw.txt")
+                dfs[res.reportid] = res.load_stat(stname, self._dfbldr)
                 self._hover_defs[res.reportid] = res.get_label_defs(stname)
                 stnames.add(stname)
                 break

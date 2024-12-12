@@ -62,7 +62,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             if self.stname not in res.info["stinfo"]:
                 continue
 
-            dfs[res.reportid] = res.load_stat(self.stname, dfbldr, "acpower.raw.txt")
+            dfs[res.reportid] = res.load_stat(self.stname, dfbldr)
             self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
 
         super().__init__(dfs, outdir, basedir=basedir, defs=ACPowerDefs.ACPowerDefs())
