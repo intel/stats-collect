@@ -137,3 +137,4 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         # Store label metric definitions provided to 'set_label_defs()'.
         self._labels_defs = {}
+

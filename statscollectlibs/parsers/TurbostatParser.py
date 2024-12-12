@@ -359,8 +359,9 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # False pylint warning, see issue: https://github.com/PyCQA/pylint/issues/1830.
                 line = next(self._lines).split() # pylint: disable=stop-iteration-return
 
-                # On systems with a single core turbostat does not include the "Core" colum. Similar
-                # to single CPU systems - the CPU column is excluded. Make sure we always have them.
+                # On systems with a single core turbostat does not include the "Core" column.
+                # Similar to single CPU systems - the CPU column is excluded. Make sure we always
+                # have them.
                 for key in ("Core", "CPU"):
                     if key not in heading:
                         heading[key] = str
