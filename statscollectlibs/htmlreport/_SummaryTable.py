@@ -86,19 +86,21 @@ class SummaryTable:
             "funcs": {}
         }
 
-    def add_smry_func(self, reportid, metric, funcname, val):
+    def add_smry_func(self, reportid, metric, val, funcname=None):
         """
         Add summary functions to the summary table. Arguments are as follows:
          * reportid - the reportid of the results which this summary function summarises.
          * metric - name of the metric which this function summarises.
-         * funcname - what kind of summary has been calculated. E.g. 'max', 'min' etc.
+         * funcname - what kind of summary has been calculated. E.g. 'max', 'min' etc. Special value
+                      'None' means that no function was apply, can be used for the cases when there
+                      is only one value for the metric.
          * val - raw value of the summary function calculation. 'None' can be provided if a value is
                  not available. In this case the formatted value will be "N/A".
         """
 
         if metric not in self.smrytbl["title"]:
-            raise ErrorNotFound(f"Trying to add a summary function calculation for a metric which "
-                                f"has not yet been added. Please add metric '{metric}' with "
+            raise ErrorNotFound(f"BUG: trying to add a summary function calculation for a metric "
+                                f"which has not yet been added. Please add metric '{metric}' with "
                                 f"'_SummaryTable.add_metric()'.")
 
         if reportid not in self.smrytbl["funcs"]:

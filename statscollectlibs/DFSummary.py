@@ -46,7 +46,14 @@ def _get_percentile(funcname):
     return percent
 
 def get_smry_func_descr(funcname):
-    """Returns description for a summary function 'funcname'."""
+    """
+    Returns description for a summary function 'funcname'. The arguments are as follows.
+      * funcname - name of the function to return the description for. Special value 'None' means
+                   that this is not really a function.
+    """
+
+    if not funcname:
+        return "No functions were applied."
 
     if funcname in _SMRY_FUNCS:
         return _SMRY_FUNCS[funcname]
@@ -76,7 +83,7 @@ def calc_col_smry(df, colname, funcnames=None):
     smry = {}
 
     if not funcnames:
-        funcnames = get_smry_funcs()
+        funcnames = [name for name, _ in get_smry_funcs()]
 
     # Turn 'N%' into 99%, 99.9%, 99.99%, and 99.999%.
     fnames = []
@@ -116,4 +123,5 @@ def calc_col_smry(df, colname, funcnames=None):
             datum = df[colname].loc[datum]
 
         smry[funcname] = datum
+
     return smry

@@ -65,6 +65,9 @@ class TabBuilderBase:
           * smry_funcs - a dictionary in the format '{metric: summary_func}', for example:
                          {Metric1: ["99.999%", "99.99%",...],
                           Metric2: ["max", "min",...]}
+                         Note, 'summary_func' is allowed to be 'None', which means that no functions
+                         will be applied to the metric, and can be used for metrics that have only
+                         on value.
           * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
                          list of metric definition dictionaries for the metrics which should be
                          included on plots as hover text for the relevant report with id 'reportid'.
