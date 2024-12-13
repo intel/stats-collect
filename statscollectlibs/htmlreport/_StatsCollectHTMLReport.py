@@ -116,7 +116,7 @@ class StatsCollectHTMLReport:
             else:
                 log_row.add_cell(res.reportid, None)
 
-        # Add lings log workload data.
+        # Add links to workload data.
         wldata_paths = self._link_wldata()
         if wldata_paths:
             wldata_row = intro_tbl.create_row("Workload data")
@@ -127,7 +127,7 @@ class StatsCollectHTMLReport:
                 else:
                     wldata_row.add_cell(res.reportid, None)
 
-            return intro_tbl
+        return intro_tbl
 
     def generate(self):
         """Generate a 'stats-collect' report from the results 'rsts' with 'outdir'."""
