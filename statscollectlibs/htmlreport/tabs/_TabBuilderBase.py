@@ -34,7 +34,7 @@ class TabBuilderBase:
     tab builders provide default tab configurations which include data tabs for all available
     metrics.
 
-    The default configurations can be altered by the caller to customise the layout and contents of
+    The default configurations can be altered by the caller to customize the layout and contents of
     the statistics tab. The 'get_tab()' method can be used to generate a tab based on a custom tab
     configuration.
 
@@ -46,7 +46,7 @@ class TabBuilderBase:
        * 'get_default_tab_cfg()'
     3. Generate a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
        statistics files. Optionally provide a tab configuration ('DTabConfig' or 'CTabConfig') to
-       customise the tab. This can be based on the default configuration retrieved using
+       customize the tab. This can be based on the default configuration retrieved using
        'get_default_tab_cfg()'.
        * 'get_tab()'
     """
@@ -63,14 +63,12 @@ class TabBuilderBase:
           * x_metric - the name of the metric which will be plotted on the x-axis of the tab's
                        scatter plot.
           * smry_funcs - a dictionary in the format '{metric: summary_func}', for example:
-                         {
-                            Metric1: ["99.999%", "99.99%",...],
-                            Metric2: ["max", "min",...]
-                         }
+                         {Metric1: ["99.999%", "99.99%",...],
+                          Metric2: ["max", "min",...]}
           * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
                          list of metric definition dictionaries for the metrics which should be
                          included on plots as hover text for the relevant report with id 'reportid'.
-          * title - optionally customise the name of the tab. Defaults to 'y_metric'.
+          * title - optionally customize the name of the tab. Defaults to 'y_metric'.
         """
 
         title = title if title is not None else y_metric
@@ -173,9 +171,8 @@ class TabBuilderBase:
             try:
                 sub_tabs.append(self._build_dtab(outdir, dtabconfig))
             except Error as err:
-                _LOG.info("Skipping '%s' tab in '%s' tab: error occurred during tab generation.",
-                          dtabconfig.name, self.name)
-                _LOG.debug(err)
+                _LOG.notice("skipping '%s' tab in '%s' tab: an error occurred during tab "
+                            "generation\n%s", dtabconfig.name, self.name, err.indent(2))
 
         for subtab_cfg in ctabconfig.ctabs:
             subdir = Path(outdir) / DefsBase.get_fsname(subtab_cfg.name)
@@ -234,11 +231,11 @@ class TabBuilderBase:
         """
 
         if self.name is None:
-            raise Error(f"failed to initalise '{type(self).__name__}': 'name' class attribute not "
+            raise Error(f"failed to initialise '{type(self).__name__}': 'name' class attribute not "
                         f"populated.")
 
         if not dfs:
-            raise ErrorNotFound(f"failed to initalise '{type(self).__name__}': no results contain "
+            raise ErrorNotFound(f"failed to initialise '{type(self).__name__}': no results contain "
                                 f"data for this statistic.")
 
         self._reports = dfs

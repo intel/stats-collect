@@ -56,7 +56,7 @@ def get_smry_func_descr(funcname):
         return f"{percent}-th percentile"
 
     funcnames = ", ".join([fname for fname, _ in get_smry_funcs()])
-    raise Error(f"unknown function name '{funcname}', supported names are:\n{funcnames}")
+    raise Error(f"unknown function name '{funcname}', supported names are:\n  {funcnames}")
 
 def calc_col_smry(df, colname, funcnames=None):
     """
