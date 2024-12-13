@@ -13,9 +13,9 @@ Extends 'statscollectlibs.DefsBase.DefsBase' by specifying the directory for sta
 definition files.
 """
 
-from statscollectlibs.defs.DefsBase import DefsBase
+from statscollectlibs.defs import DefsBase
 
-class STCDefsBase(DefsBase):
+class STCDefsBase(DefsBase.DefsBase):
     """The base class for metrics definitions (AKA 'defs')."""
 
     def __init__(self, toolname):

@@ -13,9 +13,13 @@ This module provides the base class for metrics definitions (AKA 'defs').
 import re
 from pathlib import Path
 from pepclibs.helperlibs import YAML, ProjectFiles
+from pepclibs.helperlibs.Exceptions import Error
 
 def get_fsname(metric):
-    """Given a metric, returns a file-system and URL safe name."""
+    """
+    Return a file-system and URL-safe name for a metric. The arguments are as follows.
+      * metric - name of the metric to return an FS and URL-safe name for.
+    """
 
     # If 'metric' contains "%", we maintain the meaning by replacing with "Percent".
     metric = metric.replace("%", "Percent")
@@ -111,15 +115,25 @@ class DefsBase:
             self._expand_metric_patterns(metrics)
         self._add_subkeys()
 
-    def __init__(self, prjname, toolname, defsdir=None):
+    def __init__(self, prjname, toolname, defsdir=None, info=None):
         """
         The class constructor. The arguments are as follows.
           * prjname - name of the project the definitions and 'toolname' belong to.
-          * toolname - name of the tool to load the definitions for.
+          * toolname - name of the tool or workload the definitions belong to.
           * defsdir - path of directory containing definition files, defaults to "defs".
+          * info - the definitions dictionary to use instead of loading them from a YAML file.
         """
 
         self.toolname = toolname
+        self.path = None
+
+        if info:
+            self.info = info
+            return
+
+        # Build the 'info' dictionary from a definitions file.
+        if defsdir and info:
+            raise Error("BUG: 'defsdir' and 'info' are mutually exclusive")
 
         if defsdir is None:
             defsdir = "defs"
