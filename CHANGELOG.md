@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Fix mis-placing of ACPI C-states like C1_ACPI in HTML reports.
 ### Added
  - Add workload data direcrtory reference from the intro table.
+ - Add basic SPECjbb2015 workload support.
 ### Removed
 ### Changed
 
