@@ -78,25 +78,6 @@ def _result_is_valid(result):
         valid = _check_totals_val(result, "RAMWatt", 10)
     return valid
 
-def _parse_turbostat_line(heading, line):
-    """Parse a single turbostat line."""
-
-    line_data = {}
-    for key, value in zip_longest(heading.keys(), line):
-        # Turbostat adds "(neg)" values when it expects a positive value but reads a negative one.
-        # In this case the data point should be considered invalid, so skip it.
-        if value is not None and value != "-" and value != "(neg)":
-            if not heading[key]:
-                if Trivial.is_int(value):
-                    heading[key] = int
-                elif Trivial.is_float(value):
-                    heading[key] = float
-                else:
-                    heading[key] = str
-            line_data[key] = heading[key](value)
-
-    return line_data
-
 def _construct_totals(packages):
     """
     Turbostat provide package and core totals in some lines of the table. This function moves them
@@ -177,111 +158,130 @@ def _construct_totals(packages):
             for metric in ignore_keys:
                 del coreinfo["totals"][metric]
 
-def _construct_the_result(totals, cpus, nontable):
-    """
-    Construct and return the final dictionary corresponding to a parsed turbostat table.
-    """
-
-    result = {}
-    result["nontable"] = nontable
-    result["totals"] = totals
-
-    # Additionally provide the "packages" info sorted in the (Package,Core,CPU) order.
-    result["packages"] = packages = {}
-    cpu_count = core_count = pkg_count = 0
-    pkgdata = {}
-    coredata = {}
-
-    for cpuinfo in cpus.values():
-        if "Package" not in cpuinfo:
-            # The turbostat table does not include the "Package" column in case if there is only one
-            # CPU package. Emulate it.
-            cpuinfo["Package"] = "0"
-        if cpuinfo["Package"] not in packages:
-            packages[cpuinfo["Package"]] = pkgdata = {}
-            pkg_count += 1
-        if "cores" not in pkgdata:
-            pkgdata["cores"] = {}
-
-        cores = pkgdata["cores"]
-        if cpuinfo["Core"] not in cores:
-            cores[cpuinfo["Core"]] = coredata = {}
-            core_count += 1
-
-        if "cpus" not in coredata:
-            coredata["cpus"] = {}
-        cpus = coredata["cpus"]
-        cpus[cpuinfo["CPU"]] = cpuinfo
-        cpu_count += 1
-
-        # The package/core/CPU number keys in 'cpuinfo' are not needed anymore.
-        for key in ("Package", "Core", "CPU"):
-            del cpuinfo[key]
-
-    result["cpu_count"] = cpu_count
-    result["core_count"] = core_count
-    result["pkg_count"] = pkg_count
-
-    _construct_totals(packages)
-
-    return result
-
-def _parse_cpu_flags(nontable, line):
-    """Parse turbostat CPU flags."""
-
-    prefix = "CPUID(6):"
-    if line.startswith(prefix):
-        tsflags = line[len(prefix):].split(",")
-        nontable["flags"] = [tsflag.strip() for tsflag in tsflags]
-
-def _add_nontable_data(nontable, line):
-    """
-    Turbostat prints lots of useful information when used with the '-d' option. Try to identify the
-    useful bits and add them to the "nontable" dictionary.
-    """
-
-    # pylint: disable=pepc-comment-no-dot
-    # Example:
-    # turbostat version 2022.07.28 - Len Brown <lenb@kernel.org>
-    match = re.match(r"turbostat version ([^\s]+) .*", line)
-    if match:
-        nontable["TurbostatVersion"] = match.group(0)
-        return
-
-    # Example:
-    # 10 * 100 = 1000 MHz max efficiency frequency
-    match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max efficiency frequency", line)
-    if match:
-        nontable["MaxEfcFreq"] = float(match.group(1))
-        return
-
-    # Example:
-    # 18 * 100 = 1800 MHz base frequency
-    match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz base frequency", line)
-    if match:
-        nontable["BaseFreq"] = float(match.group(1))
-        return
-
-    # Example:
-    # 22 * 100 = 2200 MHz max turbo 8 active cores
-    match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max turbo (\d+) active cores", line)
-    if match:
-        if not "MaxTurbo" in nontable:
-            nontable["MaxTurbo"] = {}
-        nontable["MaxTurbo"][match.group(2)] = float(match.group(1))
-        return
-
-    # Example:
-    # cpu0: MSR_PKG_POWER_INFO: 0xf0ce803980528 (165 W TDP, RAPL 115 - 413 W, 0.014648 sec.)
-    match = re.match(r"cpu\d+: MSR_PKG_POWER_INFO: .+ \(([.\d]+) W TDP, .+\)", line)
-    if match:
-        nontable["TDP"] = int(match.group(1))
-        return
-
-    _parse_cpu_flags(nontable, line)
-
 class TurbostatParser(_ParserBase.ParserBase):
     """This class represents the turbostat output parser."""
+
+    def _construct_the_result(self, cpus):
+        """
+        Construct and return the final dictionary corresponding to a parsed turbostat table.
+        """
+
+        result = {}
+        result["nontable"] = self._nontable
+        result["totals"] = self._totals
+
+        # Additionally provide the "packages" info sorted in the (Package,Core,CPU) order.
+        result["packages"] = packages = {}
+        cpu_count = core_count = pkg_count = 0
+        pkgdata = {}
+        coredata = {}
+
+        for cpuinfo in cpus.values():
+            if "Package" not in cpuinfo:
+                # The turbostat table does not include the "Package" column in case if there is only
+                # one CPU package. Emulate it.
+                cpuinfo["Package"] = "0"
+            if cpuinfo["Package"] not in packages:
+                packages[cpuinfo["Package"]] = pkgdata = {}
+                pkg_count += 1
+            if "cores" not in pkgdata:
+                pkgdata["cores"] = {}
+
+            cores = pkgdata["cores"]
+            if cpuinfo["Core"] not in cores:
+                cores[cpuinfo["Core"]] = coredata = {}
+                core_count += 1
+
+            if "cpus" not in coredata:
+                coredata["cpus"] = {}
+            cpus = coredata["cpus"]
+            cpus[cpuinfo["CPU"]] = cpuinfo
+            cpu_count += 1
+
+            # The package/core/CPU number keys in 'cpuinfo' are not needed anymore.
+            for key in ("Package", "Core", "CPU"):
+                del cpuinfo[key]
+
+        result["cpu_count"] = cpu_count
+        result["core_count"] = core_count
+        result["pkg_count"] = pkg_count
+
+        _construct_totals(packages)
+
+        return result
+
+    def _parse_cpu_flags(self, line):
+        """Parse turbostat CPU flags."""
+
+        prefix = "CPUID(6):"
+        if line.startswith(prefix):
+            tsflags = line[len(prefix):].split(",")
+            self._nontable["flags"] = [tsflag.strip() for tsflag in tsflags]
+
+    def _add_nontable_data(self, line):
+        """
+        Turbostat prints lots of useful information when used with the '-d' option. Try to identify
+        the useful bits and add them to the "nontable" dictionary.
+        """
+
+        # pylint: disable=pepc-comment-no-dot
+        # Example:
+        # turbostat version 2022.07.28 - Len Brown <lenb@kernel.org>
+        match = re.match(r"turbostat version ([^\s]+) .*", line)
+        if match:
+            self._nontable["TurbostatVersion"] = match.group(0)
+            return
+
+        # Example:
+        # 10 * 100 = 1000 MHz max efficiency frequency
+        match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max efficiency frequency", line)
+        if match:
+            self._nontable["MaxEfcFreq"] = float(match.group(1))
+            return
+
+        # Example:
+        # 18 * 100 = 1800 MHz base frequency
+        match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz base frequency", line)
+        if match:
+            self._nontable["BaseFreq"] = float(match.group(1))
+            return
+
+        # Example:
+        # 22 * 100 = 2200 MHz max turbo 8 active cores
+        match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max turbo (\d+) active cores", line)
+        if match:
+            if "MaxTurbo" not in self._nontable:
+                self._nontable["MaxTurbo"] = {}
+            self._nontable["MaxTurbo"][match.group(2)] = float(match.group(1))
+            return
+
+        # Example:
+        # cpu0: MSR_PKG_POWER_INFO: 0xf0ce803980528 (165 W TDP, RAPL 115 - 413 W, 0.014648 sec.)
+        match = re.match(r"cpu\d+: MSR_PKG_POWER_INFO: .+ \(([.\d]+) W TDP, .+\)", line)
+        if match:
+            self._nontable["TDP"] = int(match.group(1))
+            return
+
+        self._parse_cpu_flags(line)
+
+    def _parse_turbostat_line(self, line):
+        """Parse a single turbostat line."""
+
+        line_data = {}
+        for key, value in zip_longest(self._heading.keys(), line):
+            # Turbostat adds "(neg)" values when it expects a positive value but reads a negative
+            # one. In this case the data point should be considered invalid, so skip it.
+            if value is not None and value != "-" and value != "(neg)":
+                if not self._heading[key]:
+                    if Trivial.is_int(value):
+                        self._heading[key] = int
+                    elif Trivial.is_float(value):
+                        self._heading[key] = float
+                    else:
+                        self._heading[key] = str
+                line_data[key] = self._heading[key](value)
+
+        return line_data
 
     def _next(self):
         """
@@ -291,8 +291,6 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         cpus = {}
         table_started = False
-        nontable = {}
-        heading = totals = None
 
         # Keep track of how many lines are skipped because they contain invalid data so that we can
         # warn the user if the file contains a large amount.
@@ -314,7 +312,7 @@ class TurbostatParser(_ParserBase.ParserBase):
 
             # Match the beginning of the turbostat table.
             if not table_started and not re.match(tbl_regex, line):
-                _add_nontable_data(nontable, line)
+                self._add_nontable_data(line)
                 continue
 
             line = line.split()
@@ -322,7 +320,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # This is the continuation of the table we are currently parsing. It starts either
                 # with a floating-point 'Time_Of_Day_Seconds' an integer 'Core' value. Each line
                 # describes a single CPU.
-                cpu_data = _parse_turbostat_line(heading, line)
+                cpu_data = self._parse_turbostat_line(line)
                 cpus[cpu_data["CPU"]] = cpu_data
             else:
                 # This is the start of the new table.
@@ -331,8 +329,8 @@ class TurbostatParser(_ParserBase.ParserBase):
                         # This is the the special case for single-CPU systems. Turbostat does not
                         # print the totals because there is only one CPU and totals is the the same
                         # as the CPU information.
-                        cpus[0] = totals
-                    result = _construct_the_result(totals, cpus, nontable)
+                        cpus[0] = self._totals
+                    result = self._construct_the_result(cpus)
                     if _result_is_valid(result):
                         skipped_lines += consecutively_skipped_lines
                         consecutively_skipped_lines = 0
@@ -344,14 +342,14 @@ class TurbostatParser(_ParserBase.ParserBase):
                                         "invalid data")
                     cpus = {}
 
-                heading = {}
+                self._heading = {}
                 for key in line:
                     if "%" in key or "Watt" in key or key in {"Time_Of_Day_Seconds", "IPC"}:
-                        heading[key] = float
+                        self._heading[key] = float
                     elif key in ("Package", "Core", "CPU"):
-                        heading[key] = str
+                        self._heading[key] = str
                     else:
-                        heading[key] = None
+                        self._heading[key] = None
 
                 # The next line is total statistics across all CPUs, except if there is only one
                 # single CPU in the system.
@@ -363,15 +361,15 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # Similar to single CPU systems - the CPU column is excluded. Make sure we always
                 # have them.
                 for key in ("Core", "CPU"):
-                    if key not in heading:
-                        heading[key] = str
+                    if key not in self._heading:
+                        self._heading[key] = str
                         line.append("0")
 
-                totals = _parse_turbostat_line(heading, line)
+                self._totals = self._parse_turbostat_line(line)
 
             table_started = True
 
-        result = _construct_the_result(totals, cpus, nontable)
+        result = self._construct_the_result(cpus)
         if _result_is_valid(result):
             yield result
         else:
@@ -391,9 +389,16 @@ class TurbostatParser(_ParserBase.ParserBase):
                         run with custom columns selection (see 'turbostat --show').
         """
 
-        super().__init__(path, lines)
-
         if not cols_regex:
             cols_regex = _COLS_REGEX
 
         self._cols_regex = cols_regex
+
+        # The debug output that turbostat prints before printing the table(s).
+        self._nontable = {}
+        # The heading of the currently parsed turbostat table.
+        self._heading = None
+        # Then next line after the heading of the currently parsed turbostat table.
+        self._totals = None
+
+        super().__init__(path, lines)
