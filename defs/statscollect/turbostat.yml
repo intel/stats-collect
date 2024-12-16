@@ -113,6 +113,37 @@ Cx%:
         - '(POLL)%'
         - '(C\d+[ESP]*)%'
         - '(C\d+ACPI)%'
+Cx_rate:
+    title: "Average {groups[0]} requests rate"
+    descr: >-
+        Average count of times per second Linux requested the {groups[0]} C-state in average.
+        Calculated as the turbostat measurement interval divided by the {groups[0]} requests count
+        during the measurement interval.
+    type: "float"
+    unit: "requests/sec"
+    short_unit: "req/s"
+    scope: "CPU"
+    categories: ["C-state", "Requested"]
+    patterns:
+        - '(POLL)_rate'
+        - '(C\d+[ESP]*)_rate'
+        - '(C\d+ACPI)_rate'
+Cx_time:
+    title: "Average {groups[0]} time per request"
+    descr: >-
+        The amount of time spent in a single {groups[0]} request in average. Calculated as
+        {groups[0]} requests count during the turbostat measurement interval divided by the
+        measurement interval.
+        count.
+    type: "float"
+    unit: "microsecond"
+    short_unit: "us"
+    scope: "CPU"
+    categories: ["C-state", "Requested"]
+    patterns:
+        - '(POLL)_time'
+        - '(C\d+[ESP]*)_time'
+        - '(C\d+ACPI)_time'
 SYS%LPI:
     title: "S0ix residency"
     descr: >-
