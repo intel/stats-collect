@@ -45,46 +45,62 @@ def is_mdef(dct):
 class DefsBase:
     """The base class for metrics definitions (AKA 'defs')."""
 
-    def _expand_metric_patterns(self, metrics):
+    def _handle_pattern(self, metric, info):
         """
-        Replace the pattern in metrics definitions. The arguments are as follows.
+        Replace patterns in definition dictionary of a metric. The arguments are as follows.
+         * metric - name of the metric to substitute the 'info' dictionary contents with.
+         * info - the metric definition dictionary to apply the pattern substitutions to.
+
+        Return the substituted version of the 'info' dictionary.
+        """
+
+        new_info = None
+
+        for pattern in info["patterns"]:
+            mobj = re.match(pattern, metric)
+            if not mobj:
+                continue
+
+            new_info = info.copy()
+            del new_info["patterns"]
+
+            for idx, grp in enumerate(mobj.groups()):
+                for skey in self._mangle_subkeys:
+                    text = new_info[skey]
+                    for grp_patt, grp_repl in (("{GROUPS[%d]}" % idx, grp.upper()),
+                                               ("{groups[%d]}" % idx, grp)):
+                        text = text.replace(grp_patt, grp_repl)
+                    new_info[skey] = text
+            break
+
+        return new_info
+
+    def _handle_patterns(self, metrics):
+        """
+        Replace patterns in the definitions dictionary. The arguments are as follows.
          * metrics - a collection of metric names to use for substituting the patterns in the
                      definitions dictionary.
         """
 
+        # Parts of the definitions dictionary ('self.info') will be replaced with the contents of
+        # this dictionary.
         replacements = {}
 
-        # pylint: disable=too-many-nested-blocks
         for key, val in self.info.items():
             if not "patterns" in val:
                 # Nothing to mangle.
                 continue
 
-            replacement = {}
             for metric in metrics:
                 if metric in self.info:
                     # Skip metrics that are explicitly defined.
                     continue
 
-                for pattern in val["patterns"]:
-                    mobj = re.match(pattern, metric)
-                    if not mobj:
-                        continue
-
-                    replacement[metric] = self.info[key].copy()
-                    del replacement[metric]["patterns"]
-
-                    for idx, grp in enumerate(mobj.groups()):
-                        for skey in self._mangle_subkeys:
-                            text = replacement[metric][skey]
-                            for grp_patt, grp_repl in (("{GROUPS[%d]}" % idx, grp.upper()),
-                                                       ("{groups[%d]}" % idx, grp)):
-                                text = text.replace(grp_patt, grp_repl)
-                            replacement[metric][skey] = text
-                    break
-
-                if replacement:
-                    replacements[key] = replacement
+                new_val = self._handle_pattern(metric, val)
+                if new_val:
+                    if key not in replacements:
+                        replacements[key] = {}
+                    replacements[key][metric] = new_val
 
         new_info = {}
         for key, val in self.info.items():
@@ -112,7 +128,7 @@ class DefsBase:
         """
 
         if metrics:
-            self._expand_metric_patterns(metrics)
+            self._handle_patterns(metrics)
         self._add_subkeys()
 
     def __init__(self, prjname, toolname, defsdir=None, info=None):

@@ -15,7 +15,7 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
     """This module provides API to turbostat metrics definitions (AKA 'defs')."""
 
     def mangle_descriptions(self):
-        """Mangle turbostat metric descriptions to describe how they are summarised by turbostat."""
+        """Mangle turbostat metric descriptions to describe how they are summarized by turbostat."""
 
         for metric, mdef in self.info.items():
             method = TurbostatParser.get_aggregation_method(metric)
