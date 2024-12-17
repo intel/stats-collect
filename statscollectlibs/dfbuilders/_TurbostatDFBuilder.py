@@ -7,8 +7,7 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of building 'pandas.DataFrames' out of raw turbostat statistics
-files.
+Provide the capability of building 'pandas.DataFrames' out of raw turbostat statistics files.
 """
 
 import pandas
@@ -20,8 +19,10 @@ TOTALS_SNAME = "Totals"
 
 def get_col_scope(colname):
     """
-    Return the scope name of 'colname', returns 'None' if 'colname' does not apply to a single
-    scope.
+    Return the scope name of 'pandas.DataFrame' column. The arguments are as follows.
+      * colname - name of the column to return the scope name for.
+
+    Return 'None' if 'colname' does not apply to a single scope.
     """
 
     split = colname.split("-")
@@ -31,8 +32,7 @@ def get_col_scope(colname):
 
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
-    This class provides the capability of building a 'pandas.DataFrames' out of raw turbostat
-    statistics files.
+    Provides the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.
     """
 
     def _add_tstat_scope(self, tstat, totals=False):
@@ -40,13 +40,13 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         The 'tstat' dictionary contains the turbostat statistics for a particular scope (e.g. for
         a specific CPU or a summary of the whole system). Add that scope to the keys in the
         dictionary. Arguments are as follows:
-         * tstat - a dictionary containing the turbostat statistics.
-         * totals - a boolean indicating whether the 'tstat' dictionary contains totals data.
+          * tstat - a dictionary containing the turbostat statistics.
+          * totals - a boolean indicating whether the 'tstat' dictionary contains totals data.
         """
 
         renamed_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
         for metric, value in tstat.items():
-            colprefix = TOTALS_SNAME if totals else f"CPU{self.cpunum}"
+            colprefix = TOTALS_SNAME if totals else f"CPU{self._cpunum}"
             colname = f"{colprefix}-{metric}"
             self.col2metric[colname] = metric
             renamed_tstat[colname] = value
@@ -71,7 +71,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         contains values from the package, core, and CPU levels.
         """
 
-        cpunum = str(self.cpunum)
+        cpunum = str(self._cpunum)
 
         # Traverse dictionary looking for measured CPUs.
         for package in tstat["packages"].values():
@@ -84,7 +84,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
                 return self._add_tstat_scope({**package["totals"], **core["totals"],
                                               **core["cpus"][cpunum]})
 
-        raise Error(f"no data for measured CPU '{self.cpunum}'")
+        raise Error(f"no data for measured CPU '{self._cpunum}'")
 
     def _turbostat_to_df(self, tstat):
         """
@@ -93,30 +93,32 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         new_tstat = self._extract_totals(tstat)
-        if self.cpunum is not None:
+        if self._cpunum is not None:
             new_tstat.update(self._extract_cpu(tstat))
 
         return pandas.DataFrame.from_dict(new_tstat)
 
     def _read_stats_file(self, path):
         """
-        Returns a 'pandas.DataFrame' containing the data stored in the raw turbostat statistics file
-        at 'path'.
+        Return a 'pandas.DataFrame' containing the data stored in the raw turbostat statistics file
+        at path 'path'.
         """
 
-        parser = TurbostatParser.TurbostatParser(path).next()
+        parser = TurbostatParser.TurbostatParser(path)
+        generator = parser.next()
 
         try:
             # Try to read the first data point from raw statistics file.
-            parsed_dp = next(parser)
+            parsed_dp = next(generator)
         except StopIteration:
-            raise Error("empty or incorrectly formatted turbostat raw statistics file") from None
+            raise Error(f"empty or incorrectly formatted 'turbostat' statistics file "
+                        f"'{path}") from None
 
         # Initialise 'sdf' with the first datapoint in the raw statistics file.
         sdf = self._turbostat_to_df(parsed_dp)
 
         # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
-        for parsed_dp in parser:
+        for parsed_dp in generator:
             df = self._turbostat_to_df(parsed_dp)
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
@@ -124,14 +126,14 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     def __init__(self, cpunum=None):
         """
-        The class constructor. The arguments are as follows:
+        The class constructor. The arguments are as follows.
           * cpunum - the measured CPU number.
 
         Note, the constructor does not load the potentially huge test result data into the memory.
         The data are loaded "on-demand" by 'load_df()'.
         """
 
-        self.cpunum = cpunum
+        self._cpunum = cpunum
 
         # A dictionary mapping 'pandas.DataFrame' column names (built by 'load_df()') to the
         # corresponding turbostat metric name. E.g., column "Totals-CPU%c1" will be mapped to
