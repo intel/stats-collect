@@ -7,8 +7,7 @@
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module implements parsing for the output of the "turbostat" Linux tool. The input file should
-consist of one or multiple turbostat data tables.
+Provide the 'TurbostatParser' class which parses 'turbostat' tool output.
 """
 
 import logging
@@ -21,7 +20,7 @@ from statscollectlibs.parsers import _ParserBase
 _LOG = logging.getLogger()
 
 # The default regular expression for turbostat columns to parse.
-_COLS_REGEX = r".*\s*Avg_MHz\s+(Busy%|%Busy)\s+Bzy_MHz\s+.*"
+_TABLE_START_REGEX = r".*\s*Avg_MHz\s+(Busy%|%Busy)\s+Bzy_MHz\s+.*"
 
 # Aggregation methods used by turbostat to summarise columns.
 SUM = "sum"
@@ -31,8 +30,10 @@ MAX = "max"
 def get_aggregation_method(metric):
     """
     Turbostat summaries are aggregations of values for all CPUs in the system. Different turbostat
-    metrics are aggregated with different methods. Given a 'metric', this function returns one of
-    the aggregation method constants.
+    metrics are aggregated with different methods. The arguments are as follows.
+      * metric - name of the metric to return the aggregation method name for.
+
+    Return the aggregation method name for metric 'metric'.
     """
 
     # For IRQ, SMI, and C-state requests count - just return the sum.
@@ -47,9 +48,9 @@ def _check_totals_val(result, colname, multiplier):
     """
     Helper function for '_result_is_valid()'. Check if values for 'colname' in 'result' are less
     than 'multiplier' times the package TDP. Arguments are as follows:
-     * result - the turbostat result dictionary.
-     * colname - the name of the column to check. 
-     * multiplier - the number of times the TDP to compare the 'colname' values against.
+      * result - the turbostat result dictionary.
+      * colname - the name of the column to check.
+      * multiplier - the number of times the TDP to compare the 'colname' values against.
     """
 
     tdp = result["nontable"]["TDP"]
@@ -159,7 +160,7 @@ def _construct_totals(packages):
                 del coreinfo["totals"][metric]
 
 class TurbostatParser(_ParserBase.ParserBase):
-    """This class represents the turbostat output parser."""
+    """The 'turbostat' tool output parser."""
 
     def _construct_the_result(self, cpus):
         """
@@ -301,7 +302,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         consecutively_skipped_lines = 0
         limit = 4
 
-        tbl_regex = re.compile(self._cols_regex)
+        tbl_regex = re.compile(self._tbl_start_regex)
 
         for line in self._lines:
             # Ignore empty and 'jitter' lines like "turbostat: cpu65 jitter 2574 5881".
@@ -379,21 +380,15 @@ class TurbostatParser(_ParserBase.ParserBase):
             pcnt = int((skipped_lines / lines_cnt) * 100)
             raise Error(f"more than half ({pcnt}%) of the turbostat lines contain invalid data")
 
-    def __init__(self, path=None, lines=None, cols_regex=None):
+    def __init__(self, path=None, lines=None):
         """
-        TurbostatParser constructor. Arguments are as follows:
-         * path - same as in ParserBase.__init__()
-         * lines - same as in ParserBase.__init__()
-         * cols_regex - the regular expression to match against the 'turbostat' heading line (first
-                        line printed with 'turbostat -q -S'). Has to be uses in case 'turbostat' was
-                        run with custom columns selection (see 'turbostat --show').
+        TurbostatParser constructor. Arguments are as follows.
+          * path - same as in ParserBase.__init__().
+          * lines - same as in ParserBase.__init__().
         """
 
-        if not cols_regex:
-            cols_regex = _COLS_REGEX
-
-        self._cols_regex = cols_regex
-
+        # Regular expression for matching the beginning of the turbostat table.
+        self._tbl_start_regex = _TABLE_START_REGEX
         # The debug output that turbostat prints before printing the table(s).
         self._nontable = {}
         # The heading of the currently parsed turbostat table.
