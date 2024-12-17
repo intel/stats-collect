@@ -58,15 +58,25 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add requested C-state residency/count D-tabs tabs to separate C-tabs.
         res_metrics = []
+        rate_metrics = []
+        time_metrics = []
         cnt_metrics = []
         for name in self._defs.categories["C-state"]["Requested"]:
-            if self._defs.info[name].get("unit") == "%":
-                res_metrics.append(name)
+            unit = self._defs.info[name].get("unit")
+            if unit:
+                if unit == "%":
+                    res_metrics.append(name)
+                elif "requests/sec" in unit:
+                    rate_metrics.append(name)
+                elif "microsecond" in unit:
+                    time_metrics.append(name)
             else:
                 cnt_metrics.append(name)
         res_tab = build_ctab_cfg("Residency", res_metrics)
+        rate_tab = build_ctab_cfg("Request rate", rate_metrics)
+        time_tab = build_ctab_cfg("Time in C-state ", time_metrics)
         cnt_tab = build_ctab_cfg("Count", cnt_metrics)
-        req_tabs = TabConfig.CTabConfig("Requested", ctabs=[res_tab, cnt_tab])
+        req_tabs = TabConfig.CTabConfig("Requested", ctabs=[res_tab, rate_tab, time_tab, cnt_tab])
 
         # Add hardware C-state residency D-tabs to a separate C-tab.
         metrics = ["Busy%"]
