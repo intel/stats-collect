@@ -104,7 +104,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         at path 'path'.
         """
 
-        parser = TurbostatParser.TurbostatParser(path)
+        parser = TurbostatParser.TurbostatParser(path, derivatives=True)
         generator = parser.next()
 
         try:

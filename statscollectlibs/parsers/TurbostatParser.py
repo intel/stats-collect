@@ -22,6 +22,9 @@ _LOG = logging.getLogger()
 # The default regular expression for turbostat columns to parse.
 _TABLE_START_REGEX = r".*\s*Avg_MHz\s+(Busy%|%Busy)\s+Bzy_MHz\s+.*"
 
+# Regular expression for matching requestable C-state names.
+_REQ_CSTATES_REGEX = r"^((POLL)|(C\d+[ESP]*)|(C\d+ACPI))$"
+
 # Aggregation methods used by turbostat to summarise columns.
 SUM = "sum"
 AVG = "average"
@@ -265,23 +268,71 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         self._parse_cpu_flags(line)
 
+    def _add_cstate_derivatives(self, cst_name, line_data):
+        """
+        Calculate derivatives for a C-state metric and add them to the 'line_data' dictionary.
+        """
+
+        cnt_metric = cst_name
+        rate_metric = f"{cnt_metric}_rate"
+        time_metric = f"{cnt_metric}_time"
+        res_metric = f"{cnt_metric}%"
+
+        if not self._prev_totals:
+            # This is the very first table, but 2 tables are needed to get 2 time-stamps to
+            # calculate the interval.
+            line_data[rate_metric] = 0
+            if res_metric in line_data:
+                line_data[time_metric] = 0
+            return
+
+        if "Time_Of_Day_Seconds" not in line_data:
+            # Without timestamps the interval is not known, cannot calculate the derivatives.
+            line_data[rate_metric] = 0
+            if res_metric in line_data:
+                line_data[time_metric] = 0
+            return
+
+        time = line_data["Time_Of_Day_Seconds"] - self._prev_totals["Time_Of_Day_Seconds"]
+        if time:
+            # Add the average requests rate.
+            line_data[rate_metric] = line_data[cnt_metric] / time
+        else:
+            line_data[rate_metric] = 0
+
+        if res_metric not in line_data:
+            return
+
+        if line_data[cnt_metric]:
+            # Calculate the spent in the C-state (in seconds).
+            time = time * line_data[res_metric] / 100
+            # Add the average time spent in a single C-state request in microseconds.
+            line_data[time_metric] = (time / line_data[cnt_metric]) * 1000000
+        else:
+            line_data[time_metric] = 0
+
     def _parse_turbostat_line(self, line):
         """Parse a single turbostat line."""
 
         line_data = {}
-        for key, value in zip_longest(self._heading.keys(), line):
+        for metric, value in zip_longest(self._heading.keys(), line):
             # Turbostat adds "(neg)" values when it expects a positive value but reads a negative
             # one. In this case the data point should be considered invalid, so skip it.
             if value is not None and value != "-" and value != "(neg)":
-                if not self._heading[key]:
+                if not self._heading[metric]:
                     if Trivial.is_int(value):
-                        self._heading[key] = int
+                        self._heading[metric] = int
                     elif Trivial.is_float(value):
-                        self._heading[key] = float
+                        self._heading[metric] = float
                     else:
-                        self._heading[key] = str
-                line_data[key] = self._heading[key](value)
+                        self._heading[metric] = str
 
+                line_data[metric] = self._heading[metric](value)
+
+        if self._derivatives:
+            for metric in list(line_data):
+                if re.match(_REQ_CSTATES_REGEX, metric):
+                    self._add_cstate_derivatives(metric, line_data)
         return line_data
 
     def _next(self):
@@ -291,7 +342,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         cpus = {}
-        table_started = False
+        tables_started = False
 
         # Keep track of how many lines are skipped because they contain invalid data so that we can
         # warn the user if the file contains a large amount.
@@ -312,7 +363,7 @@ class TurbostatParser(_ParserBase.ParserBase):
             lines_cnt += 1
 
             # Match the beginning of the turbostat table.
-            if not table_started and not re.match(tbl_regex, line):
+            if not tables_started and not re.match(tbl_regex, line):
                 self._add_nontable_data(line)
                 continue
 
@@ -325,7 +376,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 cpus[cpu_data["CPU"]] = cpu_data
             else:
                 # This is the start of the new table.
-                if cpus or table_started:
+                if cpus or tables_started:
                     if not cpus:
                         # This is the the special case for single-CPU systems. Turbostat does not
                         # print the totals because there is only one CPU and totals is the the same
@@ -366,9 +417,10 @@ class TurbostatParser(_ParserBase.ParserBase):
                         self._heading[key] = str
                         line.append("0")
 
+                self._prev_totals = self._totals
                 self._totals = self._parse_turbostat_line(line)
 
-            table_started = True
+            tables_started = True
 
         result = self._construct_the_result(cpus)
         if _result_is_valid(result):
@@ -380,12 +432,15 @@ class TurbostatParser(_ParserBase.ParserBase):
             pcnt = int((skipped_lines / lines_cnt) * 100)
             raise Error(f"more than half ({pcnt}%) of the turbostat lines contain invalid data")
 
-    def __init__(self, path=None, lines=None):
+    def __init__(self, path=None, lines=None, derivatives=False):
         """
         TurbostatParser constructor. Arguments are as follows.
           * path - same as in ParserBase.__init__().
           * lines - same as in ParserBase.__init__().
+          * derivatives - whether the derivative metrics should be added.
         """
+
+        self._derivatives = derivatives
 
         # Regular expression for matching the beginning of the turbostat table.
         self._tbl_start_regex = _TABLE_START_REGEX
@@ -395,5 +450,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         self._heading = None
         # Then next line after the heading of the currently parsed turbostat table.
         self._totals = None
+        # The "totals" line of the previously parsed table.
+        self._prev_totals = None
 
         super().__init__(path, lines)
