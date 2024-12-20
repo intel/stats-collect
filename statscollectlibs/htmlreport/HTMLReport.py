@@ -169,6 +169,7 @@ class HTMLReport:
                 self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self._tabs_dir,
                                                                      basedir=self._outdir)
             except Error as err:
+                _LOG.debug_print_stacktrace()
                 _LOG.warning("failed to generate statistics tabs: %s", err)
 
     def _generate_tabs(self, rsts, tab_cfgs):
@@ -187,6 +188,7 @@ class HTMLReport:
             sysinfo_tab = self._sysinfo_tbldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
+            _LOG.debug_print_stacktrace()
             _LOG.warning("failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
 
         return tabs
