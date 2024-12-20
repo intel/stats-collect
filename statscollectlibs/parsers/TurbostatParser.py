@@ -40,7 +40,7 @@ def get_aggregation_method(metric):
     """
 
     # For IRQ, SMI, and C-state requests count - just return the sum.
-    if metric in ("IRQ", "SMI") or re.match("^C[0-9][A-Z]?$", metric):
+    if metric in ("IRQ", "SMI") or re.match(_REQ_CSTATES_REGEX, metric):
         return SUM
     # For temperatures, take the maximum value.
     if metric.endswith("Tmp"):
