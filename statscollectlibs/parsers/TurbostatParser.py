@@ -153,7 +153,8 @@ def _construct_totals(packages):
 
     # The the *_MHz totals provided by turbostat are weighted averages of the per-CPU values. The
     # weights are the amount of cycles the CPU spent executing instructions instead of being in a
-    # C-state.
+    # C-state. Remove the incorrectly calculated non-weighted averages, because I was too lazy to
+    # implement weighted avarages calculations.
     ignore_keys = ("Avg_MHz", "Bzy_MHz")
     for pkginfo in packages.values():
         for metric in ignore_keys:
