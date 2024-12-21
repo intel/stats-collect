@@ -13,7 +13,6 @@ multiple snapshots of measurement data which we call "data sets". The data sets 
 with the "timestamp | XYZ" lines.
 """
 
-import datetime
 import re
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
@@ -31,24 +30,11 @@ class IPMIParser(_ParserBase.ParserBase):
         entry_regex = re.compile(r"^(.+)\|(.+)\|(.+)$")
         get_ts = Trivial.str_to_num
 
-        # Timestamps in raw 'ipmi' statistics files were changed in 'stats-collect v1.0.21' from a
-        # human readable, but time-zone sensitive, format to an epoch timestamp in result format
-        # v1.3. So catch and handle each case separately. To remove support for this format, simply
-        # remove the following code block.
-        # Example of a line with the old timestamp format: timestamp | 2017_01_04_11:02:46
-        ts_fmt = "%Y_%m_%d_%H:%M:%S"
-        old_ts_regex = re.compile(r"^(timestamp) \| (\d+_\d+_\d+_\d+:\d+:\d+)$")
         ts_line = next(self._lines, None).strip()
-        if ts_line is None:
-            raise Error("empty 'ipmi' statistics file")
-        match = re.match(old_ts_regex, ts_line)
-        if match:
-            ts_regex = old_ts_regex
-            # pylint: disable=unnecessary-lambda-assignment
-            get_ts = lambda ts: int(datetime.datetime.strptime(ts, ts_fmt).strftime("%s"))
-            # pylint: enable=unnecessary-lambda-assignment
-        else:
-            match = re.match(ts_regex, ts_line)
+        match = re.match(ts_regex, ts_line)
+        if not match:
+            raise Error(f"unrecognized raw IPMI statistics file format.\nExpected to find the "
+                        f"time-stamp (example: 'timestamp | 1705672515.054093'), got: '{ts_line}'")
         yield (match.group(1).strip(), get_ts(match.group(2).strip()), "")
 
         for line in self._lines:
@@ -63,7 +49,7 @@ class IPMIParser(_ParserBase.ParserBase):
                 match = re.match(entry_regex, line)
                 if match:
                     val = match.group(2).strip()
-                    data = val.split(' ', 1)
+                    data = val.split(" ", 1)
                     if val not in ["no reading", "disabled"] and len(data) > 1:
                         yield (match.group(1).strip(), Trivial.str_to_num(data[0]), data[1])
                     else:
