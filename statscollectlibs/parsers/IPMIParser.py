@@ -15,7 +15,7 @@ with the "timestamp | XYZ" lines.
 
 import re
 from pepclibs.helperlibs import Trivial
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
 
 class IPMIParser(_ParserBase.ParserBase):
@@ -33,8 +33,9 @@ class IPMIParser(_ParserBase.ParserBase):
         ts_line = next(self._lines, None).strip()
         match = re.match(ts_regex, ts_line)
         if not match:
-            raise Error(f"unrecognized raw IPMI statistics file format.\nExpected to find the "
-                        f"time-stamp (example: 'timestamp | 1705672515.054093'), got: '{ts_line}'")
+            raise ErrorBadFormat(f"unrecognized raw IPMI statistics file format.\nExpected to find "
+                                 f"the time-stamp (example: 'timestamp | 1705672515.054093'), got: "
+                                 f"'{ts_line}'")
         yield (match.group(1).strip(), get_ts(match.group(2).strip()), "")
 
         for line in self._lines:

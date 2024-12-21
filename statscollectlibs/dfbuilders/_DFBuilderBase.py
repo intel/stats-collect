@@ -15,7 +15,7 @@ import json
 import logging
 import numpy
 import pandas
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 
 _LOG = logging.getLogger()
 
@@ -117,6 +117,8 @@ class DFBuilderBase:
 
         try:
             sdf = self._read_stats_file(path)
+        except ErrorBadFormat as err:
+            raise
         except Exception as err:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
                         f"{Error(err).indent(2)}") from err

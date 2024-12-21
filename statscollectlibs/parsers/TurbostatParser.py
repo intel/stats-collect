@@ -14,7 +14,7 @@ import logging
 import re
 from itertools import zip_longest
 from pepclibs.helperlibs import Trivial
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
 
 _LOG = logging.getLogger()
@@ -105,7 +105,7 @@ def _construct_totals(packages):
             return sum(vals) / len(vals)
         if agg_method == MAX:
             return max(vals)
-        raise Error(f"BUG: unable to summarise turbostat column '{key}' with method '{agg_method}'")
+        raise Error(f"BUG: unable to summarize turbostat column '{key}' with method '{agg_method}'")
 
     for pkginfo in packages.values():
         for coreinfo in pkginfo["cores"].values():
@@ -391,8 +391,8 @@ class TurbostatParser(_ParserBase.ParserBase):
                     else:
                         consecutively_skipped_lines += 1
                         if consecutively_skipped_lines > limit:
-                            raise Error(f"more than {limit} consecutive turbostat lines contain "
-                                        "invalid data")
+                            raise ErrorBadFormat(f"more than {limit} consecutive turbostat lines "
+                                                 f"contain invalid data")
                     cpus = {}
 
                 self._heading = {}
@@ -431,7 +431,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         if skipped_lines > lines_cnt / 2:
             pcnt = int((skipped_lines / lines_cnt) * 100)
-            raise Error(f"more than half ({pcnt}%) of the turbostat lines contain invalid data")
+            raise ErrorBadFormat(f"more than half ({pcnt}%) of the turbostat lines contain "
+                                 f"invalid data")
 
     def __init__(self, path=None, lines=None, derivatives=False):
         """

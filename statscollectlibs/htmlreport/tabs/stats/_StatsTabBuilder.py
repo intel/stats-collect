@@ -9,7 +9,7 @@
 """This module provides the API to generate a 'Stats' container tab."""
 
 import logging
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import (_ACPowerTabBuilder, _IPMITabBuilder,
                                                     _TurbostatTabBuilder)
@@ -106,6 +106,10 @@ class StatsTabBuilder:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder.name, tab_builder.name)
                 _LOG.debug(err)
+                continue
+            except ErrorBadFormat as err:
+                _LOG.warning("Skipping '%s' tab as '%s' statistics has bad format:\n%s",
+                             tab_builder.name, tab_builder.name, err.indent(2))
                 continue
 
     def __init__(self, rsts, outdir, basedir=None):
