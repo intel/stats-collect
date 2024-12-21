@@ -25,7 +25,7 @@ _TABLE_START_REGEX = r".*\s*Avg_MHz\s+Busy%\s+Bzy_MHz\s+.*"
 # Regular expression for matching requestable C-state names.
 _REQ_CSTATES_REGEX = r"^((POLL)|(C\d+[ESP]*)|(C\d+ACPI))$"
 
-# Aggregation methods used by turbostat to summarise columns.
+# Aggregation methods used by turbostat to summarize columns.
 SUM = "sum"
 AVG = "average"
 MAX = "max"
@@ -154,7 +154,7 @@ def _construct_totals(packages):
     # The the *_MHz totals provided by turbostat are weighted averages of the per-CPU values. The
     # weights are the amount of cycles the CPU spent executing instructions instead of being in a
     # C-state. Remove the incorrectly calculated non-weighted averages, because I was too lazy to
-    # implement weighted avarages calculations.
+    # implement weighted averages calculations.
     ignore_keys = ("Avg_MHz", "Bzy_MHz")
     for pkginfo in packages.values():
         for metric in ignore_keys:
