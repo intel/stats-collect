@@ -211,25 +211,25 @@ class HTMLReport:
                         toolname=None, toolver=None, tab_cfgs=None):
         """
         Generate an HTML report in 'outdir' (provided to the class constructor). Customize the
-        contents of the report using the function parameters. Arguments are as follows:
-         * tabs - a list of additional container tabs which should be included in the report. If,
-                  omitted, 'rsts' is required to generate statistics tabs.
-         * rsts - a list of 'RORawResult' instances for different results with statistics which
-                  should be included in the report.
-         * intro_tbl - an '_IntroTable.IntroTable' instance which represents the table which will be
-                       included in the report. If one is not provided, it will be omitted from the
-                       report.
-         * title - the title of the report. If one is not provided, omits the title.
-         * descr - a description of the report. If one is not provided, omits the description.
-         * toolname - override the name of the tool used to generate the report. Defaults to
-                      'stats-collect'. Should be used in conjunction with the 'toolver' parameter.
-         * toolver - override the version of the tool used to generate the report. Defaults to the
-                     current version of 'stats-collect'. Should be used in conjunction with the
-                     'toolname' parameter.
-         * tab_cfgs - a dictionary in the format '{stname: TabConfig.TabConfig}', where each tab
-                      configuration is used to customize the contents of the 'stname' statistics
-                      tab. By default, if an 'stname' is not provided in 'tab_cfgs', then a default
-                      tab configuration will be used.
+        contents of the report using the function parameters. The arguments are as follows.
+          * tabs - a list of additional container tabs which should be included in the report. If,
+                   omitted, 'rsts' is required to generate statistics tabs.
+          * rsts - a list of 'RORawResult' instances for different results with statistics which
+                   should be included in the report.
+          * intro_tbl - an '_IntroTable.IntroTable' instance which represents the table which will
+                        be included in the report. If one is not provided, it will be omitted from
+                        the report.
+          * title - the title of the report. If one is not provided, omits the title.
+          * descr - a description of the report. If one is not provided, omits the description.
+          * toolname - override the name of the tool used to generate the report. Defaults to
+                       'stats-collect'. Should be used in conjunction with the 'toolver' parameter.
+          * toolver - override the version of the tool used to generate the report. Defaults to the
+                      current version of 'stats-collect'. Should be used in conjunction with the
+                      'toolname' parameter.
+          * tab_cfgs - a dictionary in the format '{stname: TabConfig.TabConfig}', where each tab
+                       configuration is used to customize the contents of the 'stname' statistics
+                       tab. By default, if an 'stname' is not provided in 'tab_cfgs', then a default
+                       tab configuration will be used.
         """
 
         if not tabs and not rsts:
@@ -303,9 +303,9 @@ class HTMLReport:
 
     def __init__(self, outdir, logpath=None):
         """
-        The class constructor. The arguments are as follows:
-         * outdir - the directory which will contain the report.
-         * logpath - the path to the report generation log file.
+        The class constructor. The arguments are as follows.
+          * outdir - the directory which will contain the report.
+          * logpath - the path to the report generation log file.
         """
 
         self._outdir = Path(outdir)
