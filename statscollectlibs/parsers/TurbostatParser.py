@@ -20,7 +20,7 @@ from statscollectlibs.parsers import _ParserBase
 _LOG = logging.getLogger()
 
 # The default regular expression for turbostat columns to parse.
-_TABLE_START_REGEX = r".*\s*Avg_MHz\s+(Busy%|%Busy)\s+Bzy_MHz\s+.*"
+_TABLE_START_REGEX = r".*\s*Avg_MHz\s+Busy%\s+Bzy_MHz\s+.*"
 
 # Regular expression for matching requestable C-state names.
 _REQ_CSTATES_REGEX = r"^((POLL)|(C\d+[ESP]*)|(C\d+ACPI))$"
