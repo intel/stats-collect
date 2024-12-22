@@ -186,7 +186,7 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         result = {}
         result["nontable"] = self._nontable
-        result["totals"] = self._totals
+        result["totals"] = self._sys_totals
 
         # Additionally provide the "packages" info sorted in the (Package,Core,CPU) order.
         result["packages"] = packages = {}
@@ -292,7 +292,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         time_metric = f"{cnt_metric}_time"
         res_metric = f"{cnt_metric}%"
 
-        if not self._prev_totals:
+        if not self._prev_sys_totals:
             # This is the very first table, but 2 tables are needed to get 2 time-stamps to
             # calculate the interval.
             line_data[rate_metric] = 0
@@ -307,7 +307,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 line_data[time_metric] = 0
             return
 
-        time = line_data["Time_Of_Day_Seconds"] - self._prev_totals["Time_Of_Day_Seconds"]
+        time = line_data["Time_Of_Day_Seconds"] - self._prev_sys_totals["Time_Of_Day_Seconds"]
         if time:
             # Add the average requests rate.
             line_data[rate_metric] = line_data[cnt_metric] / time
@@ -381,13 +381,16 @@ class TurbostatParser(_ParserBase.ParserBase):
                 self._add_nontable_data(line)
                 continue
 
+            orig_line = line
             line = line.split()
             if Trivial.is_float(line[0]):
-                # This is the continuation of the table we are currently parsing. It starts either
-                # with a floating-point 'Time_Of_Day_Seconds' an integer 'Core' value. Each line
-                # describes a single CPU.
-                cpu_data = self._parse_turbostat_line(line)
-                cpus[cpu_data["CPU"]] = cpu_data
+                # This is the continuation of the table we are currently parsing. The system totals
+                # line has already been parsed, and this line is for a CPU.
+                line_dict = self._parse_turbostat_line(line)
+                if "CPU" not in line_dict:
+                    raise ErrorBadFormat(f"'CPU' value was not found in the following turbostat "
+                                         f"line:\n{orig_line}")
+                cpus[line_dict["CPU"]] = line_dict
             else:
                 # This is the start of the new table.
                 if cpus or tables_started:
@@ -395,7 +398,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                         # This is the the special case for single-CPU systems. Turbostat does not
                         # print the totals because there is only one CPU and totals is the the same
                         # as the CPU information.
-                        cpus[0] = self._totals
+                        cpus[0] = self._sys_totals
                     result = self._construct_the_result(cpus)
                     if _result_is_valid(result):
                         skipped_lines += consecutively_skipped_lines
@@ -431,8 +434,17 @@ class TurbostatParser(_ParserBase.ParserBase):
                         self._heading[key] = str
                         line.append("0")
 
-                self._prev_totals = self._totals
-                self._totals = self._parse_turbostat_line(line)
+                self._prev_sys_totals = self._sys_totals
+                # The very first line after the table heading is the system totals line. It does not
+                # include any CPU number.
+                #
+                # Example (heading line, then system totals line):
+                # Package Node    Core    CPU     Avg_MHz Busy%   Bzy_MHz TSC_MHz IPC     SMI ...
+                # -       -       -       -       16      0.42    3762    2400    0.66    0   ...
+                self._sys_totals = self._parse_turbostat_line(line)
+                if "CPU" in self._sys_totals:
+                    raise ErrorBadFormat(f"unexpected 'CPU' value in the following turbostat "
+                                         f"system totals line:\n{orig_line}")
 
             tables_started = True
 
@@ -464,8 +476,8 @@ class TurbostatParser(_ParserBase.ParserBase):
         # The heading of the currently parsed turbostat table.
         self._heading = None
         # Then next line after the heading of the currently parsed turbostat table.
-        self._totals = None
+        self._sys_totals = None
         # The "totals" line of the previously parsed table.
-        self._prev_totals = None
+        self._prev_sys_totals = None
 
         super().__init__(path, lines)
