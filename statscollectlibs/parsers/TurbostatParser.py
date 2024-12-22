@@ -350,7 +350,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 self._add_nontable_data(line)
                 continue
 
-            orig_line = line
+            self._orig_line = line
             line = line.split()
             if Trivial.is_float(line[0]):
                 # This is the continuation of the table we are currently parsing. The system totals
@@ -358,17 +358,22 @@ class TurbostatParser(_ParserBase.ParserBase):
                 line_dict = self._parse_turbostat_line(line)
                 if "CPU" not in line_dict:
                     raise ErrorBadFormat(f"'CPU' value was not found in the following turbostat "
-                                         f"line:\n{orig_line}")
+                                         f"line:\n{self._orig_line}")
                 cpus[line_dict["CPU"]] = line_dict
             else:
                 # This is the start of the new table.
                 if cpus:
                     # Yield the turbostat table dictionary of the previous table.
-                    self._tables_cnt += 1
                     tdict = self._construct_tdict(cpus)
                     if self._validate_tdict(tdict):
                         yield tdict
+                        self._tables_cnt += 1
                     cpus = {}
+                elif self._tables_cnt:
+                    # This is not the first table, but nothing to yield from the previous table.
+                    raise ErrorBadFormat(f"incomplete turbostat table: heading line found, but no "
+                                         f"data or totals line\nLast read turbostat line:\n"
+                                         f"{self._orig_line}")
 
                 heading = line # The first line is the table heading.
 
@@ -376,9 +381,11 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # single CPU in the system.
                 line = next(self._lines)
                 if not line:
-                    _LOG.warning("incomplete table at the end of file turbostat file")
+                    _LOG.warning("incomplete turbostat table: no totals line after the heading "
+                                 "line\nLast read turbostat line:\n%s", self._orig_line)
                     return
 
+                self._orig_line = line
                 line = line.split()
                 if not self._heading:
                     self._build_heading(heading, line)
@@ -392,12 +399,17 @@ class TurbostatParser(_ParserBase.ParserBase):
                 self._sys_totals = self._parse_turbostat_line(line)
                 if "CPU" in self._sys_totals:
                     raise ErrorBadFormat(f"unexpected 'CPU' value in the following turbostat "
-                                         f"system totals line:\n{orig_line}")
+                                         f"system totals line:\n{self._orig_line}")
 
-        self._tables_cnt += 1
+        if not cpus:
+            _LOG.warning("incomplete turbostat table: no data line after the totals line\nLast "
+                         "read turbostat line:\n%s", self._orig_line)
+            return
+
         tdict = self._construct_tdict(cpus)
         if self._validate_tdict(tdict):
             yield tdict
+            self._tables_cnt += 1
 
     def __init__(self, path=None, lines=None, derivatives=False):
         """
@@ -408,6 +420,9 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         self._derivatives = derivatives
+
+        # The last read turbostat line.
+        self._orig_line = None
 
         # Count of parsed turbostat tables.
         self._tables_cnt = 0
