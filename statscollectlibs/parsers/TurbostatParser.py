@@ -82,89 +82,90 @@ def _result_is_valid(result):
         valid = _check_totals_val(result, "RAMWatt", 10)
     return valid
 
-def _construct_totals(packages):
-    """
-    Turbostat provide package and core totals in some lines of the table. This function moves them
-    to the "totals" key of the package hierarchy.
-    """
+class TurbostatParser(_ParserBase.ParserBase):
+    """The 'turbostat' tool output parser."""
 
-    def calc_total(vals, key):
+    def _construct_totals(self, packages):
         """
-        Calculate the "total" value for a piece of turbostat statistics defined by 'key'. The
-        resulting "total" value is usually the average, but some statistics require just the sum,
-        for example the IRQ count. This function returns the proper "total" value depending on the
-        'key' contents. Arguments are as follows:
-         * vals - an iterable containing all of the different values of 'key'.
-         * key - the name of the turbostat metric which the values in 'vals' represent.
+        Turbostat provide package and core totals in some lines of the table. This function moves
+        them to the "totals" key of the package hierarchy.
         """
 
-        agg_method = get_aggregation_method(key)
-        if agg_method == SUM:
-            return sum(vals)
-        if agg_method == AVG:
-            return sum(vals) / len(vals)
-        if agg_method == MAX:
-            return max(vals)
-        raise Error(f"BUG: unable to summarize turbostat column '{key}' with method '{agg_method}'")
+        def calc_total(vals, key):
+            """
+            Calculate the "total" value for a piece of turbostat statistics defined by 'key'. The
+            resulting "total" value is usually the average, but some statistics require just the
+            sum, for example the IRQ count. This function returns the proper "total" value depending
+            on the 'key' contents. Arguments are as follows.
+              * vals - an iterable containing all of the different values of 'key'.
+              * key - the name of the turbostat metric which the values in 'vals' represent.
+            """
 
-    for pkginfo in packages.values():
-        for coreinfo in pkginfo["cores"].values():
+            agg_method = get_aggregation_method(key)
+            if agg_method == SUM:
+                return sum(vals)
+            if agg_method == AVG:
+                return sum(vals) / len(vals)
+            if agg_method == MAX:
+                return max(vals)
+            raise Error(f"BUG: unable to summarize turbostat column '{key}' with method "
+                        f"'{agg_method}'")
+
+        for pkginfo in packages.values():
+            for coreinfo in pkginfo["cores"].values():
+                metrics = {}
+                for cpuinfo in coreinfo["cpus"].values():
+                    for metric, val in cpuinfo.items():
+                        if metric not in metrics:
+                            metrics[metric] = []
+                        metrics[metric].append(val)
+
+                if "totals" not in coreinfo:
+                    coreinfo["totals"] = {}
+                for metric, vals in metrics.items():
+                    coreinfo["totals"][metric] = calc_total(vals, metric)
+
             metrics = {}
-            for cpuinfo in coreinfo["cpus"].values():
-                for metric, val in cpuinfo.items():
+            for coreinfo in pkginfo["cores"].values():
+                for metric, val in coreinfo["totals"].items():
                     if metric not in metrics:
                         metrics[metric] = []
                     metrics[metric].append(val)
 
-            if "totals" not in coreinfo:
-                coreinfo["totals"] = {}
+            if "totals" not in pkginfo:
+                pkginfo["totals"] = {}
             for metric, vals in metrics.items():
-                coreinfo["totals"][metric] = calc_total(vals, metric)
+                pkginfo["totals"][metric] = calc_total(vals, metric)
 
-        metrics = {}
-        for coreinfo in pkginfo["cores"].values():
-            for metric, val in coreinfo["totals"].items():
-                if metric not in metrics:
-                    metrics[metric] = []
-                metrics[metric].append(val)
+        # Remove the CPU information keys that are actually not CPU-level but rather core or package
+        # level. We already have these keys in core or package totals.
+        common_keys = None
+        for pkginfo in packages.values():
+            for coreinfo in pkginfo["cores"].values():
+                for cpuinfo in coreinfo["cpus"].values():
+                    if common_keys is None:
+                        common_keys = set(cpuinfo)
+                    else:
+                        common_keys &= set(cpuinfo)
 
-        if "totals" not in pkginfo:
-            pkginfo["totals"] = {}
-        for metric, vals in metrics.items():
-            pkginfo["totals"][metric] = calc_total(vals, metric)
+        for pkginfo in packages.values():
+            for coreinfo in pkginfo["cores"].values():
+                for cpuinfo in coreinfo["cpus"].values():
+                    for metric in list(cpuinfo):
+                        if metric not in common_keys:
+                            del cpuinfo[metric]
 
-    # Remove the CPU information keys that are actually not CPU-level but rather core or package
-    # level. We already have these keys in core or package totals.
-    common_keys = None
-    for pkginfo in packages.values():
-        for coreinfo in pkginfo["cores"].values():
-            for cpuinfo in coreinfo["cpus"].values():
-                if common_keys is None:
-                    common_keys = set(cpuinfo)
-                else:
-                    common_keys &= set(cpuinfo)
-
-    for pkginfo in packages.values():
-        for coreinfo in pkginfo["cores"].values():
-            for cpuinfo in coreinfo["cpus"].values():
-                for metric in list(cpuinfo):
-                    if metric not in common_keys:
-                        del cpuinfo[metric]
-
-    # The the *_MHz totals provided by turbostat are weighted averages of the per-CPU values. The
-    # weights are the amount of cycles the CPU spent executing instructions instead of being in a
-    # C-state. Remove the incorrectly calculated non-weighted averages, because I was too lazy to
-    # implement weighted averages calculations.
-    ignore_keys = ("Avg_MHz", "Bzy_MHz")
-    for pkginfo in packages.values():
-        for metric in ignore_keys:
-            del pkginfo["totals"][metric]
-        for coreinfo in pkginfo["cores"].values():
+        # The the '*_MHz' totals provided by turbostat are weighted averages of the per-CPU values.
+        # The weights are the amount of cycles the CPU spent executing instructions instead of being
+        # in a C-state. Remove the incorrectly calculated non-weighted averages, because I was too
+        # lazy to implement weighted averages calculations.
+        ignore_keys = ("Avg_MHz", "Bzy_MHz")
+        for pkginfo in packages.values():
             for metric in ignore_keys:
-                del coreinfo["totals"][metric]
-
-class TurbostatParser(_ParserBase.ParserBase):
-    """The 'turbostat' tool output parser."""
+                del pkginfo["totals"][metric]
+            for coreinfo in pkginfo["cores"].values():
+                for metric in ignore_keys:
+                    del coreinfo["totals"][metric]
 
     def _construct_the_result(self, cpus):
         """
@@ -211,7 +212,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         result["core_count"] = core_count
         result["pkg_count"] = pkg_count
 
-        _construct_totals(packages)
+        self._construct_totals(packages)
 
         return result
 
