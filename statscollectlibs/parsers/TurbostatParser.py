@@ -316,7 +316,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         """Validate the final turbostat table dictionary."""
 
         # Verify that package power does not exceed 4xTDP.
-        valid = self._check_against_tdp(tdict, "PkgWatt", 2)
+        valid = self._check_against_tdp(tdict, "PkgWatt", 4)
         if valid:
             self._invalid_tables += self._consecutive_invalid_tables
             self._consecutive_invalid_tables = 0
