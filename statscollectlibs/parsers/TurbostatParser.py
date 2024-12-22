@@ -8,10 +8,20 @@
 
 """
 Provide the 'TurbostatParser' class which parses 'turbostat' tool output.
+
+Terminology.
+  * nontable - all the turbostat output except for the tables. Turbostat typically prints a lot of
+               stuff that looks like debugging output at the very beginning, and this is referred to
+               as "nontable" data. After that turbostat prints nice tables every measurement
+               interval (like every 2 seconds).
+  * totals - refers to the turbostat data lines (or data constructed by this parser) that
+             "summarises" metric values for multiple CPUs. For example, package totals are
+             summarized values for a package. The summary function is typically an average, but may
+             also be the sum or something else.
 """
 
-import logging
 import re
+import logging
 from itertools import zip_longest
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
@@ -87,8 +97,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
     def _construct_totals(self, packages):
         """
-        Turbostat provide package and core totals in some lines of the table. This function moves
-        them to the "totals" key of the package hierarchy.
+        Calculate "totals" for cores, packages, and system (all CPUs) in cases where turbostat does
+        not provide them. Save them in the "totals" key of the corresponding level dictionary.
         """
 
         def calc_total(vals, key):
