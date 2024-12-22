@@ -337,7 +337,6 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         cpus = {}
-        tables_started = False
 
         tbl_regex = re.compile(self._tbl_start_regex)
 
@@ -347,7 +346,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 continue
 
             # Match the beginning of the turbostat table.
-            if not tables_started and not re.match(tbl_regex, line):
+            if not self._sys_totals and not re.match(tbl_regex, line):
                 self._add_nontable_data(line)
                 continue
 
@@ -363,7 +362,8 @@ class TurbostatParser(_ParserBase.ParserBase):
                 cpus[line_dict["CPU"]] = line_dict
             else:
                 # This is the start of the new table.
-                if cpus or tables_started:
+                if cpus:
+                    # Yield the turbostat table dictionary of the previous table.
                     self._tables_cnt += 1
                     tdict = self._construct_tdict(cpus)
                     if self._validate_tdict(tdict):
@@ -391,8 +391,6 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if "CPU" in self._sys_totals:
                     raise ErrorBadFormat(f"unexpected 'CPU' value in the following turbostat "
                                          f"system totals line:\n{orig_line}")
-
-            tables_started = True
 
         self._tables_cnt += 1
         tdict = self._construct_tdict(cpus)
