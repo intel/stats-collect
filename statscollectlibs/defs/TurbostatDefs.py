@@ -18,9 +18,10 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
         """Mangle turbostat metric descriptions to describe how they are summarized by turbostat."""
 
         for metric, mdef in self.info.items():
-            method = TurbostatParser.get_aggregation_method(metric)
-            if method is not None:
-                mdef["descr"] = f"{mdef['descr']} Calculated by finding the {method} of " \
+            name = TurbostatParser.get_totals_func_name(metric)
+            if name is not None:
+                name = TurbostatParser.TOTALS_FUNCS[name] # Get user-friendly name.
+                mdef["descr"] = f"{mdef['descr']} Calculated by finding the {name} of " \
                                 f"\"{mdef['name']}\" across the system."
 
     def _categorize(self):

@@ -35,27 +35,29 @@ _TABLE_START_REGEX = r".*\s*Avg_MHz\s+Busy%\s+Bzy_MHz\s+.*"
 # Regular expression for matching requestable C-state names.
 _REQ_CSTATES_REGEX = r"^((POLL)|(C\d+[ESP]*)|(C\d+ACPI))$"
 
-# Aggregation methods used by turbostat to summarize columns.
-SUM = "sum"
-AVG = "average"
-MAX = "max"
+# The functions used for calculating the totals.
+TOTALS_FUNCS = {
+    "sum": "sum",
+    "avg": "average",
+    "max": "max",
+}
 
-def get_aggregation_method(metric):
+def get_totals_func_name(metric):
     """
-    Turbostat summaries are aggregations of values for all CPUs in the system. Different turbostat
-    metrics are aggregated with different methods. The arguments are as follows.
-      * metric - name of the metric to return the aggregation method name for.
-
-    Return the aggregation method name for metric 'metric'.
+    Turbostat totals are "summarized" values for multiple (or all) CPUs in the system (e.g.,
+    system-wide totals, or package totals). Different turbostat metrics are summarized with
+    different functions.  Return the summary function name for metric 'metric'. The arguments are as
+    follows.
+      * metric - name of the metric to return the summary function name name for.
     """
 
     # For IRQ, SMI, and C-state requests count - just return the sum.
     if metric in ("IRQ", "SMI") or re.match(_REQ_CSTATES_REGEX, metric):
-        return SUM
+        return "sum"
     # For temperatures, take the maximum value.
     if metric.endswith("Tmp"):
-        return MAX
-    return AVG
+        return "max"
+    return "avg"
 
 def _check_totals_val(result, colname, multiplier):
     """
@@ -111,12 +113,12 @@ class TurbostatParser(_ParserBase.ParserBase):
               * key - the name of the turbostat metric which the values in 'vals' represent.
             """
 
-            agg_method = get_aggregation_method(key)
-            if agg_method == SUM:
+            agg_method = get_totals_func_name(key)
+            if agg_method == "sum":
                 return sum(vals)
-            if agg_method == AVG:
+            if agg_method == "avg":
                 return sum(vals) / len(vals)
-            if agg_method == MAX:
+            if agg_method == "max":
                 return max(vals)
             raise Error(f"BUG: unable to summarize turbostat column '{key}' with method "
                         f"'{agg_method}'")
