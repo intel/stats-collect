@@ -148,7 +148,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 for metric in ignore_keys:
                     del coreinfo["totals"][metric]
 
-    def _construct_tdict(self, cpus):
+    def _construct_tdict(self, tlines):
         """
         Construct and return the final dictionary corresponding to a parsed turbostat table.
         """
@@ -163,7 +163,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         pkgdata = {}
         coredata = {}
 
-        for cpuinfo in cpus.values():
+        for cpuinfo in tlines.values():
             # The turbostat may not include the "Package" column in case if there is only one CPU
             # package.
             package = cpuinfo.get("Package", 0)
@@ -184,8 +184,8 @@ class TurbostatParser(_ParserBase.ParserBase):
             if "cpus" not in coredata:
                 coredata["cpus"] = {}
 
-            cpus = coredata["cpus"]
-            cpus[cpuinfo["CPU"]] = cpuinfo
+            tlines = coredata["cpus"]
+            tlines[cpuinfo["CPU"]] = cpuinfo
             cpu_count += 1
 
             # Remove the topology keys from 'cpuinfo', leaving only the metrics there.
@@ -344,7 +344,8 @@ class TurbostatParser(_ParserBase.ParserBase):
         time.
         """
 
-        cpus = {}
+        # Parsed turbostat data lines indexed by CPU number.
+        tlines = {}
 
         for line in self._lines:
             # Ignore empty and 'jitter' lines like "turbostat: cpu65 jitter 2574 5881".
@@ -365,16 +366,16 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if "CPU" not in line_dict:
                     raise ErrorBadFormat(f"'CPU' value was not found in the following turbostat "
                                          f"line:\n{self._orig_line}")
-                cpus[line_dict["CPU"]] = line_dict
+                tlines[line_dict["CPU"]] = line_dict
             else:
                 # This is the start of the new table.
-                if cpus:
+                if tlines:
                     # Yield the turbostat table dictionary of the previous table.
-                    tdict = self._construct_tdict(cpus)
+                    tdict = self._construct_tdict(tlines)
                     if self._validate_tdict(tdict):
                         yield tdict
                         self._tables_cnt += 1
-                    cpus = {}
+                    tlines = {}
                 elif self._tables_cnt:
                     # This is not the first table, but nothing to yield from the previous table.
                     raise ErrorBadFormat(f"incomplete turbostat table: heading line found, but no "
@@ -407,12 +408,12 @@ class TurbostatParser(_ParserBase.ParserBase):
                     raise ErrorBadFormat(f"unexpected 'CPU' value in the following turbostat "
                                          f"system totals line:\n{self._orig_line}")
 
-        if not cpus:
+        if not tlines:
             _LOG.warning("incomplete turbostat table: no data line after the totals line\nLast "
                          "read turbostat line:\n%s", self._orig_line)
             return
 
-        tdict = self._construct_tdict(cpus)
+        tdict = self._construct_tdict(tlines)
         if self._validate_tdict(tdict):
             yield tdict
             self._tables_cnt += 1
