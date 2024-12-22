@@ -282,49 +282,6 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         self._parse_cpu_flags(line)
 
-    def _add_cstate_derivatives(self, cst_name, line_data):
-        """
-        Calculate derivatives for a C-state metric and add them to the 'line_data' dictionary.
-        """
-
-        cnt_metric = cst_name
-        rate_metric = f"{cnt_metric}_rate"
-        time_metric = f"{cnt_metric}_time"
-        res_metric = f"{cnt_metric}%"
-
-        if not self._prev_sys_totals:
-            # This is the very first table, but 2 tables are needed to get 2 time-stamps to
-            # calculate the interval.
-            line_data[rate_metric] = 0
-            if res_metric in line_data:
-                line_data[time_metric] = 0
-            return
-
-        if "Time_Of_Day_Seconds" not in line_data:
-            # Without timestamps the interval is not known, cannot calculate the derivatives.
-            line_data[rate_metric] = 0
-            if res_metric in line_data:
-                line_data[time_metric] = 0
-            return
-
-        time = line_data["Time_Of_Day_Seconds"] - self._prev_sys_totals["Time_Of_Day_Seconds"]
-        if time:
-            # Add the average requests rate.
-            line_data[rate_metric] = line_data[cnt_metric] / time
-        else:
-            line_data[rate_metric] = 0
-
-        if res_metric not in line_data:
-            return
-
-        if line_data[cnt_metric]:
-            # Calculate the spent in the C-state (in seconds).
-            time = time * line_data[res_metric] / 100
-            # Add the average time spent in a single C-state request in microseconds.
-            line_data[time_metric] = (time / line_data[cnt_metric]) * 1000000
-        else:
-            line_data[time_metric] = 0
-
     def _parse_turbostat_line(self, line):
         """Parse a single turbostat line."""
 
@@ -343,10 +300,6 @@ class TurbostatParser(_ParserBase.ParserBase):
 
                 line_data[metric] = self._heading[metric](value)
 
-        if self._derivatives:
-            for metric in list(line_data):
-                if re.match(_REQ_CSTATES_REGEX, metric):
-                    self._add_cstate_derivatives(metric, line_data)
         return line_data
 
     def _next(self):
@@ -427,7 +380,6 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # Example (heading line, then system totals line):
                 # Package Node    Core    CPU     Avg_MHz Busy%   Bzy_MHz TSC_MHz IPC     SMI ...
                 # -       -       -       -       16      0.42    3762    2400    0.66    0   ...
-                self._prev_sys_totals = self._sys_totals
                 self._sys_totals = self._parse_turbostat_line(line)
                 if "CPU" in self._sys_totals:
                     raise ErrorBadFormat(f"unexpected 'CPU' value in the following turbostat "
@@ -464,7 +416,5 @@ class TurbostatParser(_ParserBase.ParserBase):
         self._heading = None
         # Then next line after the heading of the currently parsed turbostat table.
         self._sys_totals = None
-        # The "totals" line of the previously parsed table.
-        self._prev_sys_totals = None
 
         super().__init__(path, lines)
