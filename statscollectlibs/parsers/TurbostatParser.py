@@ -59,41 +59,6 @@ def get_totals_func_name(metric):
         return "max"
     return "avg"
 
-def _check_totals_val(result, colname, multiplier):
-    """
-    Helper function for '_result_is_valid()'. Check if values for 'colname' in 'result' are less
-    than 'multiplier' times the package TDP. Arguments are as follows:
-      * result - the turbostat result dictionary.
-      * colname - the name of the column to check.
-      * multiplier - the number of times the TDP to compare the 'colname' values against.
-    """
-
-    tdp = result["nontable"]["TDP"]
-    for package in result["packages"].values():
-        totals = package["totals"]
-        threshold = tdp * multiplier
-        val = totals.get(colname, 0)
-        if val > threshold:
-            _LOG.warning("skipping a turbostat datapoint with '%s' value (%sW) greater than %s "
-                         "times the TDP of the package (%sW)", colname, val, multiplier, tdp)
-            return False
-    return True
-
-def _result_is_valid(result):
-    """Sanity check 'result' to make sure that it does not contain any obviously wrong data."""
-
-    # Skip the data point if it contains power values which are greater than twice the TDP of the
-    # package. This check is to look for values which are extremely off and are likely the result
-    # of a bug in another program. Double the TDP to account for values which are slightly over the
-    # TDP.
-    valid = _check_totals_val(result, "PkgWatt", 2)
-
-    # Also skip if the data point contains RAM power values which are greater than 10 times the TDP
-    # of the package to check for extremely high values.
-    if valid:
-        valid = _check_totals_val(result, "RAMWatt", 10)
-    return valid
-
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
 
@@ -179,17 +144,17 @@ class TurbostatParser(_ParserBase.ParserBase):
                 for metric in ignore_keys:
                     del coreinfo["totals"][metric]
 
-    def _construct_the_result(self, cpus):
+    def _construct_tdict(self, cpus):
         """
         Construct and return the final dictionary corresponding to a parsed turbostat table.
         """
 
-        result = {}
-        result["nontable"] = self._nontable
-        result["totals"] = self._sys_totals
+        tdict = {}
+        tdict["nontable"] = self._nontable
+        tdict["totals"] = self._sys_totals
 
         # Additionally provide the "packages" info sorted in the (Package,Core,CPU) order.
-        result["packages"] = packages = {}
+        tdict["packages"] = packages = {}
         cpu_count = core_count = pkg_count = 0
         pkgdata = {}
         coredata = {}
@@ -220,13 +185,13 @@ class TurbostatParser(_ParserBase.ParserBase):
             for key in ("Package", "Core", "CPU"):
                 del cpuinfo[key]
 
-        result["cpu_count"] = cpu_count
-        result["core_count"] = core_count
-        result["pkg_count"] = pkg_count
+        tdict["cpu_count"] = cpu_count
+        tdict["core_count"] = core_count
+        tdict["pkg_count"] = pkg_count
 
         self._construct_totals(packages)
 
-        return result
+        return tdict
 
     def _parse_cpu_flags(self, line):
         """Parse turbostat CPU flags."""
@@ -315,6 +280,56 @@ class TurbostatParser(_ParserBase.ParserBase):
             else:
                 self._heading[key] = str
 
+    @staticmethod
+    def _check_against_tdp(tdict, metric, multiplier):
+        """
+        Check if values for 'colname' are less than 'multiplier' times the package TDP.
+        The arguments are as follows.
+        * tdict - the turbostat table dictionary to check in.
+        * colname - the name of the column to check.
+        * multiplier - the number of times the TDP to compare the 'colname' values against.
+        """
+
+        if "TDP" not in tdict["nontable"]:
+            return True
+
+        tdp = tdict["nontable"]["TDP"]
+        for package in tdict["packages"].values():
+            if metric not in package["totals"]:
+                return True
+
+            threshold = tdp * multiplier
+            val = package["totals"][metric]
+            if val > threshold:
+                _LOG.warning("met a turbostat datapoint with '%s' value (%sW) greater than %s "
+                             "times the package TDP (%sW)", metric, val, multiplier, tdp)
+                return False
+
+        return True
+
+    def _validate_tdict(self, tdict):
+        """Validate the final turbostat table dictionary."""
+
+        # Verify that package power does not exceed 4xTDP.
+        valid = self._check_against_tdp(tdict, "PkgWatt", 2)
+        if valid:
+            self._invalid_tables += self._consecutive_invalid_tables
+            self._consecutive_invalid_tables = 0
+            return valid
+
+        self._invalid_tables += 1
+        self._consecutive_invalid_tables += 1
+        if self._consecutive_invalid_tables > self._max_consecutive_invalid_tables:
+            raise ErrorBadFormat(f"more than {self._max_consecutive_invalid_tables} "
+                                 f"consecutive turbostat lines contain invalid data")
+
+        if self._invalid_tables > self._tables_cnt / 2:
+            pcnt = int((self._invalid_tables / self._tables_cnt) * 100)
+            raise ErrorBadFormat(f"more than ({pcnt}%) of the turbostat lines contain "
+                                 f"invalid data")
+
+        return valid
+
     def _next(self):
         """
         Generator which yields a dictionary corresponding to one snapshot of turbostat output at a
@@ -324,23 +339,12 @@ class TurbostatParser(_ParserBase.ParserBase):
         cpus = {}
         tables_started = False
 
-        # Keep track of how many lines are skipped because they contain invalid data so that we can
-        # warn the user if the file contains a large amount.
-        lines_cnt = 0
-        skipped_lines = 0
-
-        # Also limit how many consecutive lines can be skipped because of invalid data.
-        consecutively_skipped_lines = 0
-        limit = 4
-
         tbl_regex = re.compile(self._tbl_start_regex)
 
         for line in self._lines:
             # Ignore empty and 'jitter' lines like "turbostat: cpu65 jitter 2574 5881".
             if not line or line.startswith("turbostat: "):
                 continue
-
-            lines_cnt += 1
 
             # Match the beginning of the turbostat table.
             if not tables_started and not re.match(tbl_regex, line):
@@ -360,20 +364,14 @@ class TurbostatParser(_ParserBase.ParserBase):
             else:
                 # This is the start of the new table.
                 if cpus or tables_started:
-                    result = self._construct_the_result(cpus)
-                    if _result_is_valid(result):
-                        skipped_lines += consecutively_skipped_lines
-                        consecutively_skipped_lines = 0
-                        yield result
-                    else:
-                        consecutively_skipped_lines += 1
-                        if consecutively_skipped_lines > limit:
-                            raise ErrorBadFormat(f"more than {limit} consecutive turbostat lines "
-                                                 f"contain invalid data")
+                    self._tables_cnt += 1
+                    tdict = self._construct_tdict(cpus)
+                    if self._validate_tdict(tdict):
+                        yield tdict
+
                     cpus = {}
 
-                # The first line is the table heading.
-                heading = line
+                heading = line # The first line is the table heading.
 
                 # The next line is total statistics across all CPUs, except if there is only one
                 # single CPU in the system.
@@ -396,16 +394,10 @@ class TurbostatParser(_ParserBase.ParserBase):
 
             tables_started = True
 
-        result = self._construct_the_result(cpus)
-        if _result_is_valid(result):
-            yield result
-        else:
-            skipped_lines += 1
-
-        if skipped_lines > lines_cnt / 2:
-            pcnt = int((skipped_lines / lines_cnt) * 100)
-            raise ErrorBadFormat(f"more than half ({pcnt}%) of the turbostat lines contain "
-                                 f"invalid data")
+        self._tables_cnt += 1
+        tdict = self._construct_tdict(cpus)
+        if self._validate_tdict(tdict):
+            yield tdict
 
     def __init__(self, path=None, lines=None, derivatives=False):
         """
@@ -416,6 +408,15 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         self._derivatives = derivatives
+
+        # Count of parsed turbostat tables.
+        self._tables_cnt = 0
+        # Count of tables that included an invalid value.
+        self._invalid_tables = 0
+        # Count of consecutively met tables that included an invalid value.
+        self._consecutive_invalid_tables = 0
+        # Maximum amount of consecutive invalid tables.
+        self._max_consecutive_invalid_tables = 4
 
         # Regular expression for matching the beginning of the turbostat table.
         self._tbl_start_regex = _TABLE_START_REGEX
