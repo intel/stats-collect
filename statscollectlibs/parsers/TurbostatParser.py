@@ -36,6 +36,9 @@ _TABLE_START_REGEX = r".*\s*Avg_MHz\s+Busy%\s+Bzy_MHz\s+.*"
 _REQ_CSTATES_REGEX = r"^((POLL)|(C\d+[ESP]*)|(C\d+ACPI))$"
 _REQ_CSTATES_REGEX_COMPILED = re.compile(_REQ_CSTATES_REGEX)
 
+# Turbostat topology keys in the heading.
+_TOPOLOGY_KEYS = ("Package", "Node", "Die", "Core", "CPU")
+
 # The functions used for calculating the totals.
 TOTALS_FUNCS = {
     "sum": "sum",
@@ -186,7 +189,7 @@ class TurbostatParser(_ParserBase.ParserBase):
             cpu_count += 1
 
             # Remove the topology keys from 'cpuinfo', leaving only the metrics there.
-            for key in ("Package", "Node", "Die", "Core", "CPU"):
+            for key in _TOPOLOGY_KEYS:
                 if key in cpuinfo:
                     del cpuinfo[key]
 
