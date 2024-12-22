@@ -368,16 +368,18 @@ class TurbostatParser(_ParserBase.ParserBase):
                     tdict = self._construct_tdict(cpus)
                     if self._validate_tdict(tdict):
                         yield tdict
-
                     cpus = {}
 
                 heading = line # The first line is the table heading.
 
                 # The next line is total statistics across all CPUs, except if there is only one
                 # single CPU in the system.
-                # False pylint warning, see issue: https://github.com/PyCQA/pylint/issues/1830.
-                line = next(self._lines).split() # pylint: disable=stop-iteration-return
+                line = next(self._lines)
+                if not line:
+                    _LOG.warning("incomplete table at the end of file turbostat file")
+                    return
 
+                line = line.split()
                 if not self._heading:
                     self._build_heading(heading, line)
 
