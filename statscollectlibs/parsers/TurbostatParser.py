@@ -34,6 +34,7 @@ _TABLE_START_REGEX = r".*\s*Avg_MHz\s+Busy%\s+Bzy_MHz\s+.*"
 
 # Regular expression for matching requestable C-state names.
 _REQ_CSTATES_REGEX = r"^((POLL)|(C\d+[ESP]*)|(C\d+ACPI))$"
+_REQ_CSTATES_REGEX_COMPILED = re.compile(_REQ_CSTATES_REGEX)
 
 # The functions used for calculating the totals.
 TOTALS_FUNCS = {
@@ -52,7 +53,7 @@ def get_totals_func_name(metric):
     """
 
     # For IRQ, SMI, and C-state requests count - just return the sum.
-    if metric in ("IRQ", "SMI") or re.match(_REQ_CSTATES_REGEX, metric):
+    if metric in ("IRQ", "SMI") or re.match(_REQ_CSTATES_REGEX_COMPILED, metric):
         return "sum"
     # For temperatures, take the maximum value.
     if metric.endswith("Tmp"):
@@ -338,15 +339,13 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         cpus = {}
 
-        tbl_regex = re.compile(self._tbl_start_regex)
-
         for line in self._lines:
             # Ignore empty and 'jitter' lines like "turbostat: cpu65 jitter 2574 5881".
             if not line or line.startswith("turbostat: "):
                 continue
 
             # Match the beginning of the turbostat table.
-            if not self._sys_totals and not re.match(tbl_regex, line):
+            if not self._sys_totals and not re.match(self._tbl_start_regex, line):
                 self._add_nontable_data(line)
                 continue
 
@@ -434,7 +433,8 @@ class TurbostatParser(_ParserBase.ParserBase):
         self._max_consecutive_invalid_tables = 4
 
         # Regular expression for matching the beginning of the turbostat table.
-        self._tbl_start_regex = _TABLE_START_REGEX
+        self._tbl_start_regex = re.compile(_TABLE_START_REGEX)
+
         # The debug output that turbostat prints before printing the table(s).
         self._nontable = {}
         # The heading of the currently parsed turbostat table.
