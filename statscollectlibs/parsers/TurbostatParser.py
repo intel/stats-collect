@@ -148,6 +148,111 @@ class TurbostatParser(_ParserBase.ParserBase):
                 for metric in ignore_keys:
                     del coreinfo["totals"][metric]
 
+    def _construct_metrics(self, tlines):
+        """
+        Construct the metrics dictionary, which contains names of metrics for every topology level.
+        Also construct the turbostat-provided totals dictionary, which contains names of metrics
+        turbostat provides the totals for.
+
+        Here is a stripped example of turbostat output and some discussion, for reference.
+
+        1   Package Core  CPU  Busy%  Bzy_MHz TSC_MHz CPU%c1 CPU%c6 CoreTmp PkgTmp Pkg%pc6 PkgWatt
+        2   -       -     -    0.51   3803    2401    0.53   98.34  37      40     3.18    192.41
+        3   0       0     0    7.05   3798    2400    4.29   87.68  36      38     3.17    98.00
+        4   0       0     192  0.02   3571    2400    4.29
+        5   0       1     1    0.94   3792    2400    0.68   97.94  37
+        6   0       1     193  0.30   3743    2400    0.68
+        7   0       2     2    0.19   3728    2400    0.42   99.21  36
+        8   0       2     194  0.14   3722    2400    0.42
+        ... snip ...
+        9   1       0     96   0.28   3750    2400    0.42   98.34  36      40     3.19    94.37
+        10  1       0     288  0.82   3790    2400    0.42
+        11  1       1     97   0.42   3748    2400    0.46   98.51  36
+        12  1       1     289  0.50   3783    2400    0.46
+        13  1       2     98   0.22   3720    2400    0.42   98.69  36
+        14  1       2     290  0.56   3792    2400    0.42
+
+        Line 1 - the heading line.
+        Line 2 - the system totals line.
+        Line 3 - CPU 0 data. But PkgTmp, Pkg%pc6, and PkgWatt are package level totals. And CPU%c6
+                 and CoreTmp are core level totals.
+        Line 4 - CPU 192 data. Only CPU level data, no core level totals are present.
+        Line 5 - CPU 1 data. But CPU%c6 and CoreTmp are core level totals.
+        Line 6 - CPU 193. Only CPU level data, no core level totals are present.
+        Line 9 - CPU 96 data. Similar to CPU0, includes package and core level totals.
+        Line 10 - CPU 288 data. Similar to CPU192, does not include any totals.
+        Line 11 - CPU 97 data. Similar to CPU1, includes core level totals.
+        """
+
+        for cpu in tlines:
+            first_cpu = cpu
+            break
+        else:
+            raise Error("BUG: there are no CPU lines in turbostat data")
+
+        # Build the system level metric names, which include all metrics from the turbostat totals
+        # line - the first line after the heading.
+        self._metrics["system"] = {metric: None for metric in self._sys_totals}
+
+        # Build the package level metric names. The first turbostat line after the totals line is a
+        # mix of core data and package level totals (line 3 in the docstring example).
+        self._metrics["package"] = {metric: None for metric in tlines[first_cpu]}
+
+        # Build the core level metric names. The turbostat line for the first CPU of a non-first
+        # core (line 5 in the docstring example) provides the core level totals. However, if there
+        # is only one core, use package level metric names.
+        first_core = tlines[first_cpu]["Core"]
+        first_package = tlines[first_cpu]["Package"]
+
+        second_core = None
+        for tline in tlines.values():
+            if tline["Core"] == first_core:
+                continue
+
+            if tline["Package"] != first_package:
+                break
+
+            if second_core is None:
+                # This must be the first CPU of the second core.
+                self._metrics["core"] = {metric: None for metric in tline}
+                second_core = tline["Core"]
+            elif tline["Core"] == second_core:
+                # This must be the second CPU of the second core.
+                self._metrics["CPU"] = {metric: None for metric in tline}
+            else:
+                # There is only one CPU per core.
+                break
+
+        if "core" not in self._metrics:
+            self._metrics["core"] = self._metrics["package"]
+        if "CPU" not in self._metrics:
+            self._metrics["CPU"] = self._metrics["core"]
+
+        # Build the system level turbostat provides all the metrics.
+        self._ts_totals["system"] = self._metrics["system"]
+
+        # Build the list of package level totals metrics provided by turbostat.
+        self._ts_totals["package"] = {}
+        for metric in self._metrics["package"]:
+            if metric not in self._metrics["core"]:
+                self._ts_totals["package"][metric] = None
+
+        # Build the list of core level totals metrics provided by turbostat.
+        self._ts_totals["core"] = {}
+        for metric in self._metrics["core"]:
+            if metric not in self._metrics["CPU"]:
+                self._ts_totals["core"][metric] = metric
+
+        # Remove the topology keys.
+        for key, names_dict in self._metrics.items():
+            for key in _TOPOLOGY_KEYS:
+                if key in names_dict:
+                    del names_dict[key]
+        for key, names_dict in self._ts_totals.items():
+            for key in _TOPOLOGY_KEYS:
+                if key in names_dict:
+                    del names_dict[key]
+
     def _construct_tdict(self, tlines):
         """
         Construct and return the final dictionary corresponding to a parsed turbostat table.
@@ -157,17 +262,53 @@ class TurbostatParser(_ParserBase.ParserBase):
         tdict["nontable"] = self._nontable
         tdict["totals"] = self._sys_totals
 
-        # Additionally provide the "packages" info sorted in the (Package,Core,CPU) order.
+        # Step 1.
+        #
+        # Build the packages -> cores -> CPUs hierarchy. The structure is going to be as follows.
+        #
+        # tdict = {
+        #   "nontable": {...},
+        #   "totals": {...},
+        #   "packages" : {
+        #       0: {
+        #           "cores": {
+        #               0: {
+        #                   "cpus": {
+        #                       0: {
+        #                           metric: value,
+        #                           ... and so on for every metric ...
+        #                       },
+        #                       1: {...},
+        #                       ... and so on for every CPU number ...
+        #                   },
+        #               },
+        #               1: {...},
+        #               ... and so on for every core number ...
+        #           },
+        #       },
+        #       1: {...},
+        #       ... and so on for every package number ...
+        #   },
+        # }
+        #
+        # The structure is final, but there will be adjustments later, such as adding "totals" for
+        # every level and removing topology keys.
+
         tdict["packages"] = packages = {}
         cpu_count = core_count = pkg_count = 0
         pkgdata = {}
         coredata = {}
 
         for cpuinfo in tlines.values():
-            # The turbostat may not include the "Package" column in case if there is only one CPU
-            # package.
-            package = cpuinfo.get("Package", 0)
-            core = cpuinfo.get("Core", 0)
+            # Make sure there is always the "Core" and "Package" keys.
+            if "Package" not in cpuinfo:
+                cpuinfo["Package"] = 0
+            if "Core" not in cpuinfo:
+                cpuinfo["Core"] = 0
+
+            package = cpuinfo["Package"]
+            core = cpuinfo["Core"]
+            cpu = cpuinfo["CPU"]
 
             if package not in packages:
                 packages[package] = pkgdata = {}
@@ -184,21 +325,24 @@ class TurbostatParser(_ParserBase.ParserBase):
             if "cpus" not in coredata:
                 coredata["cpus"] = {}
 
-            tlines = coredata["cpus"]
-            tlines[cpuinfo["CPU"]] = cpuinfo
+            coredata["cpus"][cpu] = cpuinfo
             cpu_count += 1
-
-            # Remove the topology keys from 'cpuinfo', leaving only the metrics there.
-            for key in _TOPOLOGY_KEYS:
-                if key in cpuinfo:
-                    del cpuinfo[key]
 
         tdict["cpu_count"] = cpu_count
         tdict["core_count"] = core_count
         tdict["pkg_count"] = pkg_count
 
-        self._construct_totals(packages)
+        if not self._metrics:
+            self._construct_metrics(tlines)
 
+        # Remove the topology keys from all turbostat lines (will also get rid for them from the CPU
+        # level in 'tdict').
+        for cpuinfo in tlines.values():
+            for key in _TOPOLOGY_KEYS:
+                if key in cpuinfo:
+                    del cpuinfo[key]
+
+        self._construct_totals(packages)
         return tdict
 
     def _parse_cpu_flags(self, line):
@@ -273,8 +417,6 @@ class TurbostatParser(_ParserBase.ParserBase):
         Build the heading dictionary. They dictionary keys are the heading entries (metric names,
         CPU/core/package numbers), the values are heading value types.
         """
-
-        self._heading = {}
 
         if len(heading) != len(sys_totals):
             raise ErrorBadFormat("heading and the system total lines have different amount of "
@@ -440,13 +582,22 @@ class TurbostatParser(_ParserBase.ParserBase):
         # Maximum amount of consecutive invalid tables.
         self._max_consecutive_invalid_tables = 4
 
+        # A dictionary indexed by topology level name (package, core, CPU) and containing metric
+        # names metrics for every level.
+        self._metrics = {}
+        # A dictionary indexed by topology level name (package, core, CPU) and containing the metric
+        # names of totals calculated and provided by turbostat. Note, turbostat does not provide
+        # totals for everything. For example, for package level, turbostat does not provide the
+        # C-state residency totals.
+        self._ts_totals = {}
+
         # Regular expression for matching the beginning of the turbostat table.
         self._tbl_start_regex = re.compile(_TABLE_START_REGEX)
 
         # The debug output that turbostat prints before printing the table(s).
         self._nontable = {}
         # The heading of the currently parsed turbostat table.
-        self._heading = None
+        self._heading = {}
         # Then next line after the heading of the currently parsed turbostat table.
         self._sys_totals = None
 
