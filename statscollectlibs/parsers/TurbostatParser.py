@@ -161,30 +161,34 @@ class TurbostatParser(_ParserBase.ParserBase):
         coredata = {}
 
         for cpuinfo in cpus.values():
-            if "Package" not in cpuinfo:
-                # The turbostat table does not include the "Package" column in case if there is only
-                # one CPU package. Emulate it.
-                cpuinfo["Package"] = "0"
-            if cpuinfo["Package"] not in packages:
-                packages[cpuinfo["Package"]] = pkgdata = {}
+            # The turbostat may not include the "Package" column in case if there is only one CPU
+            # package.
+            package = cpuinfo.get("Package", 0)
+            core = cpuinfo.get("Core", 0)
+
+            if package not in packages:
+                packages[package] = pkgdata = {}
                 pkg_count += 1
+
             if "cores" not in pkgdata:
                 pkgdata["cores"] = {}
 
             cores = pkgdata["cores"]
-            if cpuinfo["Core"] not in cores:
-                cores[cpuinfo["Core"]] = coredata = {}
+            if core not in cores:
+                cores[core] = coredata = {}
                 core_count += 1
 
             if "cpus" not in coredata:
                 coredata["cpus"] = {}
+
             cpus = coredata["cpus"]
             cpus[cpuinfo["CPU"]] = cpuinfo
             cpu_count += 1
 
-            # The package/core/CPU number keys in 'cpuinfo' are not needed anymore.
-            for key in ("Package", "Core", "CPU"):
-                del cpuinfo[key]
+            # Remove the topology keys from 'cpuinfo', leaving only the metrics there.
+            for key in ("Package", "Node", "Die", "Core", "CPU"):
+                if key in cpuinfo:
+                    del cpuinfo[key]
 
         tdict["cpu_count"] = cpu_count
         tdict["core_count"] = core_count
