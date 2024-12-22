@@ -394,11 +394,6 @@ class TurbostatParser(_ParserBase.ParserBase):
             else:
                 # This is the start of the new table.
                 if cpus or tables_started:
-                    if not cpus:
-                        # This is the the special case for single-CPU systems. Turbostat does not
-                        # print the totals because there is only one CPU and totals is the the same
-                        # as the CPU information.
-                        cpus[0] = self._sys_totals
                     result = self._construct_the_result(cpus)
                     if _result_is_valid(result):
                         skipped_lines += consecutively_skipped_lines
@@ -426,21 +421,13 @@ class TurbostatParser(_ParserBase.ParserBase):
                 # False pylint warning, see issue: https://github.com/PyCQA/pylint/issues/1830.
                 line = next(self._lines).split() # pylint: disable=stop-iteration-return
 
-                # On systems with a single core turbostat does not include the "Core" column.
-                # Similar to single CPU systems - the CPU column is excluded. Make sure we always
-                # have them.
-                for key in ("Core", "CPU"):
-                    if key not in self._heading:
-                        self._heading[key] = str
-                        line.append("0")
-
-                self._prev_sys_totals = self._sys_totals
                 # The very first line after the table heading is the system totals line. It does not
                 # include any CPU number.
                 #
                 # Example (heading line, then system totals line):
                 # Package Node    Core    CPU     Avg_MHz Busy%   Bzy_MHz TSC_MHz IPC     SMI ...
                 # -       -       -       -       16      0.42    3762    2400    0.66    0   ...
+                self._prev_sys_totals = self._sys_totals
                 self._sys_totals = self._parse_turbostat_line(line)
                 if "CPU" in self._sys_totals:
                     raise ErrorBadFormat(f"unexpected 'CPU' value in the following turbostat "
