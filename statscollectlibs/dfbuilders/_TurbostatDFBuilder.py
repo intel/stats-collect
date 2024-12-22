@@ -11,7 +11,7 @@ Provide the capability of building 'pandas.DataFrames' out of raw turbostat stat
 """
 
 import pandas
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
 
@@ -113,6 +113,12 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         except StopIteration:
             raise Error(f"empty or incorrectly formatted 'turbostat' statistics file "
                         f"'{path}") from None
+
+        # Sanity check.
+        if "Time_Of_Day_Seconds" not in parsed_dp["totals"]:
+            raise ErrorBadFormat(f"rejecting turbostat statistics file '{path}' - it does not "
+                                 f"include time-stamps.\nCollect turbostat statistics with the "
+                                 f"'--enable Time_Of_Day_Seconds' option to include time-stamps.")
 
         # Initialise 'sdf' with the first datapoint in the raw statistics file.
         sdf = self._turbostat_to_df(parsed_dp)
