@@ -15,7 +15,7 @@ Terminology.
                as "nontable" data. After that turbostat prints nice tables every measurement
                interval (like every 2 seconds).
   * totals - refers to the turbostat data lines (or data constructed by this parser) that
-             "summarises" metric values for multiple CPUs. For example, package totals are
+             "summarizes" metric values for multiple CPUs. For example, package totals are
              summarized values for a package. The summary function is typically an average, but may
              also be the sum or something else.
 """
@@ -289,18 +289,31 @@ class TurbostatParser(_ParserBase.ParserBase):
         for metric, value in zip_longest(self._heading.keys(), line):
             # Turbostat adds "(neg)" values when it expects a positive value but reads a negative
             # one. In this case the data point should be considered invalid, so skip it.
-            if value is not None and value != "-" and value != "(neg)":
-                if not self._heading[metric]:
-                    if Trivial.is_int(value):
-                        self._heading[metric] = int
-                    elif Trivial.is_float(value):
-                        self._heading[metric] = float
-                    else:
-                        self._heading[metric] = str
-
-                line_data[metric] = self._heading[metric](value)
+            if value in (None, "-", "(neg)"):
+                continue
+            line_data[metric] = self._heading[metric](value)
 
         return line_data
+
+    def _build_heading(self, heading, sys_totals):
+        """
+        Build the heading dictionary. They dictionary keys are the heading entries (metric names,
+        CPU/core/package numbers), the values are heading value types.
+        """
+
+        self._heading = {}
+
+        if len(heading) != len(sys_totals):
+            raise ErrorBadFormat("heading and the system total lines have different amount of "
+                                 "entries")
+
+        for key, value in zip(heading, sys_totals):
+            if Trivial.is_int(value):
+                self._heading[key] = int
+            elif Trivial.is_float(value):
+                self._heading[key] = float
+            else:
+                self._heading[key] = str
 
     def _next(self):
         """
@@ -359,20 +372,16 @@ class TurbostatParser(_ParserBase.ParserBase):
                                                  f"contain invalid data")
                     cpus = {}
 
-                self._heading = {}
-                for key in line:
-                    if "%" in key or "Watt" in key or key in {"Time_Of_Day_Seconds", "IPC"}:
-                        self._heading[key] = float
-                    elif key in ("Package", "Core", "CPU"):
-                        self._heading[key] = str
-                    else:
-                        self._heading[key] = None
+                # The first line is the table heading.
+                heading = line
 
                 # The next line is total statistics across all CPUs, except if there is only one
                 # single CPU in the system.
-
                 # False pylint warning, see issue: https://github.com/PyCQA/pylint/issues/1830.
                 line = next(self._lines).split() # pylint: disable=stop-iteration-return
+
+                if not self._heading:
+                    self._build_heading(heading, line)
 
                 # The very first line after the table heading is the system totals line. It does not
                 # include any CPU number.
