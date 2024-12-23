@@ -66,31 +66,34 @@ def get_totals_func_name(metric):
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
 
-    def _construct_totals(self, packages):
+    @staticmethod
+    def _calc_total(vals, key):
         """
-        Calculate "totals" for cores, packages, and system (all CPUs) in cases where turbostat does
-        not provide them. Save them in the "totals" key of the corresponding level dictionary.
+        Calculate the "total" value for a piece of turbostat statistics defined by 'key'. The
+        resulting "total" value is usually the average, but some statistics require just the
+        sum, for example the IRQ count. This function returns the proper "total" value depending
+        on the 'key' contents. Arguments are as follows.
+            * vals - an iterable containing all of the different values of 'key'.
+            * key - the name of the turbostat metric which the values in 'vals' represent.
         """
 
-        def calc_total(vals, key):
-            """
-            Calculate the "total" value for a piece of turbostat statistics defined by 'key'. The
-            resulting "total" value is usually the average, but some statistics require just the
-            sum, for example the IRQ count. This function returns the proper "total" value depending
-            on the 'key' contents. Arguments are as follows.
-              * vals - an iterable containing all of the different values of 'key'.
-              * key - the name of the turbostat metric which the values in 'vals' represent.
-            """
+        name = get_totals_func_name(key)
+        if name == "sum":
+            return sum(vals)
+        if name == "avg":
+            return sum(vals) / len(vals)
+        if name == "max":
+            return max(vals)
+        raise Error(f"BUG: unable to summarize turbostat column '{key}' with method '{name}'")
 
-            agg_method = get_totals_func_name(key)
-            if agg_method == "sum":
-                return sum(vals)
-            if agg_method == "avg":
-                return sum(vals) / len(vals)
-            if agg_method == "max":
-                return max(vals)
-            raise Error(f"BUG: unable to summarize turbostat column '{key}' with method "
-                        f"'{agg_method}'")
+    def _construct_totals(self, tdict):
+        """
+        Calculate the totals for package and core levels. Whenever possible, use the totals provided
+        by turbostat. The totals are added to the "totals" key of the corresponding level dictionary
+        in 'tdict'.
+        """
+
+        packages = tdict["packages"]
 
         for pkginfo in packages.values():
             for coreinfo in pkginfo["cores"].values():
@@ -104,7 +107,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if "totals" not in coreinfo:
                     coreinfo["totals"] = {}
                 for metric, vals in metrics.items():
-                    coreinfo["totals"][metric] = calc_total(vals, metric)
+                    coreinfo["totals"][metric] = self._calc_total(vals, metric)
 
             metrics = {}
             for coreinfo in pkginfo["cores"].values():
@@ -116,7 +119,7 @@ class TurbostatParser(_ParserBase.ParserBase):
             if "totals" not in pkginfo:
                 pkginfo["totals"] = {}
             for metric, vals in metrics.items():
-                pkginfo["totals"][metric] = calc_total(vals, metric)
+                pkginfo["totals"][metric] = self._calc_total(vals, metric)
 
         # Remove the CPU information keys that are actually not CPU-level but rather core or package
         # level. We already have these keys in core or package totals.
@@ -342,7 +345,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if key in cpuinfo:
                     del cpuinfo[key]
 
-        self._construct_totals(packages)
+        self._construct_totals(tdict)
         return tdict
 
     def _parse_cpu_flags(self, line):
