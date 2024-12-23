@@ -406,16 +406,16 @@ class TurbostatParser(_ParserBase.ParserBase):
         """Parse a single turbostat line."""
 
         line_data = {}
-        for metric, value in zip_longest(self._heading.keys(), line):
+        for key, value in zip_longest(self._heading2type.keys(), line):
             # Turbostat adds "(neg)" values when it expects a positive value but reads a negative
             # one. In this case the data point should be considered invalid, so skip it.
             if value in (None, "-", "(neg)"):
                 continue
-            line_data[metric] = self._heading[metric](value)
+            line_data[key] = self._heading2type[key](value)
 
         return line_data
 
-    def _build_heading(self, heading, sys_totals):
+    def _construct_heading2type(self, heading, sys_totals):
         """
         Build the heading dictionary. They dictionary keys are the heading entries (metric names,
         CPU/core/package numbers), the values are heading value types.
@@ -427,11 +427,11 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         for key, value in zip(heading, sys_totals):
             if Trivial.is_int(value):
-                self._heading[key] = int
+                self._heading2type[key] = int
             elif Trivial.is_float(value):
-                self._heading[key] = float
+                self._heading2type[key] = float
             else:
-                self._heading[key] = str
+                self._heading2type[key] = str
 
     @staticmethod
     def _check_against_tdp(tdict, metric, multiplier):
@@ -539,8 +539,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
                 self._orig_line = line
                 line = line.split()
-                if not self._heading:
-                    self._build_heading(heading, line)
+                if not self._heading2type:
+                    self._construct_heading2type(heading, line)
 
                 # The very first line after the table heading is the system totals line. It does not
                 # include any CPU number.
@@ -599,8 +599,9 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         # The debug output that turbostat prints before printing the table(s).
         self._nontable = {}
-        # The heading of the currently parsed turbostat table.
-        self._heading = {}
+        # The dictionary mapping turbostat heading keys (metrics and topology keys) to python type
+        # that should be used for the key.
+        self._heading2type = {}
         # Then next line after the heading of the currently parsed turbostat table.
         self._sys_totals = None
 
