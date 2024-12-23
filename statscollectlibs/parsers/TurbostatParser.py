@@ -70,6 +70,22 @@ def get_totals_func_name(metric):
         return "wavg"
     return "avg"
 
+#def _dump_tdict(tdict):
+#    """Print the turbostat information dictionary."""
+#
+#    print("System totals")
+#    print(tdict["totals"])
+#    print("")
+#    for package, pkginfo in tdict["packages"].items():
+#        print("Package %d totals" % package)
+#        print(pkginfo["totals"])
+#        for core, coreinfo in pkginfo["cores"].items():
+#            print("    Core %d totals" % core)
+#            print("   ", coreinfo["totals"])
+#            for cpu, cpuinfo in coreinfo["cpus"].items():
+#                print("        CPU %d" % cpu)
+#                print("       ", cpuinfo)
+
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
 
@@ -109,7 +125,8 @@ class TurbostatParser(_ParserBase.ParserBase):
             if fname == "wavg":
                 weights = self._get_core_metric_values(coreinfo, "Busy%")
 
-        return self._summarize(fname, vals, weights=weights, count=count)
+        val = self._summarize(fname, vals, weights=weights, count=count)
+        return self._heading2type[metric](val)
 
     @staticmethod
     def _get_package_metric_values(pkginfo, metric):
@@ -132,7 +149,8 @@ class TurbostatParser(_ParserBase.ParserBase):
             if fname == "wavg":
                 weights = self._get_package_metric_values(pkginfo, "Busy%")
 
-        return self._summarize(fname, vals, weights=weights, count=count)
+        val = self._summarize(fname, vals, weights=weights, count=count)
+        return self._heading2type[metric](val)
 
     def _construct_totals(self, tdict):
         """
@@ -151,7 +169,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 for metric in self._metrics["core"]:
                     coreinfo["totals"][metric] = self._sumarize_core_metric(coreinfo, metric)
 
-        # Turbostat adds package level metrics to the first CPU data line printed for a package.
+        # Turbostat adds package level metrics to the first CPU data line of a package.
         # Remove them, because they are now available in package totals.
         for pkginfo in tdict["packages"].values():
             for coreinfo in pkginfo["cores"].values():
@@ -161,7 +179,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                     break
                 break
 
-        # Turbostat adds core level metrics to the first CPU data line printed for a core.
+        # Turbostat adds core level metrics to the first CPU data line of a core.
         # Remove them, because they are now available in core totals.
         for pkginfo in tdict["packages"].values():
             for coreinfo in pkginfo["cores"].values():
@@ -388,8 +406,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
     def _add_nontable_data(self, line):
         """
-        Turbostat prints lots of useful information when used with the '-d' option. Try to identify
-        the useful bits and add them to the "nontable" dictionary.
+        Turbostat provides a log of useful information. Store some if it in the "nontable"
+        dictionary.
         """
 
         # pylint: disable=pepc-comment-no-dot
@@ -455,8 +473,12 @@ class TurbostatParser(_ParserBase.ParserBase):
             raise ErrorBadFormat("heading and the system total lines have different amount of "
                                  "entries")
 
+        topology_keys = set(_TOPOLOGY_KEYS)
+
         for key, value in zip(heading, sys_totals):
-            if Trivial.is_int(value):
+            if key in topology_keys:
+                self._heading2type[key] = int
+            elif Trivial.is_int(value):
                 self._heading2type[key] = int
             elif Trivial.is_float(value):
                 self._heading2type[key] = float
@@ -559,15 +581,15 @@ class TurbostatParser(_ParserBase.ParserBase):
 
                 heading = line # The first line is the table heading.
 
-                # The next line is total statistics across all CPUs, except if there is only one
-                # single CPU in the system.
-                line = next(self._lines)
-                if not line:
+                # The next line is the system level totals.
+                try:
+                    line = next(self._lines)
+                except StopIteration:
                     _LOG.warning("incomplete turbostat table: no totals line after the heading "
                                  "line\nLast read turbostat line:\n%s", self._orig_line)
                     return
 
-                self._orig_line = line
+                self._orig_line = line.strip()
                 line = line.split()
                 if not self._heading2type:
                     self._construct_heading2type(heading, line)

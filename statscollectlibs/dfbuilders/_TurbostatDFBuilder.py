@@ -71,18 +71,16 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         contains values from the package, core, and CPU levels.
         """
 
-        cpunum = str(self._cpunum)
-
         # Traverse dictionary looking for measured CPUs.
         for package in tstat["packages"].values():
             for core in package["cores"].values():
-                if cpunum not in core["cpus"]:
+                if self._cpunum not in core["cpus"]:
                     continue
 
                 # Include the package and core totals as for metrics which are not available at the
                 # CPU level.
                 return self._add_tstat_scope({**package["totals"], **core["totals"],
-                                              **core["cpus"][cpunum]})
+                                              **core["cpus"][self._cpunum]})
 
         raise Error(f"no data for measured CPU '{self._cpunum}'")
 
