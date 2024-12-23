@@ -44,6 +44,7 @@ TOTALS_FUNCS = {
     "sum": "sum",
     "avg": "average",
     "max": "max",
+    "min": "min",
 }
 
 def get_totals_func_name(metric):
@@ -61,13 +62,14 @@ def get_totals_func_name(metric):
     # For temperatures, take the maximum value.
     if metric.endswith("Tmp"):
         return "max"
+    if metric == "Time_Of_Day_Seconds":
+        return "min"
     return "avg"
 
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
 
-    @staticmethod
-    def _calc_total(vals, key):
+    def _calc_total(self, vals, key):
         """
         Calculate the "total" value for a piece of turbostat statistics defined by 'key'. The
         resulting "total" value is usually the average, but some statistics require just the
@@ -77,14 +79,33 @@ class TurbostatParser(_ParserBase.ParserBase):
             * key - the name of the turbostat metric which the values in 'vals' represent.
         """
 
-        name = get_totals_func_name(key)
-        if name == "sum":
+        fname = self._metric2fname[key]
+        if fname == "sum":
             return sum(vals)
-        if name == "avg":
+        if fname == "avg":
             return sum(vals) / len(vals)
-        if name == "max":
+        if fname == "min":
+            return min(vals)
+        if fname == "max":
             return max(vals)
-        raise Error(f"BUG: unable to summarize turbostat column '{key}' with method '{name}'")
+        raise Error(f"BUG: unable to summarize turbostat column '{key}' with method '{fname}'")
+
+    @staticmethod
+    def _get_core_metric_values(coreinfo, metric):
+        """TODO"""
+
+        for cpuinfo in coreinfo["cpus"].values():
+            if metric in cpuinfo:
+                yield cpuinfo[metric]
+
+    @staticmethod
+    def _get_package_metric_values(pkginfo, metric):
+        """TODO"""
+
+        for coreinfo in pkginfo["cores"].values():
+            for cpuinfo in coreinfo["cpus"].values():
+                if metric in cpuinfo:
+                    yield cpuinfo[metric]
 
     def _construct_totals(self, tdict):
         """
@@ -95,8 +116,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         packages = tdict["packages"]
 
-        for pkginfo in packages.values():
-            for coreinfo in pkginfo["cores"].values():
+        for package, pkginfo in packages.items():
+            for core, coreinfo in pkginfo["cores"].items():
                 metrics = {}
                 for cpuinfo in coreinfo["cpus"].values():
                     for metric, val in cpuinfo.items():
@@ -107,6 +128,9 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if "totals" not in coreinfo:
                     coreinfo["totals"] = {}
                 for metric, vals in metrics.items():
+                    print(metric, package, core)
+                    print("old", vals)
+                    print("new", list(self._get_core_metric_values(coreinfo, metric)))
                     coreinfo["totals"][metric] = self._calc_total(vals, metric)
 
             metrics = {}
@@ -256,6 +280,15 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if key in names_dict:
                     del names_dict[key]
 
+    def _construct_metric2fname(self):
+        """
+        Build the dictionary mapping metric names to names of the functions that should be used for
+        constructing the "totals" of the metric.
+        """
+
+        for metric in self._metrics["system"]:
+            self._metric2fname[metric] = get_totals_func_name(metric)
+
     def _construct_tdict(self, tlines):
         """
         Construct and return the final dictionary corresponding to a parsed turbostat table.
@@ -337,6 +370,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         if not self._metrics:
             self._construct_metrics(tlines)
+        if not self._metric2fname:
+            self._construct_metric2fname()
 
         # Remove the topology keys from all turbostat lines (will also get rid for them from the CPU
         # level in 'tdict').
@@ -417,8 +452,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
     def _construct_heading2type(self, heading, sys_totals):
         """
-        Build the heading dictionary. They dictionary keys are the heading entries (metric names,
-        CPU/core/package numbers), the values are heading value types.
+        Build the dictionary mapping heading entries (metric names, topology keys) to the python
+        the values are heading value types.
         """
 
         if len(heading) != len(sys_totals):
@@ -602,6 +637,8 @@ class TurbostatParser(_ParserBase.ParserBase):
         # The dictionary mapping turbostat heading keys (metrics and topology keys) to python type
         # that should be used for the key.
         self._heading2type = {}
+        # The dictionary mapping turbostat metric name to the summary function name.
+        self._metric2fname = {}
         # Then next line after the heading of the currently parsed turbostat table.
         self._sys_totals = None
 
