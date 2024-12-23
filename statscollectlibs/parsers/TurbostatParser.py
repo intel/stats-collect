@@ -43,6 +43,7 @@ _TOPOLOGY_KEYS = ("Package", "Node", "Die", "Core", "CPU")
 TOTALS_FUNCS = {
     "sum": "sum",
     "avg": "average",
+    "wavg": "weighted average",
     "max": "max",
     "min": "min",
 }
@@ -64,19 +65,24 @@ def get_totals_func_name(metric):
         return "max"
     if metric == "Time_Of_Day_Seconds":
         return "min"
+    if metric in ("Avg_MHz", "Bzy_MHz"):
+        # The average and busy frequency is averaged using C0 residency (Busy%) as weights.
+        return "wavg"
     return "avg"
 
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
 
     @staticmethod
-    def _summarize(fname, vals, count=None):
+    def _summarize(fname, vals, weights=None, count=None):
         """Apply the 'fname' function to the 'vals' values."""
 
         if fname == "sum":
             return sum(vals)
         if fname == "avg":
             return sum(vals) / count
+        if fname == "wavg":
+            return sum(val * weight for val, weight in zip(vals, weights)) / count
         if fname == "min":
             return min(vals)
         if fname == "max":
@@ -85,7 +91,7 @@ class TurbostatParser(_ParserBase.ParserBase):
 
     @staticmethod
     def _get_core_metric_values(coreinfo, metric):
-        """TODO"""
+        """Yield 'metric' values for all CPUs in a core."""
 
         for cpuinfo in coreinfo["cpus"].values():
             if metric in cpuinfo:
@@ -97,16 +103,17 @@ class TurbostatParser(_ParserBase.ParserBase):
         vals = self._get_core_metric_values(coreinfo, metric)
 
         fname = self._metric2fname[metric]
-        if fname == "avg":
+        count = weights = None
+        if fname in ("avg", "wavg"):
             count = sum(1 for _ in self._get_core_metric_values(coreinfo, metric))
-        else:
-            count = None
+            if fname == "wavg":
+                weights = self._get_core_metric_values(coreinfo, "Busy%")
 
-        return self._summarize(fname, vals, count=count)
+        return self._summarize(fname, vals, weights=weights, count=count)
 
     @staticmethod
     def _get_package_metric_values(pkginfo, metric):
-        """TODO"""
+        """Yield 'metric' values for all CPUs in a package."""
 
         for coreinfo in pkginfo["cores"].values():
             for cpuinfo in coreinfo["cpus"].values():
@@ -119,12 +126,13 @@ class TurbostatParser(_ParserBase.ParserBase):
         vals = self._get_package_metric_values(pkginfo, metric)
 
         fname = self._metric2fname[metric]
-        if fname == "avg":
+        count = weights = None
+        if fname in ("avg", "wavg"):
             count = sum(1 for _ in self._get_package_metric_values(pkginfo, metric))
-        else:
-            count = None
+            if fname == "wavg":
+                weights = self._get_package_metric_values(pkginfo, "Busy%")
 
-        return self._summarize(fname, vals, count=count)
+        return self._summarize(fname, vals, weights=weights, count=count)
 
     def _construct_totals(self, tdict):
         """
@@ -143,35 +151,24 @@ class TurbostatParser(_ParserBase.ParserBase):
                 for metric in self._metrics["core"]:
                     coreinfo["totals"][metric] = self._sumarize_core_metric(coreinfo, metric)
 
-        # Remove the CPU information keys that are actually not CPU-level but rather core or package
-        # level. We already have these keys in core or package totals.
-        common_keys = None
+        # Turbostat adds package level metrics to the first CPU data line printed for a package.
+        # Remove them, because they are now available in package totals.
         for pkginfo in tdict["packages"].values():
             for coreinfo in pkginfo["cores"].values():
                 for cpuinfo in coreinfo["cpus"].values():
-                    if common_keys is None:
-                        common_keys = set(cpuinfo)
-                    else:
-                        common_keys &= set(cpuinfo)
+                    for metric in self._ts_totals["package"]:
+                        del cpuinfo[metric]
+                    break
+                break
 
+        # Turbostat adds core level metrics to the first CPU data line printed for a core.
+        # Remove them, because they are now available in core totals.
         for pkginfo in tdict["packages"].values():
             for coreinfo in pkginfo["cores"].values():
                 for cpuinfo in coreinfo["cpus"].values():
-                    for metric in list(cpuinfo):
-                        if metric not in common_keys:
-                            del cpuinfo[metric]
-
-        # The the '*_MHz' totals provided by turbostat are weighted averages of the per-CPU values.
-        # The weights are the amount of cycles the CPU spent executing instructions instead of being
-        # in a C-state. Remove the incorrectly calculated non-weighted averages, because I was too
-        # lazy to implement weighted averages calculations.
-        ignore_keys = ("Avg_MHz", "Bzy_MHz")
-        for pkginfo in tdict["packages"].values():
-            for metric in ignore_keys:
-                del pkginfo["totals"][metric]
-            for coreinfo in pkginfo["cores"].values():
-                for metric in ignore_keys:
-                    del coreinfo["totals"][metric]
+                    for metric in self._ts_totals["core"]:
+                        del cpuinfo[metric]
+                    break
 
     def _construct_metrics(self, tlines):
         """
