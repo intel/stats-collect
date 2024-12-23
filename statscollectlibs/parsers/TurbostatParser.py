@@ -43,7 +43,7 @@ _TOPOLOGY_KEYS = ("Package", "Node", "Die", "Core", "CPU")
 TOTALS_FUNCS = {
     "sum": "sum",
     "avg": "average",
-    "wavg": "weighted average",
+    "wavg": "weighted average (weights - C0 residency)",
     "max": "max",
     "min": "min",
 }
@@ -69,22 +69,6 @@ def get_totals_func_name(metric):
         # The average and busy frequency is averaged using C0 residency (Busy%) as weights.
         return "wavg"
     return "avg"
-
-#def _dump_tdict(tdict):
-#    """Print the turbostat information dictionary."""
-#
-#    print("System totals")
-#    print(tdict["totals"])
-#    print("")
-#    for package, pkginfo in tdict["packages"].items():
-#        print("Package %d totals" % package)
-#        print(pkginfo["totals"])
-#        for core, coreinfo in pkginfo["cores"].items():
-#            print("    Core %d totals" % core)
-#            print("   ", coreinfo["totals"])
-#            for cpu, cpuinfo in coreinfo["cpus"].items():
-#                print("        CPU %d" % cpu)
-#                print("       ", cpuinfo)
 
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
@@ -113,21 +97,6 @@ class TurbostatParser(_ParserBase.ParserBase):
             if metric in cpuinfo:
                 yield cpuinfo[metric]
 
-    def _sumarize_core_metric(self, coreinfo, metric):
-        """Calculate the core level "total" value for metric 'metric'."""
-
-        vals = self._get_core_metric_values(coreinfo, metric)
-
-        fname = self._metric2fname[metric]
-        count = weights = None
-        if fname in ("avg", "wavg"):
-            count = sum(1 for _ in self._get_core_metric_values(coreinfo, metric))
-            if fname == "wavg":
-                weights = self._get_core_metric_values(coreinfo, "Busy%")
-
-        val = self._summarize(fname, vals, weights=weights, count=count)
-        return self._heading2type[metric](val)
-
     @staticmethod
     def _get_package_metric_values(pkginfo, metric):
         """Yield 'metric' values for all CPUs in a package."""
@@ -137,20 +106,46 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if metric in cpuinfo:
                     yield cpuinfo[metric]
 
-    def _summarize_package_metric(self, pkginfo, metric):
-        """Calculate the package level "total" value for metric 'metric'."""
+    @staticmethod
+    def _get_system_metric_values(tdict, metric):
+        """Yield 'metric' values for all CPUs in the system."""
 
-        vals = self._get_package_metric_values(pkginfo, metric)
+        for pkginfo in tdict["packages"].values():
+            for coreinfo in pkginfo["cores"].values():
+                for cpuinfo in coreinfo["cpus"].values():
+                    if metric in cpuinfo:
+                        yield cpuinfo[metric]
+
+    def _summarize_metric(self, info, metric, level_name):
+        """Calculate the 'level_name' level "total" value for metric 'metric'."""
+
+        method_name = f"_get_{level_name}_metric_values"
+        get_values_method = getattr(self, method_name)
+        vals = get_values_method(info, metric)
 
         fname = self._metric2fname[metric]
         count = weights = None
         if fname in ("avg", "wavg"):
-            count = sum(1 for _ in self._get_package_metric_values(pkginfo, metric))
+            count = sum(1 for _ in get_values_method(info, metric))
             if fname == "wavg":
-                weights = self._get_package_metric_values(pkginfo, "Busy%")
+                weights = get_values_method(info, "Busy%")
 
         val = self._summarize(fname, vals, weights=weights, count=count)
         return self._heading2type[metric](val)
+
+    @staticmethod
+    def _get_requestable_cstate_metrics(info):
+        """Yield metric names related to requestable C-states."""
+
+        for cnt_metric in list(info):
+            if not re.match(_REQ_CSTATES_REGEX_COMPILED, cnt_metric):
+                continue
+
+            rate_metric = f"{cnt_metric}_rate" # C-state requests rate.
+            time_metric = f"{cnt_metric}_time" # Avg. time in C-state per request.
+            resd_metric = f"{cnt_metric}%"     # Requestable C-state residency.
+
+            yield cnt_metric, rate_metric, time_metric, resd_metric
 
     def _construct_totals(self, tdict):
         """
@@ -159,15 +154,21 @@ class TurbostatParser(_ParserBase.ParserBase):
         in 'tdict'.
         """
 
+        if self._derivatives:
+            iterator = self._get_requestable_cstate_metrics(tdict["totals"])
+            for _, rate_metric, time_metric, _ in iterator:
+                tdict["totals"][rate_metric] = self._summarize_metric(tdict, rate_metric, "system")
+                tdict["totals"][time_metric] = self._summarize_metric(tdict, time_metric, "system")
+
         for pkginfo in tdict["packages"].values():
             pkginfo["totals"] = {}
             for metric in self._metrics["package"]:
-                pkginfo["totals"][metric] = self._summarize_package_metric(pkginfo, metric)
+                pkginfo["totals"][metric] = self._summarize_metric(pkginfo, metric, "package")
 
             for coreinfo in pkginfo["cores"].values():
                 coreinfo["totals"] = {}
                 for metric in self._metrics["core"]:
-                    coreinfo["totals"][metric] = self._sumarize_core_metric(coreinfo, metric)
+                    coreinfo["totals"][metric] = self._summarize_metric(coreinfo, metric, "core")
 
         # Turbostat adds package level metrics to the first CPU data line of a package.
         # Remove them, because they are now available in package totals.
@@ -302,6 +303,87 @@ class TurbostatParser(_ParserBase.ParserBase):
         for metric in self._metrics["system"]:
             self._metric2fname[metric] = get_totals_func_name(metric)
 
+        if self._derivatives:
+            iterator = self._get_requestable_cstate_metrics(self._metrics["system"])
+            for _, rate_metric, time_metric, _ in iterator:
+                self._metric2fname[rate_metric] = get_totals_func_name(rate_metric)
+                self._metric2fname[time_metric] = get_totals_func_name(time_metric)
+
+    def _add_cstate_derivatives(self, info, prev_info):
+        """Add a derivative C-state metrics to the 'info' metrics dictionary."""
+
+        iterator = self._get_requestable_cstate_metrics(info)
+        for cnt_metric, rate_metric, time_metric, resd_metric in iterator:
+            if prev_info is None:
+                # This is the very first table, but 2 tables are needed to get 2 time-stamps to
+                # calculate the interval.
+                info[rate_metric] = 0
+                if resd_metric in info:
+                    info[time_metric] = 0
+                continue
+
+            if "Time_Of_Day_Seconds" not in info:
+                # The time-stamps are required to calculate the interval.
+                info[rate_metric] = 0
+                if resd_metric in info:
+                    info[time_metric] = 0
+                continue
+
+            time = info["Time_Of_Day_Seconds"] - prev_info["Time_Of_Day_Seconds"]
+            if time:
+                # Add the average requests rate.
+                info[rate_metric] = info[cnt_metric] / time
+            else:
+                # Can't divide by 0.
+                info[rate_metric] = 0
+
+            if resd_metric not in info:
+                continue
+
+            if info[cnt_metric]:
+                # Calculate the spent in the C-state (in seconds).
+                time = time * info[resd_metric] / 100
+                # Add the average time spent in a single C-state request in microseconds.
+                info[time_metric] = (time / info[cnt_metric]) * 1000000
+            else:
+                info[time_metric] = 0
+
+            # Ensure the correct types.
+            info[rate_metric] = self._heading2type[cnt_metric](info[rate_metric])
+            info[time_metric] = self._heading2type[cnt_metric](info[time_metric])
+            info[resd_metric] = self._heading2type[cnt_metric](info[resd_metric])
+
+    def _update_heading2type(self, tdict):
+        """Update the '_heading2type' dictionary with derivative metrics."""
+
+        iterator = self._get_requestable_cstate_metrics(tdict["totals"])
+        for cnt_metric, rate_metric, time_metric, resd_metric in iterator:
+            if not re.match(_REQ_CSTATES_REGEX_COMPILED, cnt_metric):
+                continue
+
+            self._heading2type[rate_metric] = float
+            self._heading2type[time_metric] = float
+            self._heading2type[resd_metric] = float
+
+    def _add_derivatives(self, tdict):
+        """
+        Add derivative metrics, which are derived from other turbostat metrics. For example, the
+        C-states requests rate.
+        """
+
+        if not self._heading2type_updated:
+            self._update_heading2type(tdict)
+            self._heading2type_updated = True
+
+        for package, pkginfo in tdict["packages"].items():
+            for core, coreinfo in pkginfo["cores"].items():
+                for cpu, cpuinfo in coreinfo["cpus"].items():
+                    try:
+                        prev = self._prev_tdict["packages"][package]["cores"][core]["cpus"][cpu]
+                    except KeyError:
+                        prev = None
+                    self._add_cstate_derivatives(cpuinfo, prev)
+
     def _construct_tdict(self, tlines):
         """
         Construct and return the final dictionary corresponding to a parsed turbostat table.
@@ -380,6 +462,9 @@ class TurbostatParser(_ParserBase.ParserBase):
         tdict["cpu_count"] = cpu_count
         tdict["core_count"] = core_count
         tdict["pkg_count"] = pkg_count
+
+        if self._derivatives:
+            self._add_derivatives(tdict)
 
         if not self._metrics:
             self._construct_metrics(tlines)
@@ -571,6 +656,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                     tdict = self._construct_tdict(tlines)
                     if self._validate_tdict(tdict):
                         yield tdict
+                        self._prev_tdict = tdict
                         self._tables_cnt += 1
                     tlines = {}
                 elif self._tables_cnt:
@@ -613,6 +699,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         tdict = self._construct_tdict(tlines)
         if self._validate_tdict(tdict):
             yield tdict
+            self._prev_tdict = tdict
             self._tables_cnt += 1
 
     def __init__(self, path=None, lines=None, derivatives=False):
@@ -654,9 +741,13 @@ class TurbostatParser(_ParserBase.ParserBase):
         # The dictionary mapping turbostat heading keys (metrics and topology keys) to python type
         # that should be used for the key.
         self._heading2type = {}
+        # Whether the 'self._heading2type' dictionary was updated with derivative metrics.
+        self._heading2type_updated = False
         # The dictionary mapping turbostat metric name to the summary function name.
         self._metric2fname = {}
         # Then next line after the heading of the currently parsed turbostat table.
         self._sys_totals = None
+        # The previously yielded turbostat dictionary (tdict).
+        self._prev_tdict = {}
 
         super().__init__(path, lines)
