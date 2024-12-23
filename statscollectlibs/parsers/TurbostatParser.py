@@ -69,26 +69,19 @@ def get_totals_func_name(metric):
 class TurbostatParser(_ParserBase.ParserBase):
     """The 'turbostat' tool output parser."""
 
-    def _calc_total(self, vals, key):
-        """
-        Calculate the "total" value for a piece of turbostat statistics defined by 'key'. The
-        resulting "total" value is usually the average, but some statistics require just the
-        sum, for example the IRQ count. This function returns the proper "total" value depending
-        on the 'key' contents. Arguments are as follows.
-            * vals - an iterable containing all of the different values of 'key'.
-            * key - the name of the turbostat metric which the values in 'vals' represent.
-        """
+    @staticmethod
+    def _summarize(fname, vals, count=None):
+        """Apply the 'fname' function to the 'vals' values."""
 
-        fname = self._metric2fname[key]
         if fname == "sum":
             return sum(vals)
         if fname == "avg":
-            return sum(vals) / len(vals)
+            return sum(vals) / count
         if fname == "min":
             return min(vals)
         if fname == "max":
             return max(vals)
-        raise Error(f"BUG: unable to summarize turbostat column '{key}' with method '{fname}'")
+        raise Error(f"BUG: unknown summary function '{fname}'")
 
     @staticmethod
     def _get_core_metric_values(coreinfo, metric):
@@ -97,6 +90,19 @@ class TurbostatParser(_ParserBase.ParserBase):
         for cpuinfo in coreinfo["cpus"].values():
             if metric in cpuinfo:
                 yield cpuinfo[metric]
+
+    def _sumarize_core_metric(self, coreinfo, metric):
+        """Calculate the core level "total" value for metric 'metric'."""
+
+        vals = self._get_core_metric_values(coreinfo, metric)
+
+        fname = self._metric2fname[metric]
+        if fname == "avg":
+            count = sum(1 for _ in self._get_core_metric_values(coreinfo, metric))
+        else:
+            count = None
+
+        return self._summarize(fname, vals, count=count)
 
     @staticmethod
     def _get_package_metric_values(pkginfo, metric):
@@ -107,6 +113,19 @@ class TurbostatParser(_ParserBase.ParserBase):
                 if metric in cpuinfo:
                     yield cpuinfo[metric]
 
+    def _summarize_package_metric(self, pkginfo, metric):
+        """Calculate the package level "total" value for metric 'metric'."""
+
+        vals = self._get_package_metric_values(pkginfo, metric)
+
+        fname = self._metric2fname[metric]
+        if fname == "avg":
+            count = sum(1 for _ in self._get_package_metric_values(pkginfo, metric))
+        else:
+            count = None
+
+        return self._summarize(fname, vals, count=count)
+
     def _construct_totals(self, tdict):
         """
         Calculate the totals for package and core levels. Whenever possible, use the totals provided
@@ -114,41 +133,20 @@ class TurbostatParser(_ParserBase.ParserBase):
         in 'tdict'.
         """
 
-        packages = tdict["packages"]
+        for pkginfo in tdict["packages"].values():
+            pkginfo["totals"] = {}
+            for metric in self._metrics["package"]:
+                pkginfo["totals"][metric] = self._summarize_package_metric(pkginfo, metric)
 
-        for package, pkginfo in packages.items():
-            for core, coreinfo in pkginfo["cores"].items():
-                metrics = {}
-                for cpuinfo in coreinfo["cpus"].values():
-                    for metric, val in cpuinfo.items():
-                        if metric not in metrics:
-                            metrics[metric] = []
-                        metrics[metric].append(val)
-
-                if "totals" not in coreinfo:
-                    coreinfo["totals"] = {}
-                for metric, vals in metrics.items():
-                    print(metric, package, core)
-                    print("old", vals)
-                    print("new", list(self._get_core_metric_values(coreinfo, metric)))
-                    coreinfo["totals"][metric] = self._calc_total(vals, metric)
-
-            metrics = {}
             for coreinfo in pkginfo["cores"].values():
-                for metric, val in coreinfo["totals"].items():
-                    if metric not in metrics:
-                        metrics[metric] = []
-                    metrics[metric].append(val)
-
-            if "totals" not in pkginfo:
-                pkginfo["totals"] = {}
-            for metric, vals in metrics.items():
-                pkginfo["totals"][metric] = self._calc_total(vals, metric)
+                coreinfo["totals"] = {}
+                for metric in self._metrics["core"]:
+                    coreinfo["totals"][metric] = self._sumarize_core_metric(coreinfo, metric)
 
         # Remove the CPU information keys that are actually not CPU-level but rather core or package
         # level. We already have these keys in core or package totals.
         common_keys = None
-        for pkginfo in packages.values():
+        for pkginfo in tdict["packages"].values():
             for coreinfo in pkginfo["cores"].values():
                 for cpuinfo in coreinfo["cpus"].values():
                     if common_keys is None:
@@ -156,7 +154,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                     else:
                         common_keys &= set(cpuinfo)
 
-        for pkginfo in packages.values():
+        for pkginfo in tdict["packages"].values():
             for coreinfo in pkginfo["cores"].values():
                 for cpuinfo in coreinfo["cpus"].values():
                     for metric in list(cpuinfo):
@@ -168,7 +166,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         # in a C-state. Remove the incorrectly calculated non-weighted averages, because I was too
         # lazy to implement weighted averages calculations.
         ignore_keys = ("Avg_MHz", "Bzy_MHz")
-        for pkginfo in packages.values():
+        for pkginfo in tdict["packages"].values():
             for metric in ignore_keys:
                 del pkginfo["totals"][metric]
             for coreinfo in pkginfo["cores"].values():
