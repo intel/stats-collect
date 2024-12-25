@@ -12,7 +12,9 @@ import logging
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
 from statscollectlibs.parsers import SPECjbb2015Parser
+from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import _RawResultBase
+from statscollecttools import ToolInfo
 
 _LOG = logging.getLogger()
 
@@ -136,6 +138,42 @@ class RORawResult(_RawResultBase.RawResultBase):
         _LOG.debug("%s: workload type is '%s (%s)'",
                    self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
 
+    def _load_info_yml(self):
+        """Load and validate the 'info.yml' file contents."""
+
+        # Check that the 'info.yml' file exists, readable, and not empty.
+        for name in ("info_path",):
+            attr = getattr(self, name)
+            try:
+                if not attr.is_file():
+                    raise ErrorNotFound(f"'{attr}' does not exist or it is not a regular file")
+                if not attr.stat().st_size:
+                    raise Error(f"file '{attr}' is empty")
+            except OSError as err:
+                msg = Error(err).indent(2)
+                raise Error(f"failed to access '{attr}':\n{msg}") from err
+
+        self.info = YAML.load(self.info_path)
+        if "reportid" not in self.info:
+            raise ErrorNotSupported(f"no 'reportid' key found in {self.info_path}")
+
+        toolname = self.info.get("toolname")
+        if not toolname:
+            raise Error(f"bad '{self.info_path}' format - the 'toolname' key is missing")
+
+        self.reportid = self.info["reportid"]
+        if toolname == ToolInfo.TOOLNAME:
+            # Validate report ID only if the tool is 'stats-collect'. Make no assumptions about
+            # reportID format in case of other tools.
+            try:
+                ReportID.validate_reportid(self.reportid)
+            except Error as err:
+                raise Error(f"bad report ID in '{self.info_path}':\n{err.indent(2)}") from err
+
+        toolver = self.info.get("toolver")
+        if not toolver:
+            raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
+
     def __init__(self, dirpath, reportid=None):
         """
         The class constructor. The arguments are as follows.
@@ -152,38 +190,16 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         super().__init__(dirpath)
 
+        self._load_info_yml()
+
+        if reportid:
+            # Note, we do not validate it here, the caller is supposed to do that.
+            self.info["reportid"] = reportid
+            self.reportid = reportid
+
         # Type of the workload that was running while statistics were collected.
         self.wltype = None
         # Label metric definitions.
         self._labels_defs = {}
-
-        # Check few special error cases upfront in order to provide a clear error message:
-        # the info file should exist and be non-empty.
-        for name in ("info_path",):
-            attr = getattr(self, name)
-            try:
-                if not attr.is_file():
-                    raise ErrorNotFound(f"'{attr}' does not exist or it is not a regular file")
-                if not attr.stat().st_size:
-                    raise Error(f"file '{attr}' is empty")
-            except OSError as err:
-                msg = Error(err).indent(2)
-                raise Error(f"failed to access '{attr}':\n{msg}") from err
-
-        self.info = YAML.load(self.info_path)
-        if reportid:
-            # Note, we do not verify it here, the caller is supposed to verify.
-            self.info["reportid"] = reportid
-        if "reportid" not in self.info:
-            raise ErrorNotSupported(f"no 'reportid' key found in {self.info_path}")
-        self.reportid = self.info["reportid"]
-
-        toolname = self.info.get("toolname")
-        if not toolname:
-            raise Error(f"bad '{self.info_path}' format - the 'toolname' key is missing")
-
-        toolver = self.info.get("toolver")
-        if not toolver:
-            raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
 
         self._detect_wltype()

@@ -24,7 +24,7 @@ _LOG = logging.getLogger()
 _SPECJBB_DEFS = {
     "max-jOPS": {"name": "max-jOPS",
                  "title": "max-jOPS",
-                 "descr": "max-jOPS is the SPECjbb2015 metric characterising the throughput and "
+                 "descr": "max-jOPS is the SPECjbb2015 metric characterizing the throughput and "
                           "defined as the injection rate of the last successful step level. Refer "
                           "to the SPECjbb2015 user guide for a more precise definition.",
     },
@@ -32,8 +32,8 @@ _SPECJBB_DEFS = {
                       "title": "critical-jOPS",
                       "descr": "critical-jOPS is the SPECjbb2015 metric the responsiveness and "
                                "defined as average of the 99th percentile of the response time a "
-                               "across various transaction types, load levels, and responsetime "
-                               "SLAs. Refere to the SPECjbb2015 user guide for a more precise "
+                               "across various transaction types, load levels, and response time "
+                               "SLAs. Refer to the SPECjbb2015 user guide for a more precise "
                                "definition.",
     },
 }
