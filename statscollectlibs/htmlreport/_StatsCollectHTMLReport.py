@@ -69,7 +69,7 @@ class StatsCollectHTMLReport:
             try:
                 dst_dir.mkdir(parents=True, exist_ok=True)
 
-                wldata_dst = dst_dir / "raw"
+                wldata_dst = dst_dir / "wldata"
                 FSHelpers.move_copy_link(src_dir, wldata_dst, action="symlink", exist_ok=True)
             except (OSError, Error) as err:
                 _LOG.warning("unable to copy log files to the generated report: %s", err)
