@@ -15,7 +15,6 @@ import shutil
 import time
 from pepclibs.helperlibs import YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
-from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
 
@@ -97,7 +96,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
 
         paths = getattr(self, "_created_paths", [])
         if paths:
-            _LOG.debug("no statistcs were collected so the following paths which were created will "
+            _LOG.debug("no statistics were collected so the following paths which were created will "
                        "be deleted:\n  - %s", "\n  -".join(str(p) for p in self._created_paths))
 
         for path in paths:

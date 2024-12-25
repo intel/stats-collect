@@ -8,15 +8,13 @@
 
 """This module provides the API for generating HTML reports."""
 
-import contextlib
 import dataclasses
 import logging
 import json
 from pathlib import Path
 import plotly
 from packaging import version
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorExists
-from pepclibs.helperlibs import LocalProcessManager
+from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
@@ -46,15 +44,6 @@ def reportids_dedup(rsts):
                 raise Error(f"too many duplicate report IDs, e.g., '{reportid}' is problematic")
 
         reportids.add(res.reportid)
-
-def copy_dir(srcdir, dstpath):
-    """Helper function for '_copy_raw_data()'. Copy the 'srcdir' to 'dstpath'."""
-
-    try:
-        FSHelpers.copy_dir(srcdir, dstpath, exist_ok=True, ignore=["html-report"])
-    except Error as err:
-        msg = Error(err).indent(2)
-        raise Error(f"failed to copy raw data to report directory:\n{msg}") from None
 
 def _copy_assets(outdir):
     """
