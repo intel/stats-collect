@@ -36,10 +36,9 @@ class StatsCollectHTMLReport:
         """
 
         copied_paths = {}
-        results_dir = self.outdir / "results"
 
         for res in self.rsts:
-            dst_dir = results_dir / f"raw-{res.reportid}"
+            dst_dir = self.outdir / f"raw-{res.reportid}"
             src_dir = res.logs_path.relative_to(res.dirpath)
             try:
                 dst_dir.mkdir(parents=True, exist_ok=True)
@@ -61,12 +60,11 @@ class StatsCollectHTMLReport:
         """
 
         copied_paths = {}
-        results_dir = self.outdir / "results"
 
         for res in self.rsts:
             if not res.wldata_path:
                 continue
-            dst_dir = results_dir / f"raw-{res.reportid}"
+            dst_dir = self.outdir / f"raw-{res.reportid}"
             src_dir = res.wldata_path
             try:
                 dst_dir.mkdir(parents=True, exist_ok=True)
