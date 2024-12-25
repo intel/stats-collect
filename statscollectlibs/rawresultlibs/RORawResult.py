@@ -9,6 +9,7 @@
 """API for reading raw 'stats-collect' test results."""
 
 import logging
+from pathlib import Path
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
 from statscollectlibs.parsers import SPECjbb2015Parser
@@ -127,7 +128,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         """
 
         try:
-            if not self.wldata_path.exists():
+            if not self.wldata_path:
                 self.wltype = "generic"
             elif self._is_specjbb2015():
                 self.wltype = "specjbb2015"
@@ -143,15 +144,15 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         # Check that the 'info.yml' file exists, readable, and not empty.
         for name in ("info_path",):
-            attr = getattr(self, name)
+            path = getattr(self, name)
             try:
-                if not attr.is_file():
-                    raise ErrorNotFound(f"'{attr}' does not exist or it is not a regular file")
-                if not attr.stat().st_size:
-                    raise Error(f"file '{attr}' is empty")
+                if not path.is_file():
+                    raise ErrorNotFound(f"'{path}' does not exist or it is not a regular file")
+                if not path.stat().st_size:
+                    raise Error(f"file '{path}' is empty")
             except OSError as err:
                 msg = Error(err).indent(2)
-                raise Error(f"failed to access '{attr}':\n{msg}") from err
+                raise Error(f"failed to access '{path}':\n{msg}") from err
 
         self.info = YAML.load(self.info_path)
         if "reportid" not in self.info:
@@ -174,6 +175,36 @@ class RORawResult(_RawResultBase.RawResultBase):
         if not toolver:
             raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
 
+        wlinfo = self.info.get("workload")
+        if wlinfo:
+            path = Path(wlinfo.get("wldata_path"))
+            if path:
+                if not path.is_absolute():
+                    # Assume that the path is relative to the raw results directory path.
+                    path = self.dirpath / path
+                if not path.is_dir():
+                    raise ErrorNotFound(f"bad workload data path in '{self.info_path}':\n"
+                                        f" '{path}' does not exist or it is not a directory")
+                self.wldata_path = path
+
+            wltype = wlinfo.get("wltype")
+            if wltype:
+                if wltype not in SUPPORTED_WORKLOADS:
+                    _LOG.warning("unsupported workload type '%s' in '%s', assuming generic "
+                                 "workload", wltype, self.info_path)
+                else:
+                    self.wltype = wltype
+
+        if not self.wldata_path:
+            # Check the default workload data path.
+            path = self.dirpath.joinpath("wldata")
+            if path.is_dir():
+                self.wldata_path = path
+
+        if self.wltype and not self.wldata_path:
+            _LOG.warning("workload type is '%s', but workload data was not found, assuming generic "
+                         "workload", SUPPORTED_WORKLOADS[self.wltype])
+
     def __init__(self, dirpath, reportid=None):
         """
         The class constructor. The arguments are as follows.
@@ -190,16 +221,18 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         super().__init__(dirpath)
 
-        self._load_info_yml()
+        # Path to the workload data.
+        self.wldata_path = None
+        # Type of the workload that was running while statistics were collected.
+        self.wltype = None
 
+        # Label metric definitions.
+        self._labels_defs = {}
+
+        self._load_info_yml()
         if reportid:
             # Note, we do not validate it here, the caller is supposed to do that.
             self.info["reportid"] = reportid
             self.reportid = reportid
-
-        # Type of the workload that was running while statistics were collected.
-        self.wltype = None
-        # Label metric definitions.
-        self._labels_defs = {}
 
         self._detect_wltype()

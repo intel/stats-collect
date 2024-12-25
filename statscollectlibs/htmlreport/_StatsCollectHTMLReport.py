@@ -65,7 +65,7 @@ class StatsCollectHTMLReport:
         results_dir = self.outdir / "results"
 
         for res in self.rsts:
-            if not res.wldata_path.exists():
+            if not res.wldata_path:
                 continue
             dst_dir = results_dir / f"raw-{res.reportid}"
             src_dir = res.wldata_path
