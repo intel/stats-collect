@@ -55,7 +55,6 @@ def copy_dir(srcdir, dstpath):
 
     try:
         FSHelpers.copy_dir(srcdir, dstpath, exist_ok=True, ignore=["html-report"])
-        FSHelpers.set_default_perm(dstpath)
 
         # This block of code helps on SELinux-enabled systems when the output directory
         # ('self.outdir') is exposed via HTTP. In this case, the output directory should
@@ -283,8 +282,6 @@ class HTMLReport:
         _dump_json(report_info, rinfo_path, "report information dictionary")
 
         _copy_assets(self._outdir)
-
-        FSHelpers.set_default_perm(self._outdir)
 
         _LOG.info("Generated report in '%s'.", self._outdir)
 
