@@ -48,23 +48,10 @@ def reportids_dedup(rsts):
         reportids.add(res.reportid)
 
 def copy_dir(srcdir, dstpath):
-    """
-    Helper function for '_copy_raw_data()'. Copy the 'srcdir' to 'dstpath' and set permissions
-    accordingly.
-    """
+    """Helper function for '_copy_raw_data()'. Copy the 'srcdir' to 'dstpath'."""
 
     try:
         FSHelpers.copy_dir(srcdir, dstpath, exist_ok=True, ignore=["html-report"])
-
-        # This block of code helps on SELinux-enabled systems when the output directory
-        # ('self.outdir') is exposed via HTTP. In this case, the output directory should
-        # have the right SELinux attributes (e.g., 'httpd_user_content_t' in Fedora 35).
-        # The raw data that we just copied does not have the SELinux attribute, and
-        # won't be accessible via HTTPs. Run 'restorecon' tool to fix up the SELinux
-        # attributes.
-        with LocalProcessManager.LocalProcessManager() as lpman:
-            with contextlib.suppress(ErrorNotFound):
-                lpman.run_verify(f"restorecon -R {dstpath}")
     except Error as err:
         msg = Error(err).indent(2)
         raise Error(f"failed to copy raw data to report directory:\n{msg}") from None
