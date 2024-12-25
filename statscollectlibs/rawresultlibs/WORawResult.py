@@ -96,8 +96,9 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
 
         paths = getattr(self, "_created_paths", [])
         if paths:
-            _LOG.debug("no statistics were collected so the following paths which were created will "
-                       "be deleted:\n  - %s", "\n  -".join(str(p) for p in self._created_paths))
+            _LOG.debug("no statistics were collected, so the following paths which were created "
+                       "will be deleted:\n  - %s",
+                       "\n  -".join(str(p) for p in self._created_paths))
 
         for path in paths:
             if not path.exists():
