@@ -47,7 +47,6 @@ class StatsCollectHTMLReport:
                 logs_dst = dst_dir / src_dir
                 if not logs_dst.exists():
                     HTMLReport.copy_dir(res.dirpath / src_dir, logs_dst)
-
             except (OSError, Error) as err:
                 _LOG.warning("unable to copy log files to the generated report: %s", err)
             else:
