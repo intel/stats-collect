@@ -150,5 +150,5 @@ For more information, documentation is available for each 'stats-collect' comman
 
 * Artem Bityutskiy <dedekind1@gmail.com> - original author, project maintainer.
 * Antti Laakso <antti.laakso@linux.intel.com> - contributor, project maintainer.
-* Adam Hawley <adam.james.hawley@intel.com> - contributor, project maintainer.
+* Adam Hawley <adam.james.hawley@intel.com> - contributor.
 * Niklas Neronin <niklas.neronin@intel.com> - contributor.
