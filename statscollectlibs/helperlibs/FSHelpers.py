@@ -7,11 +7,10 @@
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module contains misc. helper functions related to file-system operations.
+Misc. helper functions related to file-system operations.
 """
 
 import os
-import stat
 import shutil
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import ErrorExists
@@ -20,7 +19,7 @@ from pepclibs.helperlibs.Exceptions import ErrorExists
 from pepclibs.helperlibs.FSHelpers import *
 
 def _copy_dir(src: Path, dst: Path, ignore=None):
-    """Implements the 'copy_dir()' function."""
+    """Implement the 'copy_dir()' function."""
 
     try:
         if not dst.parent.exists():
@@ -38,10 +37,15 @@ def _copy_dir(src: Path, dst: Path, ignore=None):
         msg = Error(err).indent(2)
         raise Error(f"cannot copy '{src}' to '{dst}':\n{msg}") from err
 
-def copy_dir(src: Path, dst: Path, exist_ok: bool = False, ignore=None):
+def copy_dir(src: Path, dst: Path, exist_ok: bool=False, ignore=None):
     """
-    Copy 'src' directory to 'dst'. The 'ignore' argument is a list of file or directory
-    names which will be ignored and not copied.
+    Copy 'src' directory to 'dst'. The arguments are as follows.
+      * src - the source directory path.
+      * dst - the destination directory path.
+      * exist_ok - if the destination directory 'dst' already exists, just return if 'True',
+                   raise an exception if 'False'.
+      * ignore - an iterable collection of is a list of names to avoid copying (checked recursively
+                 against every name in 'src' and all its sub-directories)
     """
 
     exists_err = f"cannot copy '{src}' to '{dst}', the destination path already exists"
@@ -57,8 +61,14 @@ def copy_dir(src: Path, dst: Path, exist_ok: bool = False, ignore=None):
 
 def move_copy_link(src, dst, action="symlink", exist_ok=False):
     """
-    Moves, copy. or link the 'src' file or directory to 'dst' depending on the 'action' contents
-    ('move', 'copy', 'symlink').
+    Move, copy. or link the 'src' file or directory to 'dst' depending on 'action'. The arguments
+    are as follows.
+      * src - the source file or directory path.
+      * dst - the destination file or directory path.
+      * action - one of 'move', 'copy', or 'symlink', to move 'src' to 'st', copy 'src' to 'dst',
+                 or create a 'src' symlink pointing to 'dst'.
+      * exist_ok - if the destination file or directory 'dst' already exists, just return if 'True',
+                   raise an exception if 'False'.
     """
 
     exists_err = f"cannot {action} '{src}' to '{dst}', the destination path already exists"
