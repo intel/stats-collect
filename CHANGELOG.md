@@ -11,6 +11,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
  - Add basic SPECjbb2015 workload support.
 ### Removed
 ### Changed
+ - Speed up Turbostat data parsing.
 
 ## [1.0.34] - 2024-11-29
 ### Fixed
