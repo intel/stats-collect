@@ -18,46 +18,64 @@ from pepclibs.helperlibs.Exceptions import ErrorExists
 # pylint: disable=wildcard-import,unused-wildcard-import
 from pepclibs.helperlibs.FSHelpers import *
 
-def _copy_dir(src: Path, dst: Path, ignore=None):
+def _copy_file(src: Path, dst: Path):
+    """Implement the 'copy_file()' function."""
+
+    try:
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dst)
+    except (OSError, shutil.Error) as err:
+        errmsg = Error(err).indent(2)
+        raise Error(f"failed to copy file '{src}' to '{dst}':\n{errmsg}") from err
+
+def _copy_dir(src: Path, dst: Path):
     """Implement the 'copy_dir()' function."""
 
     try:
-        if not dst.parent.exists():
-            dst.parent.mkdir(parents=True)
+        dst.parent.mkdir(parents=True, exist_ok=True)
 
-        if src.resolve() in dst.resolve().parents:
-            raise Error(f"cannot do recursive copy from '{src}' to '{dst}'")
+        if dst.resolve() in src.resolve().parents:
+            raise Error(f"cannot recursively copy '{src}' to '{dst}': the destination is a "
+                        f"sub-path of the source")
 
-        ignore_names = None
-        if ignore:
-            ignore_names = lambda path, content: ignore
-
-        shutil.copytree(src, dst, ignore=ignore_names)
+        shutil.copytree(src, dst, copy_function=shutil.copy)
     except (OSError, shutil.Error) as err:
-        msg = Error(err).indent(2)
-        raise Error(f"cannot copy '{src}' to '{dst}':\n{msg}") from err
+        errmsg = Error(err).indent(2)
+        raise Error(f"failed to copy directory '{src}' to '{dst}':\n{errmsg}") from err
 
-def copy_dir(src: Path, dst: Path, exist_ok: bool=False, ignore=None):
+def copy(src: Path, dst: Path, exist_ok: bool=False, is_dir: bool=None):
     """
     Copy 'src' directory to 'dst'. The arguments are as follows.
       * src - the source directory path.
       * dst - the destination directory path.
       * exist_ok - if the destination directory 'dst' already exists, just return if 'True',
                    raise an exception if 'False'.
-      * ignore - an iterable collection of is a list of names to avoid copying (checked recursively
-                 against every name in 'src' and all its sub-directories)
+      * is_dir - if 'src' is a directory, passing 'True' avoids a file type check.
     """
 
-    exists_err = f"cannot copy '{src}' to '{dst}', the destination path already exists"
-    if dst.exists():
+    try:
+        exists = dst.exists()
+    except OSError as err:
+        errmsg = Error(err).indent(2)
+        raise Error(f"failed to check if directory '{dst}' exists:\n{errmsg}") from err
+
+    if exists:
         if exist_ok:
             return
-        raise ErrorExists(exists_err)
+        raise ErrorExists(f"cannot copy directory '{src}' to '{dst}': the destination path already "
+                          f"exists")
 
-    if not src.is_dir():
-        raise Error(f"cannot copy '{src}' to '{dst}', the source path is not a directory.")
+    if is_dir is None:
+        try:
+            is_dir = src.is_dir()
+        except OSError as err:
+            errmsg = Error(err).indent(2)
+            raise Error(f"failed to check if '{src}' is a directory:\n{errmsg}") from err
 
-    _copy_dir(src, dst, ignore)
+    if is_dir:
+        _copy_dir(src, dst)
+    else:
+        _copy_file(src, dst)
 
 def move_copy_link(src, dst, action="symlink", exist_ok=False):
     """

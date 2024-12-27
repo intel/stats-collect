@@ -44,7 +44,7 @@ class StatsCollectHTMLReport:
 
                 logs_dst = dst_dir / res.logs_path.name
                 if not logs_dst.exists():
-                    FSHelpers.copy_dir(res.dirpath / res.logs_path, logs_dst, exist_ok=True)
+                    FSHelpers.copy(res.dirpath / res.logs_path, logs_dst, exist_ok=True)
             except (OSError, Error) as err:
                 _LOG.warning("unable to copy log files to the generated report: %s", err)
             else:
