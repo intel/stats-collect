@@ -28,17 +28,20 @@ SUPPORTED_WORKLOADS = {
 class RORawResult(_RawResultBase.RawResultBase):
     """
     A read-only raw test result class. Class API works with the following concepts:
-     * labels - labels are created during statistics collection and provide extra information about
-                datapoints.
-     * label definitions - dictionaries defining the metrics which label data measure. For example,
-                           if a label contains data about power consumption, the label definition
-                           might explain that the data is measured in 'Watts'.
+      * labels - labels are created during statistics collection and provide extra information about
+                 datapoints.
+      * label definitions - dictionaries defining the metrics which label data measure. For example,
+                            if a label contains data about power consumption, the label definition
+                            might explain that the data is measured in 'Watts'.
 
-    Public method overview:
-     * set_label_defs() - set label definitions for a specific statistic.
-     * get_label_defs() - get label definitions for a specific statistic.
-     * load_stat() - load and return a 'pandas.DataFrame' containing statistics data for this
-                     result.
+    Public methods overview.
+      * set_label_defs() - set label definitions for a specific statistic.
+      * get_label_defs() - get label definitions for a specific statistic.
+      * load_stat() - load and return a 'pandas.DataFrame' containing statistics data for this
+                      result.
+      * link_wldata - create a symlink pointing to the workload data.
+      * copy_logs - copy 'stats-collect' tool logs.
+      * copy - copy the test result.
     """
 
     def set_label_defs(self, stname, defs):
@@ -61,7 +64,7 @@ class RORawResult(_RawResultBase.RawResultBase):
     def _get_stats_path(self, stname):
         """
         Return path to the raw statistics file for statistic 'stname'. The arguments are as follows.
-         * stname - the name of the statistic for which paths should be found.
+          * stname - the name of the statistic for which paths should be found.
         """
 
         try:
@@ -94,9 +97,9 @@ class RORawResult(_RawResultBase.RawResultBase):
         """
         Load data for statistic 'stname'. Returns a 'pandas.DataFrame' containing statistics data.
         The arguments are as follows.
-         * stname - the name of the statistic for which a 'pandas.DataFrame' should be retrieved.
-         * dfbldr - an instance of '_DFBuilderBase.DFBuilderBase' to use to build a
-                    'pandas.DataFrame' from the raw statistics file.
+          * stname - the name of the statistic for which a 'pandas.DataFrame' should be retrieved.
+          * dfbldr - an instance of '_DFBuilderBase.DFBuilderBase' to use to build a
+                     'pandas.DataFrame' from the raw statistics file.
         """
 
         path = self._get_stats_path(stname)
@@ -140,7 +143,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     @staticmethod
     def _check_info_yml(dirpath):
-        """Raise an exception if an 'info.yml' file exists in 'dirdir'."""
+        """Raise an exception if an 'info.yml' file exists in 'dirpath'."""
 
         path = dirpath / "info.yml"
 

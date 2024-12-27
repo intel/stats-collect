@@ -6,7 +6,13 @@
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides the API for generating HTML reports."""
+"""
+API for generating 'stats-collect' statistics tab in HTML report.
+
+Terminology.
+  * assets - static files/directories which are included as part of every HTML report (copied to the
+             HTML report output directory). Example: javascript libraries, license files.
+"""
 
 import dataclasses
 import logging
@@ -24,8 +30,10 @@ _LOG = logging.getLogger()
 
 def reportids_dedup(rsts):
     """
-    Deduplicate report IDs for 'rsts' by appending '-X' to the duplicate report IDs where 'X' is an
-    integer which increments for each duplicate result ID. Modifies the result objects in-place.
+    Deduplicate report IDs by appending '-X' to the duplicates, where 'X' is an integer. The
+    arguments are as follows.
+      * rsts - an iterable collection of test results objects ('RORawResult') to de-duplicate the
+               report IDs for.
     """
 
     reportids = set()
@@ -46,11 +54,7 @@ def reportids_dedup(rsts):
         reportids.add(res.reportid)
 
 def _copy_assets(outdir):
-    """
-    This is a helper function for 'generate_report()' which copies assets to 'outdir'.
-
-    "Assets" refers to all of the static files which are included as part of every report.
-    """
+    """Copy assets to 'outdir'."""
 
     # This list defines the assets which should be copied into the output directory. Items in the
     # list are tuples in the format: (asset_description, path_to_asset, path_of_copied_asset).
@@ -79,11 +83,10 @@ def _copy_assets(outdir):
 
 def _dump_json(obj, path, descr):
     """
-    Helper function wrapping 'json.dump' operation with a standardized error message so that the
-    error messages are consistent. Arguments are as follows:
-        * obj - Python object to dump to JSON.
-        * path - path to create JSON file at.
-        * descr - description of object being dumped.
+    Dump an object to a file in JSON format.
+      * obj - Python object to dump to JSON.
+      * path - path to create JSON file at.
+      * descr - description of the object being dumped.
     """
 
     try:
@@ -95,7 +98,11 @@ def _dump_json(obj, path, descr):
                     f"{msg}") from None
 
 def validate_outdir(outdir):
-    """If directory 'outdir' exists and it already has valid data, raise an ErrorExists."""
+    """
+    Check that 'outdir' is suitable to be used as the HTML report output directory. The arguments
+    are as follows.
+      * outdir - the output directory path to check.
+    """
 
     if outdir.exists():
         if not outdir.is_dir():
@@ -108,47 +115,35 @@ def validate_outdir(outdir):
 
 class HTMLReport:
     """
-    This class provides the API for generating HTML reports.
+    Provide API for generating 'stats-collect' statistics tab in HTML report.
 
-    The reports generated using this class are highly customizable. The caller
-    is responsible for optionally providing an introduction table, extra tabs,
-    and 'RORawResult' instances to create the 'Stats' tab.
-
-    The class has only one public method which is used to generate the HTML
-    report in the 'outdir' provided to the class constructor. The arguments
-    provided to the method determine the contents of the generated report.
-       * 'generate_report()'
+    The report generated using this class is customizable. The caller is responsible for optionally
+    providing an introduction table, extra tabs, and 'RORawResult' instances to create the 'Stats'
+    tab.
     """
 
-    @property
-    def tabs_dir(self):
-        """
-        The 'tabs' report directory. Can be used to place tab data inside the relevant directory.
-        """
-        return self._tabs_dir
-
     def _init_tab_builders(self, rsts):
-        """Initialise tab builders for all statistics collected in 'RORawResults' 'rsts'."""
+        """Initialise tab builders for all raw results in 'rsts'."""
 
         # Only try and generate the statistics tab if statistics were collected.
         collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
 
         sysinfo_tbldr = _SysInfoTabBuilder.SysInfoTabBuilder
         if sysinfo_tbldr.stname in collected_stnames:
-            self._sysinfo_tbldr = sysinfo_tbldr(self._tabs_dir, basedir=self._outdir)
+            self._sysinfo_tbldr = sysinfo_tbldr(self.tabs_dir, basedir=self._outdir)
 
         collected_stnames -= {sysinfo_tbldr.name}
 
         if collected_stnames:
             try:
-                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self._tabs_dir,
+                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self.tabs_dir,
                                                                      basedir=self._outdir)
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("failed to generate statistics tabs: %s", err)
 
     def _generate_tabs(self, rsts, tab_cfgs):
-        """Helper function for 'generate_report()'. Generates statistics and sysinfo tabs."""
+        """Generate statistics and sysinfo tabs."""
 
         tabs = []
 
@@ -170,9 +165,13 @@ class HTMLReport:
 
     def get_default_tab_cfgs(self, rsts):
         """
-        Get the default tab configuration for all statistics collected in results 'rsts'. Returns
-        all default tab configurations as a dictionary in the format
-        '{stname: 'TabConfig.CTabConfig'}' with an entry for each 'stname'.
+        Get the default tab configuration for all statistics collected in results 'rsts'. The
+        arguments are as follows.
+          * rsts - an iterable collection of test results objects ('RORawResult') to get default tab
+                   configuration for.
+
+        Return all default tab configurations as a dictionary in the format of
+        '{stname: 'TabConfig.CTabConfig'}' with an entry for each 'stname' (statistics name).
         """
 
         self._init_tab_builders(rsts)
@@ -185,8 +184,8 @@ class HTMLReport:
     def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None,
                         toolname=None, toolver=None, tab_cfgs=None):
         """
-        Generate an HTML report in 'outdir' (provided to the class constructor). Customize the
-        contents of the report using the function parameters. The arguments are as follows.
+        Generate a 'stats-collect' statistics file in the HTML report directory. The arguments are
+        as follows.
           * tabs - a list of additional container tabs which should be included in the report. If,
                    omitted, 'rsts' is required to generate statistics tabs.
           * rsts - a list of 'RORawResult' instances for different results with statistics which
@@ -262,17 +261,14 @@ class HTMLReport:
         _LOG.info("Generated report in '%s'.", self._outdir)
 
     def _check_plotly_ver(self):
-        """
-        Warn the user if they are generating a report with 'plotly < v5.18.0' as those versions
-        contain a bug.
-        """
+        """Warn if plotly version is too old."""
 
         plotly_ver = plotly.__version__
         preferred_ver = "5.18.0"
         if version.parse(plotly_ver) < version.parse(preferred_ver):
             _LOG.warning("generating a report with 'plotly v%s' can cause time stamps in plots to "
                          "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
-                         "to resolve this issue., plotly_ver, preferred_ver")
+                         "to resolve this issue", plotly_ver, preferred_ver)
 
     def __init__(self, outdir, logpath=None):
         """
@@ -283,7 +279,7 @@ class HTMLReport:
 
         self._outdir = Path(outdir)
         self._data_dir = self._outdir / "report-data"
-        self._tabs_dir = self._data_dir / "tabs"
+        self.tabs_dir = self._data_dir / "tabs"
 
         self.logpath = logpath
 
