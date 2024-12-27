@@ -107,7 +107,7 @@ class FilePreviewBuilder:
         dst_path = dst_dir / fp.name
 
         try:
-            FSHelpers.move_copy_link(fp, dst_path, "copy")
+            FSHelpers.copy(fp, dst_path)
         except ErrorExists:
             _LOG.debug("file '%s' already in output dir: will not replace.", dst_path)
             dst_path = fp

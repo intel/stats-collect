@@ -63,7 +63,7 @@ def _copy_assets(outdir):
 
     for asset in js_assets:
         asset_path = ProjectFiles.find_project_web_assets("stats-collect", asset[1], what=asset[0])
-        FSHelpers.move_copy_link(asset_path, asset[2], "copy", exist_ok=True)
+        FSHelpers.copy(asset_path, asset[2], exist_ok=True)
 
     misc_assets = [
         ("root HTML page of the report.", "js/index.html", outdir / "index.html"),
@@ -75,7 +75,7 @@ def _copy_assets(outdir):
 
     for asset in misc_assets:
         asset_path = ProjectFiles.find_project_data("stats-collect", asset[1], what=asset[0])
-        FSHelpers.move_copy_link(asset_path, asset[2], "copy", exist_ok=True)
+        FSHelpers.copy(asset_path, asset[2], exist_ok=True)
 
 def _dump_json(obj, path, descr):
     """

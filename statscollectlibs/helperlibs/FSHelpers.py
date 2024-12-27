@@ -118,7 +118,7 @@ def symlink(linkpath: Path, target: Path, exist_ok: bool=False, relative: bool=F
             raise Error(f"failed to check if '{target}' exists:\n{errmsg}") from err
 
         resolved = {}
-        for var in ("target", "symlink"):
+        for var in ("target", "linkpath"):
             try:
                 resolved[var] = locals()[var].resolve()
             except OSError as err:
@@ -128,7 +128,7 @@ def symlink(linkpath: Path, target: Path, exist_ok: bool=False, relative: bool=F
         try:
             # Use 'os.path.relpath()' instead of 'Path.relative_to()' because the latter when the
             # target is not in the subpath of base.
-            target = os.path.relpath(resolved["target"], start=resolved["symlink"].parent)
+            target = os.path.relpath(resolved["target"], start=resolved["linkpath"].parent)
         except OSError as err:
             errmsg = Error(err).indent(2)
             raise Error(f"failed to construct path of '{target}' relative to '{linkpath}':\n"
@@ -141,58 +141,3 @@ def symlink(linkpath: Path, target: Path, exist_ok: bool=False, relative: bool=F
     except OSError as err:
         errmsg = Error(err).indent(2)
         raise Error(f"failed create a symlink '{linkpath}' -> '{target}':\n{errmsg}") from err
-
-def move_copy_link(src, dst, action="symlink", exist_ok=False):
-    """
-    Move, copy. or link the 'src' file or directory to 'dst' depending on 'action'. The arguments
-    are as follows.
-      * src - the source file or directory path.
-      * dst - the destination file or directory path.
-      * action - one of 'move', 'copy', or 'symlink', to move 'src' to 'st', copy 'src' to 'dst',
-                 or create a 'src' symlink pointing to 'dst'.
-      * exist_ok - if the destination file or directory 'dst' already exists, just return if 'True',
-                   raise an exception if 'False'.
-    """
-
-    exists_err = f"cannot {action} '{src}' to '{dst}', the destination path already exists"
-    if dst.exists():
-        if exist_ok:
-            return
-        raise ErrorExists(exists_err)
-
-    # Type cast in shutil.move() can be removed when python is fixed. See
-    # https://bugs.python.org/issue32689
-    try:
-        if action == "move":
-            if src.is_dir():
-                try:
-                    dst.mkdir(parents=True, exist_ok=True)
-                except FileExistsError:
-                    if not exist_ok:
-                        raise ErrorExists(exists_err) from None
-                for item in src.iterdir():
-                    shutil.move(str(item), dst)
-            else:
-                shutil.move(str(src), dst)
-        elif action == "copy":
-            if not dst.parent.exists():
-                dst.parent.mkdir(parents=True)
-
-            if src.is_dir():
-                _copy_dir(src, dst)
-            else:
-                shutil.copyfile(src, dst)
-        elif action == "symlink":
-            if not dst.is_dir():
-                dstdir = dst.parent
-            else:
-                dstdir = dst
-
-            if not dst.parent.exists():
-                dst.parent.mkdir(parents=True)
-
-            os.symlink(os.path.relpath(src.resolve(), dstdir.resolve()), dst)
-        else:
-            raise Error(f"unrecognized action '{action}'")
-    except (OSError, shutil.Error) as err:
-        raise Error(f"cannot {action} '{src}' to '{dst}':\n{err}") from err
