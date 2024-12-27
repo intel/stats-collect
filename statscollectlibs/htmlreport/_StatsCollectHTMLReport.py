@@ -39,17 +39,16 @@ class StatsCollectHTMLReport:
 
         for res in self.rsts:
             dst_dir = self.outdir / f"raw-{res.reportid}"
-            src_dir = res.logs_path.relative_to(res.dirpath)
             try:
                 dst_dir.mkdir(parents=True, exist_ok=True)
 
-                logs_dst = dst_dir / src_dir
+                logs_dst = dst_dir / res.logs_path.name
                 if not logs_dst.exists():
-                    FSHelpers.copy_dir(res.dirpath / src_dir, logs_dst, exist_ok=True)
+                    FSHelpers.copy_dir(res.dirpath / res.logs_path, logs_dst, exist_ok=True)
             except (OSError, Error) as err:
                 _LOG.warning("unable to copy log files to the generated report: %s", err)
             else:
-                copied_paths[res.reportid] = logs_dst.relative_to(self.outdir)
+                copied_paths[res.reportid] = logs_dst
 
         return copied_paths
 
@@ -65,18 +64,44 @@ class StatsCollectHTMLReport:
             if not res.wldata_path:
                 continue
             dst_dir = self.outdir / f"raw-{res.reportid}"
-            src_dir = res.wldata_path
             try:
                 dst_dir.mkdir(parents=True, exist_ok=True)
 
                 wldata_dst = dst_dir / "wldata"
-                FSHelpers.move_copy_link(src_dir, wldata_dst, action="symlink", exist_ok=True)
+                FSHelpers.move_copy_link(res.wldata_path, wldata_dst, action="symlink", exist_ok=True)
             except (OSError, Error) as err:
                 _LOG.warning("unable to copy log files to the generated report: %s", err)
             else:
-                copied_paths[res.reportid] = wldata_dst.relative_to(self.outdir)
+                copied_paths[res.reportid] = wldata_dst
 
         return copied_paths
+
+    def _add_intro_tbl_links(self, label, paths):
+        """
+        Add links in 'paths' to the 'self._intro_tbl' dictionary. Arguments are as follows.
+          * label - the label that will be shown in the intro table for these links.
+          * paths - dictionary in the format {Report ID: Path to Link to.
+        """
+
+        valid_paths = {}
+        for res in self.rsts:
+            reportid = res.reportid
+            path = paths.get(reportid)
+
+            # Do not add links for 'label' if 'paths' does not contain a link for every result or
+            # if a path points to somewhere outside of the report directory.
+            if path is None or self.outdir not in path.parents:
+                return
+
+            # If the path points to inside the report directory then make it relative to the output
+            # directory so that the output directory is relocatable. That is, the whole directory
+            # can be moved or copied without breaking the link.
+            valid_paths[reportid] = path.relative_to(self.outdir)
+
+        row = self._intro_tbl.create_row(label)
+
+        for reportid, path in valid_paths.items():
+            row.add_cell(reportid, label, link=path)
 
     def _generate_intro_table(self, rsts):
         """
@@ -84,48 +109,36 @@ class StatsCollectHTMLReport:
         'rsts'.
         """
 
-        intro_tbl = _IntroTable.IntroTable()
-        cmd_row = intro_tbl.create_row("Command", "The command run during statistics collection.")
+        self._intro_tbl = _IntroTable.IntroTable()
+        descr = "The command run during statistics collection."
+        cmd_row = self._intro_tbl.create_row("Command", hovertext=descr)
         for res in rsts:
             cmd_row.add_cell(res.reportid, res.info.get("cmd"))
 
         # Add tool information.
-        tinfo_row = intro_tbl.create_row("Data Collection Tool")
+        tinfo_row = self._intro_tbl.create_row("Data Collection Tool")
         for res in rsts:
             tool_info = f"{res.info['toolname'].capitalize()} version {res.info['toolver']}"
             tinfo_row.add_cell(res.reportid, tool_info)
 
         # Add run date.
-        date_row = intro_tbl.create_row("Collection Date")
+        date_row = self._intro_tbl.create_row("Collection Date")
         for res in rsts:
             date_row.add_cell(res.reportid, res.info.get("date"))
 
         # Add duration.
-        date_row = intro_tbl.create_row("Duration")
+        date_row = self._intro_tbl.create_row("Duration")
         for res in rsts:
             date_row.add_cell(res.reportid, res.info.get("duration"))
 
-        # Add link to logs.
-        log_paths = self._copy_logs()
-        log_row = intro_tbl.create_row("Logs")
-        for res in rsts:
-            if res.reportid in log_paths:
-                log_row.add_cell(res.reportid, "Logs", link=log_paths.get(res.reportid))
-            else:
-                log_row.add_cell(res.reportid, None)
+        # Add links to the logs directories.
+        logs_paths = self._copy_logs()
+        self._add_intro_tbl_links("Logs", logs_paths)
 
-        # Add links to workload data.
+        # Add links to workload data directories.
         wldata_paths = self._link_wldata()
         if wldata_paths:
-            wldata_row = intro_tbl.create_row("Workload data")
-            for res in rsts:
-                if res.reportid in wldata_paths:
-                    wldata_row.add_cell(res.reportid, "Workload data",
-                                        link=wldata_paths.get(res.reportid))
-                else:
-                    wldata_row.add_cell(res.reportid, None)
-
-        return intro_tbl
+            self._add_intro_tbl_links("Workload data", wldata_paths)
 
     def _get_results_tab(self, tabs_dir):
         """Create and return the results tab object."""
@@ -170,8 +183,8 @@ class StatsCollectHTMLReport:
         results_tab = self._get_results_tab(rep.tabs_dir)
         tabs = [results_tab] if results_tab else None
 
-        intro_tbl = self._generate_intro_table(self.rsts)
-        rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=intro_tbl,
+        self._generate_intro_table(self.rsts)
+        rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=self._intro_tbl,
                             title="stats-collect report")
 
     def __init__(self, rsts, outdir, logpath=None):
@@ -186,3 +199,5 @@ class StatsCollectHTMLReport:
         self.rsts = rsts
         self.outdir = outdir
         self.logpath = logpath
+
+        self._intro_tbl = None
