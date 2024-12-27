@@ -66,4 +66,5 @@ def report_command(args):
     logpath = Path(logpath).relative_to(args.outdir)
 
     rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, logpath=logpath)
+    rep.copy_raw = args.copy_raw
     rep.generate()

@@ -13,7 +13,7 @@ from pathlib import Path
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
 from statscollectlibs.parsers import SPECjbb2015Parser
-from statscollectlibs.helperlibs import ReportID
+from statscollectlibs.helperlibs import ReportID, FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
 
@@ -123,8 +123,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     def _detect_wltype(self):
         """
-        Detect the workload that was running while the statistics in this raw result were
-        collected.
+        Detect the workload that was running while the statistics in this raw result were collected.
         """
 
         try:
@@ -138,6 +137,69 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         _LOG.debug("%s: workload type is '%s (%s)'",
                    self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
+
+    @staticmethod
+    def _check_info_yml(dirpath):
+        """Raise an exception if an 'info.yml' file exists in 'dirdir'."""
+
+        path = dirpath / "info.yml"
+
+        try:
+            exists = path.exists()
+        except OSError as err:
+            msg = Error(err).indent(2)
+            raise Error(f"failed to check if '{path}' exists:\n{msg}") from None
+
+        if not exists:
+            return
+
+        raise Error(f"the destination directory '{dirpath}' already contains 'info.yml', refusing "
+                    f"to overwrite an existing test result")
+
+    def link_wldata(self, dstpath):
+        """
+        If the raw results include the workload data sub-directory, create symbolic links pointing
+        to the workload data directory.
+          * dstpath - path to the directory to create the symbolic link in.
+        """
+
+        dstpath = Path(dstpath)
+
+        if self.wldata_path:
+            FSHelpers.symlink(dstpath / self.wldata_path.name, self.wldata_path, relative=True)
+
+    def copy_logs(self, dstpath):
+        """
+        Copy (own) raw test result logs to path 'dirpath'. The arguments are as follows.
+          * dstpath - path to the directory to copy the logs to.
+        """
+
+        dstpath = Path(dstpath)
+
+        srcpaths = []
+        if self.logs_path:
+            srcpaths.append(self.logs_path)
+
+        for path in srcpaths:
+            FSHelpers.copy(path, dstpath / path.name, is_dir=True)
+
+    def copy(self, dstpath):
+        """
+        Copy the raw test result (self) to path 'dirpath'. The arguments are as follows.
+          * dstpath - path to the directory to copy the result to.
+        """
+
+        dstpath = Path(dstpath)
+        self._check_info_yml(dstpath)
+
+        srcpaths = [self.info_path]
+        if self.logs_path:
+            srcpaths.append(self.logs_path)
+        if self.wldata_path:
+            srcpaths.append(self.wldata_path)
+
+        for path in srcpaths:
+            FSHelpers.copy(path, dstpath / path.name)
 
     def _load_info_yml(self):
         """Load and validate the 'info.yml' file contents."""

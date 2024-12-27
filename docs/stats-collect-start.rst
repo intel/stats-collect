@@ -12,7 +12,12 @@
 Command *'start'*
 =================
 
-Start collecting statistics.
+usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
+[-K PRIVKEY] [-T TIMEOUT] [--cpunum CPUNUM] [--time-limit LIMIT]
+[-o OUTDIR] [--reportid REPORTID] [--stats STATS]
+[--stats-intervals STATS_INTERVALS] [--list-stats] [--report] command
+
+Run a command and collecting statistics.
 
 General options
 ===============
@@ -75,10 +80,6 @@ General options
    'all,!turbostat' would mean: collect all the statistics supported by
    the SUT, except for
 
-**--list-stats**
-   Print information about the statistics 'stats-collect' can collect
-   and exit.
-
 **--stats-intervals** *STATS_INTERVALS*
    The intervals for statistics. Statistics collection is based on doing
    periodic snapshots of data. For example, by default the 'acpower'
@@ -88,4 +89,10 @@ General options
    seconds correspondingly. Use the '--list-stats' to get the default
    interval values.
 
+**--list-stats**
+   Print information about the statistics 'stats-collect' can collect
+   and exit.
+
 **--report**
+   Generate an HTML report for collected results (same as calling
+   'report' command with default arguments).

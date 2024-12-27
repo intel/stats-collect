@@ -12,6 +12,9 @@
 Command *'report'*
 ==================
 
+usage: stats-collect report [-h] [-q] [-d] [-o OUTDIR] [--reportids REPORTIDS]
+[--copy-raw] respaths [respaths ...]
+
 Create an HTML report for one or multiple test results.
 
 **respaths**
@@ -47,3 +50,7 @@ General options
    second report ID will be used for the second raw test result, and so
    on. Please, refer to the '--reportid' option description in the
    'start' command for more information about the report ID.
+
+**--copy-raw**
+   Copy raw test results to the output directory (unless the output
+   direcory is already part of the raw result sub-directory).

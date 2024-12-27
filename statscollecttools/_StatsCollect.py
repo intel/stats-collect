@@ -124,6 +124,9 @@ def build_arguments_parser():
               result. """ + man_msg
     subpars.add_argument("--reportids", help=text)
 
+    text = """Copy raw test results to the output directory."""
+    subpars.add_argument("--copy-raw", action="store_true", help=text)
+
     text = f"""One or multiple {ToolInfo.TOOLNAME} test result paths."""
     subpars.add_argument("respaths", nargs="+", type=Path, help=text)
 

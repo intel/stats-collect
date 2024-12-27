@@ -10,7 +10,6 @@
 
 import logging
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
 from statscollectlibs.rawresultlibs import RORawResult
@@ -29,52 +28,6 @@ class StatsCollectHTMLReport:
     Furthermore, the 'HTMLReport' class is also used by other projects to extend HTML reports with
     other tabs.
     """
-
-    def _copy_logs(self):
-        """
-        Copy logs from the raw result directory to the output directory.
-        """
-
-        copied_paths = {}
-
-        for res in self.rsts:
-            dst_dir = self.outdir / f"raw-{res.reportid}"
-            try:
-                dst_dir.mkdir(parents=True, exist_ok=True)
-
-                logs_dst = dst_dir / res.logs_path.name
-                if not logs_dst.exists():
-                    FSHelpers.copy(res.dirpath / res.logs_path, logs_dst, exist_ok=True)
-            except (OSError, Error) as err:
-                _LOG.warning("unable to copy log files to the generated report: %s", err)
-            else:
-                copied_paths[res.reportid] = logs_dst
-
-        return copied_paths
-
-    def _link_wldata(self):
-        """
-        If the raw results include the workload data sub-directory, add create symbolic links in the
-        output directory pointing to the raw workload data directory.
-        """
-
-        copied_paths = {}
-
-        for res in self.rsts:
-            if not res.wldata_path:
-                continue
-            dst_dir = self.outdir / f"raw-{res.reportid}"
-            try:
-                dst_dir.mkdir(parents=True, exist_ok=True)
-
-                wldata_dst = dst_dir / "wldata"
-                FSHelpers.move_copy_link(res.wldata_path, wldata_dst, action="symlink", exist_ok=True)
-            except (OSError, Error) as err:
-                _LOG.warning("unable to copy log files to the generated report: %s", err)
-            else:
-                copied_paths[res.reportid] = wldata_dst
-
-        return copied_paths
 
     def _add_intro_tbl_links(self, label, paths):
         """
@@ -131,14 +84,15 @@ class StatsCollectHTMLReport:
         for res in rsts:
             date_row.add_cell(res.reportid, res.info.get("duration"))
 
-        # Add links to the logs directories.
-        logs_paths = self._copy_logs()
-        self._add_intro_tbl_links("Logs", logs_paths)
+        # Add links to the raw directories.
+        if self.copy_raw:
+            self._add_intro_tbl_links("Raw result", self._raw_paths)
 
-        # Add links to workload data directories.
-        wldata_paths = self._link_wldata()
-        if wldata_paths:
-            self._add_intro_tbl_links("Workload data", wldata_paths)
+        # Add links to the raw statistics directories.
+        self._add_intro_tbl_links("Workload data", self._raw_wldata_paths)
+
+        # Add links to the logs directories.
+        self._add_intro_tbl_links("Logs", self._raw_logs_paths)
 
     def _get_results_tab(self, tabs_dir):
         """Create and return the results tab object."""
@@ -174,6 +128,28 @@ class StatsCollectHTMLReport:
 
         raise Error(f"BUG: unsupported workload type '{wltype}'")
 
+    def _copy_raw_data(self):
+        """Copy raw test result or their parts to the output directory."""
+
+        logs_paths = {}
+        wldata_paths = {}
+
+        for res in self.rsts:
+            dstdir = self._raw_paths[res.reportid]
+
+            if self.copy_raw:
+                res.copy(dstdir)
+            else:
+                res.copy_logs(dstdir)
+                res.link_wldata(dstdir)
+
+            if res.logs_path:
+                logs_paths[res.reportid] = dstdir / res.logs_path.name
+            if self.copy_raw and res.wldata_path:
+                wldata_paths[res.reportid] = dstdir / res.wldata_path.name
+
+        return logs_paths, wldata_paths
+
     def generate(self):
         """Generate a 'stats-collect' report from the results 'rsts' with 'outdir'."""
 
@@ -182,6 +158,10 @@ class StatsCollectHTMLReport:
 
         results_tab = self._get_results_tab(rep.tabs_dir)
         tabs = [results_tab] if results_tab else None
+
+        for res in self.rsts:
+            self._raw_paths[res.reportid] = self.outdir / f"raw-{res.reportid}"
+        self._raw_logs_paths, self._raw_wldata_paths = self._copy_raw_data()
 
         self._generate_intro_table(self.rsts)
         rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=self._intro_tbl,
@@ -200,4 +180,13 @@ class StatsCollectHTMLReport:
         self.outdir = outdir
         self.logpath = logpath
 
+        # Users can change this to 'True' to copy all the raw test results into the output
+        # directory.
+        self.copy_raw = False
+
         self._intro_tbl = None
+        # Paths to (copied) raw test result directories in the output directory, and logs/workload
+        # data sub-directories in the output directory. The dictionary is indexed by report ID.
+        self._raw_paths = {}
+        self._raw_logs_paths = {}
+        self._raw_wldata_paths = {}

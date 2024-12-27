@@ -103,4 +103,5 @@ def start_command(args):
     if args.report:
         ro_res = RORawResult.RORawResult(res.dirpath, res.reportid)
         rep = _StatsCollectHTMLReport.StatsCollectHTMLReport([ro_res], args.outdir / "html-report")
+        rep.copy_raw = False
         rep.generate()

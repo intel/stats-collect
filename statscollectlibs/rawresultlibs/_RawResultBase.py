@@ -40,6 +40,7 @@ class RawResultBase:
             raise Error(f"path '{self.dirpath}' is not a directory")
 
         self.info_path = self.dirpath.joinpath("info.yml")
+        # If logs / stats directories do not to exist, the below variables will be set to 'None'.
         self.logs_path = self.dirpath.joinpath("logs")
         self.stats_path = self.dirpath.joinpath("stats")
 
@@ -48,5 +49,8 @@ class RawResultBase:
 
         for name in ("logs_path", "stats_path"):
             path = getattr(self, name)
-            if path.exists() and not path.is_dir():
-                raise Error(f"path '{path}' exists, but it is not a directory")
+            if path.exists():
+                if not path.is_dir():
+                    raise Error(f"path '{path}' exists, but it is not a directory")
+            else:
+                setattr(self, f"{name}", None)

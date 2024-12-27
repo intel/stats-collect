@@ -9,6 +9,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
  - Add workload data direcrtory reference from the intro table.
  - Add basic SPECjbb2015 workload support.
+ - Add 'stats-collect report --copy-raw' option support.
 ### Removed
 ### Changed
  - Speed up Turbostat data parsing.
