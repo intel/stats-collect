@@ -57,16 +57,20 @@ def get_totals_func_name(metric):
       * metric - name of the metric to return the summary function name name for.
     """
 
-    # For IRQ, SMI, and C-state requests count - just return the sum.
+    # For IRQ, SMI, and C-state requests count.
     if metric in ("IRQ", "SMI") or re.match(_REQ_CSTATES_REGEX_COMPILED, metric):
         return "sum"
-    # For temperatures, take the maximum value.
+    # Package, core, RAM and GFX power.
+    if metric.endswith("Watt"):
+        return "sum"
+    # Temperatures.
     if metric.endswith("Tmp"):
         return "max"
+    # The time-stamp.
     if metric == "Time_Of_Day_Seconds":
         return "min"
+    # The average and busy frequencies are averaged using C0 residency (Busy%) as weights.
     if metric in ("Avg_MHz", "Bzy_MHz"):
-        # The average and busy frequency is averaged using C0 residency (Busy%) as weights.
         return "wavg"
     return "avg"
 
@@ -155,6 +159,9 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         if self._derivatives:
+            if self._pkgwatt_tdp_metric:
+                summary = self._summarize_metric(tdict, self._pkgwatt_tdp_metric, "system")
+                tdict["totals"][self._pkgwatt_tdp_metric] = summary
             iterator = self._get_requestable_cstate_metrics(tdict["totals"])
             for _, rate_metric, time_metric, _ in iterator:
                 tdict["totals"][rate_metric] = self._summarize_metric(tdict, rate_metric, "system")
@@ -303,6 +310,10 @@ class TurbostatParser(_ParserBase.ParserBase):
         for metric in self._metrics["system"]:
             self._metric2fname[metric] = get_totals_func_name(metric)
 
+        if self._pkgwatt_tdp_metric:
+            totals_fname = get_totals_func_name(self._pkgwatt_tdp_metric)
+            self._metric2fname[self._pkgwatt_tdp_metric] = totals_fname
+
         if self._derivatives:
             iterator = self._get_requestable_cstate_metrics(self._metrics["system"])
             for _, rate_metric, time_metric, _ in iterator:
@@ -356,6 +367,9 @@ class TurbostatParser(_ParserBase.ParserBase):
     def _update_heading2type(self, tdict):
         """Update the '_heading2type' dictionary with derivative metrics."""
 
+        if self._pkgwatt_tdp_metric:
+            self._heading2type[self._pkgwatt_tdp_metric] = float
+
         iterator = self._get_requestable_cstate_metrics(tdict["totals"])
         for cnt_metric, rate_metric, time_metric, resd_metric in iterator:
             if not re.match(_REQ_CSTATES_REGEX_COMPILED, cnt_metric):
@@ -371,9 +385,28 @@ class TurbostatParser(_ParserBase.ParserBase):
         C-states requests rate.
         """
 
+        if self._pkgwatt_tdp_metric:
+            if "PkgWatt" not in self._heading2type:
+                self._pkgwatt_tdp_metric = None
+            if "TDP" not in self._nontable:
+                if "PkgWatt" in self._heading2type:
+                    _LOG.warning("TDP was not found, drop the '%s' derivative metric",
+                                 self._pkgwatt_tdp_metric)
+                self._pkgwatt_tdp_metric = None
+
         if not self._heading2type_updated:
             self._update_heading2type(tdict)
             self._heading2type_updated = True
+
+        if self._pkgwatt_tdp_metric:
+            for pkginfo in tdict["packages"].values():
+                for coreinfo in pkginfo["cores"].values():
+                    for cpuinfo in coreinfo["cpus"].values():
+                        val = (cpuinfo["PkgWatt"] / self._nontable["TDP"]) * 100
+                        type_func = self._heading2type[self._pkgwatt_tdp_metric]
+                        cpuinfo[self._pkgwatt_tdp_metric] = type_func(val)
+                        break
+                    break
 
         for package, pkginfo in tdict["packages"].items():
             for core, coreinfo in pkginfo["cores"].items():
@@ -711,6 +744,10 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         self._derivatives = derivatives
+        self._pkgwatt_tdp_metric = None
+
+        if self._derivatives:
+            self._pkgwatt_tdp_metric = "PkgWatt%TDP"
 
         # The last read turbostat line.
         self._orig_line = None

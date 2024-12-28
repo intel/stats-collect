@@ -6,7 +6,7 @@
 Busy%:
     title: "Busy percent"
     descr: >-
-        The proportion of time the CPU was busy executing instructions, as opposed to stying in an
+        The proportion of time the CPU was busy executing instructions, as opposed to staying in an
         idle state (not executing instructions). In other words, this is the C0 state residency.
         Turbostat calculates it as (delta MPERF / delta TSC) * 100%.
     unit: "%"

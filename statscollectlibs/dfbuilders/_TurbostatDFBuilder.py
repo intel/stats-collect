@@ -53,18 +53,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return renamed_tstat
 
-    def _extract_totals(self, tstat):
-        """Extract the 'totals' data from the 'tstat' dictionary."""
-
-        totals_tstat = tstat["totals"]
-
-        tdpsum = tstat["nontable"]["TDP"] * tstat["pkg_count"]
-
-        # Add the 'PkgWatt%TDP' column which contains package power (from the 'PkgWatt' turbostat
-        # column) as a percentage of TDP (from the turbostat header).
-        totals_tstat["PkgWatt%TDP"] = (totals_tstat["PkgWatt"] / tdpsum) * 100.0
-        return self._add_tstat_scope(totals_tstat, totals=True)
-
     def _extract_cpu(self, tstat):
         """
         Get a dictionary containing the turbostat statistics for the measured CPU. The dictionary
@@ -90,7 +78,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
          * tstat - dictionary produced by 'TurbostatParser'.
         """
 
-        new_tstat = self._extract_totals(tstat)
+        new_tstat = self._add_tstat_scope(tstat["totals"], totals=True)
         if self._cpunum is not None:
             new_tstat.update(self._extract_cpu(tstat))
 
