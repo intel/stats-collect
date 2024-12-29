@@ -138,7 +138,7 @@ class StatsCollectHTMLReport:
 
             if res.logs_path:
                 logs_paths[res.reportid] = dstdir / res.logs_path.name
-            if self.copy_raw and res.wldata_path:
+            if res.wldata_path:
                 wldata_paths[res.reportid] = dstdir / res.wldata_path.name
 
         return logs_paths, wldata_paths
