@@ -11,28 +11,51 @@ An unfinished, quickly put together SPECjbb2015 controller output file parser.
 """
 
 import re
-from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import _ParserBase
 
 class SPECjbb2015Parser(_ParserBase.ParserBase):
     """Provide API for parsing the SPECjbb2015 controller output file."""
 
     def _next(self):
-        """
-        Yield a dictionary containing SPECjbb2015 scores. Nothing else, just quick partial
-        implementation.
-        """
+        """Yield a dictionary containing SPECjbb2015 information."""
 
-        # Example of string to match:
+        # Example of the string to match:
         # RUN RESULT: hbIR (max attempted) = 882464, hbIR (settled) = 735487, max-jOPS = 644199, \
         # critical-jOPS = 271827
-        regex = r"RUN RESULT: .* max-jOPS = (\d+), critical-jOPS = (\d+)$"
+        max_crit_jops_regex = r"^RUN RESULT: .* hbIR \(settled\) = (\d+), max-jOPS = (\d+), " \
+                              r"critical-jOPS = (\d+)$"
+
+        match_dict = {
+            "max_crit_jops": {
+                "regex": re.compile(max_crit_jops_regex),
+                "onetime": True,
+                "map": {
+                    "max_jops": {
+                        "group": 2,
+                        "type": int,
+                    },
+                    "crit_jops": {
+                        "group": 3,
+                        "type": int,
+                    },
+                    "hbir": {
+                        "group": 1,
+                        "type": int,
+                    },
+                },
+            },
+        }
+
+        result = {}
 
         for line in self._lines:
-            match = re.match(regex, line)
-            if not match:
-                continue
+            for minfo in match_dict.values():
+                match = re.match(minfo["regex"], line)
+                if not match:
+                    continue
+                for key, kinfo in minfo["map"].items():
+                    val = match.group(kinfo["group"])
+                    result[key] = kinfo["type"](val)
+                break
 
-            max_jops = Trivial.str_to_int(match.group(1), what="max-jOPS value")
-            crit_jops = Trivial.str_to_int(match.group(2), what="critical-jOPS value")
-            yield max_jops, crit_jops
+        yield result

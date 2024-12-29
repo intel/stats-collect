@@ -36,6 +36,15 @@ _SPECJBB_DEFS = {
                                "SLAs. Refer to the SPECjbb2015 user guide for a more precise "
                                "definition.",
     },
+    "HBIR": {"name": "HBIR",
+                     "title": "high-bound injection rate",
+                     "descr": "The high-bound injection rate (HBIR) is estimate for the maximum "
+                              "injection rate (IR) the system can handle. In the "
+                              "Response-Throughput (RT) curve building phase, the IR is gradually "
+                              "increased from 0% of HBIR, with 1% of HBIR increment, until the "
+                              "maximum system capacity is reached. Typically max-jOPS is lower "
+                              "than HBIR, but sometimes it may be higher."
+    },
 }
 
 class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
@@ -52,35 +61,37 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         """
 
         dtab = TabConfig.DTabConfig(self.name)
-        dtab.set_smry_funcs({"max-jOPS": None, "critical-jOPS": None})
+        smrys = {"max-jOPS": None,
+                 "critical-jOPS": None,
+                 "HBIR": None}
+        dtab.set_smry_funcs(smrys)
 
         return TabConfig.CTabConfig(self.name, dtabs=[dtab])
 
-    def _get_scores(self, res):
+    def _get_specjbb_info(self, res):
         """
-        Parse the SPECjbb2015 controller output file, fetch max. and critical jOPS values, and
-        return as a tuple.
+        Parse the SPECjbb2015 logs and return SPECjbb information dictionary.
         """
 
         path = res.wldata_path / "controller.out"
         parser = SPECjbb2015Parser.SPECjbb2015Parser(path=path)
 
         try:
-            max_jops, crit_jops = next(parser.next())
+            specjbb_info = next(parser.next())
         except StopIteration:
             raise Error(f"failed to parse SPECjbb2015 controller output file at '{path}'") from None
 
-        return max_jops, crit_jops
+        return specjbb_info
 
     def _construct_dfs(self):
-        """
-        Construct and return a SPECjbb2014 "defs" object.
-        """
+        """Construct and return a SPECjbb2014 'Pandas.dataframe' objects."""
 
         dfs = {}
         for res in self._rsts:
-            max_jops, crit_jops = self._get_scores(res)
-            data = {"max-jOPS": [max_jops], "critical-jOPS": [crit_jops]}
+            specjbb_info = self._get_specjbb_info(res)
+            data = {"max-jOPS": [specjbb_info["max_jops"]],
+                    "critical-jOPS": [specjbb_info["crit_jops"]],
+                    "HBIR": [specjbb_info["hbir"]]}
             dfs[res.reportid] = pandas.DataFrame(data)
 
         return dfs
