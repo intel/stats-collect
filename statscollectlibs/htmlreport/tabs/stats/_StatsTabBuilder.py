@@ -54,9 +54,8 @@ class StatsTabBuilder:
                 tab_cfg = tab_cfgs.get(stname)
                 tabs.append(tbldr.get_tab(tab_cfg=tab_cfg))
             except Error as err:
-                _LOG.info("Skipping '%s' statistics: error occurred during tab generation.",
-                          tbldr.name)
-                _LOG.debug(err)
+                _LOG.debug_print_stacktrace()
+                _LOG.warning("failed to generate '%s' tab: %s", tbldr.name, err)
                 continue
 
         if not tabs:
