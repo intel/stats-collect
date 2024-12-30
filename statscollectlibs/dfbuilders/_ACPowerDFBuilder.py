@@ -7,8 +7,8 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of building a 'pandas.DataFrame' out of a raw AC Power
-statistics file.
+Provide the capability of building a 'pandas.DataFrame' object out of a raw AC Power statistics
+file.
 """
 
 import pandas
@@ -17,14 +17,14 @@ from statscollectlibs.dfbuilders import _DFBuilderBase
 
 class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
-    This class provides the capability of building a 'pandas.DataFrame' out of a raw AC Power
-    statistics file.
+    Provide the capability of building a 'pandas.DataFrame' object out of a raw AC Power statistics
+    file.
     """
 
     def _read_stats_file(self, path):
         """
-        Returns a 'pandas.DataFrame' containing the data stored in the raw AC Power statistics CSV
-        file at 'path'.
+        Returns a 'pandas.DataFrame' object containing the data stored in the raw AC Power
+        statistics CSV file at 'path'.
         """
 
         try:
@@ -34,14 +34,9 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
             # Failed 'dtype' conversion can cause 'ValueError', otherwise most parsing exceptions
             # are of type 'pandas.errors.ParserError'.
             msg = Error(err).indent(2)
-            raise Error(f"unable to parse CSV '{path}':\n{msg}.") from None
+            raise Error(f"unable to parse CSV '{path}':\n{msg}.") from err
 
     def __init__(self):
-        """
-        The class constructor.
-
-        Note, the constructor does not load the potentially huge test result data into the memory.
-        The data are loaded "on-demand" by 'load_df()'.
-        """
+        """The class constructor."""
 
         super().__init__("T")
