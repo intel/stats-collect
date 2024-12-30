@@ -7,7 +7,7 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of building 'pandas.DataFrames' out of IPMI statistics files.
+Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
 """
 
 import pandas
@@ -18,17 +18,19 @@ from statscollectlibs.parsers import IPMIParser
 
 class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
-    This class provides the capability of building a 'pandas.DataFrames' out of raw IPMI statistics
-    files.
+    Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
     """
 
     def decode_ipmi_colname(self, colname):
         """
-        IPMI 'pandas.DataFrames' are loaded with column names containing the "rawname" which refers
-        to the original name used in the raw IPMI statistics file and the relevant IPMI metric
-        (which represents a category of IPMI statistics, e.g. "FanSpeed", "Power", etc.). Decode
-        'colname' to get a tuple containing the metric and the raw IPMI name. If 'colname' is not a
-        valid 'ipmi' column name, returns 'None, None'.
+        IPMI 'pandas.DataFrames' objects are constructed with column names containing the "raw name"
+        which refers to the original name used in the raw IPMI statistics file and the relevant IPMI
+        metric (which represents a category of IPMI statistics, e.g. "FanSpeed", "Power", etc.).
+        Decode a dataframe column name to get a tuple containing the metric and the raw IPMI name.
+        The arguments are as follows.
+          * colname - the dataframe column name to decode.
+
+        If 'colname' is not a valid 'ipmi' column name, return 'None, None'.
         """
 
         split = colname.split("-", 1)
@@ -40,11 +42,13 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     def _get_new_colnames(self, ipmi):
         """
-        Encode column names in the IPMIParser dict 'ipmi' to include the metrics they represent. For
-        example, 'FanSpeed' can be represented by several columns such as 'Fan1'. This function will
-        encode that column name as 'FanSpeed-Fan1'. Returns a dictionary in the format
-        '{rawname: encoded_colname}' where 'rawname' represents the name used in the raw IPMI file
-        and 'encoded_colname' is the name including the metric name as well as the rawname.
+        Encode column names in the 'ipmi' dictionary (yielded by 'IPMIParser') to include the
+        metrics they represent. For example, 'FanSpeed' can be represented by several columns such
+        as 'Fan1'. Encode that column name as 'FanSpeed-Fan1'.
+
+        Return a dictionary in the format '{rawname: encoded_colname}' where 'rawname' represents
+        the name used in the raw IPMI file and 'encoded_colname' is the name including the metric
+        name as well as the raw metric name 'rawname'.
         """
 
         colnames = {}
@@ -59,18 +63,18 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     @staticmethod
     def _ipmi_to_df(ipmi):
-        """Convert IPMIParser dict to 'pandas.DataFrame'."""
+        """Convert IPMIParser dict to a 'pandas.DataFrame' object."""
 
-        # Reduce IPMI values from ('value', 'unit') to just 'value'.
-        # If "no reading" is parsed in a line of a raw IPMI file, 'None' is returned. In this
-        # case, we should exclude that IPMI metric.
+        # Reduce IPMI values from ('value', 'unit') to just 'value'. If "no reading" is parsed in a
+        # line of a raw IPMI file, 'None' is returned. In this case, we should exclude that IPMI
+        # metric.
         i = {k:[v[0]] for k, v in ipmi.items() if v[0] is not None}
         return pandas.DataFrame.from_dict(i)
 
     def _read_stats_file(self, path):
         """
-        Returns a 'pandas.DataFrame' containing the data stored in the raw IPMI statistics file at
-        'path'.
+        Return a 'pandas.DataFrame' object containing the data stored in the raw IPMI statistics
+        file at 'path'.
         """
 
         parser = IPMIParser.IPMIParser(path).next()
@@ -104,12 +108,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         return sdf
 
     def __init__(self):
-        """
-        The class constructor.
-
-        Note, the constructor does not load the potentially huge test result data into the memory.
-        The data are loaded "on-demand" by 'load_df()'.
-        """
+        """The class constructor."""
 
         self._defs = IPMIDefs.IPMIDefs()
 
