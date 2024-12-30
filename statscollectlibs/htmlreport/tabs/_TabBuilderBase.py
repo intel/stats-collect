@@ -234,12 +234,11 @@ class TabBuilderBase:
         """
 
         if self.name is None:
-            raise Error(f"failed to initialise '{type(self).__name__}': 'name' class attribute not "
-                        f"populated.")
+            raise Error(f"BUG: failed to initialise '{type(self).__name__}': 'name' class "
+                        f"attribute not populated.")
 
         if not dfs:
-            raise ErrorNotFound(f"failed to initialise '{type(self).__name__}': no results contain "
-                                f"data for this statistic.")
+            raise ErrorNotFound(f"not data for '{self.name}'")
 
         self._dfs = dfs
         self._outdir = outdir / DefsBase.get_fsname(self.name)
