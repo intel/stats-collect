@@ -7,7 +7,7 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of populating the AC Power statistics tab.
+Provide the capability of populating the AC Power statistics tab.
 """
 
 from statscollectlibs.defs import ACPowerDefs
@@ -15,45 +15,35 @@ from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 
 class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
-    """
-    This class provides the capability of populating the AC Power statistics tab.
-
-    Public methods overview:
-    1. Generate a '_Tabs.DTabDC' instance containing a summary table and plots describing data in
-       raw AC Power statistics files.
-        * 'get_tab()'
-    """
+    """Provide the capability of populating the AC Power statistics tab."""
 
     name = "AC Power"
     stname = "acpower"
 
     def get_default_tab_cfg(self):
         """
-        Returns a 'TabConfig.DTabConfig' instance with the default 'AC Power' tab configuration.
-
+        Return a 'TabConfig.DTabConfig' instance with the default 'AC Power' tab configuration.
         See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
 
-        smry_funcs = {self._power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",
-                                           "min", "std"]}
-        dtab_cfg = self._build_def_dtab_cfg(self._power_metric, self._time_metric, smry_funcs, None)
+        power_metric = "P"
+        time_metric = "T"
 
-        # By default the tab will be titled 'self._power_metric'. Change the title to "AC Power".
+        smry_funcs = {power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",
+                                     "min", "std"]}
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, time_metric, smry_funcs, None)
+
+        # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name
         return dtab_cfg
 
     def __init__(self, rsts, outdir, basedir=None):
         """
-        The class constructor. Adding an ACPower tab will create an 'ACPower' sub-directory and
-        store plots and the summary table in it.
-
-        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
-         * rsts - a list of 'RORawResult' instances for which data should be included in the built
-                  tab.
+        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
+        except for the following.
+          * rsts - an iterable collection of 'RORawResult' instances for which data should be
+                   included in the built tab.
         """
-
-        self._power_metric = "P"
-        self._time_metric = "T"
 
         dfs = {}
         dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
