@@ -174,8 +174,9 @@ class TabBuilderBase:
             try:
                 sub_tabs.append(self._build_dtab(outdir, dtabconfig))
             except Error as err:
-                _LOG.notice("skipping '%s' tab in '%s' tab: an error occurred during tab "
-                            "generation\n%s", dtabconfig.name, self.name, err.indent(2))
+                _LOG.debug_print_stacktrace()
+                _LOG.warning("failed to generate '%s' tab in '%s' tab:\n%s",
+                             dtabconfig.name, self.name, err.indent(2))
 
         for subtab_cfg in ctabconfig.ctabs:
             subdir = Path(outdir) / DefsBase.get_fsname(subtab_cfg.name)
