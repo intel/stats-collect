@@ -89,9 +89,24 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs = {}
         for res in self._rsts:
             specjbb_info = self._get_specjbb_info(res)
-            data = {"max-jOPS": [specjbb_info["max_jops"]],
-                    "critical-jOPS": [specjbb_info["crit_jops"]],
-                    "HBIR": [specjbb_info["hbir"]]}
+
+            try:
+                level = specjbb_info["rt_curve"]["levels"]["first_level"]
+                begin_ts = specjbb_info["rt_curve"]["levels"][level]["ts"]
+                level = specjbb_info["rt_curve"]["levels"]["last_level"]
+                end_ts = specjbb_info["rt_curve"]["levels"][level]["ts"]
+
+                data = {"max-jOPS": [specjbb_info["max_jops"]],
+                        "critical-jOPS": [specjbb_info["crit_jops"]],
+                        "HBIR": [specjbb_info["hbir"]]}
+            except KeyError as err:
+                raise Error(f"failed to find necessary information in SPECjbb2015 logs: "
+                            f"{err}") from err
+
+            # Limit the statistics data to the RT-curve, everything else is usually uninteresting
+            # and only clutters the HTML report diagrams.
+            res.set_timestamp_limits(begin_ts, end_ts, absolute=False)
+
             dfs[res.reportid] = pandas.DataFrame(data)
 
         return dfs

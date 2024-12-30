@@ -37,11 +37,12 @@ class RORawResult(_RawResultBase.RawResultBase):
     Public methods overview.
       * set_label_defs() - set label definitions for a specific statistic.
       * get_label_defs() - get label definitions for a specific statistic.
+      * set_timestamp_limits() - limit time-stamp range for statistics.
       * load_stat() - load and return a 'pandas.DataFrame' containing statistics data for this
                       result.
-      * link_wldata - create a symlink pointing to the workload data.
-      * copy_logs - copy 'stats-collect' tool logs.
-      * copy - copy the test result.
+      * link_wldata() - create a symlink pointing to the workload data.
+      * copy_logs() - copy 'stats-collect' tool logs.
+      * copy() - copy the test result.
     """
 
     def set_label_defs(self, stname, defs):
@@ -60,6 +61,39 @@ class RORawResult(_RawResultBase.RawResultBase):
         """
 
         return self._labels_defs.get(stname, {})
+
+    def set_timestamp_limits(self, begin_ts, end_ts, absolute=True):
+        """
+        The statistics track metrics for a period of time. Typically raw statistics files include a
+        timestamp, and metric values at that time, then ext time-stamp and metric values, and so on.
+        In other words, the raw statistics file provide metrics values from time-stamp A to
+        time-stamp B. The time-stamp format is local time since the epoch.
+
+        Sometimes it is desirable to limit the time-stamps. For example, if a workload is known to
+        have some long and uninteresting preparation phases, it may be desirable to exclude them.
+        Provide the new time-stamps A ('begin_ts') and B ('end_ts') to use instead of the full
+        time-stamps range from the raw statistics file. The arguments are as follows.
+          * begin_ts - the measurements start time-stamps. All data collected before 'begin_ts'
+                       will be discarded.
+          * end_ts - - the measurements end time-stamp. All data collected after 'end_ts' will be
+                       discarded.
+          * absolute - if 'True', then 'begin_ts' and 'end_ts' are absolute time values - the local
+                       time since the epoch. Otherwise, they are relative values from the beginning
+                       of the measurements in seconds. For example, if 'begin_ts' is 5, this would
+                       mean that all metrics collected during the first 5 seconds from the beginning
+                       of the measurements should be discarded.
+        """
+
+        if begin_ts >= end_ts:
+            raise Error(f"bad raw statistics time-stamp limits: begin time-stamp ({begin_ts}) must "
+                        f"be smaller than the end time-stamp ({end_ts})")
+
+        self._tslimits["begin"] = begin_ts
+        self._tslimits["end"] = end_ts
+        self._tslimits["absolute"] = absolute
+
+        _LOG.debug("set time-stamp limits for report ID '%s': begin %s, end %s, absolute %s",
+                   self.reportid, begin_ts, end_ts, absolute)
 
     def _get_stats_path(self, stname):
         """
@@ -291,8 +325,11 @@ class RORawResult(_RawResultBase.RawResultBase):
         # Type of the workload that was running while statistics were collected.
         self.wltype = None
 
-        # Label metric definitions.
+        # Label definitions.
         self._labels_defs = {}
+
+        # The time-stamp limits dictionary.
+        self._tslimits = {}
 
         self._load_info_yml()
         if reportid:
