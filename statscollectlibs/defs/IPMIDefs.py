@@ -14,20 +14,28 @@ class IPMIDefs(_STCDefsBase.STCDefsBase):
     """This class provides an API to the IPMI definitions (AKA 'defs')."""
 
     @staticmethod
-    def get_metric_from_unit(unit):
+    def get_category(unit):
         """
-        Get the name of an IPMI metric which is measured using 'unit'. If a metric is not found,
-        returns 'None'.
+        Return the metric category name by its unit name. Return 'None' if there is no category for
+        the unit. The arguments are as follows.
+          * unit - unit name from the raw IPMI file or the definitions dictionary (there is a
+                   difference, e.g., "Amps" vs "Amp").
+
+        Get the name of an IPMI metric category by its unit name. Return 'None' if there is no
+        category for the unit.
         """
 
-        unit_to_metrics = {
+        unit2category = {
             "RPM": "FanSpeed",
             "degrees C": "Temperature",
             "Watts": "Power",
+            "Watt": "Power",
             "Amps": "Current",
-            "Volts": "Voltage"
+            "Amp": "Current",
+            "Volts": "Voltage",
+            "Volt": "Voltage"
         }
-        return unit_to_metrics.get(unit)
+        return unit2category.get(unit)
 
     def __init__(self):
         """The class constructor."""

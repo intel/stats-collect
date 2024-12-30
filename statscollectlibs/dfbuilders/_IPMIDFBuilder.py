@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023-2024 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
 Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
+
+Terminology.
+  * column name - the dataframe column name.
+  * metric name - name of the IPMI metric as per the raw IPMI statistics file.
+  * category - the metric category (e.g., "Temperature"). Column names are constructed as
+               "category, dash, metric name".
 """
 
 import pandas
@@ -21,55 +28,66 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
     """
 
-    def decode_ipmi_colname(self, colname):
+    def split_colname(self, colname):
         """
-        IPMI 'pandas.DataFrames' objects are constructed with column names containing the "raw name"
-        which refers to the original name used in the raw IPMI statistics file and the relevant IPMI
-        metric (which represents a category of IPMI statistics, e.g. "FanSpeed", "Power", etc.).
-        Decode a dataframe column name to get a tuple containing the metric and the raw IPMI name.
-        The arguments are as follows.
+        Split column name and return a tuple of category name, metric name. The arguments are as
+        follows.
           * colname - the dataframe column name to decode.
-
-        If 'colname' is not a valid 'ipmi' column name, return 'None, None'.
         """
 
         split = colname.split("-", 1)
-        if len(split) < 2 or split[0] not in self._defs.info:
-            return None, None
+        if len(split) < 2:
+            return None, colname
+        if split[0] not in self._defs.info:
+            raise Error(f"BUG: unknown IPMI categorey '{split[0]}")
 
-        rawname = split[1] if len(split) > 1 else None
-        return split[0], rawname
+        return split[0], split[1]
 
-    def _get_new_colnames(self, ipmi):
+    def _get_metric2colname(self, parsed_dp):
         """
-        Encode column names in the 'ipmi' dictionary (yielded by 'IPMIParser') to include the
-        metrics they represent. For example, 'FanSpeed' can be represented by several columns such
-        as 'Fan1'. Encode that column name as 'FanSpeed-Fan1'.
+        Build and return the metric name -> column name dictionary. The dictionary keys are metric
+        names from the 'parsed_dp' dictionary (yielded by 'IPMIParser'). The values are the
+        dataframe column names.
 
-        Return a dictionary in the format '{rawname: encoded_colname}' where 'rawname' represents
-        the name used in the raw IPMI file and 'encoded_colname' is the name including the metric
-        name as well as the raw metric name 'rawname'.
+        The column names are basically metric names prefixed with the category name. For example, if
+        metric "Fan1" is from the 'FanSpeed' category, its column name is going to be
+        "FanSpeed-Fan1".
         """
 
-        colnames = {}
+        metric2colname = {}
 
-        for colname, val in ipmi.items():
+        for metric, val in parsed_dp.items():
             unit = val[1]
-            metric = self._defs.get_metric_from_unit(unit)
-            if metric:
-                colnames[colname] = f"{metric}-{colname}"
+            category = self._defs.get_category(unit)
+            if category:
+                metric2colname[metric] = f"{category}-{metric}"
 
-        return colnames
+        return metric2colname
 
     @staticmethod
-    def _ipmi_to_df(parsed_dp):
-        """Convert a 'IPMIParser' datapoint dictionary to a 'pandas.DataFrame' object."""
+    def _ipmi_to_df(parsed_dp, include_metrics=None):
+        """
+        Convert an 'IPMIParser' datapoint dictionary to a 'pandas.DataFrame' object.
+        """
 
-        # Reduce IPMI values from ('value', 'unit') to just 'value'. If "no reading" is parsed in a
-        # line of a raw IPMI file, 'None' is returned. In this case, we should exclude that IPMI
-        # metric.
-        i = {k:[v[0]] for k, v in parsed_dp.items() if v[0] is not None}
-        return pandas.DataFrame.from_dict(i)
+        def _reduce_dp():
+            """
+            Reduce the parsed IPMI datapoint dictionary to only include metrics in
+            'include_metrics'.
+            """
+
+            for metric, pair in parsed_dp.items():
+                val = pair[0]
+                if val is None:
+                    # If "no reading" is parsed in a line of a raw IPMI file, 'None' is returned. In
+                    # this case, we should exclude that IPMI metric.
+                    continue
+                if include_metrics and metric not in include_metrics:
+                    continue
+                yield metric, val
+
+        reduced_dp = {metric:[val] for metric, val in _reduce_dp()}
+        return pandas.DataFrame.from_dict(reduced_dp)
 
     def _read_stats_file(self, path):
         """
@@ -80,31 +98,30 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         parser = IPMIParser.IPMIParser(path).next()
 
         try:
-            # Try to read the first data point from raw statistics file.
+            # Read the first data point from raw statistics file.
             parsed_dp = next(parser)
-        except StopIteration:
-            raise Error("empty or incorrectly formatted IPMI raw statistics file") from None
+        except StopIteration as err:
+            errmsg = Error(err).indent(2)
+            raise Error(f"empty or incorrectly formatted IPMI raw statistics file:\n"
+                        f"{errmsg}") from err
 
-        # The first data point is used to determine the column names of the 'pandas.DataFrame'. The
-        # column names will include the raw names used in the raw IPMI statistics file as well as
-        # the metric category they belong to such as "FanSpeed", "Temperature" etc. See
-        # 'self._encode_colnames()' for more information.
-        renaming_cols = self._get_new_colnames(parsed_dp)
+        # The first data point is used to determine the raw IPMI metric names.
+        metric2colname = self._get_metric2colname(parsed_dp)
 
-        # Initialise 'sdf' with the first datapoint in the raw statistics file.
         sdf = self._ipmi_to_df(parsed_dp)
+
+        # Exclude the metrics that do not have the category, except for the timestamp.
+        metric2colname["timestamp"] = self._time_metric
+        for metric in sdf.columns:
+            if metric not in metric2colname:
+                sdf = sdf.drop(columns=[metric,])
 
         # Add the rest of the data from the raw IPMI statistics file to 'sdf'.
         for parsed_dp in parser:
-            df = self._ipmi_to_df(parsed_dp)
+            df = self._ipmi_to_df(parsed_dp, include_metrics=metric2colname)
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
-        # The timestamps will be converted to represent time elapsed since the beginning of the
-        # statistics collection, therefore rename the 'timestamp' column to 'self._timecolname'
-        # which represents this better.
-        renaming_cols["timestamp"] = self._time_metric
-        sdf = sdf.rename(columns=renaming_cols)
-
+        sdf = sdf.rename(columns=metric2colname)
         return sdf
 
     def __init__(self):

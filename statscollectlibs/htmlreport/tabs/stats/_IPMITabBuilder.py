@@ -52,7 +52,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for colname in colnames:
-                metric, col = self._dfbldr.decode_ipmi_colname(colname)
+                metric, col = self._dfbldr.split_colname(colname)
                 if not col or metric not in self._defs.info:
                     continue
                 dtabs.append(self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
@@ -139,8 +139,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             # Since we use column names which aren't known until runtime as tab titles, use the
             # defs for the metric but overwrite the 'name' and 'fsname' attributes.
 
-            metric, ipmi_name = self._dfbldr.decode_ipmi_colname(colname)
-            if not ipmi_name:
+            metric, ipmi_name = self._dfbldr.split_colname(colname)
+            if not metric:
                 continue
 
             self._metrics[metric].append(colname)
