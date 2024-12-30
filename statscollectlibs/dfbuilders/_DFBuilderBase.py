@@ -7,33 +7,33 @@
 # Author: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides a base class that will help child classes to build a 'pandas.DataFrame' out of
-a raw statistics file.
+Provide the base class for 'pandas.DataFrame' object builder classes. The goal of dataframe builders
+is to build a 'pandas.DataFrame' object from raw statistics files.
 """
 
 import json
 import logging
 import numpy
 import pandas
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
+from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 
 _LOG = logging.getLogger()
 
 class DFBuilderBase:
     """
-    This base class provides common methods that will help child classes to build a
-    'pandas.DataFrame' out of a raw statistics file.
+    The base class for 'pandas.DataFrame' object builder classes. The goal of dataframe builders is
+    to build a 'pandas.DataFrame' object from raw statistics files.
 
-    This base class requires child classes to implement the following method:
-    1. Read a raw statistics file and convert the statistics data into a 'pandas.DataFrame'.
-       * '_read_stats_file()'
+    This base class requires child classes to implement the following methods.
+      *  '_read_stats_file()' - read a raw statistics file and convert the statistics data into a
+                               'pandas.DataFrame' object.
     """
 
     def _apply_labels(self, df, labels):
         """
-        Apply 'labels' to 'pandas.DataFrame' 'df'. Arguments are as follows:
-         * df - the 'pandas.DataFrame' to which the labels should be applied.
-         * labels - a list of label dictionaries parsed from the labels file.
+        Apply labels to dataframe 'df'. The arguments are as follows.
+          * df - the 'pandas.DataFrame' object to which the labels should be applied.
+          * labels - list of label dictionaries.
         """
 
         time_col = df[self._time_metric]
@@ -75,17 +75,14 @@ class DFBuilderBase:
 
     def _read_stats_file(self, path):
         """
-        Returns a 'pandas.DataFrame' containing the data stored in the raw statistics file at
-        'path'.
+        Return a 'pandas.DataFrame' containing the data stored in the raw statistics file at
+        'path'. Must be implemented by child classes.
         """
 
         raise NotImplementedError()
 
     def _load_labels(self, labels_path):
-        """
-        Helper function for 'load_df()'. Parses the labels in the file at 'labels_path'. Returns
-        a list of label dictionaries.
-        """
+        """Parse the labels in the file at 'labels_path'. Return a list of label dictionaries."""
 
         try:
             with open(labels_path, "r", encoding="utf-8") as f:
@@ -100,15 +97,11 @@ class DFBuilderBase:
 
     def load_df(self, path, labels_path=None):
         """
-        Read the data in the raw statistics file into 'self.df'. Arguments are as follows:
-         * path - the path of the raw statistics file to load.
-         * labels_path - optional path of the labels file to apply to the loaded data. Loads no
-                         labels by default.
+        Read the data in the raw statistics file into 'self.df'. The arguments are as follows.
+          * path - the path of the raw statistics file to load.
+          * labels_path - optional path of the labels file to apply to the loaded data. Loads no
+                          labels by default.
         """
-
-        if not path.exists():
-            raise ErrorNotFound(f"failed to load raw statistics file at path '{path}': file does "
-                                f"not exist.")
 
         if labels_path:
             labels = self._load_labels(labels_path)
@@ -117,7 +110,7 @@ class DFBuilderBase:
 
         try:
             sdf = self._read_stats_file(path)
-        except ErrorBadFormat as err:
+        except ErrorBadFormat:
             raise
         except Exception as err:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
@@ -149,9 +142,9 @@ class DFBuilderBase:
 
     def __init__(self, time_metric):
         """
-        The class constructor. Arguments are as follows:
-         * time_metric - the name of the metric which represents the time at which the datapoints
-                         in the raw statistics file(s) were recorded.
+        The class constructor. The arguments are as follows.
+          * time_metric - the name of the metric which represents the time at which the datapoints
+                          in the raw statistics file(s) were recorded.
         """
 
         self.df = None

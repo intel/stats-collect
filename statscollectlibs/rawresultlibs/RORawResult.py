@@ -138,7 +138,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         path = self._get_stats_path(stname)
         labels_path = self._get_labels_path(stname)
-        return dfbldr.load_df(path, labels_path)
+        return dfbldr.load_df(path, labels_path=labels_path)
 
     def _is_specjbb2015(self):
         """Return 'True' if the workload is SPECjbb2015."""
@@ -315,7 +315,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         Note, the constructor does not load the potentially huge test result data into the memory.
         It only loads the 'info.yml' file and figures out which metrics have been measured. The data
-        are loaded "on-demand" by 'load_df()' and other methods.
+        are loaded "on-demand" by 'load_stat()' and other methods.
         """
 
         super().__init__(dirpath)
