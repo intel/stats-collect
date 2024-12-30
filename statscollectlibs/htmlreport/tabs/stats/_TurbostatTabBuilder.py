@@ -15,18 +15,7 @@ from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
-    """
-    Build and populate the turbostat statistics tab.
-
-    Public methods overview:
-    1. Optionally, retrieve the default 'TabConfig.CTabConfig' instance. See 'TabConfig' for more
-       information on tab configurations.
-       * 'get_default_tab_cfg()'
-    2. Generate a '_Tabs.CTabDC' instance containing turbostat level 2 tabs. Optionally provide a
-       tab configuration as a 'CTabConfig' to customize the tab. This can be based on the default
-       configuration retrieved using 'get_default_tab_cfg()'.
-       * 'get_tab()'
-    """
+    """Provide the capability of populating the turbostat statistics tab."""
 
     name = "Turbostat"
     stname = "turbostat"
@@ -175,14 +164,10 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def __init__(self, rsts, outdir, basedir=None):
         """
-        The class constructor. Add a turbostat statistics container tab, which will create a
-        "Turbostat" sub-directory and store level 2 tabs inside it. Level 2 tabs will represent
-        metrics stored in the raw turbostat statistics file using data tabs.
-
-        The arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the
-        following:
-          * rsts - a collection of 'RORawResult' instances for different results with statistics
-                   which should be included in the turbostat tabs.
+        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
+        except for the following.
+          * rsts - an iterable collection of 'RORawResult' instances for which data should be
+                   included in the built tab.
         """
 
         outdir = outdir / self.name
