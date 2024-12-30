@@ -11,6 +11,7 @@ An unfinished, quickly put together SPECjbb2015 controller output file parser.
 """
 
 import re
+from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import _ParserBase
 
 class SPECjbb2015Parser(_ParserBase.ParserBase):
@@ -38,13 +39,15 @@ class SPECjbb2015Parser(_ParserBase.ParserBase):
         levels = result["rt_curve"]["levels"]
 
         # The load levels are indexed by the HBIR percent.
-        pcnt = match.group(2)
+        pcnt = Trivial.str_to_int(match.group(2), what="Load level percent index")
+
         levels[pcnt] = {}
-        levels[pcnt]["ts"] = match.group(1)  # The time-stamp.
-        levels[pcnt]["rir"] = match.group(3) # rIR.
-        levels[pcnt]["air"] = match.group(4) # aIR.
-        levels[pcnt]["pr"] = match.group(5)  # PR.
-        levels[pcnt]["tpr"] = match.group(6) # tPR.
+        levels[pcnt]["ts"] = Trivial.str_to_int(match.group(1),
+                                                what=f"Load level {pcnt}% time-stamp")
+        levels[pcnt]["rir"] = Trivial.str_to_int(match.group(3), what=f"Load level {pcnt}% rIR")
+        levels[pcnt]["air"] = Trivial.str_to_int(match.group(4), what=f"Load level {pcnt}% raIR")
+        levels[pcnt]["pr"] = Trivial.str_to_int(match.group(5), what=f"Load level {pcnt}% PR")
+        levels[pcnt]["tpr"] = Trivial.str_to_int(match.group(6), what=f"Load level {pcnt}% tPR")
 
         # The last found load level percentage.
         if "first_level" not in levels:
