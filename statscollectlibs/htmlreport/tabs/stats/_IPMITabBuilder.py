@@ -7,7 +7,7 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability of populating the IPMI statistics Tab.
+Provide the capability of populating the IPMI statistics tab.
 """
 
 import logging
@@ -21,11 +21,10 @@ _LOG = logging.getLogger()
 
 class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     """
-    This class provides the capability of populating the IPMI statistics tab.
+    Provide the capability of populating the IPMI statistics tab.
 
     Public methods overview:
-    1. Generate a '_Tabs.CTabDC' instance containing tabs which display IPMI statistics.
-       * 'get_tab()'
+      * 'get_tag()' - generate a '_Tabs.CTabDC' instance containing tabs which display IPMI statistics.
     """
 
     name = "IPMI"
@@ -33,13 +32,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def get_default_tab_cfg(self):
         """
-        Generate the default tab configuration as a 'TabConfig.CTabConfig' instance.
-        The default tab configuration will specify container tabs for each of the following
-        categories:
-
-            1. "Fan Speed"
-            2. "Temperature"
-            3. "Power"
+        Generate the default tab configuration as a 'TabConfig.CTabConfig' instance. The default tab
+        configuration will specify container tabs for each of the following categories:
+          * "Fan Speed"
+          * "Temperature"
+          * "Power"
 
         Each of these container tab configurations contain data tab configurations for each IPMI
         metric which is common to all results. For example, the "Fan Speed" container tab might
@@ -91,13 +88,10 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def __init__(self, rsts, outdir, basedir=None):
         """
-        The class constructor. Adding an IPMI statistics container tab will create an 'IPMI'
-        sub-directory and store tabs inside it. These tabs will represent all of the metrics stored
-        in the raw IPMI statistics file.
-
-        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following: 
-         * rsts - a list of 'RORawResult' instances for which data should be included in the built
-                  tab.
+        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
+        except for the following.
+          * rsts - an iterable collection 'RORawResult' instances for which data should be included
+                   in the built tab.
         """
 
         self._time_metric = "Time"
