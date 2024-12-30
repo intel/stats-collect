@@ -62,13 +62,13 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         return colnames
 
     @staticmethod
-    def _ipmi_to_df(ipmi):
-        """Convert IPMIParser dict to a 'pandas.DataFrame' object."""
+    def _ipmi_to_df(parsed_dp):
+        """Convert a 'IPMIParser' datapoint dictionary to a 'pandas.DataFrame' object."""
 
         # Reduce IPMI values from ('value', 'unit') to just 'value'. If "no reading" is parsed in a
         # line of a raw IPMI file, 'None' is returned. In this case, we should exclude that IPMI
         # metric.
-        i = {k:[v[0]] for k, v in ipmi.items() if v[0] is not None}
+        i = {k:[v[0]] for k, v in parsed_dp.items() if v[0] is not None}
         return pandas.DataFrame.from_dict(i)
 
     def _read_stats_file(self, path):
