@@ -146,7 +146,7 @@ class TabBuilderBase:
     def _build_dtab(self, outdir, dtabconfig):
         """Build a data tab according to the tab configuration 'dtabconfig'."""
 
-        tab = _DTabBuilder.DTabBuilder(self._reports, outdir, dtabconfig.name, self._basedir)
+        tab = _DTabBuilder.DTabBuilder(self._dfs, outdir, dtabconfig.name, self._basedir)
         tab = self._add_plots(dtabconfig, tab)
         tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
         for alert in dtabconfig.alerts:
@@ -241,7 +241,7 @@ class TabBuilderBase:
             raise ErrorNotFound(f"failed to initialise '{type(self).__name__}': no results contain "
                                 f"data for this statistic.")
 
-        self._reports = dfs
+        self._dfs = dfs
         self._outdir = outdir / DefsBase.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
         self._defs = defs

@@ -117,7 +117,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
-        col_sets = [set(sdf.columns) for sdf in self._reports.values()]
+        col_sets = [set(sdf.columns) for sdf in self._dfs.values()]
         self._common_colnames = set.union(*col_sets)
 
         # One of the metrics must be the time, so min. 2 columns are required.

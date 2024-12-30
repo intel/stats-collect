@@ -116,7 +116,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         """
 
         # Find metrics which appear in the raw turbostat statistic files.
-        metric_sets = [set(sdf.columns) for sdf in self._reports.values()]
+        metric_sets = [set(sdf.columns) for sdf in self._dfs.values()]
         metrics = set.union(*metric_sets)
 
         # Limit metrics to only those with definitions.
