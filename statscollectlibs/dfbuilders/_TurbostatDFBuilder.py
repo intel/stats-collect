@@ -32,7 +32,7 @@ def get_col_scope(colname):
 
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
-    Provides the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.
+    Provide the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.
     """
 
     def _add_tstat_scope(self, tstat, totals=False):
@@ -75,7 +75,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     def _turbostat_to_df(self, tstat):
         """
         Convert the 'tstat' dictionary to a 'pandas.DataFrame'. Arguments are as follows:
-         * tstat - dictionary produced by 'TurbostatParser'.
+          * tstat - dictionary produced by 'TurbostatParser'.
         """
 
         new_tstat = self._add_tstat_scope(tstat["totals"], totals=True)
@@ -120,9 +120,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
         The class constructor. The arguments are as follows.
           * cpunum - the measured CPU number.
-
-        Note, the constructor does not load the potentially huge test result data into the memory.
-        The data are loaded "on-demand" by 'load_df()'.
         """
 
         self._cpunum = cpunum
