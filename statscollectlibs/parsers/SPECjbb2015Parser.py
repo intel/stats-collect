@@ -47,6 +47,8 @@ class SPECjbb2015Parser(_ParserBase.ParserBase):
         levels[pcnt]["tpr"] = match.group(6) # tPR.
 
         # The last found load level percentage.
+        if "first_level" not in levels:
+            levels["first_level"] = pcnt
         levels["last_level"] = pcnt
 
     def _next(self):
