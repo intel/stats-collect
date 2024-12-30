@@ -124,9 +124,14 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         sdf = sdf.rename(columns=metric2colname)
         return sdf
 
-    def __init__(self):
-        """The class constructor."""
+    def __init__(self, defs=None):
+        """
+        The class constructor. The arguments are as follows.
+          * defs - the metrics definitions object ('IPMIDefs').
+        """
 
-        self._defs = IPMIDefs.IPMIDefs()
+        self._defs = defs
+        if not self._defs:
+            self._defs = IPMIDefs.IPMIDefs()
 
         super().__init__("Time")

@@ -20,12 +20,7 @@ from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 _LOG = logging.getLogger()
 
 class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
-    """
-    Provide the capability of populating the IPMI statistics tab.
-
-    Public methods overview:
-      * 'get_tag()' - generate a '_Tabs.CTabDC' instance containing tabs which display IPMI statistics.
-    """
+    """Provide the capability of populating the IPMI statistics tab."""
 
     name = "IPMI"
     stnames = ("ipmi-inband", "ipmi-oob",)
@@ -52,36 +47,33 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for colname in colnames:
-                metric, col = self._dfbldr.split_colname(colname)
-                if not col or metric not in self._defs.info:
+                category, metric = self._dfbldr.split_colname(colname)
+                if not metric or category not in self._defs.info:
                     continue
                 dtabs.append(self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
-                                                      self._hover_defs, title=col))
+                                                      self._hover_defs, title=metric))
 
             return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
         # Define which summary functions should be included in the generated summary table
         # for a given metric.
         smry_funcs = {}
-        for metric in self._common_cols:
-            smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
-                                  "med", "avg", "min", "std"]
-
-        # Dedupe cols in 'self._metrics'.
-        for metric in self._metrics:
-            self._metrics[metric] = Trivial.list_dedup(self._metrics[metric])
+        for colname in self._common_colnames:
+            smry_funcs[colname] = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min",
+                                   "std"]
 
         ctabs = []
         # Add fan speed-related D-tabs to a separate C-tab.
-        fspeed_cols = [col for col in self._metrics["FanSpeed"] if col in self._common_cols]
+        fspeed_cols = [col for col in self._categories["FanSpeed"] if col in self._common_colnames]
         ctabs.append(build_ctab_cfg(fspeed_cols, "FanSpeed"))
 
         # Add temperature-related D-tabs to a separate C-tab.
-        temp_cols = [col for col in self._metrics["Temperature"] if col in self._common_cols]
+        temp_cols = [col for col in self._categories["Temperature"] if col in self._common_colnames]
         ctabs.append(build_ctab_cfg(temp_cols, "Temperature"))
 
         # Add power-related D-tabs to a separate C-tab.
-        pwr_cols = self._metrics["Power"] + self._metrics["Current"] + self._metrics["Voltage"]
+        pwr_cols = self._categories["Power"] + self._categories["Current"] + \
+                                               self._categories["Voltage"]
         ctabs.append(build_ctab_cfg(pwr_cols, "Power"))
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
@@ -90,26 +82,26 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         """
         The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
         except for the following.
-          * rsts - an iterable collection 'RORawResult' instances for which data should be included
-                   in the built tab.
+          * rsts - an iterable collection of 'RORawResult' instances for which data should be
+                   included in the built tab.
         """
 
         self._time_metric = "Time"
+        self._dfbldr = None
+        self._hover_defs = {}
+
+        # Different results include different IPMI metrics. This is the set of metrics common to all
+        # the results.
+        self._common_colnames = set()
 
         defs = IPMIDefs.IPMIDefs()
+        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(defs=defs)
 
-        # Metrics in IPMI statistics can be represented by multiple columns. For example the
-        # "FanSpeed" of several different fans can be measured and represented in columns "Fan1",
-        # "Fan2" etc. This dictionary maps the metrics to the appropriate columns. Initialise it
-        # with empty column sets for each metric.
-        self._metrics = {metric: [] for metric in defs.info}
+        # The IPMI metric categories (e.g., "FanSpeed").
+        self._categories = {category: [] for category in defs.info}
 
-        self._common_cols = set()
-
-        stnames = set()
         dfs = {}
-        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
-        self._hover_defs = {}
+        found_stnames = set()
         for res in rsts:
             for stname in self.stnames:
                 if stname not in res.info["stinfo"]:
@@ -117,38 +109,39 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
                 dfs[res.reportid] = res.load_stat(stname, self._dfbldr)
                 self._hover_defs[res.reportid] = res.get_label_defs(stname)
-                stnames.add(stname)
+                found_stnames.add(stname)
                 break
 
-        if len(stnames) > 1:
-            _LOG.warning("generating '%s' tab with a combination of data collected both inband "
-                         "and out-of-band", self.name)
+        if len(found_stnames) > 1:
+            _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected")
 
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
         col_sets = [set(sdf.columns) for sdf in self._reports.values()]
-        self._common_cols = set.union(*col_sets)
+        self._common_colnames = set.union(*col_sets)
 
-        # Reports may have the "Time" column in common or none at all. In both of these cases, an
-        # IPMI tab won't be generated.
-        if len(self._common_cols) < 2:
+        # One of the metrics must be the time, so min. 2 columns are required.
+        if len(self._common_colnames) < 2:
             raise Error("unable to generate IPMI tab, no common IPMI metrics between reports")
 
-        # Update defs with IPMI column names for each column.
-        for colname in self._common_cols:
-            # Since we use column names which aren't known until runtime as tab titles, use the
-            # defs for the metric but overwrite the 'name' and 'fsname' attributes.
-
-            metric, ipmi_name = self._dfbldr.split_colname(colname)
-            if not metric:
+        # Currently the definitions include just category names. Change them to include metric
+        # names.
+        # TODO: but this should be don in IPMIDefs instead. May be similarly to 'TurbostatDefs'.
+        for colname in self._common_colnames:
+            category, metric = self._dfbldr.split_colname(colname)
+            if not category:
                 continue
 
-            self._metrics[metric].append(colname)
+            self._categories[category].append(colname)
 
-            col_def = self._defs.info[metric].copy()
+            info = self._defs.info[category].copy()
             # Don't overwrite the 'title' attribute so that the metric name is shown in plots
             # and the summary table.
-            col_def["fsname"] = DefsBase.get_fsname(colname)
-            col_def["name"] = colname
-            col_def["title"] = ipmi_name
-            self._defs.info[colname] = col_def
+            info["fsname"] = DefsBase.get_fsname(colname)
+            info["name"] = colname
+            info["title"] = metric
+            self._defs.info[colname] = info
+
+        # De-dubplicate column names.
+        for colname in self._categories:
+            self._categories[colname] = Trivial.list_dedup(self._categories[colname])
