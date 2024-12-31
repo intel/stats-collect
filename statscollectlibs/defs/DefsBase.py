@@ -7,7 +7,14 @@
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module provides the base class for metrics definitions (AKA 'defs').
+Provide the base class for metrics definition classes.
+
+Terminology.
+  * metrics definition class - an 'DefsBase' sub-class.
+  * metrics definition object - an object of a 'DefsBase' sub-class.
+  * metrics definition dictionary - the 'info' attribute of a metrics definition object, has metric
+                                    names as keys and metric information as values. Typically
+                                    populated form a metrics definition YAML file.
 """
 
 import re
@@ -43,7 +50,7 @@ def is_mdef(dct):
         return False
 
 class DefsBase:
-    """The base class for metrics definitions (AKA 'defs')."""
+    """Provide the base class for metrics definition classes."""
 
     def _handle_pattern(self, metric, info):
         """
@@ -121,10 +128,10 @@ class DefsBase:
 
     def mangle(self, metrics=None):
         """
-        Mangle the definitions dictionary and replace the pattern metrics. The arguments are as
-        follows.
+        Mangle the metrics definition dictionary and replace the pattern metrics. The arguments are
+        as follows.
          * metrics - a collection of metric names to use for substituting the pattern in the
-                     definitions (e.g., substitute 'CCx' with 'CC1', 'CC1E', etc).
+                     metric definition dictionary (e.g., substitute 'CCx' with 'CC1', 'CC1E', etc).
         """
 
         if metrics:
@@ -134,10 +141,11 @@ class DefsBase:
     def __init__(self, prjname, toolname, defsdir=None, info=None):
         """
         The class constructor. The arguments are as follows.
-          * prjname - name of the project the definitions and 'toolname' belong to.
-          * toolname - name of the tool or workload the definitions belong to.
-          * defsdir - path of directory containing definition files, defaults to "defs".
-          * info - the definitions dictionary to use instead of loading them from a YAML file.
+          * prjname - name of the project the metrics definition YAML file belongs to.
+          * toolname - name of the tool or workload the metrics definition YAML file belong to.
+          * defsdir - path of directory containing metrics definition files, defaults to "defs".
+          * info - the metrics definition dictionary to use instead of loading it from the YAML
+                   file.
         """
 
         self.toolname = toolname
@@ -147,7 +155,6 @@ class DefsBase:
             self.info = info
             return
 
-        # Build the 'info' dictionary from a definitions file.
         if defsdir and info:
             raise Error("BUG: 'defsdir' and 'info' are mutually exclusive")
 
