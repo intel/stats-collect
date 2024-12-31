@@ -7,7 +7,7 @@
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides a base class and common logic for populating a group of statistics tabs.
+Provide the base class and common logic for populating a group of statistics tabs.
 """
 
 from pathlib import Path
@@ -20,10 +20,10 @@ _LOG = logging.getLogger()
 
 class TabBuilderBase:
     """
-    This base class can be inherited from to populate a group of statistics tabs.
+    The base class and common logic for populating a group of statistics tabs.
 
-    For classes with names such as '_XStatsTabBuilder' and the 'Builder' suffix, their purpose is to
-    produce a tab containing data from 'XStats'. These classes do not represent the tab itself but a
+    For classes with names such as "_XStatsTabBuilder" and the 'Builder' suffix, their purpose is to
+    produce a tab containing data from "XStats". These classes do not represent the tab itself but a
     builder which creates those tabs.
 
     Tab Configurations - tab builder classes use "tab configurations" to determine the content of
@@ -56,8 +56,8 @@ class TabBuilderBase:
 
     def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, title=None):
         """
-        Provides a way to build a default data tab configuration. Returns an instance of
-        'TabConfig.DTabConfig'. Arguments are as follows:
+        Provide a way to build a default data tab configuration. Return an instance of
+        'TabConfig.DTabConfig'. The arguments are as follows.
           * y_metric - the name of the metric which will be plotted on the y-axis of the tab's
                        scatter plot.
           * x_metric - the name of the metric which will be plotted on the x-axis of the tab's
@@ -85,8 +85,9 @@ class TabBuilderBase:
 
     def _build_def_ctab_cfg(self, ctab_name, metrics, def_x_metric, smry_funcs, hover_defs):
         """
-        Provides a way to build a default container tab configuration. Returns an instance of
-        'TabConfig.CTabConfig'. Arguments are the same as 'self._build_def_dtab_cfg()' except for:
+        Provide a way to build a default container tab configuration. Return an instance of
+        'TabConfig.CTabConfig'. The arguments are the same as 'self._build_def_dtab_cfg()' except
+        for the following.
           * ctab_name - the name of the container tab.
           * metrics - a list of names of metrics, for which each should have a data tab.
           * def_x_metric - the name of the metric used on the x-axis of plots for all metrics.
@@ -157,11 +158,11 @@ class TabBuilderBase:
     def _build_ctab(self, outdir, ctabconfig):
         """
         Build a container tab according to the tab configuration 'ctabconfig'. If no sub-tabs can be
-        generated then raises an 'Error' and if the config provided is empty then returns 'None'.
-        Arguments are as follows:
-         * outdir - path of the directory in which to store the generated tabs.
-         * ctabconfig - an instance of 'TabConfig.CTabConfig' which configures the contents of the
-                        resultant container tab.
+        generated then raise an 'Error' and if the config provided is empty then return 'None'. The
+        arguments are as follows.
+          * outdir - path of the directory in which to store the generated tabs.
+          * ctabconfig - an instance of 'TabConfig.CTabConfig' which configures the contents of the
+                         resultant container tab.
         """
 
         if not (ctabconfig.ctabs or ctabconfig.dtabs):
@@ -200,12 +201,11 @@ class TabBuilderBase:
 
     def get_tab(self, tab_cfg=None):
         """
-        Returns a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
-        statistic files. Arguments are as follows:
-         * tab_cfg - an instance of 'TabConfig.CTabConfig' or 'Tab.DTabConfig'. If provided, the tab
-                     builder will attempt to build the tab according to the provided configuration.
-                     Otherwise, by default, the default tab configuration will be used to build the
-                     tab.
+        Return a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
+        statistic files. The arguments are as follows.
+          * tab_cfg - an instance of 'TabConfig.CTabConfig' or 'Tab.DTabConfig'. If provided, the
+            tab builder will attempt to build the tab according to the provided configuration.
+            Otherwise, by default, the default tab configuration will be used to build the tab.
         """
 
         if tab_cfg is None:
@@ -222,16 +222,18 @@ class TabBuilderBase:
 
     def __init__(self, dfs, outdir, basedir=None, defs=None):
         """
-        The class constructor. Adding a statistics container tab will create a sub-directory and
-        store tabs inside it. These tabs will represent all of the metrics stored in 'stats_file'.
-        Arguments are as follows:
-         * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where the
-                 'pandas.DataFrame' contains that statistics data for that result.
-         * outdir - the output directory in which to create the sub-directory for the container tab.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
-         * defs - a '_MDCBase.MDCBase' instance containing definitions for the metrics which
-                  should be included in the output tab.
+        The class constructor. The arguments are as follows.
+          * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where
+            the 'pandas.DataFrame' contains that statistics data for that result.
+          * outdir - the output directory in which to create the sub-directory for the container
+                     tab.
+          * basedir - base directory of the report. All paths should be made relative to this.
+                      Defaults to 'outdir'.
+          * defs - a '_MDCBase.MDCBase' instance containing definitions for the metrics which
+                   should be included in the output tab.
+
+        Adding a statistics container tab will create a sub-directory and store tabs inside it.
+        These tabs will represent all of the metrics stored in 'stats_file'.
         """
 
         if self.name is None:
