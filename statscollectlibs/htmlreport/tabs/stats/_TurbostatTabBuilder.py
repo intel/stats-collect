@@ -32,7 +32,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             tab_metrics = [col for col, raw in self._col2metric.items() if raw in tab_metrics]
             dtabs = []
             for metric in tab_metrics:
-                if metric not in self._defs.info or metric not in colnames:
+                if metric not in self._mdo.info or metric not in colnames:
                     continue
                 dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
                                                 self._hover_defs, title=self._col2metric[metric])
@@ -41,7 +41,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add frequency D-tabs to a separate C-tab.
         metrics = []
-        for names in self._defs.categories["Frequency"].values():
+        for names in self._mdo.categories["Frequency"].values():
             metrics += names
         freq_tab = build_ctab_cfg("Frequency", metrics)
 
@@ -50,8 +50,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         csrate_metrics = []
         cstime_metrics = []
         cscnt_metrics = []
-        for name in self._defs.categories["C-state"]["Requested"]:
-            unit = self._defs.info[name].get("unit")
+        for name in self._mdo.categories["C-state"]["Requested"]:
+            unit = self._mdo.info[name].get("unit")
             if unit:
                 if unit == "%":
                     csres_metrics.append(name)
@@ -70,10 +70,10 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add hardware C-state residency D-tabs to a separate C-tab.
         metrics = ["Busy%"]
-        for name in self._defs.categories["C-state"]["Hardware"]:
+        for name in self._mdo.categories["C-state"]["Hardware"]:
             if sname == _TurbostatDFBuilder.TOTALS_SNAME:
                 metrics.append(name)
-            elif self._defs.info[name].get("scope") in ("CPU", "core"):
+            elif self._mdo.info[name].get("scope") in ("CPU", "core"):
                 metrics.append(name)
         hw_cs_tab = build_ctab_cfg("Hardware", metrics)
 
@@ -82,23 +82,23 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add frequency D-tabs to a separate C-tab.
         metrics = []
-        for name in self._defs.categories["S-state"]:
+        for name in self._mdo.categories["S-state"]:
             metrics.append(name)
         sstates_tab = build_ctab_cfg("S-states", metrics)
 
         # Add temperature/power-related D-tabs to a separate C-tab.
-        all_tp_metrics = self._defs.categories["Power"] + self._defs.categories["Temperature"]
+        all_tp_metrics = self._mdo.categories["Power"] + self._mdo.categories["Temperature"]
         if sname == _TurbostatDFBuilder.TOTALS_SNAME:
             metrics = all_tp_metrics
         else:
             metrics = []
             for name in all_tp_metrics:
-                if self._defs.info[name].get("scope") in ("CPU", "core"):
+                if self._mdo.info[name].get("scope") in ("CPU", "core"):
                     metrics.append(name)
         tp_tab = build_ctab_cfg("Temperature / Power", metrics)
 
         # Add miscellaneous D-tabs to a separate C-tab.
-        metrics = self._defs.categories["Interrupts"] + self._defs.categories["Instructions"]
+        metrics = self._mdo.categories["Interrupts"] + self._mdo.categories["Instructions"]
         misc_tab = build_ctab_cfg("Misc", metrics)
 
         return TabConfig.CTabConfig(sname, ctabs=[freq_tab, cstates_tab, sstates_tab, tp_tab,
@@ -120,7 +120,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         metrics = set.union(*metric_sets)
 
         # Limit metrics to only those with definitions.
-        metrics.intersection_update(set(self._defs.info.keys()))
+        metrics.intersection_update(set(self._mdo.info.keys()))
 
         # Define which summary functions should be included in the summary table for each metric.
         smry_funcs = {}
@@ -190,12 +190,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics.append(metric)
                 metrics_set.add(metric)
 
-        defs = TurbostatMDC.TurbostatMDC(metrics)
-        super().__init__(dfs, outdir, basedir=basedir, defs=defs)
+        mdo = TurbostatMDC.TurbostatMDC(metrics)
+        super().__init__(dfs, outdir, basedir=basedir, mdo=mdo)
 
         for colname, metric in self._col2metric.items():
-            if metric not in self._defs.info:
+            if metric not in self._mdo.info:
                 continue
 
-            self._defs.info[colname] = self._defs.info[metric].copy()
-            self._defs.info[colname]["name"] = colname
+            self._mdo.info[colname] = self._mdo.info[metric].copy()
+            self._mdo.info[colname]["name"] = colname

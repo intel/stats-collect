@@ -124,6 +124,6 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         self._rsts = rsts
 
         dfs = self._construct_dfs()
-        defs = MDCBase.MDCBase("stats-collect", ToolInfo.TOOLNAME, info=_SPECJBB_DEFS)
+        mdo = MDCBase.MDCBase("stats-collect", ToolInfo.TOOLNAME, info=_SPECJBB_DEFS)
 
-        super().__init__(dfs, outdir, basedir=basedir, defs=defs)
+        super().__init__(dfs, outdir, basedir=basedir, mdo=mdo)

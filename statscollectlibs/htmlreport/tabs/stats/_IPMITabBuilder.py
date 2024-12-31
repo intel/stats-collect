@@ -48,7 +48,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             dtabs = []
             for colname in colnames:
                 category, metric = self._dfbldr.split_colname(colname)
-                if not metric or category not in self._defs.info:
+                if not metric or category not in self._mdo.info:
                     continue
                 dtabs.append(self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
                                                       self._hover_defs, title=metric))
@@ -115,7 +115,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         if len(found_stnames) > 1:
             _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected")
 
-        super().__init__(dfs, outdir, basedir=basedir, defs=mdo)
+        super().__init__(dfs, outdir, basedir=basedir, mdo=mdo)
 
         col_sets = [set(sdf.columns) for sdf in self._dfs.values()]
         self._common_colnames = set.union(*col_sets)
@@ -134,13 +134,13 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             self._categories[category].append(colname)
 
-            info = self._defs.info[category].copy()
+            info = self._mdo.info[category].copy()
             # Don't overwrite the 'title' attribute so that the metric name is shown in plots
             # and the summary table.
             info["fsname"] = MDCBase.get_fsname(colname)
             info["name"] = colname
             info["title"] = metric
-            self._defs.info[colname] = info
+            self._mdo.info[colname] = info
 
         # De-dubplicate column names.
         for colname in self._categories:

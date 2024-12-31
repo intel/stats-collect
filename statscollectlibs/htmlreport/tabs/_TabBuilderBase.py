@@ -96,7 +96,7 @@ class TabBuilderBase:
         dtabs = []
 
         for metric in metrics:
-            if metric not in self._defs.info:
+            if metric not in self._mdo.info:
                 continue
             dtabs.append(self._build_def_dtab_cfg(metric, def_x_metric, smry_funcs, hover_defs))
 
@@ -104,18 +104,18 @@ class TabBuilderBase:
 
     def _resolve_metric(self, metric):
         """
-        Resolve 'metric' to a metric definition dictionary from 'self._defs'. If 'metric' is already
+        Resolve 'metric' to a metric definition dictionary from 'self._mdo'. If 'metric' is already
         a metric definition dictionary, then do nothing. Else, try to find the relevant definition
-        dictionary from 'self._defs'.
+        dictionary from 'self._mdo'.
         """
 
         if MDCBase.is_mdef(metric):
             return metric
 
-        if metric not in self._defs.info:
+        if metric not in self._mdo.info:
             raise Error(f"BUG: unsupported metric '{metric}'")
 
-        return self._defs.info[metric]
+        return self._mdo.info[metric]
 
     def _add_plots(self, dtabconfig, tab):
         """Add plots to 'tab' based on the metrics specified in the configuration 'dtabconfig'."""
@@ -149,7 +149,7 @@ class TabBuilderBase:
 
         tab = _DTabBuilder.DTabBuilder(self._dfs, outdir, dtabconfig.name, self._basedir)
         tab = self._add_plots(dtabconfig, tab)
-        tab.add_smrytbl(dtabconfig.smry_funcs, self._defs)
+        tab.add_smrytbl(dtabconfig.smry_funcs, self._mdo)
         for alert in dtabconfig.alerts:
             tab.add_alert(alert)
 
@@ -220,7 +220,7 @@ class TabBuilderBase:
         raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
                     f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
 
-    def __init__(self, dfs, outdir, basedir=None, defs=None):
+    def __init__(self, dfs, outdir, basedir=None, mdo=None):
         """
         The class constructor. The arguments are as follows.
           * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where
@@ -229,8 +229,8 @@ class TabBuilderBase:
                      tab.
           * basedir - base directory of the report. All paths should be made relative to this.
                       Defaults to 'outdir'.
-          * defs - a '_MDCBase.MDCBase' instance containing definitions for the metrics which
-                   should be included in the output tab.
+          * mdo - a metrics definition object (a sub-class of '_MDCBase.MDCBase') containing
+                  definitions for the metrics which should be included in the output tab.
 
         Adding a statistics container tab will create a sub-directory and store tabs inside it.
         These tabs will represent all of the metrics stored in 'stats_file'.
@@ -246,7 +246,7 @@ class TabBuilderBase:
         self._dfs = dfs
         self._outdir = outdir / MDCBase.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
-        self._defs = defs
+        self._mdo = mdo
 
         try:
             self._outdir.mkdir(parents=True, exist_ok=True)
