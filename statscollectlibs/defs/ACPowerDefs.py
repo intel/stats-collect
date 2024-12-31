@@ -8,13 +8,13 @@
 
 """This module provides an API to the AC Power definitions (AKA 'defs')."""
 
-from statscollectlibs.defs import _STCDefsBase
+from statscollectlibs.defs import DefsBase
 
-class ACPowerDefs(_STCDefsBase.STCDefsBase):
+class ACPowerDefs(DefsBase.DefsBase):
     """This class provides an API to the AC Power definitions (AKA 'defs')."""
 
     def __init__(self):
         """The class constructor."""
 
-        super().__init__("acpower")
+        super().__init__("stats-collect", "acpower", defsdir="defs/statscollect")
         self.mangle()

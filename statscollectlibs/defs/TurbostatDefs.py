@@ -8,10 +8,10 @@
 
 """This module provides the API to turbostat metrics definitions (AKA 'defs')."""
 
-from statscollectlibs.defs import _STCDefsBase
+from statscollectlibs.defs import DefsBase
 from statscollectlibs.parsers import TurbostatParser
 
-class TurbostatDefs(_STCDefsBase.STCDefsBase):
+class TurbostatDefs(DefsBase.DefsBase):
     """This module provides API to turbostat metrics definitions (AKA 'defs')."""
 
     def mangle_descriptions(self):
@@ -49,14 +49,14 @@ class TurbostatDefs(_STCDefsBase.STCDefsBase):
     def __init__(self, metrics):
         """
         The class constructor. The arguments are as follows:
-         * metrics - a collection of metric names to use for substituting patterns in the metrics
-                     definition dictionary ('self.info').
+          * metrics - a collection of metric names to use for substituting patterns in the metrics
+                      definition dictionary ('self.info').
         """
 
         # Metric names arrange by the category.
         self.categories = {}
 
-        super().__init__("turbostat")
+        super().__init__("stats-collect", "turbostat", defsdir="defs/statscollect")
         self.mangle(metrics=metrics)
 
         self._categorize()

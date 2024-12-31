@@ -8,9 +8,9 @@
 
 """This module provides an API to the IPMI definitions (AKA 'defs')."""
 
-from statscollectlibs.defs import _STCDefsBase
+from statscollectlibs.defs import DefsBase
 
-class IPMIDefs(_STCDefsBase.STCDefsBase):
+class IPMIDefs(DefsBase.DefsBase):
     """This class provides an API to the IPMI definitions (AKA 'defs')."""
 
     @staticmethod
@@ -40,5 +40,5 @@ class IPMIDefs(_STCDefsBase.STCDefsBase):
     def __init__(self):
         """The class constructor."""
 
-        super().__init__("ipmi")
+        super().__init__("stats-collect", "ipmi", defsdir="defs/statscollect")
         super().mangle()
