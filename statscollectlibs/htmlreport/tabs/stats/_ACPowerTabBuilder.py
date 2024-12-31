@@ -10,7 +10,7 @@
 Provide the capability of populating the AC Power statistics tab.
 """
 
-from statscollectlibs.defs import ACPowerDefs
+from statscollectlibs.defs import ACPowerMDC
 from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 
@@ -55,4 +55,4 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[res.reportid] = res.load_stat(self.stname, dfbldr)
             self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
 
-        super().__init__(dfs, outdir, basedir=basedir, defs=ACPowerDefs.ACPowerDefs())
+        super().__init__(dfs, outdir, basedir=basedir, defs=ACPowerMDC.ACPowerMDC())

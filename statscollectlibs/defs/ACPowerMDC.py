@@ -6,12 +6,15 @@
 #
 # Author: Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides an API to the AC Power definitions (AKA 'defs')."""
+"""Provide the AC power metrics definition class."""
 
 from statscollectlibs.defs import MDCBase
 
-class ACPowerDefs(MDCBase.MDCBase):
-    """This class provides an API to the AC Power definitions (AKA 'defs')."""
+class ACPowerMDC(MDCBase.MDCBase):
+    """
+    The AC power metrics definition class provides API to AC power metrics definitions, which
+    describe the metrics provided by the "acpower" raw statistics files.
+    """
 
     def __init__(self):
         """The class constructor."""
