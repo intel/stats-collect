@@ -94,11 +94,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         # the results.
         self._common_colnames = set()
 
-        defs = IPMIMDC.IPMIMDC()
-        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(defs=defs)
+        mdo = IPMIMDC.IPMIMDC()
+        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(mdo=mdo)
 
         # The IPMI metric categories (e.g., "FanSpeed").
-        self._categories = {category: [] for category in defs.info}
+        self._categories = {category: [] for category in mdo.info}
 
         dfs = {}
         found_stnames = set()
@@ -115,7 +115,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         if len(found_stnames) > 1:
             _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected")
 
-        super().__init__(dfs, outdir, basedir=basedir, defs=defs)
+        super().__init__(dfs, outdir, basedir=basedir, defs=mdo)
 
         col_sets = [set(sdf.columns) for sdf in self._dfs.values()]
         self._common_colnames = set.union(*col_sets)

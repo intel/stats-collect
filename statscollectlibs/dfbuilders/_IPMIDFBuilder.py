@@ -38,7 +38,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         split = colname.split("-", 1)
         if len(split) < 2:
             return None, colname
-        if split[0] not in self._defs.info:
+        if split[0] not in self._mdo.info:
             raise Error(f"BUG: unknown IPMI categorey '{split[0]}")
 
         return split[0], split[1]
@@ -58,7 +58,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         for metric, val in parsed_dp.items():
             unit = val[1]
-            category = self._defs.get_category(unit)
+            category = self._mdo.get_category(unit)
             if category:
                 metric2colname[metric] = f"{category}-{metric}"
 
@@ -124,14 +124,14 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         sdf = sdf.rename(columns=metric2colname)
         return sdf
 
-    def __init__(self, defs=None):
+    def __init__(self, mdo=None):
         """
         The class constructor. The arguments are as follows.
-          * defs - the metrics definitions object ('IPMIMDC').
+          * mdo - the metrics definition object ('IPMIMDC' instance).
         """
 
-        self._defs = defs
-        if not self._defs:
-            self._defs = IPMIMDC.IPMIMDC()
+        self._mdo = mdo
+        if not self._mdo:
+            self._mdo = IPMIMDC.IPMIMDC()
 
         super().__init__("Time")
