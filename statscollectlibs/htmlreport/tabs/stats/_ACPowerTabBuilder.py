@@ -10,7 +10,7 @@
 Provide the capability of populating the AC Power statistics tab.
 """
 
-from statscollectlibs.defs import ACPowerMDC
+from statscollectlibs.mdc import ACPowerMDC
 from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 

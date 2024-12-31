@@ -14,7 +14,7 @@ import logging
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
-from statscollectlibs.defs import MDCBase
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.parsers import SPECjbb2015Parser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 

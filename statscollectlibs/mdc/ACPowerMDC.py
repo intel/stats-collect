@@ -8,7 +8,7 @@
 
 """Provide the AC power metrics definition class."""
 
-from statscollectlibs.defs import MDCBase
+from statscollectlibs.mdc import MDCBase
 
 class ACPowerMDC(MDCBase.MDCBase):
     """

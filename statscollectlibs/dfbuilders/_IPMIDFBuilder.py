@@ -19,7 +19,7 @@ Terminology.
 
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import IPMIMDC
+from statscollectlibs.mdc import IPMIMDC
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import IPMIParser
 

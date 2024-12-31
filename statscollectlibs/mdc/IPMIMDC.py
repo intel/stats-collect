@@ -8,7 +8,7 @@
 
 """Provide the IPMI metrics definition class."""
 
-from statscollectlibs.defs import MDCBase
+from statscollectlibs.mdc import MDCBase
 
 class IPMIMDC(MDCBase.MDCBase):
     """

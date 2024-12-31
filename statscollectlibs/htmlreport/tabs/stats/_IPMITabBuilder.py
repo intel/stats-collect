@@ -13,7 +13,7 @@ Provide the capability of populating the IPMI statistics tab.
 import logging
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import MDCBase, IPMIMDC
+from statscollectlibs.mdc import MDCBase, IPMIMDC
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 

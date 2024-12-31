@@ -8,7 +8,7 @@
 
 """Provide the turbostat metrics definition class."""
 
-from statscollectlibs.defs import MDCBase
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.parsers import TurbostatParser
 
 class TurbostatMDC(MDCBase.MDCBase):

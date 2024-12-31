@@ -13,7 +13,7 @@ stderr of the workload(s).
 
 import logging
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import MDCBase
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _Tabs
 
 _LOG = logging.getLogger()

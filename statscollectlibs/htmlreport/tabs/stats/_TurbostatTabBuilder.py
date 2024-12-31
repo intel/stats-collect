@@ -10,7 +10,7 @@
 Build and populate the turbostat statistics tab.
 """
 
-from statscollectlibs.defs import TurbostatMDC
+from statscollectlibs.mdc import TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
