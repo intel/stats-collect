@@ -40,23 +40,24 @@ class DTabBuilder:
        * 'get_tab()'
     """
 
-    def add_smrytbl(self, smry_funcs, defs):
+    def add_smrytbl(self, smry_funcs, mdo):
         """
         Construct a 'SummaryTable' to summarise the metrics in 'smry_funcs' in the results given
-        to the constructor as 'reports'. Arguments are as follows:
+        to the constructor as 'reports'. Arguments are as follows.
           * smry_funcs - a dictionary in the format '{metric: summary_func}', for example:
                          {Metric1: ["99.999%", "99.99%",...],
                           Metric2: ["max", "min",...]}
                          Note, 'summary_func' is allowed to be 'None', which means that no functions
                          will be applied to the metric, and can be used for metrics that have only
                          on value.
-         * defs - a 'MDCBase' instance containing the defs for the metrics in 'smry_funcs'.
+         * mdo - the metrics definition objects (sub-class of 'MDCBase') containing the definitions
+                 for the metrics in 'smry_funcs'.
         """
 
         self._smrytbl = _SummaryTable.SummaryTable()
 
         for metric, funcs in smry_funcs.items():
-            mdef = defs.info[metric]
+            mdef = mdo.info[metric]
             self._smrytbl.add_metric(mdef["title"], mdef.get("short_unit"), mdef.get("descr"),
                                      fmt="{:.2f}")
 
