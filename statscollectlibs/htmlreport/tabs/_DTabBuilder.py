@@ -13,7 +13,7 @@ This module provides the capability of populating a data tab.
 import logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
-from statscollectlibs.defs import DefsBase
+from statscollectlibs.defs import MDCBase
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
 
@@ -50,7 +50,7 @@ class DTabBuilder:
                          Note, 'summary_func' is allowed to be 'None', which means that no functions
                          will be applied to the metric, and can be used for metrics that have only
                          on value.
-         * defs - a 'DefsBase' instance containing the defs for the metrics in 'smry_funcs'.
+         * defs - a 'MDCBase' instance containing the defs for the metrics in 'smry_funcs'.
         """
 
         self._smrytbl = _SummaryTable.SummaryTable()
@@ -271,7 +271,7 @@ class DTabBuilder:
         self._reports = reports
         self.tabname = tabname
         # File system-friendly tab name.
-        self._fsname = DefsBase.get_fsname(self.tabname)
+        self._fsname = MDCBase.get_fsname(self.tabname)
 
         self._outdir = outdir / self._fsname
         self.smry_path = self._outdir / "summary-table.txt"

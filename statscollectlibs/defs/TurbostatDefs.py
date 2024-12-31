@@ -8,10 +8,10 @@
 
 """This module provides the API to turbostat metrics definitions (AKA 'defs')."""
 
-from statscollectlibs.defs import DefsBase
+from statscollectlibs.defs import MDCBase
 from statscollectlibs.parsers import TurbostatParser
 
-class TurbostatDefs(DefsBase.DefsBase):
+class TurbostatDefs(MDCBase.MDCBase):
     """This module provides API to turbostat metrics definitions (AKA 'defs')."""
 
     def mangle_descriptions(self):

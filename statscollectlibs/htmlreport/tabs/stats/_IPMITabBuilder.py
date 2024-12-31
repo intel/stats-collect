@@ -13,7 +13,7 @@ Provide the capability of populating the IPMI statistics tab.
 import logging
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import DefsBase, IPMIDefs
+from statscollectlibs.defs import MDCBase, IPMIDefs
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
@@ -137,7 +137,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             info = self._defs.info[category].copy()
             # Don't overwrite the 'title' attribute so that the metric name is shown in plots
             # and the summary table.
-            info["fsname"] = DefsBase.get_fsname(colname)
+            info["fsname"] = MDCBase.get_fsname(colname)
             info["name"] = colname
             info["title"] = metric
             self._defs.info[colname] = info

@@ -14,7 +14,7 @@ import logging
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
-from statscollectlibs.defs import DefsBase
+from statscollectlibs.defs import MDCBase
 from statscollectlibs.parsers import SPECjbb2015Parser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -124,6 +124,6 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         self._rsts = rsts
 
         dfs = self._construct_dfs()
-        defs = DefsBase.DefsBase("stats-collect", ToolInfo.TOOLNAME, info=_SPECJBB_DEFS)
+        defs = MDCBase.MDCBase("stats-collect", ToolInfo.TOOLNAME, info=_SPECJBB_DEFS)
 
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)

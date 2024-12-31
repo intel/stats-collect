@@ -10,11 +10,13 @@
 Provide the base class for metrics definition classes.
 
 Terminology.
-  * metrics definition class - an 'DefsBase' sub-class.
-  * metrics definition object - an object of a 'DefsBase' sub-class.
+  * metrics definition class - an 'MDCBase' sub-class.
+  * metrics definition object - an object of a 'MDCBase' sub-class.
   * metrics definition dictionary - the 'info' attribute of a metrics definition object, has metric
                                     names as keys and metric information as values. Typically
                                     populated form a metrics definition YAML file.
+  * metric definition - a dictionary describing a single metric. The metrics definition dictionary
+                        consists of metric definitions.
 """
 
 import re
@@ -49,7 +51,7 @@ def is_mdef(dct):
     except KeyError:
         return False
 
-class DefsBase:
+class MDCBase:
     """Provide the base class for metrics definition classes."""
 
     def _handle_pattern(self, metric, info):
@@ -143,7 +145,8 @@ class DefsBase:
         The class constructor. The arguments are as follows.
           * prjname - name of the project the metrics definition YAML file belongs to.
           * toolname - name of the tool or workload the metrics definition YAML file belong to.
-          * defsdir - path of directory containing metrics definition files, defaults to "defs".
+          * defsdir - path of directory containing metrics definition YAML files, defaults to
+                     "defs".
           * info - the metrics definition dictionary to use instead of loading it from the YAML
                    file.
         """

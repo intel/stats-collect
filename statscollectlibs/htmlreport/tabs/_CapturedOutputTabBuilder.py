@@ -13,7 +13,7 @@ stderr of the workload(s).
 
 import logging
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import DefsBase
+from statscollectlibs.defs import MDCBase
 from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _Tabs
 
 _LOG = logging.getLogger()
@@ -139,4 +139,4 @@ class CapturedOutputTabBuilder():
 
         self._rsts = rsts
         self._basedir = basedir if basedir else outdir
-        self._outdir = outdir / DefsBase.get_fsname(self.name)
+        self._outdir = outdir / MDCBase.get_fsname(self.name)

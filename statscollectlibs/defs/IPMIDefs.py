@@ -8,9 +8,9 @@
 
 """This module provides an API to the IPMI definitions (AKA 'defs')."""
 
-from statscollectlibs.defs import DefsBase
+from statscollectlibs.defs import MDCBase
 
-class IPMIDefs(DefsBase.DefsBase):
+class IPMIDefs(MDCBase.MDCBase):
     """This class provides an API to the IPMI definitions (AKA 'defs')."""
 
     @staticmethod

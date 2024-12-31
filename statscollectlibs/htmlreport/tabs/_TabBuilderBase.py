@@ -13,7 +13,7 @@ This module provides a base class and common logic for populating a group of sta
 from pathlib import Path
 import logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.defs import DefsBase
+from statscollectlibs.defs import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 
 _LOG = logging.getLogger()
@@ -108,7 +108,7 @@ class TabBuilderBase:
         dictionary from 'self._defs'.
         """
 
-        if DefsBase.is_mdef(metric):
+        if MDCBase.is_mdef(metric):
             return metric
 
         if metric not in self._defs.info:
@@ -179,7 +179,7 @@ class TabBuilderBase:
                              dtabconfig.name, self.name, err.indent(2))
 
         for subtab_cfg in ctabconfig.ctabs:
-            subdir = Path(outdir) / DefsBase.get_fsname(subtab_cfg.name)
+            subdir = Path(outdir) / MDCBase.get_fsname(subtab_cfg.name)
             subtab = self._build_ctab(subdir, subtab_cfg)
 
             if subtab:
@@ -230,7 +230,7 @@ class TabBuilderBase:
          * outdir - the output directory in which to create the sub-directory for the container tab.
          * basedir - base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
-         * defs - a '_DefsBase.DefsBase' instance containing definitions for the metrics which
+         * defs - a '_MDCBase.MDCBase' instance containing definitions for the metrics which
                   should be included in the output tab.
         """
 
@@ -242,7 +242,7 @@ class TabBuilderBase:
             raise ErrorNotFound(f"not data for '{self.name}'")
 
         self._dfs = dfs
-        self._outdir = outdir / DefsBase.get_fsname(self.name)
+        self._outdir = outdir / MDCBase.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
         self._defs = defs
 
