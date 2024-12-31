@@ -19,7 +19,7 @@ Terminology.
 
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import IPMIDefs
+from statscollectlibs.defs import IPMIMDC
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import IPMIParser
 
@@ -127,11 +127,11 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     def __init__(self, defs=None):
         """
         The class constructor. The arguments are as follows.
-          * defs - the metrics definitions object ('IPMIDefs').
+          * defs - the metrics definitions object ('IPMIMDC').
         """
 
         self._defs = defs
         if not self._defs:
-            self._defs = IPMIDefs.IPMIDefs()
+            self._defs = IPMIMDC.IPMIMDC()
 
         super().__init__("Time")

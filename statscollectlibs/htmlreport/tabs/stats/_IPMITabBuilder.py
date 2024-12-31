@@ -13,7 +13,7 @@ Provide the capability of populating the IPMI statistics tab.
 import logging
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.defs import MDCBase, IPMIDefs
+from statscollectlibs.defs import MDCBase, IPMIMDC
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
@@ -94,7 +94,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         # the results.
         self._common_colnames = set()
 
-        defs = IPMIDefs.IPMIDefs()
+        defs = IPMIMDC.IPMIMDC()
         self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(defs=defs)
 
         # The IPMI metric categories (e.g., "FanSpeed").
@@ -126,7 +126,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Currently the definitions include just category names. Change them to include metric
         # names.
-        # TODO: but this should be don in IPMIDefs instead. May be similarly to 'TurbostatDefs'.
+        # TODO: but this should be done in 'IPMIMDC' instead. May be similarly to 'TurbostatDefs'.
         for colname in self._common_colnames:
             category, metric = self._dfbldr.split_colname(colname)
             if not category:

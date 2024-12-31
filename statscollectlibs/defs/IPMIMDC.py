@@ -6,12 +6,15 @@
 #
 # Author: Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides an API to the IPMI definitions (AKA 'defs')."""
+"""Provide the IPMI metrics definition class."""
 
 from statscollectlibs.defs import MDCBase
 
-class IPMIDefs(MDCBase.MDCBase):
-    """This class provides an API to the IPMI definitions (AKA 'defs')."""
+class IPMIMDC(MDCBase.MDCBase):
+    """
+    The IPMI metrics definition class provides API to IPMI metrics definitions, which describe the
+    metrics provided by the IPMI raw statistics files.
+    """
 
     @staticmethod
     def get_category(unit):
