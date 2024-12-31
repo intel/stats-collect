@@ -6,13 +6,16 @@
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""This module provides the API to turbostat metrics definitions (AKA 'defs')."""
+"""Provide the turbostat metrics definition class."""
 
 from statscollectlibs.defs import MDCBase
 from statscollectlibs.parsers import TurbostatParser
 
-class TurbostatDefs(MDCBase.MDCBase):
-    """This module provides API to turbostat metrics definitions (AKA 'defs')."""
+class TurbostatMDC(MDCBase.MDCBase):
+    """
+    The turbostat metrics definition class provides API to turbostat metrics definitions, which
+    describe the metrics provided by the turbostat raw statistics files.
+    """
 
     def mangle_descriptions(self):
         """Mangle turbostat metric descriptions to describe how they are summarized by turbostat."""

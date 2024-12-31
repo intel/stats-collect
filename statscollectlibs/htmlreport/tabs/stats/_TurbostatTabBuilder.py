@@ -10,7 +10,7 @@
 Build and populate the turbostat statistics tab.
 """
 
-from statscollectlibs.defs import TurbostatDefs
+from statscollectlibs.defs import TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -190,7 +190,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics.append(metric)
                 metrics_set.add(metric)
 
-        defs = TurbostatDefs.TurbostatDefs(metrics)
+        defs = TurbostatMDC.TurbostatMDC(metrics)
         super().__init__(dfs, outdir, basedir=basedir, defs=defs)
 
         for colname, metric in self._col2metric.items():

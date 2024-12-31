@@ -126,7 +126,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Currently the definitions include just category names. Change them to include metric
         # names.
-        # TODO: but this should be done in 'IPMIMDC' instead. May be similarly to 'TurbostatDefs'.
+        # TODO: but this should be done in 'IPMIMDC' instead. May be similarly to 'TurbostatMDC'.
         for colname in self._common_colnames:
             category, metric = self._dfbldr.split_colname(colname)
             if not category:
