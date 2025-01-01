@@ -37,6 +37,11 @@ Voltage:
         IPMI.
     unit: "Volt"
     short_unit: "V"
+timestamp:
+    title: "Time-stamp"
+    descr: "The time since epoch value at the moment the measurement was recorded."
+    unit: "second"
+    short_unit: "s"
 Time:
     title: "Time Elapsed"
     descr: "Time elapsed since the start of the measurements."
