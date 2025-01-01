@@ -48,7 +48,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             dtabs = []
             for colname in colnames:
                 category, metric = self._dfbldr.split_colname(colname)
-                if not metric or category not in self._mdo.info:
+                if not metric or category not in self._mdd:
                     continue
                 dtabs.append(self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
                                                       self._hover_defs, title=metric))
@@ -115,18 +115,15 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         if len(found_stnames) > 1:
             _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected")
 
-        super().__init__(dfs, outdir, basedir=basedir, mdo=mdo)
-
-        col_sets = [set(sdf.columns) for sdf in self._dfs.values()]
+        col_sets = [set(sdf.columns) for sdf in dfs.values()]
         self._common_colnames = set.union(*col_sets)
 
         # One of the metrics must be the time, so min. 2 columns are required.
         if len(self._common_colnames) < 2:
             raise Error("unable to generate IPMI tab, no common IPMI metrics between reports")
 
-        # Currently the definitions include just category names. Change them to include metric
-        # names.
-        # TODO: but this should be done in 'IPMIMDC' instead. May be similarly to 'TurbostatMDC'.
+        # Currently the metrics definition dictionary includes only category names. Build one that
+        # contains all the metrics (same as dataframe column names).
         for colname in self._common_colnames:
             category, metric = self._dfbldr.split_colname(colname)
             if not category:
@@ -134,14 +131,16 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             self._categories[category].append(colname)
 
-            info = self._mdo.info[category].copy()
+            info = mdo.info[category].copy()
             # Don't overwrite the 'title' attribute so that the metric name is shown in plots
             # and the summary table.
             info["fsname"] = MDCBase.get_fsname(colname)
             info["name"] = colname
             info["title"] = metric
-            self._mdo.info[colname] = info
+            mdo.info[colname] = info
 
         # De-dubplicate column names.
         for colname in self._categories:
             self._categories[colname] = Trivial.list_dedup(self._categories[colname])
+
+        super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.info)

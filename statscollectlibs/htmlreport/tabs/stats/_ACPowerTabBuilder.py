@@ -55,4 +55,5 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[res.reportid] = res.load_stat(self.stname, dfbldr)
             self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
 
-        super().__init__(dfs, outdir, basedir=basedir, mdo=ACPowerMDC.ACPowerMDC())
+        mdo=ACPowerMDC.ACPowerMDC()
+        super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.info)

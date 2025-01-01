@@ -32,7 +32,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             tab_metrics = [col for col, raw in self._col2metric.items() if raw in tab_metrics]
             dtabs = []
             for metric in tab_metrics:
-                if metric not in self._mdo.info or metric not in colnames:
+                if metric not in self._mdd or metric not in colnames:
                     continue
                 dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
                                                 self._hover_defs, title=self._col2metric[metric])
@@ -120,7 +120,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         metrics = set.union(*metric_sets)
 
         # Limit metrics to only those with definitions.
-        metrics.intersection_update(set(self._mdo.info.keys()))
+        metrics.intersection_update(set(self._mdd.keys()))
 
         # Define which summary functions should be included in the summary table for each metric.
         smry_funcs = {}
@@ -138,8 +138,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 continue
             if sname not in categorised_metrics:
                 categorised_metrics[sname] = {metric}
-            else:
-                categorised_metrics[sname].add(metric)
+            categorised_metrics[sname].add(metric)
 
         l2_tabs = []
         for sname, scope_metrics in categorised_metrics.items():
@@ -174,6 +173,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         outdir = outdir / self.name
         self._time_metric = "Time"
         self._hover_defs = {}
+        self._mdo = None
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
@@ -190,12 +190,15 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics.append(metric)
                 metrics_set.add(metric)
 
-        mdo = TurbostatMDC.TurbostatMDC(metrics)
-        super().__init__(dfs, outdir, basedir=basedir, mdo=mdo)
+        self._mdo = TurbostatMDC.TurbostatMDC(metrics)
+        mdd = {}
 
         for colname, metric in self._col2metric.items():
             if metric not in self._mdo.info:
                 continue
 
-            self._mdo.info[colname] = self._mdo.info[metric].copy()
-            self._mdo.info[colname]["name"] = colname
+            mdd[colname] = self._mdo.info[metric].copy()
+            mdd[colname]["name"] = colname
+
+        mdd[self._time_metric] = self._mdo.info[self._time_metric].copy()
+        super().__init__(dfs, outdir, basedir=basedir, mdd=mdd)

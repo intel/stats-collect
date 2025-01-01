@@ -40,7 +40,7 @@ class DTabBuilder:
        * 'get_tab()'
     """
 
-    def add_smrytbl(self, smry_funcs, mdo):
+    def add_smrytbl(self, smry_funcs, mdd):
         """
         Construct a 'SummaryTable' to summarise the metrics in 'smry_funcs' in the results given
         to the constructor as 'reports'. Arguments are as follows.
@@ -50,19 +50,18 @@ class DTabBuilder:
                          Note, 'summary_func' is allowed to be 'None', which means that no functions
                          will be applied to the metric, and can be used for metrics that have only
                          on value.
-         * mdo - the metrics definition objects (sub-class of 'MDCBase') containing the definitions
-                 for the metrics in 'smry_funcs'.
+         * mdd - the metrics definition dictionary describing the metrics in 'smry_funcs'.
         """
 
         self._smrytbl = _SummaryTable.SummaryTable()
 
         for metric, funcs in smry_funcs.items():
-            mdef = mdo.info[metric]
-            self._smrytbl.add_metric(mdef["title"], mdef.get("short_unit"), mdef.get("descr"),
+            md = mdd[metric]
+            self._smrytbl.add_metric(md["title"], md.get("short_unit"), md.get("descr"),
                                      fmt="{:.2f}")
 
             for rep, df in self._dfs.items():
-                mname = mdef["name"]
+                mname = md["name"]
 
                 # Only try to calculate summary values if result 'rep' contains data for the metric.
                 if mname not in df:
@@ -70,7 +69,7 @@ class DTabBuilder:
                 if funcs:
                     smry_dict = DFSummary.calc_col_smry(df, mname, funcs)
                     for funcname in funcs:
-                        self._smrytbl.add_smry_func(rep, mdef["title"], smry_dict[funcname],
+                        self._smrytbl.add_smry_func(rep, md["title"], smry_dict[funcname],
                                                     funcname=funcname)
                 else:
                     # Special case: there is only one metric value, so no functions can be applied.
@@ -78,7 +77,7 @@ class DTabBuilder:
                         raise Error(f"BUG: no functions were specified for metric '{metric}', "
                                     f"but there is more than one metric value.")
                     val = df[metric][0]
-                    self._smrytbl.add_smry_func(rep, mdef["title"], val, funcname=None)
+                    self._smrytbl.add_smry_func(rep, md["title"], val, funcname=None)
 
         try:
             self._smrytbl.generate(self.smry_path)
