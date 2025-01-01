@@ -32,11 +32,8 @@ class IPMIMDC(MDCBase.MDCBase):
             "RPM": "FanSpeed",
             "degrees C": "Temperature",
             "Watts": "Power",
-            "Watt": "Power",
             "Amps": "Current",
-            "Amp": "Current",
             "Volts": "Voltage",
-            "Volt": "Voltage"
         }
         return unit2category.get(unit)
 
