@@ -240,6 +240,11 @@ IPC:
     type: "int"
     scope: "CPU"
     categories: ["Instructions"]
+Time_Of_Day_Seconds:
+    title: "Time-stamp"
+    descr: "The time since epoch value at the moment the measurement was recorded."
+    unit: "second"
+    short_unit: "s"
 TimeElapsed:
     title: "Time Elapsed"
     descr: >-

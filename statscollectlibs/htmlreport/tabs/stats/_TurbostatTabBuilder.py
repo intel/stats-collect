@@ -10,6 +10,7 @@
 Build and populate the turbostat statistics tab.
 """
 
+import pandas
 from statscollectlibs.mdc import TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
@@ -29,13 +30,16 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         def build_ctab_cfg(ctab_name, tab_metrics):
             """Build a C-tab config named 'ctab_name' for 'tab_metrics'."""
 
-            tab_metrics = [col for col, raw in self._col2metric.items() if raw in tab_metrics]
+            time_metric = f"{sname}-{self._time_metric}"
             dtabs = []
             for metric in tab_metrics:
-                if metric not in self._mdd or metric not in colnames:
+                colname = f"{sname}-{metric}"
+                if colname not in self._mdd or colname not in colnames:
                     continue
-                dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
-                                                self._hover_defs, title=self._col2metric[metric])
+
+                print(colname, time_metric)
+                dtab = self._build_def_dtab_cfg(colname, time_metric, smry_funcs,
+                                                self._hover_defs, title=metric)
                 dtabs.append(dtab)
             return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
 
@@ -170,10 +174,9 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                    included in the built tab.
         """
 
-        outdir = outdir / self.name
-        self._time_metric = "TimeElapsed"
         self._hover_defs = {}
         self._mdo = None
+        self._time_metric = "TimeElapsed"
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
@@ -193,12 +196,21 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._mdo = TurbostatMDC.TurbostatMDC(metrics)
         mdd = {}
 
+        time_colnames = []
         for colname, metric in self._col2metric.items():
             if metric not in self._mdo.mdd:
                 continue
 
+            if metric == "TimeElapsed":
+                time_colnames.append(colname)
             mdd[colname] = self._mdo.mdd[metric].copy()
             mdd[colname]["name"] = colname
 
-        mdd[self._time_metric] = self._mdo.mdd[self._time_metric].copy()
+        outdir = outdir / self.name
         super().__init__(dfs, outdir, basedir=basedir, mdd=mdd)
+
+        for time_colname in time_colnames:
+            # Convert the elapsed time columns to the "datetime" format so that diagrams use a
+            # human-readable format.
+            for df in dfs.values():
+                df[time_colname] = pandas.to_datetime(df[time_colname], unit="s")

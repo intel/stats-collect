@@ -72,8 +72,6 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         self.mdo = IPMIMDC.IPMIMDC(parsed_dp)
 
         include_metrics = set(self.mdo.mdd.keys())
-        for metric in self._exclude_metrics:
-            include_metrics.discard(metric)
 
         sdf = self._ipmi_to_df(parsed_dp, include_metrics=include_metrics)
 
@@ -84,17 +82,8 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return sdf
 
-    def __init__(self, exclude_metrics=None):
-        """
-        The class constructor. The arguments are as follows.
-          * exclude_metrics - an iterable collection of IPMI metric names to exclude from the
-            dataframe.
-        """
+    def __init__(self):
+        """The class constructor."""
 
-        self._exclude_metrics = exclude_metrics
         self.mdo = None
-
-        if not self._exclude_metrics:
-            self._exclude_metrics = []
-
-        super().__init__("TimeElapsed")
+        super().__init__("timestamp")

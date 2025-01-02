@@ -10,8 +10,8 @@
 Provide the base class and common logic for populating a group of statistics tabs.
 """
 
-from pathlib import Path
 import logging
+from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig

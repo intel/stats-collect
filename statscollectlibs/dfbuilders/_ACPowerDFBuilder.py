@@ -29,12 +29,20 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         try:
             # 'skipfooter' parameter only available with Python the pandas engine.
-            return pandas.read_csv(path, skipfooter=1, engine="python", dtype="float64")
+            df = pandas.read_csv(path, skipfooter=1, engine="python", dtype="float64")
         except (pandas.errors.ParserError, ValueError) as err:
             # Failed 'dtype' conversion can cause 'ValueError', otherwise most parsing exceptions
             # are of type 'pandas.errors.ParserError'.
             msg = Error(err).indent(2)
             raise Error(f"unable to parse CSV '{path}':\n{msg}.") from err
+
+        if "T" not in df.columns:
+            raise Error(f"the 'T' (time-stamp) column was not found in AC power CSV file '{path}")
+
+        # Add the 'ElapsedTime' column for the time elapsed since the beginning of measurements.
+        time_metric = "TimeElapsed"
+        df[time_metric] = df["T"] - df["T"].iloc[0]
+        return df
 
     def __init__(self):
         """The class constructor."""

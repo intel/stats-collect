@@ -11,6 +11,7 @@ Provide the capability of populating the IPMI statistics tab.
 """
 
 import logging
+import pandas
 from pepclibs.helperlibs import Trivial
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
@@ -134,10 +135,9 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                    included in the built tab.
         """
 
-        self._time_metric = "TimeElapsed"
-        self._exclude_metrics = ("timestamp",)
         self._dfbldr = None
         self._hover_defs = {}
+        self._time_metric = "TimeElapsed"
 
         # Metric definition dictionary for all metrics in all raw results.
         self._mdd = {}
@@ -147,10 +147,15 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._message_if_mixed(rsts)
 
-        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(exclude_metrics=self._exclude_metrics)
+        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
         dfs = self._load_dfs(rsts)
 
         # There will be C-tab for each category, except for the time-stamps.
         del self._categories["Timestamp"]
 
         super().__init__(dfs, outdir, basedir=basedir, mdd=self._mdd)
+
+        # Convert the elapsed time metric to the "datetime" format so that diagrams use a
+        # human-readable format.
+        for df in self._dfs.values():
+            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")

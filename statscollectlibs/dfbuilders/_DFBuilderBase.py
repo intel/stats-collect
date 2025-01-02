@@ -37,9 +37,9 @@ class DFBuilderBase:
           * labels - list of label dictionaries.
         """
 
-        time_col = df[self._time_metric]
+        ts_col = df[self._ts_metric]
 
-        if labels[0]["ts"] > time_col.iloc[-1]:
+        if labels[0]["ts"] > ts_col.iloc[-1]:
             raise Error("first label's timestamp is after the last datapoint was measured")
 
         lcnt = len(labels)
@@ -47,14 +47,14 @@ class DFBuilderBase:
 
         for i, label in enumerate(labels):
             # 'filtered_rows' contains an index of all of the datapoints which 'label' applies to.
-            filtered_rows = time_col >= label["ts"]
+            filtered_rows = ts_col >= label["ts"]
 
             if i < lcnt - 1:
                 # Only one label is applicable at a time. Therefore, if there is still at least one
                 # label to apply, only apply 'label' to datapoints before the next one is
                 # applicable.
                 next_label = labels[i + 1]
-                filtered_rows &= time_col < next_label["ts"]
+                filtered_rows &= ts_col < next_label["ts"]
 
             if label["name"] == "skip":
                 # Datapoints labelled 'skip' are dropped from the 'pandas.DataFrame'.
@@ -117,9 +117,8 @@ class DFBuilderBase:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
                         f"{Error(err).indent(2)}") from err
 
-        # Confirm that the time column is in the 'pandas.DataFrame'.
-        if self._time_metric not in sdf:
-            raise Error(f"column '{self._time_metric}' not found in statistics file '{path}'.")
+        if self._ts_metric not in sdf:
+            raise Error(f"metric '{self._ts_metric}' was not found in statistics file '{path}'.")
 
         if labels:
             self._apply_labels(sdf, labels)
@@ -134,19 +133,14 @@ class DFBuilderBase:
             # indexing. Reset the index to avoid any of these problems.
             sdf.reset_index(inplace=True)
 
-        # Convert Time column from time stamp to time since the first data point was recorded.
-        sdf[self._time_metric] = sdf[self._time_metric] - sdf[self._time_metric].iloc[0]
-        sdf[self._time_metric] = pandas.to_datetime(sdf[self._time_metric], unit="s")
-
         self.df = sdf
         return self.df
 
-    def __init__(self, time_metric):
+    def __init__(self, ts_metric):
         """
         The class constructor. The arguments are as follows.
-          * time_metric - the name of the metric which represents the time at which the datapoints
-                          in the raw statistics file(s) were recorded.
+          * ts_metric - name of the time since the epoch metric.
         """
 
         self.df = None
-        self._time_metric = time_metric
+        self._ts_metric = ts_metric

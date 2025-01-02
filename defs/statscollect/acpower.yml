@@ -11,6 +11,11 @@ P:
     unit: "Watt"
     short_unit: "W"
 T:
+    title: "Time-stamp"
+    descr: "The time since epoch value at the moment the measurement was recorded."
+    unit: "second"
+    short_unit: "s"
+TimeElapsed:
     title: "Time Elapsed"
     descr: "Time elapsed since the start of the measurements."
     unit: "second"

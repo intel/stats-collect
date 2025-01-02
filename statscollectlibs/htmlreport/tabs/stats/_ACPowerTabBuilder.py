@@ -10,6 +10,7 @@
 Provide the capability of populating the AC Power statistics tab.
 """
 
+import pandas
 from statscollectlibs.mdc import ACPowerMDC
 from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
@@ -27,11 +28,10 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         """
 
         power_metric = "P"
-        time_metric = "T"
 
         smry_funcs = {power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",
                                      "min", "std"]}
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, time_metric, smry_funcs, None)
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, smry_funcs, None)
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name
@@ -45,6 +45,8 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
                    included in the built tab.
         """
 
+        self._time_metric = "TimeElapsed"
+
         dfs = {}
         dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
         self._hover_defs = {}
@@ -55,5 +57,10 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[res.reportid] = res.load_stat(self.stname, dfbldr)
             self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
 
-        mdo=ACPowerMDC.ACPowerMDC()
+        mdo = ACPowerMDC.ACPowerMDC()
         super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.mdd)
+
+        # Convert the elapsed time metric to the "datetime" format so that diagrams use a
+        # human-readable format.
+        for df in self._dfs.values():
+            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")

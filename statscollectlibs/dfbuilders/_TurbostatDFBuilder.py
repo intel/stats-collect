@@ -44,7 +44,10 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
           * totals - a boolean indicating whether the 'tstat' dictionary contains totals data.
         """
 
-        renamed_tstat = {self._time_metric: [tstat["Time_Of_Day_Seconds"]]}
+        renamed_tstat = {}
+        renamed_tstat[self._ts_metric] = [tstat[self._ts_metric]]
+        renamed_tstat["TimeElapsed"] = [tstat["TimeElapsed"]]
+
         for metric, value in tstat.items():
             colprefix = TOTALS_SNAME if totals else f"CPU{self._cpunum}"
             colname = f"{colprefix}-{metric}"
@@ -129,4 +132,4 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         # 'CPU%c1'.
         self.col2metric = {}
 
-        super().__init__("TimeElapsed")
+        super().__init__("Time_Of_Day_Seconds")
