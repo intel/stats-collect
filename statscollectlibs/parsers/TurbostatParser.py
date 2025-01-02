@@ -67,7 +67,7 @@ def get_totals_func_name(metric):
     if metric.endswith("Tmp"):
         return "max"
     # The time-stamp.
-    if metric == "Time_Of_Day_Seconds":
+    if metric in ("Time_Of_Day_Seconds", "TimeElapsed"):
         return "min"
     # The average and busy frequencies are averaged using C0 residency (Busy%) as weights.
     if metric in ("Avg_MHz", "Bzy_MHz"):
@@ -156,9 +156,14 @@ class TurbostatParser(_ParserBase.ParserBase):
         """
 
         if self._derivatives:
+            if self._time_elapsed_metric:
+                summary = self._summarize_metric(tdict, self._time_elapsed_metric, "system")
+                tdict["totals"][self._time_elapsed_metric] = summary
+
             if self._pkgwatt_tdp_metric:
                 summary = self._summarize_metric(tdict, self._pkgwatt_tdp_metric, "system")
                 tdict["totals"][self._pkgwatt_tdp_metric] = summary
+
             iterator = self._get_requestable_cstate_metrics(tdict["totals"])
             for _, rate_metric, time_metric, _ in iterator:
                 tdict["totals"][rate_metric] = self._summarize_metric(tdict, rate_metric, "system")
@@ -304,15 +309,21 @@ class TurbostatParser(_ParserBase.ParserBase):
         for metric in self._metrics["system"]:
             self._metric2fname[metric] = get_totals_func_name(metric)
 
+        if not self._derivatives:
+            return
+
+        if self._time_elapsed_metric:
+            totals_fname = get_totals_func_name(self._time_elapsed_metric)
+            self._metric2fname[self._time_elapsed_metric] = totals_fname
+
         if self._pkgwatt_tdp_metric:
             totals_fname = get_totals_func_name(self._pkgwatt_tdp_metric)
             self._metric2fname[self._pkgwatt_tdp_metric] = totals_fname
 
-        if self._derivatives:
-            iterator = self._get_requestable_cstate_metrics(self._metrics["system"])
-            for _, rate_metric, time_metric, _ in iterator:
-                self._metric2fname[rate_metric] = get_totals_func_name(rate_metric)
-                self._metric2fname[time_metric] = get_totals_func_name(time_metric)
+        iterator = self._get_requestable_cstate_metrics(self._metrics["system"])
+        for _, rate_metric, time_metric, _ in iterator:
+            self._metric2fname[rate_metric] = get_totals_func_name(rate_metric)
+            self._metric2fname[time_metric] = get_totals_func_name(time_metric)
 
     def _add_cstate_derivatives(self, info, prev_info):
         """Add a derivative C-state metrics to the 'info' metrics dictionary."""
@@ -361,6 +372,9 @@ class TurbostatParser(_ParserBase.ParserBase):
     def _update_heading2type(self, tdict):
         """Update the '_heading2type' dictionary with derivative metrics."""
 
+        if self._time_elapsed_metric:
+            self._heading2type[self._time_elapsed_metric] = float
+
         if self._pkgwatt_tdp_metric:
             self._heading2type[self._pkgwatt_tdp_metric] = float
 
@@ -379,6 +393,10 @@ class TurbostatParser(_ParserBase.ParserBase):
         C-states requests rate.
         """
 
+        if self._time_elapsed_metric:
+            if "Time_Of_Day_Seconds" not in self._heading2type:
+                self._time_elapsed_metric = None
+
         if self._pkgwatt_tdp_metric:
             if "PkgWatt" not in self._heading2type:
                 self._pkgwatt_tdp_metric = None
@@ -391,6 +409,14 @@ class TurbostatParser(_ParserBase.ParserBase):
         if not self._heading2type_updated:
             self._update_heading2type(tdict)
             self._heading2type_updated = True
+
+        if self._time_elapsed_metric:
+            tods = "Time_Of_Day_Seconds"
+            if self._first_ts is None:
+                # Calculate the smallest time-stamp value.
+                self._first_ts = min([cpuinfo[tods] for cpuinfo in tdict["cpus"].values()])
+            for cpuinfo in tdict["cpus"].values():
+                cpuinfo[self._time_elapsed_metric] = cpuinfo[tods] - self._first_ts
 
         if self._pkgwatt_tdp_metric:
             for pkginfo in tdict["packages"].values():
@@ -742,9 +768,12 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         self._derivatives = derivatives
         self._pkgwatt_tdp_metric = None
+        self._time_elapsed_metric = None
+        self._first_ts = None
 
         if self._derivatives:
             self._pkgwatt_tdp_metric = "PkgWatt%TDP"
+            self._time_elapsed_metric = "TimeElapsed"
 
         # The last read turbostat line.
         self._orig_line = None
