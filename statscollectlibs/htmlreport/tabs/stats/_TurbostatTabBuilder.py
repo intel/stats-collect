@@ -171,7 +171,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         """
 
         outdir = outdir / self.name
-        self._time_metric = "Time"
+        self._time_metric = "TimeElapsed"
         self._hover_defs = {}
         self._mdo = None
 

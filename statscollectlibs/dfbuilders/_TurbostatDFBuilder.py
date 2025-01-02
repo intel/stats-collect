@@ -129,4 +129,4 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         # 'CPU%c1'.
         self.col2metric = {}
 
-        super().__init__("Time")
+        super().__init__("TimeElapsed")

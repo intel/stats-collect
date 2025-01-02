@@ -240,7 +240,7 @@ IPC:
     type: "int"
     scope: "CPU"
     categories: ["Instructions"]
-Time:
+TimeElapsed:
     title: "Time Elapsed"
     descr: >-
         Time elapsed since the start of the measurements. Derived from the "Time_Of_Day_Seconds"
