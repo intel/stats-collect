@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2014-2024 Intel Corporation
+# Copyright (C) 2014-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Erik Veijola <erik.veijola@intel.com>
 #         Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module implements parsing for the output of the "ipmitool" utility. The input file may contain
-multiple snapshots of measurement data which we call "data sets". The data sets are always separated
-with the "timestamp | XYZ" lines.
+Parse raw IPMI statistics, which may contain multiple snapshots of 'ipmitool' output (data sets),
+separated with the "timestamp | <time_since_epoch>" lines.
 """
 
 import re
@@ -19,10 +18,10 @@ from pepclibs.helperlibs.Exceptions import ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
 
 class IPMIParser(_ParserBase.ParserBase):
-    """This class represents the IPMI parser."""
+    """Parse raw IPMI statistics."""
 
     def _next_entry(self):
-        """Generator which yields entries from IPMI log files."""
+        """Yield entries from raw IPMI statistics."""
 
         # Example of a line with the timestamp format:
         # timestamp | 1705672515.054093
@@ -56,11 +55,19 @@ class IPMIParser(_ParserBase.ParserBase):
                     else:
                         yield (match.group(1).strip(), None, None)
 
+    def _add_derivatives(self, data_set):
+        """"Add derivative metrics to the data set."""
+
+        if not self._derivatives:
+            return
+
+        if self._first_ts is None:
+            self._first_ts = data_set["timestamp"]
+
+        data_set["TimeElapsed"] = (data_set["timestamp"][0] - self._first_ts[0], self._first_ts[1])
+
     def _next(self):
-        """
-        Generator which yields a dictionary corresponding to one snapshot of ipmitool output at a
-        time.
-        """
+        """Yield a dictionary corresponding to one snapshot of ipmitool output at a time."""
 
         data_set = {}
         duplicates = {}
@@ -76,11 +83,25 @@ class IPMIParser(_ParserBase.ParserBase):
                 data_set[key] = entry[1:]
             else:
                 if data_set:
+                    self._add_derivatives(data_set)
                     yield data_set
 
                 data_set = {key: entry[1:]}
                 duplicates = {}
-                data_set[key] = entry[1:]
 
-        # Yield the last data point, which is not followed by another timestamp.
+        # Yield the last data set.
+        self._add_derivatives(data_set)
         yield data_set
+
+    def __init__(self, path=None, lines=None, derivatives=False):
+        """
+        The class constructor. Arguments are as follows.
+          * path - same as in ParserBase.__init__().
+          * lines - same as in ParserBase.__init__().
+          * derivatives - whether the derivative metrics should be added.
+        """
+
+        self._derivatives = derivatives
+        self._first_ts = None
+
+        super().__init__(path, lines)

@@ -12,8 +12,6 @@ Provide the capability of populating the IPMI statistics tab.
 
 import logging
 from pepclibs.helperlibs import Trivial
-from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.mdc import MDCBase, IPMIMDC
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
@@ -42,63 +40,38 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
         """
 
-        def build_ctab_cfg(colnames, ctab_name):
-            """Construct an IPMI container tab called 'ctab_name' for each column in 'colnames'."""
+        def _build_ctab_cfg(category, metrics):
+            """
+            Construct an C-tab (container tab) for category 'category' (e.g., "Power") and for every
+            metric in 'metrics', add a D-tab to tha C-tab.
+            """
 
             dtabs = []
-            for colname in colnames:
-                category, metric = self._dfbldr.split_colname(colname)
-                if not metric or category not in self._mdd:
-                    continue
-                dtabs.append(self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
-                                                      self._hover_defs, title=metric))
+            for metric in metrics:
+                dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
+                                                self._hover_defs, title=metric)
+                dtabs.append(dtab)
 
-            return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
+            return TabConfig.CTabConfig(category, dtabs=dtabs)
 
-        # Define which summary functions should be included in the generated summary table
-        # for a given metric.
+        # Define which summary functions should be included in the generated summary table.
         smry_funcs = {}
-        for colname in self._common_colnames:
-            smry_funcs[colname] = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min",
-                                   "std"]
+        for metric in self._mdd:
+            smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min",
+                                  "std"]
 
         ctabs = []
-        # Add fan speed-related D-tabs to a separate C-tab.
-        fspeed_cols = [col for col in self._categories["FanSpeed"] if col in self._common_colnames]
-        ctabs.append(build_ctab_cfg(fspeed_cols, "FanSpeed"))
 
-        # Add temperature-related D-tabs to a separate C-tab.
-        temp_cols = [col for col in self._categories["Temperature"] if col in self._common_colnames]
-        ctabs.append(build_ctab_cfg(temp_cols, "Temperature"))
-
-        # Add power-related D-tabs to a separate C-tab.
-        pwr_cols = self._categories["Power"] + self._categories["Current"] + \
-                                               self._categories["Voltage"]
-        ctabs.append(build_ctab_cfg(pwr_cols, "Power"))
+        for category, metrics in self._categories.items():
+            ctab = _build_ctab_cfg(category, metrics)
+            ctabs.append(ctab)
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 
-    def __init__(self, rsts, outdir, basedir=None):
+    def _load_dfs(self, rsts):
         """
-        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
-        except for the following.
-          * rsts - an iterable collection of 'RORawResult' instances for which data should be
-                   included in the built tab.
+        Load dataframes from raw IPMI statistics files in 'rsts'. Return the datafames dictionary.
         """
-
-        self._time_metric = "Time"
-        self._dfbldr = None
-        self._hover_defs = {}
-
-        # Different results include different IPMI metrics. This is the set of metrics common to all
-        # the results.
-        self._common_colnames = set()
-
-        mdo = IPMIMDC.IPMIMDC()
-        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(mdo=mdo)
-
-        # The IPMI metric categories (e.g., "FanSpeed").
-        self._categories = {category: [] for category in mdo.mdd}
 
         dfs = {}
         found_stnames = set()
@@ -108,6 +81,14 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                     continue
 
                 dfs[res.reportid] = res.load_stat(stname, self._dfbldr)
+
+                self._mdd.update(self._dfbldr.mdo.mdd)
+
+                for category, cat_metrics in self._dfbldr.mdo.categories.items():
+                    if category not in self._categories:
+                        self._categories[category] = []
+                    self._categories[category] = cat_metrics
+
                 self._hover_defs[res.reportid] = res.get_label_defs(stname)
                 found_stnames.add(stname)
                 break
@@ -115,32 +96,34 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         if len(found_stnames) > 1:
             _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected")
 
-        col_sets = [set(sdf.columns) for sdf in dfs.values()]
-        self._common_colnames = set.union(*col_sets)
+        for category in self._categories:
+            self._categories[category] = Trivial.list_dedup(self._categories[category])
 
-        # One of the metrics must be the time, so min. 2 columns are required.
-        if len(self._common_colnames) < 2:
-            raise Error("unable to generate IPMI tab, no common IPMI metrics between reports")
+        return dfs
 
-        # Currently the metrics definition dictionary includes only category names. Build one that
-        # contains all the metrics (same as dataframe column names).
-        for colname in self._common_colnames:
-            category, metric = self._dfbldr.split_colname(colname)
-            if not category:
-                continue
+    def __init__(self, rsts, outdir, basedir=None):
+        """
+        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
+        except for the following.
+          * rsts - an iterable collection of 'RORawResult' instances for which data should be
+                   included in the built tab.
+        """
 
-            self._categories[category].append(colname)
+        self._time_metric = "TimeElapsed"
+        self._exclude_metrics = ("timestamp",)
+        self._dfbldr = None
+        self._hover_defs = {}
 
-            info = mdo.mdd[category].copy()
-            # Don't overwrite the 'title' attribute so that the metric name is shown in plots
-            # and the summary table.
-            info["fsname"] = MDCBase.get_fsname(colname)
-            info["name"] = colname
-            info["title"] = metric
-            mdo.mdd[colname] = info
+        # Metric definition dictionary for all metrics in all raw results.
+        self._mdd = {}
+        # Categories dictionary for all metrics in all results. Keys are the category name, values
+        # are list of IPMI metrics belonging to the category.
+        self._categories = {}
 
-        # De-dubplicate column names.
-        for colname in self._categories:
-            self._categories[colname] = Trivial.list_dedup(self._categories[colname])
+        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(exclude_metrics=self._exclude_metrics)
+        dfs = self._load_dfs(rsts)
 
-        super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.mdd)
+        # There will be C-tab for each category, except for the time-stamps.
+        del self._categories["Timestamp"]
+
+        super().__init__(dfs, outdir, basedir=basedir, mdd=self._mdd)

@@ -28,42 +28,6 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
     """
 
-    def split_colname(self, colname):
-        """
-        Split column name and return a tuple of category name, metric name. The arguments are as
-        follows.
-          * colname - the dataframe column name to decode.
-        """
-
-        split = colname.split("-", 1)
-        if len(split) < 2:
-            return None, colname
-        if split[0] not in self._mdo.mdd:
-            raise Error(f"BUG: unknown IPMI categorey '{split[0]}")
-
-        return split[0], split[1]
-
-    def _get_metric2colname(self, parsed_dp):
-        """
-        Build and return the metric name -> column name dictionary. The dictionary keys are metric
-        names from the 'parsed_dp' dictionary (yielded by 'IPMIParser'). The values are the
-        dataframe column names.
-
-        The column names are basically metric names prefixed with the category name. For example, if
-        metric "Fan1" is from the 'FanSpeed' category, its column name is going to be
-        "FanSpeed-Fan1".
-        """
-
-        metric2colname = {}
-
-        for metric, val in parsed_dp.items():
-            unit = val[1]
-            category = self._mdo.get_category(unit)
-            if category:
-                metric2colname[metric] = f"{category}-{metric}"
-
-        return metric2colname
-
     @staticmethod
     def _ipmi_to_df(parsed_dp, include_metrics=None):
         """
@@ -95,7 +59,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         file at 'path'.
         """
 
-        parser = IPMIParser.IPMIParser(path).next()
+        parser = IPMIParser.IPMIParser(path, derivatives=True).next()
 
         try:
             # Read the first data point from raw statistics file.
@@ -105,33 +69,32 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             raise Error(f"empty or incorrectly formatted IPMI raw statistics file:\n"
                         f"{errmsg}") from err
 
-        # The first data point is used to determine the raw IPMI metric names.
-        metric2colname = self._get_metric2colname(parsed_dp)
+        self.mdo = IPMIMDC.IPMIMDC(parsed_dp)
 
-        sdf = self._ipmi_to_df(parsed_dp)
+        include_metrics = set(self.mdo.mdd.keys())
+        for metric in self._exclude_metrics:
+            include_metrics.discard(metric)
 
-        # Exclude the metrics that do not have the category, except for the timestamp.
-        metric2colname["timestamp"] = self._time_metric
-        for metric in sdf.columns:
-            if metric not in metric2colname:
-                sdf = sdf.drop(columns=[metric,])
+        sdf = self._ipmi_to_df(parsed_dp, include_metrics=include_metrics)
 
         # Add the rest of the data from the raw IPMI statistics file to 'sdf'.
         for parsed_dp in parser:
-            df = self._ipmi_to_df(parsed_dp, include_metrics=metric2colname)
+            df = self._ipmi_to_df(parsed_dp, include_metrics=include_metrics)
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
-        sdf = sdf.rename(columns=metric2colname)
         return sdf
 
-    def __init__(self, mdo=None):
+    def __init__(self, exclude_metrics=None):
         """
         The class constructor. The arguments are as follows.
-          * mdo - the metrics definition object ('IPMIMDC' instance).
+          * exclude_metrics - an iterable collection of IPMI metric names to exclude from the
+            dataframe.
         """
 
-        self._mdo = mdo
-        if not self._mdo:
-            self._mdo = IPMIMDC.IPMIMDC()
+        self._exclude_metrics = exclude_metrics
+        self.mdo = None
 
-        super().__init__("Time")
+        if not self._exclude_metrics:
+            self._exclude_metrics = []
+
+        super().__init__("TimeElapsed")

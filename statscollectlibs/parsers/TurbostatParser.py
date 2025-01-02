@@ -737,7 +737,7 @@ class TurbostatParser(_ParserBase.ParserBase):
 
     def __init__(self, path=None, lines=None, derivatives=False):
         """
-        TurbostatParser constructor. Arguments are as follows.
+        The class constructor. Arguments are as follows.
           * path - same as in ParserBase.__init__().
           * lines - same as in ParserBase.__init__().
           * derivatives - whether the derivative metrics should be added.
