@@ -74,6 +74,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         Load dataframes from raw IPMI statistics files in 'rsts'. Return the datafames dictionary.
         """
 
+        dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
+
         dfs = {}
         found_stnames = set()
         for res in rsts:
@@ -81,11 +83,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 if stname not in res.info["stinfo"]:
                     continue
 
-                dfs[res.reportid] = res.load_stat(stname, self._dfbldr)
+                dfs[res.reportid] = res.load_stat(stname, dfbldr)
 
-                self._mdd.update(self._dfbldr.mdo.mdd)
+                self._mdd.update(dfbldr.mdo.mdd)
 
-                for category, cat_metrics in self._dfbldr.mdo.categories.items():
+                for category, cat_metrics in dfbldr.mdo.categories.items():
                     if category not in self._categories:
                         self._categories[category] = []
                     self._categories[category] += cat_metrics
@@ -121,11 +123,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         msg = ""
         for stname, paths in stinfos.items():
-            msg += f"\n  * {stname}"
+            msg += f"\n  * {stname}:"
             for path in paths:
                 msg += f"\n    * {path}"
 
-        _LOG.notice(f"a mix of in-band and out-of-band IPMI statistics detected:{msg}")
+        _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected:%s", msg)
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -135,7 +137,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                    included in the built tab.
         """
 
-        self._dfbldr = None
         self._hover_defs = {}
         self._time_metric = "TimeElapsed"
 
@@ -147,7 +148,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._message_if_mixed(rsts)
 
-        self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
         dfs = self._load_dfs(rsts)
 
         # There will be C-tab for each category, except for the time-stamps.
