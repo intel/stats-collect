@@ -10,10 +10,13 @@
 Build and populate the turbostat statistics tab.
 """
 
+import logging
 import pandas
 from statscollectlibs.mdc import TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+
+_LOG = logging.getLogger()
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
@@ -37,7 +40,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 if colname not in self._mdd or colname not in colnames:
                     continue
 
-                print(colname, time_metric)
                 dtab = self._build_def_dtab_cfg(colname, time_metric, smry_funcs,
                                                 self._hover_defs, title=metric)
                 dtabs.append(dtab)
@@ -154,17 +156,52 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
 
         dfs = {}
-        tstat_rsts = [res for res in rsts if "turbostat" in res.info["stinfo"]]
+        dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpunum=self._cpunum)
 
-        for res in tstat_rsts:
-            cpunum = res.info.get("cpunum")
-            dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpunum=cpunum)
-
+        for res in rsts:
+            if "turbostat" not in res.info["stinfo"]:
+                continue
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr)
             self._col2metric.update(dfbldr.col2metric)
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         return dfs
+
+    def _check_cpunum(self, rsts):
+        """Check if the results are for the same CPU number."""
+
+        stname = "turbostat"
+        infos = {}
+
+        for res in rsts:
+            if stname not in res.info["stinfo"]:
+                continue
+            cpunum = res.info.get("cpunum")
+            if cpunum not in infos:
+                infos[cpunum] = []
+            infos[cpunum].append(res.dirpath)
+            self._cpunum = cpunum
+
+        if len(infos) < 2:
+            return
+
+        msg = ""
+        max_cnt = 0
+        for cpunum, paths in infos.items():
+            if len(paths) > max_cnt:
+                max_cnt = len(paths)
+                self._cpunum = cpunum
+            if cpunum is None:
+                cpustr = "no measured CPU"
+            else:
+                cpustr = f"CPU{cpunum}:"
+
+            msg += f"\n  * {cpustr}"
+            for path in paths:
+                msg += f"\n    * {path}"
+
+        _LOG.notice("a mix of measured CPU numbers in %s statistics detected:%s", stname, msg)
+        _LOG.notice("will use the following measured CPU number for all results: %s", str(self._cpunum))
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -174,14 +211,18 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                    included in the built tab.
         """
 
-        self._hover_defs = {}
+        self._cpunum = None
         self._mdo = None
+        # Metric definition dictionary for all metrics in all raw results.
+        self._mdd = {}
+        self._hover_defs = {}
         self._time_metric = "TimeElapsed"
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self._col2metric = {}
 
+        self._check_cpunum(rsts)
         dfs = self._load_dfs(rsts)
 
         # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
@@ -193,9 +234,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics.append(metric)
                 metrics_set.add(metric)
 
+        # Have a metrics definition object which covers all metrics across all the results.
         self._mdo = TurbostatMDC.TurbostatMDC(metrics)
-        mdd = {}
 
+        # Build a metrics definition object describing the dataframe column names as metrics.
+        mdd = {}
         time_colnames = []
         for colname, metric in self._col2metric.items():
             if metric not in self._mdo.mdd:
@@ -209,8 +252,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         outdir = outdir / self.name
         super().__init__(dfs, outdir, basedir=basedir, mdd=mdd)
 
+        # Convert the elapsed time columns in the dataframe to the "datetime" format so that
+        # diagrams use a human-readable format.
         for time_colname in time_colnames:
-            # Convert the elapsed time columns to the "datetime" format so that diagrams use a
-            # human-readable format.
             for df in dfs.values():
                 df[time_colname] = pandas.to_datetime(df[time_colname], unit="s")
