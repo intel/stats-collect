@@ -320,6 +320,17 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         super().__init__(dirpath)
 
+        if self.info_path.exists() and not self.info_path.is_file():
+            raise Error(f"path '{self.info_path}' exists, but it is not a regular file")
+
+        for name in ("logs_path", "stats_path"):
+            path = getattr(self, name)
+            if path.exists():
+                if not path.is_dir():
+                    raise Error(f"path '{path}' exists, but it is not a directory")
+            else:
+                setattr(self, f"{name}", None)
+
         # Path to the workload data.
         self.wldata_path = None
         # Type of the workload that was running while statistics were collected.

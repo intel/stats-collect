@@ -43,14 +43,3 @@ class RawResultBase:
         # If logs / stats directories do not to exist, the below variables will be set to 'None'.
         self.logs_path = self.dirpath.joinpath("logs")
         self.stats_path = self.dirpath.joinpath("stats")
-
-        if self.info_path.exists() and not self.info_path.is_file():
-            raise Error(f"path '{self.info_path}' exists, but it is not a regular file")
-
-        for name in ("logs_path", "stats_path"):
-            path = getattr(self, name)
-            if path.exists():
-                if not path.is_dir():
-                    raise Error(f"path '{path}' exists, but it is not a directory")
-            else:
-                setattr(self, f"{name}", None)
