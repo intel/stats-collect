@@ -38,7 +38,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         split = colname.split("-", 1)
         if len(split) < 2:
             return None, colname
-        if split[0] not in self._mdo.info:
+        if split[0] not in self._mdo.mdd:
             raise Error(f"BUG: unknown IPMI categorey '{split[0]}")
 
         return split[0], split[1]

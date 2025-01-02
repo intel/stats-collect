@@ -20,7 +20,7 @@ class TurbostatMDC(MDCBase.MDCBase):
     def mangle_descriptions(self):
         """Mangle turbostat metric descriptions to describe how they are summarized by turbostat."""
 
-        for metric, mdef in self.info.items():
+        for metric, mdef in self.mdd.items():
             name = TurbostatParser.get_totals_func_name(metric)
             if name is not None:
                 name = TurbostatParser.TOTALS_FUNCS[name] # Get user-friendly name.
@@ -30,12 +30,12 @@ class TurbostatMDC(MDCBase.MDCBase):
     def _categorize(self):
         """Arrange metrics into a multi-level dictionary by their categories."""
 
-        for metric, info in self.info.items():
-            catnames = info.get("categories")
+        for metric, md in self.mdd.items():
+            catnames = md.get("categories")
             if not catnames:
                 continue
 
-            last = len(info["categories"]) - 1
+            last = len(md["categories"]) - 1
             leaf = self.categories
 
             for idx, category in enumerate(catnames):
@@ -53,7 +53,7 @@ class TurbostatMDC(MDCBase.MDCBase):
         """
         The class constructor. The arguments are as follows:
           * metrics - a collection of metric names to use for substituting patterns in the metrics
-                      definition dictionary ('self.info').
+                      definition dictionary ('self.mdd').
         """
 
         # Metric names arrange by the category.

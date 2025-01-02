@@ -51,7 +51,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         cstime_metrics = []
         cscnt_metrics = []
         for name in self._mdo.categories["C-state"]["Requested"]:
-            unit = self._mdo.info[name].get("unit")
+            unit = self._mdo.mdd[name].get("unit")
             if unit:
                 if unit == "%":
                     csres_metrics.append(name)
@@ -73,7 +73,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         for name in self._mdo.categories["C-state"]["Hardware"]:
             if sname == _TurbostatDFBuilder.TOTALS_SNAME:
                 metrics.append(name)
-            elif self._mdo.info[name].get("scope") in ("CPU", "core"):
+            elif self._mdo.mdd[name].get("scope") in ("CPU", "core"):
                 metrics.append(name)
         hw_cs_tab = build_ctab_cfg("Hardware", metrics)
 
@@ -93,7 +93,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         else:
             metrics = []
             for name in all_tp_metrics:
-                if self._mdo.info[name].get("scope") in ("CPU", "core"):
+                if self._mdo.mdd[name].get("scope") in ("CPU", "core"):
                     metrics.append(name)
         tp_tab = build_ctab_cfg("Temperature / Power", metrics)
 
@@ -194,11 +194,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         mdd = {}
 
         for colname, metric in self._col2metric.items():
-            if metric not in self._mdo.info:
+            if metric not in self._mdo.mdd:
                 continue
 
-            mdd[colname] = self._mdo.info[metric].copy()
+            mdd[colname] = self._mdo.mdd[metric].copy()
             mdd[colname]["name"] = colname
 
-        mdd[self._time_metric] = self._mdo.info[self._time_metric].copy()
+        mdd[self._time_metric] = self._mdo.mdd[self._time_metric].copy()
         super().__init__(dfs, outdir, basedir=basedir, mdd=mdd)

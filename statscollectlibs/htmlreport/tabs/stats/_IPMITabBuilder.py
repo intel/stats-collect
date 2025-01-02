@@ -98,7 +98,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(mdo=mdo)
 
         # The IPMI metric categories (e.g., "FanSpeed").
-        self._categories = {category: [] for category in mdo.info}
+        self._categories = {category: [] for category in mdo.mdd}
 
         dfs = {}
         found_stnames = set()
@@ -131,16 +131,16 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             self._categories[category].append(colname)
 
-            info = mdo.info[category].copy()
+            info = mdo.mdd[category].copy()
             # Don't overwrite the 'title' attribute so that the metric name is shown in plots
             # and the summary table.
             info["fsname"] = MDCBase.get_fsname(colname)
             info["name"] = colname
             info["title"] = metric
-            mdo.info[colname] = info
+            mdo.mdd[colname] = info
 
         # De-dubplicate column names.
         for colname in self._categories:
             self._categories[colname] = Trivial.list_dedup(self._categories[colname])
 
-        super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.info)
+        super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.mdd)

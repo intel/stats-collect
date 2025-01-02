@@ -12,7 +12,7 @@ Provide the base class for metrics definition classes.
 Terminology.
   * metrics definition class - an 'MDCBase' sub-class.
   * metrics definition object - an object of a 'MDCBase' sub-class.
-  * metrics definition dictionary - the 'info' attribute of a metrics definition object, has metric
+  * metrics definition dictionary - the 'mdd' attribute of a metrics definition object, has metric
                                     names as keys and metric information as values. Typically
                                     populated form a metrics definition YAML file.
   * metric definition - a dictionary describing a single metric. The metrics definition dictionary
@@ -54,35 +54,35 @@ def is_mdef(dct):
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 
-    def _handle_pattern(self, metric, info):
+    def _handle_pattern(self, metric, mdd):
         """
         Replace patterns in definition dictionary of a metric. The arguments are as follows.
-         * metric - name of the metric to substitute the 'info' dictionary contents with.
-         * info - the metric definition dictionary to apply the pattern substitutions to.
+         * metric - name of the metric to substitute the 'mdd' dictionary contents with.
+         * mdd - the metric definition dictionary to apply the pattern substitutions to.
 
-        Return the substituted version of the 'info' dictionary.
+        Return the substituted version of the 'mdd' dictionary.
         """
 
-        new_info = None
+        new_mdd = None
 
-        for pattern in info["patterns"]:
+        for pattern in mdd["patterns"]:
             mobj = re.match(pattern, metric)
             if not mobj:
                 continue
 
-            new_info = info.copy()
-            del new_info["patterns"]
+            new_mdd = mdd.copy()
+            del new_mdd["patterns"]
 
             for idx, grp in enumerate(mobj.groups()):
                 for skey in self._mangle_subkeys:
-                    text = new_info[skey]
+                    text = new_mdd[skey]
                     for grp_patt, grp_repl in (("{GROUPS[%d]}" % idx, grp.upper()),
                                                ("{groups[%d]}" % idx, grp)):
                         text = text.replace(grp_patt, grp_repl)
-                    new_info[skey] = text
+                    new_mdd[skey] = text
             break
 
-        return new_info
+        return new_mdd
 
     def _handle_patterns(self, metrics):
         """
@@ -91,17 +91,17 @@ class MDCBase:
                      definitions dictionary.
         """
 
-        # Parts of the definitions dictionary ('self.info') will be replaced with the contents of
+        # Parts of the definitions dictionary ('self.mdd') will be replaced with the contents of
         # this dictionary.
         replacements = {}
 
-        for key, val in self.info.items():
+        for key, val in self.mdd.items():
             if not "patterns" in val:
                 # Nothing to mangle.
                 continue
 
             for metric in metrics:
-                if metric in self.info:
+                if metric in self.mdd:
                     # Skip metrics that are explicitly defined.
                     continue
 
@@ -111,20 +111,20 @@ class MDCBase:
                         replacements[key] = {}
                     replacements[key][metric] = new_val
 
-        new_info = {}
-        for key, val in self.info.items():
+        new_mdd = {}
+        for key, val in self.mdd.items():
             if key not in replacements:
-                new_info[key] = val
+                new_mdd[key] = val
                 continue
             for new_key, new_val in replacements[key].items():
-                new_info[new_key] = new_val
+                new_mdd[new_key] = new_val
 
-        self.info = new_info
+        self.mdd = new_mdd
 
     def _add_subkeys(self):
         """Add some more sub-keys to the metrics definition dictionary."""
 
-        for key, val in self.info.items():
+        for key, val in self.mdd.items():
             val["name"] = key
             val["fsname"] = get_fsname(key)
 
@@ -140,26 +140,26 @@ class MDCBase:
             self._handle_patterns(metrics)
         self._add_subkeys()
 
-    def __init__(self, prjname, toolname, defsdir=None, info=None):
+    def __init__(self, prjname, toolname, defsdir=None, mdd=None):
         """
         The class constructor. The arguments are as follows.
           * prjname - name of the project the metrics definition YAML file belongs to.
           * toolname - name of the tool or workload the metrics definition YAML file belong to.
           * defsdir - path of directory containing metrics definition YAML files, defaults to
                      "defs".
-          * info - the metrics definition dictionary to use instead of loading it from the YAML
-                   file.
+          * mdd - the metrics definition dictionary to use instead of loading it from the YAML
+                  file.
         """
 
         self.toolname = toolname
         self.path = None
 
-        if info:
-            self.info = info
+        if mdd:
+            self.mdd = mdd
             return
 
-        if defsdir and info:
-            raise Error("BUG: 'defsdir' and 'info' are mutually exclusive")
+        if defsdir and mdd:
+            raise Error("BUG: 'defsdir' and 'mdd' are mutually exclusive")
 
         if defsdir is None:
             defsdir = "defs"
@@ -168,4 +168,4 @@ class MDCBase:
 
         self.path = ProjectFiles.find_project_data(prjname, Path(defsdir) / f"{toolname}.yml",
                                                    what=f"{toolname} definitions file")
-        self.info = YAML.load(self.path)
+        self.mdd = YAML.load(self.path)
