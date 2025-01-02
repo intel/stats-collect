@@ -17,18 +17,20 @@ from statscollectlibs.parsers import TurbostatParser
 
 TOTALS_SNAME = "Totals"
 
-def get_col_scope(colname):
+def split_colname(colname):
     """
-    Return the scope name of 'pandas.DataFrame' column. The arguments are as follows.
-      * colname - name of the column to return the scope name for.
-
-    Return 'None' if 'colname' does not apply to a single scope.
+    Turbostat dataframe columns have the "<scope>-<metric>" format, where "<scope>" is the scope
+    name, such as "CPU0", and "<metric>" is the metric name, such as "PkgPower". Split a turbostat
+    dataframe column name and return the "<scope>" and "<metric>" parts as a tuple. The arguments
+    are as follows.
+      * colname - a dataframe column name to split.
     """
 
     split = colname.split("-")
     if len(split) == 1:
-        return None
-    return split[0]
+        raise Error(f"BUG: bad column name {colname}")
+
+    return split[0], split[1]
 
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
