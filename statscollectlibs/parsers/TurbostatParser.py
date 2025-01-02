@@ -105,20 +105,17 @@ class TurbostatParser(_ParserBase.ParserBase):
     def _get_package_metric_values(pkginfo, metric):
         """Yield 'metric' values for all CPUs in a package."""
 
-        for coreinfo in pkginfo["cores"].values():
-            for cpuinfo in coreinfo["cpus"].values():
-                if metric in cpuinfo:
-                    yield cpuinfo[metric]
+        for cpuinfo in pkginfo["cpus"].values():
+            if metric in cpuinfo:
+                yield cpuinfo[metric]
 
     @staticmethod
     def _get_system_metric_values(tdict, metric):
         """Yield 'metric' values for all CPUs in the system."""
 
-        for pkginfo in tdict["packages"].values():
-            for coreinfo in pkginfo["cores"].values():
-                for cpuinfo in coreinfo["cpus"].values():
-                    if metric in cpuinfo:
-                        yield cpuinfo[metric]
+        for cpuinfo in tdict["cpus"].values():
+            if metric in cpuinfo:
+                yield cpuinfo[metric]
 
     def _summarize_metric(self, info, metric, level_name):
         """Calculate the 'level_name' level "total" value for metric 'metric'."""
@@ -172,20 +169,17 @@ class TurbostatParser(_ParserBase.ParserBase):
             for metric in self._metrics["package"]:
                 pkginfo["totals"][metric] = self._summarize_metric(pkginfo, metric, "package")
 
-            for coreinfo in pkginfo["cores"].values():
-                coreinfo["totals"] = {}
+            for pkginfo in pkginfo["cores"].values():
+                pkginfo["totals"] = {}
                 for metric in self._metrics["core"]:
-                    coreinfo["totals"][metric] = self._summarize_metric(coreinfo, metric, "core")
+                    pkginfo["totals"][metric] = self._summarize_metric(pkginfo, metric, "core")
 
         # Turbostat adds package level metrics to the first CPU data line of a package.
         # Remove them, because they are now available in package totals.
         for pkginfo in tdict["packages"].values():
-            for coreinfo in pkginfo["cores"].values():
-                for cpuinfo in coreinfo["cpus"].values():
-                    for metric in self._ts_totals["package"]:
-                        del cpuinfo[metric]
-                    break
-                break
+            cpuinfo = pkginfo["cpus"][pkginfo["first_cpu"]]
+            for metric in self._ts_totals["package"]:
+                del cpuinfo[metric]
 
         # Turbostat adds core level metrics to the first CPU data line of a core.
         # Remove them, because they are now available in core totals.
@@ -400,22 +394,18 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         if self._pkgwatt_tdp_metric:
             for pkginfo in tdict["packages"].values():
-                for coreinfo in pkginfo["cores"].values():
-                    for cpuinfo in coreinfo["cpus"].values():
-                        val = (cpuinfo["PkgWatt"] / self._nontable["TDP"]) * 100
-                        type_func = self._heading2type[self._pkgwatt_tdp_metric]
-                        cpuinfo[self._pkgwatt_tdp_metric] = type_func(val)
-                        break
+                for cpuinfo in pkginfo["cpus"].values():
+                    val = (cpuinfo["PkgWatt"] / self._nontable["TDP"]) * 100
+                    type_func = self._heading2type[self._pkgwatt_tdp_metric]
+                    cpuinfo[self._pkgwatt_tdp_metric] = type_func(val)
                     break
 
-        for package, pkginfo in tdict["packages"].items():
-            for core, coreinfo in pkginfo["cores"].items():
-                for cpu, cpuinfo in coreinfo["cpus"].items():
-                    try:
-                        prev = self._prev_tdict["packages"][package]["cores"][core]["cpus"][cpu]
-                    except KeyError:
-                        prev = None
-                    self._add_cstate_derivatives(cpuinfo, prev)
+        for cpu, cpuinfo in tdict["cpus"].items():
+            try:
+                prev = self._prev_tdict["cpus"][cpu]
+            except KeyError:
+                prev = None
+            self._add_cstate_derivatives(cpuinfo, prev)
 
     def _construct_tdict(self, tlines):
         """
@@ -433,8 +423,11 @@ class TurbostatParser(_ParserBase.ParserBase):
         # tdict = {
         #   "nontable": {...},
         #   "totals": {...},
+        #   "cpus": {...},
         #   "packages" : {
         #       0: {
+        #           "first_cpu": 0,
+        #           "cpus": {...},
         #           "cores": {
         #               0: {
         #                   "cpus": {
@@ -459,6 +452,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         # every level and removing topology keys.
 
         tdict["packages"] = packages = {}
+        tdict["cpus"] = {}
         cpu_count = core_count = pkg_count = 0
         pkgdata = {}
         coredata = {}
@@ -475,8 +469,10 @@ class TurbostatParser(_ParserBase.ParserBase):
             cpu = cpuinfo["CPU"]
 
             if package not in packages:
-                packages[package] = pkgdata = {}
+                packages[package] = pkgdata = {"first_cpu": cpu, "cpus": {}}
                 pkg_count += 1
+
+            pkgdata["cpus"][cpu] = cpuinfo
 
             if "cores" not in pkgdata:
                 pkgdata["cores"] = {}
@@ -490,6 +486,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                 coredata["cpus"] = {}
 
             coredata["cpus"][cpu] = cpuinfo
+            tdict["cpus"][cpu] = cpuinfo
             cpu_count += 1
 
         tdict["cpu_count"] = cpu_count
