@@ -87,19 +87,44 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 for category, cat_metrics in self._dfbldr.mdo.categories.items():
                     if category not in self._categories:
                         self._categories[category] = []
-                    self._categories[category] = cat_metrics
+                    self._categories[category] += cat_metrics
 
                 self._hover_defs[res.reportid] = res.get_label_defs(stname)
                 found_stnames.add(stname)
                 break
 
-        if len(found_stnames) > 1:
-            _LOG.notice("a mix of in-band and out-of-band IPMI statistics detected")
-
         for category in self._categories:
             self._categories[category] = Trivial.list_dedup(self._categories[category])
 
         return dfs
+
+    def _message_if_mixed(self, rsts):
+        """Check if in-band and out-of-band IPMI statistics are mixed."""
+
+        stinfos = {}
+
+        for res in rsts:
+            for stname in self.stnames:
+                if stname not in res.info["stinfo"]:
+                    continue
+
+                if stname not in stinfos:
+                    stinfos[stname] = []
+
+                # Save the path to the raw statistics file.
+                path = res.stats_path / res.info["stinfo"][stname]["paths"]["stats"]
+                stinfos[stname].append(path)
+
+        if len(stinfos) < 2:
+            return
+
+        msg = ""
+        for stname, paths in stinfos.items():
+            msg += f"\n  * {stname}"
+            for path in paths:
+                msg += f"\n    * {path}"
+
+        _LOG.notice(f"a mix of in-band and out-of-band IPMI statistics detected:{msg}")
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -119,6 +144,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         # Categories dictionary for all metrics in all results. Keys are the category name, values
         # are list of IPMI metrics belonging to the category.
         self._categories = {}
+
+        self._message_if_mixed(rsts)
 
         self._dfbldr = _IPMIDFBuilder.IPMIDFBuilder(exclude_metrics=self._exclude_metrics)
         dfs = self._load_dfs(rsts)
