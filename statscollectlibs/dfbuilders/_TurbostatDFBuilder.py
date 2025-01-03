@@ -4,7 +4,7 @@
 # Copyright (C) 2023-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Authors: Adam Hawley <adam.james.hawley@intel.com>
+# Author: Adam Hawley <adam.james.hawley@intel.com>
 
 """
 Provide the capability of building 'pandas.DataFrames' out of raw turbostat statistics files.

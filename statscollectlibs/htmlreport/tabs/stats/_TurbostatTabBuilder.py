@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2024 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
 Build and populate the turbostat statistics tab.
@@ -25,12 +26,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stname = "turbostat"
 
-    def _get_summary_funcs(self, metric, sname):
+    def _get_smry_funcs(self, colname):
         """
-        Return the list of summary function names to include to the D-tab for metric 'metric'.
+        Return the list of summary function names to include to the D-tab for dataframe column
+        'colname'.
         """
 
-        colname = _TurbostatDFBuilder.format_colname(metric, sname)
         colinfo = self._mdd[colname]
         unit = colinfo.get("unit")
         if not unit:
@@ -48,9 +49,15 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dtabs = []
         for metric in metrics:
-            funcs = self._get_summary_funcs(metric, sname)
-            dtab = self._build_def_dtab_cfg(metric, self._time_metric, funcs, self._hover_defs,
-                                            title=metric)
+            colname = _TurbostatDFBuilder.format_colname(metric, sname)
+            if colname not in self._mdd:
+                # The metric does not exist in for this scope, e.g., 'CPU0-Pkg%pc6'.
+                continue
+
+            smry_funcs = {}
+            smry_funcs[colname] = self._get_smry_funcs(colname)
+            dtab = self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
+                                            self._hover_defs, title=metric)
             dtabs.append(dtab)
 
         if dtabs:
@@ -58,100 +65,125 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return None
 
-    def _get_default_tab_cfg(self, sname):
-        """Get the C-tab for scope 'sname'."""
+    def _get_l2_tab_cfg(self, sname):
+        """Assemble the C-tab configuration object for scope 'sname'."""
 
-        l2_ctabs = []
+        # Remember: 'self._mdo.categories' refers to metric names, while 'self._mdd' refers to
+        # column names.
 
-        # Create an L2 C-tab for frequency-related metrics, both core and uncore.
+        l3_ctabs = []
+
+        # Create a combined level 3 C-tab for frequency-related metrics, both core and uncore.
         if "Frequency" in self._mdo.categories:
             metrics = []
-            for freq_colnames in self._mdo.categories["Frequency"].values():
-                metrics += freq_colnames
+            for cs_metrics in self._mdo.categories["Frequency"].values():
+                metrics += cs_metrics
 
-            ctab = self._build_ctab_cfg("Frequency", metrics, sname)
-            if ctab:
-                l2_ctabs.append(ctab)
+            l3_ctab = self._build_ctab_cfg("Frequency", metrics, sname)
+            if l3_ctab:
+                l3_ctabs.append(l3_ctab)
 
-#        # C-states are going to have the "C-states" L2 C-tab, and two nested L3 C-tabs for
-#        # requestable and hardware C-states.
-#        if "C-state" in self._mdo.categories:
-#            cstate_l2_ctabs = []
-#            if "Requested" in self._mdo.categories["C-state"]:
-#                csres_colnames = []
-#                csrate_colnames = []
-#                cstime_colnames = []
-#                cscnt_colnames = []
-#
-#                for colnames in self._mdo.categories["C-state"]["Requested"]:
-#                    unit = self._mdo.mdd[colnames].get("unit")
-#                    if unit:
-#                        if unit == "%":
-#                            csres_colnames.append(colnames)
-#                        elif "requests/sec" in unit:
-#                            csrate_colnames.append(colnames)
-#                        elif "microsecond" in unit:
-#                            cstime_colnames.append(colnames)
-#                    else:
-#                        cscnt_colnames.append(colnames)
-#
-#                l3_ctabs = []
-#                l3_ctabs.append(build_ctab_cfg("Residency", csres_colnames))
-#                l3_ctabs.append(build_ctab_cfg("Request rate", csrate_colnames))
-#                l3_ctabs.append(build_ctab_cfg("Time in C-state ", cstime_colnames))
-#                l3_ctabs.append(build_ctab_cfg("Count", cscnt_colnames))
-#
-#                cstate_l2_ctabs.append(TabConfig.CTabConfig("Requested", ctabs=l3_ctabs))
-#
-#            if "Hardware" in self._mdo.categories["C-state"]:
-#                # Add hardware C-state residency D-tabs to a separate C-tab.
-#                for colnames in self._mdo.categories["C-state"]["Hardware"]:
-#                    if sname == "System":
-#                        colnames.append(colnames)
-#                    elif self._mdo.mdd[colnames].get("scope") in ("CPU", "core"):
-#                        colnames.append(colnames)
-#                hw_cs_tab = build_ctab_cfg("Hardware", colnames)
-#
-#        # Combine requested and hardware C-state C-tags into a single C-tab.
-#        cstates_tab = TabConfig.CTabConfig("C-states", ctabs=[hw_cs_tab, req_tabs])
-#
-#        # Add frequency D-tabs to a separate C-tab.
-#        if "S-state" in self._mdo.categories:
-#            colnames = []
-#            for colnames in self._mdo.categories["S-state"]:
-#                colnames.append(colnames)
-#            sstates_tab = build_ctab_cfg("S-states", colnames)
-#
-#        # Add temperature/power-related D-tabs to a separate C-tab.
-#        all_tp_metrics = self._mdo.categories["Power"] + self._mdo.categories["Temperature"]
-#        if sname == "System":
-#            colnames = all_tp_metrics
-#        else:
-#            colnames = []
-#            for colnames in all_tp_metrics:
-#                if self._mdo.mdd[colnames].get("scope") in ("CPU", "core"):
-#                    colnames.append(colnames)
-#        tp_tab = build_ctab_cfg("Temperature / Power", colnames)
-#
-#        # Add miscellaneous D-tabs to a separate C-tab.
-#        colnames = self._mdo.categories["Interrupts"] + self._mdo.categories["Instructions"]
-#        misc_tab = build_ctab_cfg("Misc", colnames)
+        # Create a level 3 C-tab for C-state metrics.
+        if "C-state" in self._mdo.categories:
+            cs_l3_ctabs = []
 
-        if l2_ctabs:
-            return TabConfig.CTabConfig(sname, ctabs=l2_ctabs)
-        return None 
+            if "Hardware" in self._mdo.categories["C-state"]:
+                metrics = self._mdo.categories["C-state"]["Hardware"]
+                l3_ctab = self._build_ctab_cfg("Hardware", metrics, sname)
+                if l3_ctab:
+                    cs_l3_ctabs.append(l3_ctab)
+
+            if "Requested" in self._mdo.categories["C-state"]:
+                # The level 3 "Requested" C-tab is going to have level 4 C-tabs for different
+                # sub-categories of metrics.
+                csres_metrics = []
+                csrate_metrics = []
+                cstime_metrics = []
+                cscnt_metrics = []
+
+                for metric in self._mdo.categories["C-state"]["Requested"]:
+                    unit = self._mdo.mdd[metric].get("unit")
+                    if unit:
+                        if unit == "%":
+                            csres_metrics.append(metric)
+                        elif "requests/sec" in unit:
+                            csrate_metrics.append(metric)
+                        elif "microsecond" in unit:
+                            cstime_metrics.append(metric)
+                    else:
+                        cscnt_metrics.append(metric)
+
+                l4_ctabs = []
+
+                l3_ctab = self._build_ctab_cfg("Residency", csres_metrics, sname)
+                if l3_ctab:
+                    l4_ctabs.append(l3_ctab)
+
+                l3_ctab = self._build_ctab_cfg("Request rate", csrate_metrics, sname)
+                if l3_ctab:
+                    l4_ctabs.append(l3_ctab)
+
+                l3_ctab = self._build_ctab_cfg("Time in C-state ", cstime_metrics, sname)
+                if l3_ctab:
+                    l4_ctabs.append(l3_ctab)
+
+                l3_ctab = self._build_ctab_cfg("Count", cscnt_metrics, sname)
+                if l3_ctab:
+                    l4_ctabs.append(l3_ctab)
+
+                if l4_ctabs:
+                    cs_l3_ctabs.append(TabConfig.CTabConfig("Requested", ctabs=l4_ctabs))
+
+            if cs_l3_ctabs:
+                l3_ctab = TabConfig.CTabConfig("C-states", ctabs=cs_l3_ctabs)
+                l3_ctabs.append(l3_ctab)
+
+        # Add S-states level 3 C-tab.
+        if "S-state" in self._mdo.categories:
+            metrics = self._mdo.categories["S-state"]
+            l3_ctab = self._build_ctab_cfg("S-states", metrics, sname)
+            if l3_ctab:
+                l3_ctabs.append(l3_ctab)
+
+        # Create a combined level 3 C-tab for temperature and power metrics.
+        metrics = []
+        if "Power" in self._mdo.categories:
+            metrics += self._mdo.categories["Power"]
+        if "Temperature" in self._mdo.categories:
+            metrics += self._mdo.categories["Temperature"]
+        if metrics:
+            l3_ctab = self._build_ctab_cfg("Power / Temperature", metrics, sname)
+            if l3_ctab:
+                l3_ctabs.append(l3_ctab)
+
+        # Create a combined level 3 C-tab for the rest of the metrics.
+        metrics = []
+        if "Interrupts" in self._mdo.categories:
+            metrics += self._mdo.categories["Interrupts"]
+        if "Instructions" in self._mdo.categories:
+            metrics += self._mdo.categories["Instructions"]
+        if metrics:
+            l3_ctab = self._build_ctab_cfg("Miscellaneous", metrics, sname)
+            if l3_ctab:
+                l3_ctabs.append(l3_ctab)
+
+        if l3_ctabs:
+            return TabConfig.CTabConfig(sname, ctabs=l3_ctabs)
+
+        return None
 
     def get_default_tab_cfg(self):
         """
         Build and return the "root" container tab ('CTabConfig') instance, titled 'self.name'. It
-        will include "level 2" sub-tabs representing categories of metrics, such as "C-states". Some
-        of the level 2 C-stabs may include level 3 C-tabs. And the leaf level is going ot be a D-tab
-        (data tab). See 'TabBuilderBase' for more information on default tab configurations.
+        will include level 2 C-tabs representing the scope (e.g., "System"), then level 3 C-tabs for
+        categories of metrics (e.g., "C-states"). The leaf level is going to be D-tabs (data tabs),
+        one D-tab for a metric. See 'TabBuilderBase' for more information on default tab
+        configurations.
         """
 
         l2_ctabs = []
         for sname in self._snames:
-            l2_ctab = self._get_default_tab_cfg(sname)
+            l2_ctab = self._get_l2_tab_cfg(sname)
             if l2_ctab:
                 l2_ctabs.append(l2_ctab)
 
@@ -209,7 +241,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 msg += f"\n    * {path}"
 
         _LOG.notice("a mix of measured CPU numbers in %s statistics detected:%s", stname, msg)
-        _LOG.notice("will use the following measured CPU number for all results: %s", str(self._cpunum))
+        _LOG.notice("will use the following measured CPU number for all results: %s",
+                    str(self._cpunum))
 
     def __init__(self, rsts, outdir, basedir=None):
         """
@@ -222,8 +255,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._cpunum = None
         self._mdo = None
         self._hover_defs = {}
-        self._time_metric = "TimeElapsed"
         self._snames = []
+        self._time_metric = "TimeElapsed"
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
