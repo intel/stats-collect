@@ -139,17 +139,20 @@ class MDCBase:
             val["name"] = key
             val["fsname"] = get_fsname(key)
 
-    def mangle(self, metrics=None):
+    def mangle(self, metrics=None, drop_missing=True):
         """
         Mangle the metrics definition dictionary and replace the pattern metrics. The arguments are
         as follows.
-         * metrics - a collection of metric names to use for substituting the pattern in the
-                     metric definition dictionary (e.g., substitute 'CCx' with 'CC1', 'CC1E', etc).
+          * metrics - a collection of metric names to use for substituting the pattern in the
+                      metric definition dictionary (e.g., substitute 'CCx' with 'CC1', 'CC1E', etc).
+          * drop_missing - if 'True', keep only 'metrics' metrics in the metrics definitions
+                           dictionary, and drop all other metrics. If 'False', keep all metrics.
         """
 
         if metrics:
             self._handle_patterns(metrics)
-            self._drop_missing_metrics(metrics)
+            if drop_missing:
+                self._drop_missing_metrics(metrics)
 
         self._add_subkeys()
 
