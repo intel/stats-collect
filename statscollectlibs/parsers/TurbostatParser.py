@@ -450,6 +450,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         #   "nontable": {...},
         #   "totals": {...},
         #   "cpus": {...},
+        #   "cpu2coreinfo": {...}
         #   "packages" : {
         #       0: {
         #           "first_cpu": 0,
@@ -479,9 +480,10 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         tdict["packages"] = packages = {}
         tdict["cpus"] = {}
+        tdict["cpu2coreinfo"] = {}
         cpu_count = core_count = pkg_count = 0
-        pkgdata = {}
-        coredata = {}
+        pkginfo = {}
+        coreinfo = {}
 
         for cpuinfo in tlines.values():
             # Make sure there is always the "Core" and "Package" keys.
@@ -494,25 +496,31 @@ class TurbostatParser(_ParserBase.ParserBase):
             core = cpuinfo["Core"]
             cpu = cpuinfo["CPU"]
 
-            if package not in packages:
-                packages[package] = pkgdata = {"first_cpu": cpu, "cpus": {}}
-                pkg_count += 1
-
-            pkgdata["cpus"][cpu] = cpuinfo
-
-            if "cores" not in pkgdata:
-                pkgdata["cores"] = {}
-
-            cores = pkgdata["cores"]
-            if core not in cores:
-                cores[core] = coredata = {}
-                core_count += 1
-
-            if "cpus" not in coredata:
-                coredata["cpus"] = {}
-
-            coredata["cpus"][cpu] = cpuinfo
             tdict["cpus"][cpu] = cpuinfo
+
+            if package not in packages:
+                packages[package] = pkginfo = {"first_cpu": cpu, "cpus": {}}
+                pkg_count += 1
+            else:
+                pkginfo = packages[package]
+
+            pkginfo["cpus"][cpu] = cpuinfo
+
+            if "cores" not in pkginfo:
+                pkginfo["cores"] = {}
+
+            if core not in pkginfo["cores"]:
+                pkginfo["cores"][core] = coreinfo = {}
+                core_count += 1
+            else:
+                coreinfo = pkginfo["cores"][core]
+
+            tdict["cpu2coreinfo"][cpu] = coreinfo
+
+            if "cpus" not in coreinfo:
+                coreinfo["cpus"] = {}
+
+            coreinfo["cpus"][cpu] = cpuinfo
             cpu_count += 1
 
         tdict["cpu_count"] = cpu_count
