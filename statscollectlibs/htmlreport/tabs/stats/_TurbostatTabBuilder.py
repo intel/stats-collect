@@ -111,39 +111,33 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def get_default_tab_cfg(self):
         """
-        Build and return a container tab ('CTabConfig') instance, titled 'self.name', containing tab
-        configurations which represent different metrics within raw turbostat statistic files. See
-        'TabBuilderBase' for more information on default tab configurations.
+        Build and return the "root" container tab ('CTabConfig') instance, titled 'self.name'. It
+        will include "level 2" sub-tabs representing categories of metrics, such as "C-states". Some
+        of the level 2 C-stabs may include level 3 C-tabs. And the leaf level is going ot be a D-tab
+        (data tab). See 'TabBuilderBase' for more information on default tab configurations.
         """
 
-        # Find metrics which appear in the raw turbostat statistic files.
-        metric_sets = [set(sdf.columns) for sdf in self._dfs.values()]
-        metrics = set.union(*metric_sets)
-
-        # Limit metrics to only those with definitions.
-        metrics.intersection_update(set(self._mdd.keys()))
-
-        # Define which summary functions should be included in the summary table for each metric.
         smry_funcs = {}
-        for metric in metrics:
-            if metric in ("IRQ", "SMI"):
-                smry_funcs[metric] = ["max", "avg", "min", "std"]
+        for colname, colinfo in self._mdd.items():
+            unit = colinfo.get("unit")
+            if not unit:
+                funcs = ["max", "avg", "min", "std"]
             else:
-                smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%",
-                                      "med", "avg", "min", "std"]
+                funcs = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min", "std"]
+            smry_funcs[colname] = funcs
 
-        categorised_metrics = {}
-        for metric in metrics:
-            sname, _ = _TurbostatDFBuilder.split_colname(metric)
+        scope2colname = {}
+        for colname in self._mdd:
+            sname, _ = _TurbostatDFBuilder.split_colname(colname)
             if not sname:
                 continue
-            if sname not in categorised_metrics:
-                categorised_metrics[sname] = {metric}
-            categorised_metrics[sname].add(metric)
+            if sname not in scope2colname:
+                scope2colname[sname] = {colname}
+            scope2colname[sname].add(colname)
 
         l2_tabs = []
-        for sname, scope_metrics in categorised_metrics.items():
-            l2_tabs.append(self._get_default_tab_cfg(scope_metrics, smry_funcs, sname))
+        for sname, scope_colnames in scope2colname.items():
+            l2_tabs.append(self._get_default_tab_cfg(scope_colnames, smry_funcs, sname))
 
         return TabConfig.CTabConfig(self.name, ctabs=l2_tabs)
 
