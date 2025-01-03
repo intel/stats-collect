@@ -121,6 +121,17 @@ class MDCBase:
 
         self.mdd = new_mdd
 
+    def _drop_missing_metrics(self, metrics):
+        """
+        Leave 'metrics' metrics in the MDD (metrics definitions dictionary), and drop any other
+        metrics.
+        """
+
+        keep_metrics = set(list(metrics))
+        for metric in list(self.mdd):
+            if metric not in keep_metrics:
+                del self.mdd[metric]
+
     def _add_subkeys(self):
         """Add some more sub-keys to the metrics definition dictionary."""
 
@@ -138,6 +149,8 @@ class MDCBase:
 
         if metrics:
             self._handle_patterns(metrics)
+            self._drop_missing_metrics(metrics)
+
         self._add_subkeys()
 
     def __init__(self, prjname, toolname, defsdir=None, mdd=None):
@@ -146,7 +159,7 @@ class MDCBase:
           * prjname - name of the project the metrics definition YAML file belongs to.
           * toolname - name of the tool or workload the metrics definition YAML file belong to.
           * defsdir - path of directory containing metrics definition YAML files, defaults to
-                     "defs".
+                      "defs".
           * mdd - the metrics definition dictionary to use instead of loading it from the YAML
                   file.
         """
