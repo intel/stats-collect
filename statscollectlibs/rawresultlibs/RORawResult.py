@@ -64,7 +64,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     def set_timestamp_limits(self, begin_ts, end_ts, absolute=True):
         """
-        The statistics track metrics for a period of time. Typically raw statistics files include a
+        The statistics track metrics over a period of time. Typically raw statistics files include a
         timestamp, and metric values at that time, then ext time-stamp and metric values, and so on.
         In other words, the raw statistics file provide metrics values from time-stamp A to
         time-stamp B. The time-stamp format is local time since the epoch.
@@ -75,8 +75,8 @@ class RORawResult(_RawResultBase.RawResultBase):
         time-stamps range from the raw statistics file. The arguments are as follows.
           * begin_ts - the measurements start time-stamps. All data collected before 'begin_ts'
                        will be discarded.
-          * end_ts - - the measurements end time-stamp. All data collected after 'end_ts' will be
-                       discarded.
+          * end_ts - the measurements end time-stamp. All data collected after 'end_ts' will be
+                     discarded.
           * absolute - if 'True', then 'begin_ts' and 'end_ts' are absolute time values - the local
                        time since the epoch. Otherwise, they are relative values from the beginning
                        of the measurements in seconds. For example, if 'begin_ts' is 5, this would
@@ -88,9 +88,9 @@ class RORawResult(_RawResultBase.RawResultBase):
             raise Error(f"bad raw statistics time-stamp limits: begin time-stamp ({begin_ts}) must "
                         f"be smaller than the end time-stamp ({end_ts})")
 
-        self._tslimits["begin"] = begin_ts
-        self._tslimits["end"] = end_ts
-        self._tslimits["absolute"] = absolute
+        self._ts_limits["begin"] = begin_ts
+        self._ts_limits["end"] = end_ts
+        self._ts_limits["absolute"] = absolute
 
         _LOG.debug("set time-stamp limits for report ID '%s': begin %s, end %s, absolute %s",
                    self.reportid, begin_ts, end_ts, absolute)
@@ -340,7 +340,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         self._labels_defs = {}
 
         # The time-stamp limits dictionary.
-        self._tslimits = {}
+        self._ts_limits = {}
 
         self._load_info_yml()
         if reportid:
