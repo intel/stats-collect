@@ -30,6 +30,13 @@ def split_colname(colname):
 
     return split[0], split[1]
 
+def format_colname(metric, sname):
+    """Format and return a dataframe column name for metric 'metric' and scope 'sname'."""
+
+    if metric in {"Time_Of_Day_Seconds", "TimeElapsed"}:
+        return metric
+    return f"{sname}-{metric}"
+
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
     Provide the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.
