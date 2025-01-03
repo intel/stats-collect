@@ -47,4 +47,4 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
     def __init__(self):
         """The class constructor."""
 
-        super().__init__("T")
+        super().__init__("T", "TimeElapsed")

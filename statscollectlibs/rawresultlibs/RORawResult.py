@@ -138,7 +138,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         path = self._get_stats_path(stname)
         labels_path = self._get_labels_path(stname)
-        return dfbldr.load_df(path, labels_path=labels_path)
+        return dfbldr.load_df(path, labels_path=labels_path, ts_limits=self._ts_limits)
 
     def _is_specjbb2015(self):
         """Return 'True' if the workload is SPECjbb2015."""

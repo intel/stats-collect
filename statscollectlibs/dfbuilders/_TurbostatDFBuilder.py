@@ -114,8 +114,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         at path 'path'.
         """
 
-        self._path = path
-
         parser = TurbostatParser.TurbostatParser(path, derivatives=True)
         generator = parser.next()
 
@@ -149,10 +147,9 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         self._cpunum = cpunum
-        self._path = None
 
         # A dictionary mapping dataframe column names to the corresponding turbostat metric name.
         # E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self.col2metric = {}
 
-        super().__init__("Time_Of_Day_Seconds")
+        super().__init__("Time_Of_Day_Seconds", "TimeElapsed")

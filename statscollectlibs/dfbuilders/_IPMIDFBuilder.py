@@ -86,4 +86,4 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         """The class constructor."""
 
         self.mdo = None
-        super().__init__("timestamp")
+        super().__init__("timestamp", "TimeElapsed")
