@@ -33,14 +33,13 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         def build_ctab_cfg(ctab_name, tab_metrics):
             """Build a C-tab config named 'ctab_name' for 'tab_metrics'."""
 
-            time_metric = f"{sname}-{self._time_metric}"
             dtabs = []
             for metric in tab_metrics:
                 colname = f"{sname}-{metric}"
                 if colname not in self._mdd or colname not in colnames:
                     continue
 
-                dtab = self._build_def_dtab_cfg(colname, time_metric, smry_funcs,
+                dtab = self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
                                                 self._hover_defs, title=metric)
                 dtabs.append(dtab)
             return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
@@ -77,7 +76,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Add hardware C-state residency D-tabs to a separate C-tab.
         metrics = ["Busy%"]
         for name in self._mdo.categories["C-state"]["Hardware"]:
-            if sname == _TurbostatDFBuilder.TOTALS_SNAME:
+            if sname == "System":
                 metrics.append(name)
             elif self._mdo.mdd[name].get("scope") in ("CPU", "core"):
                 metrics.append(name)
@@ -94,7 +93,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Add temperature/power-related D-tabs to a separate C-tab.
         all_tp_metrics = self._mdo.categories["Power"] + self._mdo.categories["Temperature"]
-        if sname == _TurbostatDFBuilder.TOTALS_SNAME:
+        if sname == "System":
             metrics = all_tp_metrics
         else:
             metrics = []
@@ -112,13 +111,9 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def get_default_tab_cfg(self):
         """
-        Build and return a 'TabConfig.CTabConfig' instance, titled 'self.name', containing tab
-        configurations which represent different metrics within raw turbostat statistic files.
-
-        The hierarchy of the tabs will will only include turbostat metrics which are common to all
-        results.
-
-        See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
+        Build and return a container tab ('CTabConfig') instance, titled 'self.name', containing tab
+        configurations which represent different metrics within raw turbostat statistic files. See
+        'TabBuilderBase' for more information on default tab configurations.
         """
 
         # Find metrics which appear in the raw turbostat statistic files.
@@ -213,8 +208,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._cpunum = None
         self._mdo = None
-        # Metric definition dictionary for all metrics in all raw results.
-        self._mdd = {}
         self._hover_defs = {}
         self._time_metric = "TimeElapsed"
 
@@ -234,10 +227,10 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 metrics.append(metric)
                 metrics_set.add(metric)
 
-        # Have a metrics definition object which covers all metrics across all the results.
+        # Create a metrics definition object which covers all metrics across all the results.
         self._mdo = TurbostatMDC.TurbostatMDC(metrics)
 
-        # Build a metrics definition object describing the dataframe column names as metrics.
+        # Build a metrics definition dictionary describing all columns in the dataframe.
         mdd = {}
         time_colnames = []
         for colname, metric in self._col2metric.items():

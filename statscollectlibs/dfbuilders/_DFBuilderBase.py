@@ -15,7 +15,6 @@ is to build a 'pandas.DataFrame' object from raw statistics files.
 import json
 import logging
 import numpy
-import pandas
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 
 _LOG = logging.getLogger()
@@ -37,7 +36,7 @@ class DFBuilderBase:
           * labels - list of label dictionaries.
         """
 
-        ts_col = df[self._ts_metric]
+        ts_col = df[self._ts_colname]
 
         if labels[0]["ts"] > ts_col.iloc[-1]:
             raise Error("first label's timestamp is after the last datapoint was measured")
@@ -117,8 +116,8 @@ class DFBuilderBase:
             raise Error(f"unable to load raw statistics file at path '{path}':\n"
                         f"{Error(err).indent(2)}") from err
 
-        if self._ts_metric not in sdf:
-            raise Error(f"metric '{self._ts_metric}' was not found in statistics file '{path}'.")
+        if self._ts_colname not in sdf:
+            raise Error(f"metric '{self._ts_colname}' was not found in statistics file '{path}'.")
 
         if labels:
             self._apply_labels(sdf, labels)
@@ -136,11 +135,11 @@ class DFBuilderBase:
         self.df = sdf
         return self.df
 
-    def __init__(self, ts_metric):
+    def __init__(self, ts_colname):
         """
         The class constructor. The arguments are as follows.
-          * ts_metric - name of the time since the epoch metric.
+          * ts_colname - name of the time since the epoch dataframe column.
         """
 
         self.df = None
-        self._ts_metric = ts_metric
+        self._ts_colname = ts_colname

@@ -15,8 +15,6 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
 
-TOTALS_SNAME = "Totals"
-
 def split_colname(colname):
     """
     Turbostat dataframe columns have the "<scope>-<metric>" format, where "<scope>" is the scope
@@ -28,7 +26,7 @@ def split_colname(colname):
 
     split = colname.split("-")
     if len(split) == 1:
-        raise Error(f"BUG: bad column name {colname}")
+        return None, colname
 
     return split[0], split[1]
 
@@ -37,63 +35,79 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     Provide the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.
     """
 
-    def _add_tstat_scope(self, tstat, totals=False):
+    def _build_cols_dict(self, tstat, scope):
         """
-        The 'tstat' dictionary contains the turbostat statistics for a particular scope (e.g. for
-        a specific CPU or a summary of the whole system). Add that scope to the keys in the
-        dictionary. Arguments are as follows:
-          * tstat - a dictionary containing the turbostat statistics.
-          * totals - a boolean indicating whether the 'tstat' dictionary contains totals data.
+        Build a "columns dictionary" suitable to be used with 'pandas.DataFrame.from_dict()', which
+        requires the following format: '{column_name: [value]}'. The 'tstat' dictionary has the
+        '{column_name: value}' format.
+
+        Prefix the turbostat metrics from 'tstat' with the a prefix suitable for the scope.
         """
 
-        renamed_tstat = {}
-        renamed_tstat[self._ts_metric] = [tstat[self._ts_metric]]
-        renamed_tstat["TimeElapsed"] = [tstat["TimeElapsed"]]
+        cols_dict = {}
+        dont_prefix_metrics = {"Time_Of_Day_Seconds", "TimeElapsed"}
 
         for metric, value in tstat.items():
-            colprefix = TOTALS_SNAME if totals else f"CPU{self._cpunum}"
-            colname = f"{colprefix}-{metric}"
+            if metric in dont_prefix_metrics:
+                colname = metric
+            else:
+                if scope == "System":
+                    prefix = "System"
+                elif scope == "CPU":
+                    prefix = f"CPU{self._cpunum}"
+                else:
+                    raise Error("BUG: unsupported scope '{scope}'")
+                colname = f"{prefix}-{metric}"
+
             self.col2metric[colname] = metric
-            renamed_tstat[colname] = value
+            cols_dict[colname] = [value]
 
-        return renamed_tstat
+        return cols_dict
 
-    def _extract_cpu(self, tstat):
+    def _extract_cpu_data(self, parsed_dp):
+        """Extract turbostat data for the measured CPU."""
+
+        try:
+            cpu_tstat = parsed_dp["cpus"][self._cpunum]
+        except KeyError:
+            raise Error(f"no data for CPU '{self._cpunum}' found in turbostat statistics file "
+                        f"'{self._path}") from None
+
+        # Add core level values for the metrics absent at the CPU level, but present at the core
+        # level.
+        try:
+            for metric, value in parsed_dp["cpu2coreinfo"][self._cpunum]["totals"].items():
+                if metric not in cpu_tstat:
+                    cpu_tstat[metric] = value
+        except KeyError:
+            raise Error(f"no data for CPU '{self._cpunum}' found in turbostat statistics file "
+                        f"'{self._path}") from None
+
+        return cpu_tstat
+
+    def _turbostat_to_df(self, parsed_dp):
         """
-        Get a dictionary containing the turbostat statistics for the measured CPU. The dictionary
-        contains values from the package, core, and CPU levels.
+        Convert a parsed turbostat datapoint dictionary to a dataframe. The dataframe columns will
+        be prefixed with the scope name. The arguments are as follows.
+          * parsed_dp - the parsed turbostat datapoint dictionary (from 'TurbostatParser').
         """
 
-        # Traverse dictionary looking for measured CPUs.
-        for package in tstat["packages"].values():
-            for core in package["cores"].values():
-                if self._cpunum not in core["cpus"]:
-                    continue
-
-                # Include the package and core totals as for metrics which are not available at the
-                # CPU level.
-                return self._add_tstat_scope({**package["totals"], **core["totals"],
-                                              **core["cpus"][self._cpunum]})
-
-        raise Error(f"no data for measured CPU '{self._cpunum}'")
-
-    def _turbostat_to_df(self, tstat):
-        """
-        Convert the 'tstat' dictionary to a 'pandas.DataFrame'. Arguments are as follows:
-          * tstat - dictionary produced by 'TurbostatParser'.
-        """
-
-        new_tstat = self._add_tstat_scope(tstat["totals"], totals=True)
+        # Prepare the "columns dictionary", which has the '{colname: [value]}' format. This format
+        # is required by 'pandas.DataFrame.from_dict()'. Start with the system-wide scope metrics.
+        cols_dict = self._build_cols_dict(parsed_dp["totals"], "System")
         if self._cpunum is not None:
-            new_tstat.update(self._extract_cpu(tstat))
+            cpu_tstat = self._extract_cpu_data(parsed_dp)
+            cols_dict.update(self._build_cols_dict(cpu_tstat, "CPU"))
 
-        return pandas.DataFrame.from_dict(new_tstat)
+        return pandas.DataFrame.from_dict(cols_dict)
 
     def _read_stats_file(self, path):
         """
         Return a 'pandas.DataFrame' containing the data stored in the raw turbostat statistics file
         at path 'path'.
         """
+
+        self._path = path
 
         parser = TurbostatParser.TurbostatParser(path, derivatives=True)
         generator = parser.next()
@@ -111,15 +125,15 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
                                  f"include time-stamps.\nCollect turbostat statistics with the "
                                  f"'--enable Time_Of_Day_Seconds' option to include time-stamps.")
 
-        # Initialise 'sdf' with the first datapoint in the raw statistics file.
-        sdf = self._turbostat_to_df(parsed_dp)
+        # Initialise 'df' with the first datapoint in the raw statistics file.
+        df = self._turbostat_to_df(parsed_dp)
 
         # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
         for parsed_dp in generator:
-            df = self._turbostat_to_df(parsed_dp)
-            sdf = pandas.concat([sdf, df], ignore_index=True)
+            next_row_df = self._turbostat_to_df(parsed_dp)
+            df = pandas.concat([df, next_row_df], ignore_index=True)
 
-        return sdf
+        return df
 
     def __init__(self, cpunum=None):
         """
@@ -128,10 +142,10 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         self._cpunum = cpunum
+        self._path = None
 
-        # A dictionary mapping 'pandas.DataFrame' column names (built by 'load_df()') to the
-        # corresponding turbostat metric name. E.g., column "Totals-CPU%c1" will be mapped to
-        # 'CPU%c1'.
+        # A dictionary mapping dataframe column names to the corresponding turbostat metric name.
+        # E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self.col2metric = {}
 
         super().__init__("Time_Of_Day_Seconds")
