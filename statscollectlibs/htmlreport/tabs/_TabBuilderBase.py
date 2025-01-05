@@ -39,12 +39,10 @@ class TabBuilderBase:
     configuration.
 
     This base class requires child classes to implement the following methods:
-    1. Read a raw statistics file and convert the statistics data into a 'pandas.DataFrame'.
-       * '_read_stats_file()'
-    2. Optionally, retrieve the default 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance.
+    1. Optionally, retrieve the default 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance.
        See 'TabConfig' for more information on tab configurations.
        * 'get_default_tab_cfg()'
-    3. Generate a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
+    2. Generate a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
        statistics files. Optionally provide a tab configuration ('DTabConfig' or 'CTabConfig') to
        customize the tab. This can be based on the default configuration retrieved using
        'get_default_tab_cfg()'.
