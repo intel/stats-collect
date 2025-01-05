@@ -71,7 +71,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
     def _load_dfs(self, rsts):
         """
-        Load dataframes from raw IPMI statistics files in 'rsts'. Return the datafames dictionary.
+        Load dataframes from raw IPMI statistics files in 'rsts'. Return the dataframes dictionary.
         """
 
         dfbldr = _IPMIDFBuilder.IPMIDFBuilder()

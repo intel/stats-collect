@@ -172,7 +172,7 @@ class DFBuilderBase:
         """
         The class constructor. The arguments are as follows.
           * ts_colname - name of the time since the epoch dataframe column.
-          * time_colname - name of the dataframe column for time elapsed since the begining of the
+          * time_colname - name of the dataframe column for time elapsed since the beginning of the
             measurements.
         """
 
