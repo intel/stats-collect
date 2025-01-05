@@ -1,3 +1,13 @@
+stats-collect (1.0.35) unstable; urgency=low
+
+  * Fix mis-placing of ACPI C-states like C1_ACPI in HTML reports.
+  * Add workload data direcrtory reference from the intro table.
+  * Add basic SPECjbb2015 workload support.
+  * Add 'stats-collect report --copy-raw' option support.
+  * Speed up Turbostat data parsing.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Sun, 05 Jan 2025 00:00:00 +0200
+
 stats-collect (1.0.34) unstable; urgency=low
 
   * Fix turbostat "PkgWatt%TDP" statistics for results collected with

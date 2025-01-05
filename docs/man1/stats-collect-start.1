@@ -18,7 +18,12 @@
 .hy
 .SH Command \f[I]\[aq]start\[aq]\f[R]
 .PP
-Start collecting statistics.
+usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
+[-K PRIVKEY] [-T TIMEOUT] [--cpunum CPUNUM] [--time-limit LIMIT] [-o
+OUTDIR] [--reportid REPORTID] [--stats STATS] [--stats-intervals
+STATS_INTERVALS] [--list-stats] [--report] command
+.PP
+Run a command and collecting statistics.
 .SS General options
 .TP
 \f[B]-h\f[R]
@@ -85,10 +90,6 @@ pre-pending the \[aq]!\[aq] symbol.
 For example, \[aq]all,!turbostat\[aq] would mean: collect all the
 statistics supported by the SUT, except for
 .TP
-\f[B]--list-stats\f[R]
-Print information about the statistics \[aq]stats-collect\[aq] can
-collect and exit.
-.TP
 \f[B]--stats-intervals\f[R] \f[I]STATS_INTERVALS\f[R]
 The intervals for statistics.
 Statistics collection is based on doing periodic snapshots of data.
@@ -98,5 +99,11 @@ SUT power consumption for the last second every second, and
 Use \[aq]acpower:5,turbostat:10\[aq] to increase the intervals to 5 and
 10 seconds correspondingly.
 Use the \[aq]--list-stats\[aq] to get the default interval values.
-.PP
+.TP
+\f[B]--list-stats\f[R]
+Print information about the statistics \[aq]stats-collect\[aq] can
+collect and exit.
+.TP
 \f[B]--report\f[R]
+Generate an HTML report for collected results (same as calling
+\[aq]report\[aq] command with default arguments).

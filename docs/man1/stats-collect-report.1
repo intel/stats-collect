@@ -18,6 +18,9 @@
 .hy
 .SH Command \f[I]\[aq]report\[aq]\f[R]
 .PP
+usage: stats-collect report [-h] [-q] [-d] [-o OUTDIR] [--reportids
+REPORTIDS] [--copy-raw] respaths [respaths ...]
+.PP
 Create an HTML report for one or multiple test results.
 .TP
 \f[B]respaths\f[R]
@@ -55,3 +58,7 @@ The first report ID will be used for the first raw rest result, the
 second report ID will be used for the second raw test result, and so on.
 Please, refer to the \[aq]--reportid\[aq] option description in the
 \[aq]start\[aq] command for more information about the report ID.
+.TP
+\f[B]--copy-raw\f[R]
+Copy raw test results to the output directory (unless the output
+direcory is already part of the raw result sub-directory).
