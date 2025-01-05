@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix incorrect pepc requriement.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.36] - 2025-01-05
+### Fixed
+ - Fix incorrect pepc requriement.
 
 ## [1.0.35] - 2025-01-05
 ### Fixed
