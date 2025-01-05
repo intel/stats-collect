@@ -132,10 +132,12 @@ class DFBuilderBase:
         self._path = path
 
         if labels_path:
+            _LOG.debug("loading labels from '%s'", labels_path)
             labels = self._load_labels(labels_path)
         else:
             labels = None
 
+        _LOG.debug("loading raw statistics file '%s'", path)
         try:
             df = self._read_stats_file(path)
         except ErrorBadFormat:
