@@ -11,7 +11,7 @@
 import logging
 from pathlib import Path
 from pepclibs.helperlibs import YAML
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
+from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser
 from statscollectlibs.helperlibs import ReportID, FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
@@ -151,12 +151,9 @@ class RORawResult(_RawResultBase.RawResultBase):
         parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=path)
 
         try:
-            next(parser.next())
-            return True
-        except StopIteration:
-            raise Error(f"failed to parse SPECjbb2015 controller output file at '{path}'") from None
-
-        return False
+            return parser.probe()
+        except ErrorBadFormat:
+            return False
 
     def _detect_wltype(self):
         """

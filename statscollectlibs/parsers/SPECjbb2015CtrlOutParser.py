@@ -12,6 +12,7 @@ SPECjbb2015 controller stdout output parser.
 
 import re
 from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs.Exceptions import ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
 
 class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
@@ -53,8 +54,30 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
             levels["first_level"] = pcnt
         levels["last_level"] = pcnt
 
+    def probe(self):
+        """
+        Return 'True' if the data does look like SPECjbb2015 controller stdout output, raise
+        'ErrorBadFormat' otherwise.
+        """
+
+        if self._probe_status is not None:
+            if self._probe_status is True:
+                return True
+            raise self._probe_status
+
+        _marker_regex = re.compile("^SPECjbb2015 Java Business Benchmark$")
+        for line in self._lines:
+            if re.match(_marker_regex, line):
+                self._probe_status = True
+                return True
+
+        self._probe_status = ErrorBadFormat("not SPECjbb2015 controller stdout output")
+        raise self._probe_status
+
     def _next(self):
         """Yield a dictionary containing SPECjbb2015 information."""
+
+        self.probe()
 
         # Example of the string to match.
         # 608s: high-bound for max-jOPS is measured to be 882464
@@ -118,4 +141,19 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
             if match_dict[mkey]["onetime"]:
                 del match_dict[mkey]
 
+        if not result:
+            raise ErrorBadFormat("no parsable information found in the SPECjbb2015 controller "
+                                 "stdout output")
+
         yield result
+
+    def __init__(self, path=None, lines=None):
+        """
+        The class constructor. Arguments are as follows.
+          * path - same as in ParserBase.__init__().
+          * lines - same as in ParserBase.__init__().
+        """
+
+        self._probe_status = None
+
+        super().__init__(path, lines)
