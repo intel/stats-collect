@@ -12,10 +12,11 @@ Provide the tab builder for the SPECjbb2015 workload.
 
 import logging
 import pandas
+from pepclibs.helperlibs import Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 from statscollectlibs.mdc import MDCBase
-from statscollectlibs.parsers import SPECjbb2015CtrlOutParser
+from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 _LOG = logging.getLogger()
@@ -69,43 +70,91 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         return TabConfig.CTabConfig(self.name, dtabs=[dtab])
 
     def _get_specjbb_info(self, res):
-        """
-        Parse the SPECjbb2015 logs and return SPECjbb information dictionary.
-        """
+        """Parse the SPECjbb2015 controller logs and return SPECjbb information dictionary."""
 
-        path = res.wldata_path / "controller.out"
-        parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=path)
+        log_path = res.wldata_path / "controller.log"
+        if not log_path.exists():
+            return False
+
+        log_parser = SPECjbb2015CtrlLogParser.SPECjbb2015CtrlLogParser(path=log_path)
+        log_info = next(log_parser.next())
+
+        # Both SPECjbb2015 controller log and stdout output are necessary.
+        out_path = res.wldata_path / "controller.out"
+        if not out_path.exists():
+            return False
+
+        out_parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=out_path)
+        out_info = next(out_parser.next())
 
         try:
-            specjbb_info = next(parser.next())
-        except StopIteration:
-            raise Error(f"failed to parse SPECjbb2015 controller output file at '{path}'") from None
+            # Sanity checks.
+            log_hbir = log_info["hbir"]
+            out_hbir = out_info["hbir"]
+            if log_hbir != out_hbir:
+                raise Error(f"SPECjbb2015 HBIR mismatch:\n"
+                            f"  * controller log: HBIR is {log_hbir}\n"
+                            f"  * controller out: HBIR is {out_hbir}")
 
-        return specjbb_info
+            log_max_jops = log_info["max_jops"]
+            out_max_jops = out_info["max_jops"]
+            if log_max_jops != out_max_jops:
+                raise Error(f"SPECjbb2015 max-jOPS mismatch:\n"
+                            f"  * controller log: max-jOPS is {log_max_jops}\n"
+                            f"  * controller out: max-jOPS is {out_max_jops}")
+
+            log_first_level = log_info["rt_curve"]["first_level"]
+            out_first_level = log_info["rt_curve"]["first_level"]
+            if log_first_level != out_first_level:
+                raise Error(f"SPECjbb2015 load levels count mismatch:\n"
+                            f"  * controller log: first level number is {log_first_level}\n"
+                            f"  * controller out: first level number is {out_first_level}")
+
+            log_last_level = log_info["rt_curve"]["last_level"]
+            out_last_level = log_info["rt_curve"]["last_level"]
+            if log_last_level != out_last_level:
+                raise Error(f"SPECjbb2015 load levels count mismatch:\n"
+                            f"  * controller log: last level number is {log_last_level}\n"
+                            f"  * controller out: last level number is {out_last_level}")
+
+            log_levels_cnt = len(log_info["rt_curve"]["levels"])
+            out_levels_cnt = len(out_info["rt_curve"]["levels"])
+            if log_levels_cnt != out_levels_cnt:
+                log_range = Human.rangify(list(log_info["rt_curve"]["levels"]))
+                out_range = Human.rangify(list(out_info["rt_curve"]["levels"]))
+                raise Error(f"SPECjbb2015 load levels count mismatch:\n"
+                            f"  * controller log: {log_levels_cnt} levels ({log_range})\n"
+                            f"  * controller out: {out_levels_cnt} levels ({out_range})")
+
+            info = {}
+            info["max_jops"] = out_max_jops
+            info["crit_jops"] = out_info["crit_jops"]
+            info["hbir"] = out_hbir
+            info["first_level"] = out_first_level
+            info["last_level"] = out_last_level
+            # Use absolute time-stamps which come from controller and are missing from controller
+            # stdout.
+            info["first_level_ts"] = log_info["rt_curve"]["levels"][log_first_level]["ts"]
+            info["last_level_ts"] = log_info["rt_curve"]["levels"][log_last_level]["ts"]
+        except KeyError as err:
+            raise Error(f"failed to find necessary information in SPECjbb2015 logs: {err}") from err
+
+        return info
 
     def _construct_dfs(self):
         """Construct and return a SPECjbb2014 'Pandas.dataframe' objects."""
 
         dfs = {}
         for res in self._rsts:
-            specjbb_info = self._get_specjbb_info(res)
+            info = self._get_specjbb_info(res)
 
-            try:
-                level = specjbb_info["rt_curve"]["levels"]["first_level"]
-                begin_ts = specjbb_info["rt_curve"]["levels"][level]["ts"]
-                level = specjbb_info["rt_curve"]["levels"]["last_level"]
-                end_ts = specjbb_info["rt_curve"]["levels"][level]["ts"]
-
-                data = {"max-jOPS": [specjbb_info["max_jops"]],
-                        "critical-jOPS": [specjbb_info["crit_jops"]],
-                        "HBIR": [specjbb_info["hbir"]]}
-            except KeyError as err:
-                raise Error(f"failed to find necessary information in SPECjbb2015 logs: "
-                            f"{err}") from err
+            data = {"max-jOPS": [info["max_jops"]],
+                    "critical-jOPS": [info["crit_jops"]],
+                    "HBIR": [info["hbir"]]}
 
             # Limit the statistics data to the RT-curve, everything else is usually uninteresting
             # and only clutters the HTML report diagrams.
-            res.set_timestamp_limits(begin_ts, end_ts, absolute=False)
+            res.set_timestamp_limits(info["first_level_ts"], info["last_level_ts"], absolute=True)
 
             dfs[res.reportid] = pandas.DataFrame(data)
 

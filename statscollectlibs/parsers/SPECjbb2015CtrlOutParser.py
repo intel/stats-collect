@@ -18,7 +18,7 @@ from statscollectlibs.parsers import _ParserBase
 class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
     """Provide API for parsing the SPECjbb2015 controller stdout output."""
 
-    def _parse_rt_curve(self, result, line):
+    def _parse_rt_curve(self, info, line):
         """
         Match and parse the RT-curve load levels.
         """
@@ -32,12 +32,12 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
         if not match:
             return
 
-        if "rt_curve" not in result:
-            result["rt_curve"] = {}
-        if "levels" not in result["rt_curve"]:
-            result["rt_curve"]["levels"] = {}
+        if "rt_curve" not in info:
+            info["rt_curve"] = {}
+        if "levels" not in info["rt_curve"]:
+            info["rt_curve"]["levels"] = {}
 
-        levels = result["rt_curve"]["levels"]
+        levels = info["rt_curve"]["levels"]
 
         # The load levels are indexed by the HBIR percent.
         pcnt = Trivial.str_to_int(match[2], what="Load level percent index")
@@ -50,9 +50,9 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
         levels[pcnt]["tpr"] = Trivial.str_to_int(match[6], what=f"Load level {pcnt}% tPR")
 
         # The last found load level percentage.
-        if "first_level" not in levels:
-            levels["first_level"] = pcnt
-        levels["last_level"] = pcnt
+        if "first_level" not in info["rt_curve"]:
+            info["rt_curve"]["first_level"] = pcnt
+        info["rt_curve"]["last_level"] = pcnt
 
     def probe(self):
         """
@@ -65,11 +65,15 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
                 return True
             raise self._probe_status
 
-        _marker_regex = re.compile("^SPECjbb2015 Java Business Benchmark$")
+        _marker_regex = re.compile(r"^SPECjbb2015 Java Business Benchmark$")
         for line in self._lines:
             if re.match(_marker_regex, line):
                 self._probe_status = True
                 return True
+
+            self._lines_probed += 1
+            if self._lines_probed > 1024:
+                break
 
         self._probe_status = ErrorBadFormat("not SPECjbb2015 controller stdout output")
         raise self._probe_status
@@ -114,7 +118,7 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
         rt_start_regex = r"^\s*(\d+)s: Building throughput-responsetime curve$"
 
         rt_started = False
-        result = {}
+        info = {}
 
         for line in self._lines:
             if not rt_started:
@@ -124,7 +128,7 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
                     continue
 
             if rt_started:
-                if self._parse_rt_curve(result, line):
+                if self._parse_rt_curve(info, line):
                     continue
 
             for mkey, minfo in match_dict.items():
@@ -133,7 +137,7 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
                     continue
                 for key, kinfo in minfo["map"].items():
                     val = match.group(kinfo["group"])
-                    result[key] = kinfo["type"](val)
+                    info[key] = kinfo["type"](val)
                 break
             else:
                 continue
@@ -141,11 +145,11 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
             if match_dict[mkey]["onetime"]:
                 del match_dict[mkey]
 
-        if not result:
+        if not info:
             raise ErrorBadFormat("no parsable information found in the SPECjbb2015 controller "
                                  "stdout output")
 
-        yield result
+        yield info
 
     def __init__(self, path=None, lines=None):
         """
@@ -154,6 +158,7 @@ class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
           * lines - same as in ParserBase.__init__().
         """
 
+        self._lines_probed = 0
         self._probe_status = None
 
         super().__init__(path, lines)

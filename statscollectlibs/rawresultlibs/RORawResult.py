@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound, ErrorBadFormat
-from statscollectlibs.parsers import SPECjbb2015CtrlOutParser
+from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import ReportID, FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
@@ -143,16 +143,26 @@ class RORawResult(_RawResultBase.RawResultBase):
     def _is_specjbb2015(self):
         """Return 'True' if the workload is SPECjbb2015."""
 
-        # Really basic SPECjbb2015 detection. Obviously needs to be improved.
-        path = self.wldata_path / "controller.out"
-        if not path.exists():
+        if not self.wldata_path:
             return False
 
-        parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=path)
+        # Both SPECjbb2015 controller log and stdout outputs are necessary.
+        stdout_path = self.wldata_path / "controller.out"
+        if not stdout_path.exists():
+            return False
+
+        log_path = self.wldata_path / "controller.log"
+        if not log_path.exists():
+            return False
+
+        stdout_parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=stdout_path)
+        log_parser = SPECjbb2015CtrlLogParser.SPECjbb2015CtrlLogParser(path=log_path)
 
         try:
-            return parser.probe()
-        except ErrorBadFormat:
+            stdout_parser.probe()
+            return log_parser.probe()
+        except ErrorBadFormat as err:
+            _LOG.debug("SPECjbb2015 probe is negative: %s", err)
             return False
 
     def _detect_wltype(self):
@@ -160,14 +170,13 @@ class RORawResult(_RawResultBase.RawResultBase):
         Detect the workload that was running while the statistics in this raw result were collected.
         """
 
+        self.wltype = "generic"
+
         try:
-            if not self.wldata_path:
-                self.wltype = "generic"
-            elif self._is_specjbb2015():
+            if self._is_specjbb2015():
                 self.wltype = "specjbb2015"
         except (Error, OSError) as err:
             _LOG.warning("workload type detection failed:\n%s", err.indent(2))
-            self.wltype = "generic"
 
         _LOG.debug("%s: workload type is '%s (%s)'",
                    self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
