@@ -564,21 +564,21 @@ class TurbostatParser(_ParserBase.ParserBase):
         # turbostat version 2022.07.28 - Len Brown <lenb@kernel.org>
         match = re.match(r"turbostat version ([^\s]+) .*", line)
         if match:
-            self._nontable["TurbostatVersion"] = match.group(0)
+            self._nontable["TurbostatVersion"] = match[0]
             return
 
         # Example:
         # 10 * 100 = 1000 MHz max efficiency frequency
         match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz max efficiency frequency", line)
         if match:
-            self._nontable["MaxEfcFreq"] = float(match.group(1))
+            self._nontable["MaxEfcFreq"] = float(match[1])
             return
 
         # Example:
         # 18 * 100 = 1800 MHz base frequency
         match = re.match(r"\d+ \* [.\d]+ = ([.\d]+) MHz base frequency", line)
         if match:
-            self._nontable["BaseFreq"] = float(match.group(1))
+            self._nontable["BaseFreq"] = float(match[1])
             return
 
         # Example:
@@ -587,14 +587,14 @@ class TurbostatParser(_ParserBase.ParserBase):
         if match:
             if "MaxTurbo" not in self._nontable:
                 self._nontable["MaxTurbo"] = {}
-            self._nontable["MaxTurbo"][match.group(2)] = float(match.group(1))
+            self._nontable["MaxTurbo"][match[2]] = float(match[1])
             return
 
         # Example:
         # cpu0: MSR_PKG_POWER_INFO: 0xf0ce803980528 (165 W TDP, RAPL 115 - 413 W, 0.014648 sec.)
         match = re.match(r"cpu\d+: MSR_PKG_POWER_INFO: .+ \(([.\d]+) W TDP, .+\)", line)
         if match:
-            self._nontable["TDP"] = int(match.group(1))
+            self._nontable["TDP"] = int(match[1])
             return
 
         self._parse_cpu_flags(line)

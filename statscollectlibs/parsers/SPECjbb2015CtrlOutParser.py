@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-An unfinished, quickly put together SPECjbb2015 controller output file parser.
+SPECjbb2015 controller stdout output parser.
 """
 
 import re
 from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import _ParserBase
 
-class SPECjbb2015Parser(_ParserBase.ParserBase):
-    """Provide API for parsing the SPECjbb2015 controller output file."""
+class SPECjbb2015CtrlOutParser(_ParserBase.ParserBase):
+    """Provide API for parsing the SPECjbb2015 controller stdout output."""
 
     def _parse_rt_curve(self, result, line):
         """
@@ -39,15 +39,14 @@ class SPECjbb2015Parser(_ParserBase.ParserBase):
         levels = result["rt_curve"]["levels"]
 
         # The load levels are indexed by the HBIR percent.
-        pcnt = Trivial.str_to_int(match.group(2), what="Load level percent index")
+        pcnt = Trivial.str_to_int(match[2], what="Load level percent index")
 
         levels[pcnt] = {}
-        levels[pcnt]["ts"] = Trivial.str_to_int(match.group(1),
-                                                what=f"Load level {pcnt}% time-stamp")
-        levels[pcnt]["rir"] = Trivial.str_to_int(match.group(3), what=f"Load level {pcnt}% rIR")
-        levels[pcnt]["air"] = Trivial.str_to_int(match.group(4), what=f"Load level {pcnt}% raIR")
-        levels[pcnt]["pr"] = Trivial.str_to_int(match.group(5), what=f"Load level {pcnt}% PR")
-        levels[pcnt]["tpr"] = Trivial.str_to_int(match.group(6), what=f"Load level {pcnt}% tPR")
+        levels[pcnt]["ts"] = Trivial.str_to_int(match[1], what=f"Load level {pcnt}% time-stamp")
+        levels[pcnt]["rir"] = Trivial.str_to_int(match[3], what=f"Load level {pcnt}% rIR")
+        levels[pcnt]["air"] = Trivial.str_to_int(match[4], what=f"Load level {pcnt}% raIR")
+        levels[pcnt]["pr"] = Trivial.str_to_int(match[5], what=f"Load level {pcnt}% PR")
+        levels[pcnt]["tpr"] = Trivial.str_to_int(match[6], what=f"Load level {pcnt}% tPR")
 
         # The last found load level percentage.
         if "first_level" not in levels:

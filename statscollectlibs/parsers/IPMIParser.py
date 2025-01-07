@@ -35,25 +35,25 @@ class IPMIParser(_ParserBase.ParserBase):
             raise ErrorBadFormat(f"unrecognized raw IPMI statistics file format.\nExpected to find "
                                  f"the time-stamp (example: 'timestamp | 1705672515.054093'), got: "
                                  f"'{ts_line}'")
-        yield (match.group(1).strip(), get_ts(match.group(2).strip()), "")
+        yield (match[1].strip(), get_ts(match[2].strip()), "")
 
         for line in self._lines:
             line = line.strip()
             match = re.match(ts_regex, line)
             if match:
-                timestamp = get_ts(match.group(2).strip())
-                yield (match.group(1).strip(), timestamp, "")
+                timestamp = get_ts(match[2].strip())
+                yield (match[1].strip(), timestamp, "")
             else:
                 # Example of the string:
                 # System Fan 4     | 2491 RPM          | ok
                 match = re.match(entry_regex, line)
                 if match:
-                    val = match.group(2).strip()
+                    val = match[2].strip()
                     data = val.split(" ", 1)
                     if val not in ["no reading", "disabled"] and len(data) > 1:
-                        yield (match.group(1).strip(), Trivial.str_to_num(data[0]), data[1])
+                        yield (match[1].strip(), Trivial.str_to_num(data[0]), data[1])
                     else:
-                        yield (match.group(1).strip(), None, None)
+                        yield (match[1].strip(), None, None)
 
     def _add_derivatives(self, data_set):
         """"Add derivative metrics to the data set."""

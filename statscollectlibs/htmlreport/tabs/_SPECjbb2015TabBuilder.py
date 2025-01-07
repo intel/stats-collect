@@ -15,7 +15,7 @@ import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 from statscollectlibs.mdc import MDCBase
-from statscollectlibs.parsers import SPECjbb2015Parser
+from statscollectlibs.parsers import SPECjbb2015CtrlOutParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 _LOG = logging.getLogger()
@@ -74,7 +74,7 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         """
 
         path = res.wldata_path / "controller.out"
-        parser = SPECjbb2015Parser.SPECjbb2015Parser(path=path)
+        parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=path)
 
         try:
             specjbb_info = next(parser.next())

@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from pepclibs.helperlibs import YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound
-from statscollectlibs.parsers import SPECjbb2015Parser
+from statscollectlibs.parsers import SPECjbb2015CtrlOutParser
 from statscollectlibs.helperlibs import ReportID, FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
@@ -148,7 +148,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         if not path.exists():
             return False
 
-        parser = SPECjbb2015Parser.SPECjbb2015Parser(path=path)
+        parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=path)
 
         try:
             next(parser.next())
