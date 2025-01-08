@@ -1,3 +1,9 @@
+stats-collect (1.0.38) unstable; urgency=low
+
+  * Improve SEPCjbb2015 results cropping.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 08 Jan 2025 00:00:00 +0200
+
 stats-collect (1.0.37) unstable; urgency=low
 
   * Fix failure to visualize IPMI statistics  (regression since v1.0.35).
