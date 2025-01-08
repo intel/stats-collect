@@ -12,7 +12,7 @@ SPECjbb2015 controller log parser.
 
 import re
 import time
-import dateutil
+import datetime
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
@@ -20,7 +20,7 @@ from statscollectlibs.parsers import _ParserBase
 # The SPECjbb2015 time-stamp regular expression. Examples of the time-stamp:
 # * <Fri Dec 20 08:34:58 PST 2024>
 # * <Tue Aug 15 20:01:03 EEST 2017>
-_TS = r"\<([^\W\d_]{3} [^\W\d_]{3} \d{2} \d{2}:\d{2}:\d{2} [^\W\d_]{3,4} \d{4})\>"
+_TS = r"\<(([^\W\d_]{3} [^\W\d_]{3} \d{2} \d{2}:\d{2}:\d{2}) ([^\W\d_]{3,4}) (\d{4}))\>"
 
 # All sorts of timezone names and their offset in seconds, to parse SPECjbb2015 time-stamps.
 _TIMEZONES = {"A": 3600, "ACDT": 37800, "ACST": 34200, "ACT": 28800, "ADT": -10800, "AEDT": 39600,
@@ -109,7 +109,7 @@ class SPECjbb2015CtrlLogParser(_ParserBase.ParserBase):
             if not match:
                 continue
 
-            return Trivial.str_to_int(match[2], what="HBIR")
+            return Trivial.str_to_int(match[5], what="HBIR")
 
         raise ErrorBadFormat("HBIR value was not found in SPECjbb2015 controller log")
 
@@ -119,12 +119,15 @@ class SPECjbb2015CtrlLogParser(_ParserBase.ParserBase):
         are expected, otherwise return 'False'.
         """
 
-        try:
-            ts = dateutil.parser.parse(match[1], tzinfos=_TIMEZONES)
-            ts = time.mktime(ts.astimezone().timetuple())
-        except Exception as err:
-            errmsg = Error(err).indent(1)
-            raise ErrorBadFormat(f"failed to parse timestamp '{match[1]}:\n{errmsg}") from err
+        # Remove the time-zone part from the time-stamp, because 'strptime()' does not support
+        # SPECjbb log time-zone formats.
+        ts = match[2] + " " + match[4]
+        # The time-stamp format without time-zone.
+        ts_format = "%a %b %d %H:%M:%S %Y"
+        # Parse the time-stamp, make it be UTC time, and then time in the original time-zone.
+        ts = datetime.datetime.strptime(ts, ts_format)
+        ts = ts.replace(tzinfo=datetime.timezone.utc)
+        ts = ts.timestamp() - _TIMEZONES[match[3]]
 
         if "rt_curve" not in info:
             info["rt_curve"] = {"levels": {}}
@@ -132,7 +135,7 @@ class SPECjbb2015CtrlLogParser(_ParserBase.ParserBase):
         levels = info["rt_curve"]["levels"]
 
         if start:
-            self._pcnt = Trivial.str_to_int(match[3], what="Load level percent")
+            self._pcnt = Trivial.str_to_int(match[6], what="Load level percent")
             if self._pcnt not in levels:
                 levels[self._pcnt] = {}
             if "first_level" not in info["rt_curve"]:
@@ -143,14 +146,14 @@ class SPECjbb2015CtrlLogParser(_ParserBase.ParserBase):
         if start:
             level["ts"] = int(ts)
         else:
-            status = match[4]
+            status = match[7]
             if status != "OK":
                 del levels[self._pcnt]
                 return False
 
             info["rt_curve"]["last_level"] = self._pcnt
             level["status"] = status
-            level["ir"] = Trivial.str_to_int(match[2], what=f"Load level {self._pcnt}% IR")
+            level["ir"] = Trivial.str_to_int(match[5], what=f"Load level {self._pcnt}% IR")
             info["max_jops"] = level["ir"]
 
         return True
