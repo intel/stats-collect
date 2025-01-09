@@ -357,20 +357,23 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
             if self._oobagent:
                 self._oobagent.collect_sysinfo_after()
 
-    def _copy_remote_data(self):
-        """Copy statistics data from the remote host to the local host."""
+    def _copy_inband_data(self):
+        """Copy statistics data from inband agent output directory to local output directory."""
 
-        if not self.remote_outdir:
-            return
-
-        _LOG.log(self._infolvl, "Copy collected statistics from '%s' to '%s'",
-                 self._pman.hostname, self.local_outdir)
+        if self.remote_outdir:
+            _LOG.log(self._infolvl, "Copy collected statistics from '%s' to '%s'",
+                     self._pman.hostname, self.local_outdir)
+            srcpath = self.remote_outdir
+            remotesrc = True
+        else:
+            srcpath = self._inbagent.outdir
+            remotesrc = False
 
         # Add trailing slash to the remote directory path in order to make rsync copy the
         # contents of the remote directory, but not the directory itself.
-        srcpath = f"{self.remote_outdir}/"
+        srcpath = f"{srcpath}/"
 
-        self._pman.rsync(srcpath, self.local_outdir, remotesrc=True, remotedst=False)
+        self._pman.rsync(srcpath, self.local_outdir, remotesrc=remotesrc, remotedst=False)
 
     def get_stinfo(self):
         """Get statistics description dictionary for all enabled statistics."""
@@ -401,7 +404,7 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
           * generate the 'stats-info.yml' file.
         """
 
-        self._copy_remote_data()
+        self._copy_inband_data()
         self.res.info["stinfo"] = self.get_stinfo()
         self.res.write_info()
 
@@ -423,6 +426,7 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
                     else:
                         val = cfg[stname].get(key, val)
 
+    # pylint: disable=unused-argument
     def __init__(self, pman, res, local_outdir=None, remote_outdir=None):
         """Same as 'StatsCollect.__init__()'."""
 
@@ -454,25 +458,18 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         #   'local_outdir', and the out-of-band 'stc-agent' is not used at all, so there is no
         #   "remote output directory.
 
-        if pman.is_remote:
-            inb_outdir = remote_outdir
-            oob_outdir = local_outdir
-        else:
-            inb_outdir = local_outdir
-            oob_outdir = -1 # Just a bogus value, should not be used.
-
         inb_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent", pman)
-        self._inbagent = _STCAgent.InBandCollector(pman, outdir=inb_outdir, stca_path=inb_stca_path)
+        self._inbagent = _STCAgent.InBandCollector(pman, stca_path=inb_stca_path)
         if pman.is_remote:
             # Do not create the out-of-band collector if 'pman' represents the local host.
             # Out-of-band collectors by definition run on a host different to the SUT.
             oob_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent")
-            self._oobagent = _STCAgent.OutOfBandCollector(pman.hostname, outdir=oob_outdir,
+            self._oobagent = _STCAgent.OutOfBandCollector(pman.hostname, outdir=local_outdir,
                                                           stca_path=oob_stca_path)
             self.local_outdir = self._oobagent.outdir
             self.remote_outdir = self._inbagent.outdir
         else:
-            self.local_outdir = self._inbagent.outdir
+            self.local_outdir = local_outdir
 
         self._apply_config_file()
 
