@@ -201,8 +201,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     def link_wldata(self, dstpath):
         """
-        If the raw results include the workload data sub-directory, create symbolic links pointing
-        to the workload data directory.
+        Create a symbolic link pointing to the workload data directory.
           * dstpath - path to the directory to create the symbolic link in.
         """
 
@@ -236,6 +235,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         self._check_info_yml(dstpath)
 
         srcpaths = [self.info_path]
+        srcpaths.append(self.stats_path)
         if self.logs_path:
             srcpaths.append(self.logs_path)
         if self.wldata_path:
