@@ -63,6 +63,9 @@ def get_totals_func_name(metric):
     # Package, core, RAM and GFX power.
     if metric.endswith("Watt"):
         return "sum"
+    # The C-states requests rate derivative metric.
+    if metric.endswith("_rate"):
+        return "sum"
     # Temperatures.
     if metric.endswith("Tmp"):
         return "max"
