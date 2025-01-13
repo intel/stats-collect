@@ -130,6 +130,11 @@ def _collect_sysinfo(outdir, when, pman):
     cmdinfo["outfile"] = outfile
     cmdinfo["cmd"] = f"pepc pstates info > '{outfile}' 2>&1"
 
+    cmdinfos["pepc_pmqos"] = cmdinfo = {}
+    outfile = outdir / f"pepc_pmqos.{when}.raw.txt"
+    cmdinfo["outfile"] = outfile
+    cmdinfo["cmd"] = f"pepc pmqos info > '{outfile}' 2>&1"
+
     cmdinfos["pepc_aspm"] = cmdinfo = {}
     outfile = outdir / f"pepc_aspm.{when}.raw.txt"
     cmdinfo["outfile"] = outfile
