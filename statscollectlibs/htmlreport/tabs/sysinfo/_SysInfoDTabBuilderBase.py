@@ -1,54 +1,61 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module provides the capability of populating a "SysInfo" data tab.
-
-"SysInfo" tabs contain various system information about the systems under test (SUTs).
+Provide the base class for data tabs of the "SysInfo" container tab.
 """
 
+from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
 class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     """
-    This base class provides the capability of populating a "SysInfo" tab.
-
-    Public method overview:
-     * get_tab() - returns a '_Tabs.DTabDC' instance which represents system information.
+    Base class for data tabs of the "SysInfo" container tab.
     """
 
-    def get_tab(self):
-        """Returns a '_Tabs.DTabDC' instance which represents system information."""
+    def get_tab(self) -> _Tabs.DTabDC:
+        """
+        Generate and return a D-tab of for the "Sysinfo" C-tab.
+
+        Returns:
+            The data tab object.
+        """
 
         self.add_fpreviews(self.stats_paths, self.files)
 
         if self.fpreviews:
             return super().get_tab()
 
-        raise Error(f"unable to build '{self.name}' SysInfo tab, no file previews could be "
-                    f"generated.")
+        raise Error(f"BUG: Unable to generate the \"{self.name}\" SysInfo D-tab, no file previews")
 
-    def __init__(self, name, outdir, files, stats_paths, basedir=None):
+    def __init__(self, name: str, outdir, files: dict[str, Path], stats_paths: dict[str, Path],
+                 basedir: Path | None = None):
         """
-        Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except
-        for the following:
-         * name - name to give the tab produced when 'get_tab()' is called.
-         * files - a dictionary containing the paths of files to include file previews for.
-                   Expected to be in the format '{Name: FilePath}' where 'Name' will be the title
-                   of the file preview and 'FilePath' is the path of the file to preview.
-                   'FilePath' should be relative to the directories in 'stats_paths'
-         * stats_paths - a dictionary in the format '{ReportID: StatsDir}' where 'StatsDir' is the
-                         path to the directory which contains raw statistics files for 'ReportID'.
+        The class constructor.
+
+        Args:
+            name: The name to give the generated D-tab.
+            outdir: The output directory path (where the D-tab files should be placed).
+            files: A dictionary containing the paths of raw statistics files to include to the
+                   D-tab.
+            stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
+            basedir: The report base directory directory path, defaults to 'outdir'.
+
+        The expected format for 'files' is '{Title: FilePath}' where 'Title' is the title for the
+        raw statistics file and 'FilePath' is path to the raw statistics file relative to the
+        statistics directory ('stats_paths').
         """
 
         if not any(fp for fp in stats_paths.values()):
-            raise Error("unable to add file previews since not all reports have a statistics dir")
+            raise Error("No raw statistics found")
 
         super().__init__({}, outdir, name, basedir=basedir)
 

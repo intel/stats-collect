@@ -69,7 +69,7 @@ class SysInfoTabBuilder:
             try:
                 tabs.append(tbldr.get_tab())
             except Error as err:
-                _LOG.info("Skipping '%s' %s tab: error occurred during tab generation.",
+                _LOG.info("Skipping '%s' %s tab: An error occurred during tab generation",
                           tbldr.name, self.name)
                 _LOG.debug(err)
                 continue
