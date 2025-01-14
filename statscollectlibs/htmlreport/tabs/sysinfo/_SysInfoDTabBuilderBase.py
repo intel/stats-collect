@@ -12,7 +12,6 @@ Provide the base class for data tabs of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
@@ -29,12 +28,14 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
             The data tab object.
         """
 
-        self.add_fpreviews(self._stats_paths, self._files)
+        paths = {}
+        for title, file in self._files.items():
+            for reportid, stats_path in self._stats_paths.items():
+                paths[reportid] = stats_path / file
 
-        if self.fpreviews:
-            return super().get_tab()
+            self.add_fpreview(title, paths)
 
-        raise Error(f"BUG: Unable to generate the \"{self.name}\" SysInfo D-tab, no file previews")
+        return super().get_tab()
 
     def __init__(self, name: str, outdir, files: dict[str, Path], stats_paths: dict[str, Path],
                  basedir: Path | None = None):
