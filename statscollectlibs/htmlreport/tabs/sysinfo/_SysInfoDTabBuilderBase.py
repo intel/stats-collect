@@ -29,7 +29,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
             The data tab object.
         """
 
-        self.add_fpreviews(self.stats_paths, self.files)
+        self.add_fpreviews(self._stats_paths, self._files)
 
         if self.fpreviews:
             return super().get_tab()
@@ -57,5 +57,5 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
         super().__init__({}, outdir, name, basedir=basedir)
 
         self.name = name
-        self.files = files
-        self.stats_paths = stats_paths
+        self._files = files
+        self._stats_paths = stats_paths
