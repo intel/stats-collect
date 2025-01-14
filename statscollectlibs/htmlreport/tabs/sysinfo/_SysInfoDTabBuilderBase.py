@@ -20,6 +20,42 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     Base class for data tabs of the "SysInfo" container tab.
     """
 
+    @staticmethod
+    def _compat_adjust_paths(paths: dict[str, Path]) -> dict[str, Path]:
+        """
+        Paths to some of the sysinfo statistics files changed in 'stats-collect' version 1.0.39. For
+        example, "dmidecode.raw.txt" became "dmidecode.before.raw.txt". Basically all files got
+        either "before" or "after" suffix. Make sure that 'stats-collect' version 1.0.39+ supports
+        the raw results from 'stats-collect' version 1.0.38 and older. TODO: remove in 2026.
+
+        Args:
+            paths: the raw sysinfo statistics file paths for every raw result (same as in
+                   'add_fpreview()).
+
+        Returns:
+            The adjusted version of 'paths'.
+        """
+
+        new_paths = paths.copy()
+
+        for reportid, path in paths.items():
+            if path.exists():
+                continue
+
+            if path.name.endswith(".after.raw.txt") or path.name.endswith(".before.raw.txt"):
+                # The file does not exist, but it is not about the compatibility.
+                continue
+
+            for suffix in (".after.raw.txt", ".before.raw.txt"):
+                # Turn file name from like "xyz.raw.txt" to like "xyz.after.raw.txt".
+                new_name = path.name[:-len(".raw.txt")] + suffix
+                new_path = path.parent / new_name
+                if new_path.exists():
+                    new_paths[reportid] = new_path
+                    break
+
+        return new_paths
+
     def get_tab(self) -> _Tabs.DTabDC:
         """
         Generate and return a D-tab of for the "Sysinfo" C-tab.
@@ -32,6 +68,8 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
         for title, file in self._files.items():
             for reportid, stats_path in self._stats_paths.items():
                 paths[reportid] = stats_path / file
+
+            paths = self._compat_adjust_paths(paths)
 
             self.add_fpreview(title, paths)
 
