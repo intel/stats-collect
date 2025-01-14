@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""This module provides the API to generate a 'SysInfo' container tab."""
+
+"""
+Provide API for generating a "SysInfo" container tab, which includes various system information,
+such as "dmesg" contents, and so on.
+"""
 
 import logging
+from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.rawresultlibs import RORawResult
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqTabBuilder, _CPUIdleTabBuilder,
     _DMIDecodeTabBuilder, _DmesgTabBuilder, _EPPTabBuilder, _LspciTabBuilder, _MiscTabBuilder,
@@ -19,37 +26,39 @@ from statscollectlibs.htmlreport.tabs.sysinfo import _TurbostatTabBuilder as _Sy
 _LOG = logging.getLogger()
 
 class SysInfoTabBuilder:
-    """This class provides the API to generate a 'SysInfo' container tab."""
+    """
+    Provide API for generating a "SysInfo" container tab, which includes various system information,
+    such as "dmesg" contents, and so on.
+"""
 
     name = "SysInfo"
     stname = "sysinfo"
 
-    def get_tab(self, rsts):
+    def get_tab(self, rsts: list[RORawResult.RORawResult]) -> _Tabs.CTabDC:
         """
-        Generate and return the SysInfo container tab (as an instance of '_Tabs.CTab'). The
-        container tab includes tabs representing various system information about the SUTs.
+        Generate and return "SysInfo" container tab for raw results in 'rsts'.
 
-        The 'stats_paths' argument is a dictionary mapping in the following format:
-           {'report_id': 'stats_directory_path'}
-        where 'stats_directory_path' is the directory containing raw statistics files.
+        Args:
+            rsts: collection of 'RORawResult' objects to generate the "Sysinfo" tab for.
+
+        Returns:
+            The "SysInfo" container tab for raw results in 'rsts'.
         """
 
         stats_paths = {res.reportid: res.stats_path for res in rsts}
 
         _LOG.info("Generating %s tabs.", self.name)
 
-        tab_builders = [
-            _PepcTabBuilder.PepcTabBuilder,
-            _SysInfoTstatTabBuilder.TurbostatTabBuilder,
-            _ThermalThrottleTabBuilder.ThermalThrottleTabBuilder,
-            _DMIDecodeTabBuilder.DMIDecodeTabBuilder,
-            _EPPTabBuilder.EPPTabBuilder,
-            _CPUFreqTabBuilder.CPUFreqTabBuilder,
-            _CPUIdleTabBuilder.CPUIdleTabBuilder,
-            _DmesgTabBuilder.DmesgTabBuilder,
-            _LspciTabBuilder.LspciTabBuilder,
-            _MiscTabBuilder.MiscTabBuilder
-        ]
+        tab_builders = (_PepcTabBuilder.PepcTabBuilder,
+                        _SysInfoTstatTabBuilder.TurbostatTabBuilder,
+                        _ThermalThrottleTabBuilder.ThermalThrottleTabBuilder,
+                        _DMIDecodeTabBuilder.DMIDecodeTabBuilder,
+                        _EPPTabBuilder.EPPTabBuilder,
+                        _CPUFreqTabBuilder.CPUFreqTabBuilder,
+                        _CPUIdleTabBuilder.CPUIdleTabBuilder,
+                        _DmesgTabBuilder.DmesgTabBuilder,
+                        _LspciTabBuilder.LspciTabBuilder,
+                        _MiscTabBuilder.MiscTabBuilder)
 
         tabs = []
 
@@ -67,12 +76,18 @@ class SysInfoTabBuilder:
                 continue
 
         if not tabs:
-            raise Error(f"all '{self.name}' tabs were skipped")
+            raise Error(f"All '{self.name}' tabs were skipped")
 
         return _Tabs.CTabDC(self.name, tabs=tabs)
 
-    def __init__(self, outdir, basedir=None):
-        """Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()'."""
+    def __init__(self, outdir: Path, basedir: Path | None = None):
+        """
+        The class constructor.
+
+        Args:
+            outdir: The output directory path (where the "SysInfo" tab files should be placed).
+            basedir: The report base directory directory path, defaults to 'outdir'.
+        """
 
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
