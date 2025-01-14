@@ -228,7 +228,7 @@ class DTabBuilder:
                 self._add_histogram(mdef, cumulative=True)
 
 
-    def add_fpreview(self, title: str, paths: dict[str, Path]):
+    def add_fpreview(self, title: str, paths: dict[str, Path], diff: bool = True):
         """
         Add file previews to the D-tab. Refer to 'FilePreviewBuilder' for more information.
 
@@ -236,10 +236,12 @@ class DTabBuilder:
             title: the file preview title.
             paths: paths to the files to include to the preview (a dictionary containing the paths
                    and indexed by report IDs).
+            diff: whether the diff between the files should be generated and added to the file
+                  preview.
         """
 
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir / "file-previews",
-                                                          self._basedir)
+                                                          self._basedir, diff=diff)
         self.fpreviews.append(fpbuilder.build_fpreview(title, paths))
 
     def add_alert(self, alert):

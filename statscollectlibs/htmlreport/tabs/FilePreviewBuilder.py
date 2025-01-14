@@ -174,7 +174,7 @@ class FilePreviewBuilder:
         if not new_paths:
             raise Error(f"Unable to generate file preview '{title}'")
 
-        if len(new_paths) == 2:
+        if self._diff and len(new_paths) == 2:
             try:
                 # Name the diff after one of the files.
                 diff_paths = list(new_paths.values())
@@ -192,14 +192,16 @@ class FilePreviewBuilder:
 
         return _Tabs.FilePreviewDC(title, new_paths, diff)
 
-    def __init__(self, outdir: Path, basedir: Path | None = None):
+    def __init__(self, outdir: Path, basedir: Path | None = None, diff: bool = True):
         """
         The class constructor.
 
         Args:
             outdir: The output directory path (where the file preview files should be placed).
             basedir: The report base directory directory path, defaults to 'outdir'.
+            diff: whether the diff should be generated.
         """
 
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
+        self._diff = diff
