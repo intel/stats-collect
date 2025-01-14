@@ -14,7 +14,9 @@ Provide API for populating the "thermal_throttle" data tab of the "SysInfo" cont
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {"thermal throttle": "sysinfo/sys-thermal_throttle.after.raw.txt"}
+_FILES = {
+    "thermal throttle": Path("sysinfo/sys-thermal_throttle.after.raw.txt")
+}
 
 class ThermalThrottleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """

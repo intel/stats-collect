@@ -15,11 +15,11 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "pepc cstates info": "sysinfo/pepc_cstates.raw.txt",
-    "pepc pstates info": "sysinfo/pepc_pstates.raw.txt",
-    "pepc aspm info": "sysinfo/pepc_aspm.raw.txt",
-    "pepc topology info": "sysinfo/pepc_topology.raw.txt",
-    "pepc power info": "sysinfo/pepc_power.raw.txt"
+    "pepc cstates info": Path("sysinfo/pepc_cstates.raw.txt"),
+    "pepc pstates info": Path("sysinfo/pepc_pstates.raw.txt"),
+    "pepc aspm info": Path("sysinfo/pepc_aspm.raw.txt"),
+    "pepc topology info": Path("sysinfo/pepc_topology.raw.txt"),
+    "pepc power info": Path("sysinfo/pepc_power.raw.txt")
 }
 
 class PepcDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

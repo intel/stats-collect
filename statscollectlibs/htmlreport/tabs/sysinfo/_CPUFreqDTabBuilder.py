@@ -15,7 +15,7 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "cpufreq": "sysinfo/sys-cpufreq.after.raw.txt"
+    "cpufreq": Path("sysinfo/sys-cpufreq.after.raw.txt")
 }
 
 class CPUFreqDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

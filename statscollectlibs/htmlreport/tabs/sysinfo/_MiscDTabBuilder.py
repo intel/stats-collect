@@ -15,8 +15,8 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "uname -a": "sysinfo/uname-a.raw.txt",
-    "cmdline": "sysinfo/proc_cmdline.raw.txt"
+    "uname -a": Path("sysinfo/uname-a.raw.txt"),
+    "cmdline": Path("sysinfo/proc_cmdline.raw.txt")
 }
 
 class MiscDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

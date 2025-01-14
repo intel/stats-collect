@@ -15,7 +15,7 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "turbostat -c 0 -S": "sysinfo/turbostat-d-c0.after.raw.txt"
+    "turbostat -c 0 -S": Path("sysinfo/turbostat-d-c0.after.raw.txt")
 }
 
 class TurbostatDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

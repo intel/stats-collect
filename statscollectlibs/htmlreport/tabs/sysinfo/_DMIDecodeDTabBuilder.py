@@ -15,7 +15,7 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "dmidecode": "sysinfo/dmidecode.raw.txt",
+    "dmidecode": Path("sysinfo/dmidecode.raw.txt")
 }
 
 class DMIDecodeDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

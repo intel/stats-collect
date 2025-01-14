@@ -15,7 +15,7 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "dmesg": "sysinfo/dmesg.after.raw.txt",
+    "dmesg": Path("sysinfo/dmesg.after.raw.txt")
 }
 
 class DmesgDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

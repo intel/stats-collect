@@ -15,8 +15,8 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "lspci": "sysinfo/lspci.raw.txt",
-    "lspci -vvv": "sysinfo/lspci-vvv.raw.txt"
+    "lspci": Path("sysinfo/lspci.raw.txt"),
+    "lspci -vvv": Path("sysinfo/lspci-vvv.raw.txt")
 }
 
 class LspciDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

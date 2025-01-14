@@ -15,7 +15,7 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "x86_energy_perf_policy": "sysinfo/x86_energy_perf_policy.after.raw.txt",
+    "x86_energy_perf_policy": Path("sysinfo/x86_energy_perf_policy.after.raw.txt")
 }
 
 class EPPDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):

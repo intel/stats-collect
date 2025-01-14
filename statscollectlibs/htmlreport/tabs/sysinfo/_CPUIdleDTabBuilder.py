@@ -15,7 +15,7 @@ from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "cpuidle": "sysinfo/sys-cpuidle.after.raw.txt"
+    "cpuidle": Path("sysinfo/sys-cpuidle.after.raw.txt")
 }
 
 class CPUIdleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
