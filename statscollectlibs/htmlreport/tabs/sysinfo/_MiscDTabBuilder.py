@@ -8,19 +8,20 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "turbostat" data tab of the "SysInfo" container tab.
+Provide API for populating the "misc" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "turbostat -c 0 -S": "sysinfo/turbostat-d-c0.after.raw.txt"
+    "uname -a": "sysinfo/uname-a.raw.txt",
+    "cmdline": "sysinfo/proc_cmdline.raw.txt"
 }
 
-class TurbostatTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class MiscDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "turbostat" data tab of the "SysInfo" container tab.
+    Provide API for populating the "misc" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -33,4 +34,4 @@ class TurbostatTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("turbostat", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("Misc", outdir, _FILES, stats_paths, basedir=basedir)

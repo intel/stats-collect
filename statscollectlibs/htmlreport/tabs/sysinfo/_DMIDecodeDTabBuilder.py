@@ -8,17 +8,19 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "thermal_throttle" data tab of the "SysInfo" container tab.
+Provide API for populating the "dmidecode" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {"thermal throttle": "sysinfo/sys-thermal_throttle.after.raw.txt"}
+_FILES = {
+    "dmidecode": "sysinfo/dmidecode.raw.txt",
+}
 
-class ThermalThrottleTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class DMIDecodeDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "thermal_throttle" data tab of the "SysInfo" container tab.
+    Provide API for populating the "dmidecode" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -31,4 +33,4 @@ class ThermalThrottleTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("thermal_throttle", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("dmidecode", outdir, _FILES, stats_paths, basedir=basedir)

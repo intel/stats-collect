@@ -8,19 +8,19 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "dmidecode" data tab of the "SysInfo" container tab.
+Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "dmidecode": "sysinfo/dmidecode.raw.txt",
+    "cpufreq": "sysinfo/sys-cpufreq.after.raw.txt"
 }
 
-class DMIDecodeTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class CPUFreqDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "dmidecode" data tab of the "SysInfo" container tab.
+    Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -33,4 +33,4 @@ class DMIDecodeTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("dmidecode", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("cpufreq", outdir, _FILES, stats_paths, basedir=basedir)

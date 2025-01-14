@@ -8,20 +8,19 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "lspci" data tab of the "SysInfo" container tab.
+Provide API for populating the "dmesg" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "lspci": "sysinfo/lspci.raw.txt",
-    "lspci -vvv": "sysinfo/lspci-vvv.raw.txt"
+    "dmesg": "sysinfo/dmesg.after.raw.txt",
 }
 
-class LspciTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class DmesgDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "lspci" data tab of the "SysInfo" container tab.
+    Provide API for populating the "dmesg" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -34,4 +33,4 @@ class LspciTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("lspci", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("dmesg", outdir, _FILES, stats_paths, basedir=basedir)

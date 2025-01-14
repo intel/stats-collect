@@ -8,23 +8,19 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "pepc info" data tab of the "SysInfo" container tab.
+Provide API for populating the "cpuidle" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "pepc cstates info": "sysinfo/pepc_cstates.raw.txt",
-    "pepc pstates info": "sysinfo/pepc_pstates.raw.txt",
-    "pepc aspm info": "sysinfo/pepc_aspm.raw.txt",
-    "pepc topology info": "sysinfo/pepc_topology.raw.txt",
-    "pepc power info": "sysinfo/pepc_power.raw.txt"
+    "cpuidle": "sysinfo/sys-cpuidle.after.raw.txt"
 }
 
-class PepcTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class CPUIdleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "pepc info" data tab of the "SysInfo" container tab.
+    Provide API for populating the "cpuidle" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -37,4 +33,4 @@ class PepcTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("pepc", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("cpuidle", outdir, _FILES, stats_paths, basedir=basedir)

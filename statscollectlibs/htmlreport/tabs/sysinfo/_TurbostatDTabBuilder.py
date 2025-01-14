@@ -8,19 +8,19 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "cpuidle" data tab of the "SysInfo" container tab.
+Provide API for populating the "turbostat" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "cpuidle": "sysinfo/sys-cpuidle.after.raw.txt"
+    "turbostat -c 0 -S": "sysinfo/turbostat-d-c0.after.raw.txt"
 }
 
-class CPUIdleTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class TurbostatDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "cpuidle" data tab of the "SysInfo" container tab.
+    Provide API for populating the "turbostat" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -33,4 +33,4 @@ class CPUIdleTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("cpuidle", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("turbostat", outdir, _FILES, stats_paths, basedir=basedir)

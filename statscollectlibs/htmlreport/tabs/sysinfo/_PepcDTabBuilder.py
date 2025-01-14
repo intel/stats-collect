@@ -8,19 +8,23 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "dmesg" data tab of the "SysInfo" container tab.
+Provide API for populating the "pepc info" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "dmesg": "sysinfo/dmesg.after.raw.txt",
+    "pepc cstates info": "sysinfo/pepc_cstates.raw.txt",
+    "pepc pstates info": "sysinfo/pepc_pstates.raw.txt",
+    "pepc aspm info": "sysinfo/pepc_aspm.raw.txt",
+    "pepc topology info": "sysinfo/pepc_topology.raw.txt",
+    "pepc power info": "sysinfo/pepc_power.raw.txt"
 }
 
-class DmesgTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class PepcDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "dmesg" data tab of the "SysInfo" container tab.
+    Provide API for populating the "pepc info" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -33,4 +37,4 @@ class DmesgTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("dmesg", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("pepc", outdir, _FILES, stats_paths, basedir=basedir)

@@ -15,7 +15,7 @@ This module provides the capability of populating a "SysInfo" data tab.
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
-class SysInfoTabBuilderBase(_DTabBuilder.DTabBuilder):
+class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     """
     This base class provides the capability of populating a "SysInfo" tab.
 

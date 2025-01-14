@@ -8,19 +8,19 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab.
+Provide API for populating the "x86_energy_perf_policy" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
 _FILES = {
-    "cpufreq": "sysinfo/sys-cpufreq.after.raw.txt"
+    "x86_energy_perf_policy": "sysinfo/x86_energy_perf_policy.after.raw.txt",
 }
 
-class CPUFreqTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class EPPDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab.
+    Provide API for populating the "x86_energy_perf_policy" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -33,4 +33,4 @@ class CPUFreqTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("cpufreq", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("x86_energy_perf_policy", outdir, _FILES, stats_paths, basedir=basedir)

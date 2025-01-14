@@ -8,19 +8,17 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "x86_energy_perf_policy" data tab of the "SysInfo" container tab.
+Provide API for populating the "thermal_throttle" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilderBase
+from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "x86_energy_perf_policy": "sysinfo/x86_energy_perf_policy.after.raw.txt",
-}
+_FILES = {"thermal throttle": "sysinfo/sys-thermal_throttle.after.raw.txt"}
 
-class EPPTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
+class ThermalThrottleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "x86_energy_perf_policy" data tab of the "SysInfo" container tab.
+    Provide API for populating the "thermal_throttle" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -33,4 +31,4 @@ class EPPTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("x86_energy_perf_policy", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("thermal_throttle", outdir, _FILES, stats_paths, basedir=basedir)

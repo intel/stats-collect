@@ -18,10 +18,9 @@ from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.rawresultlibs import RORawResult
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqTabBuilder, _CPUIdleTabBuilder,
-    _DMIDecodeTabBuilder, _DmesgTabBuilder, _EPPTabBuilder, _LspciTabBuilder, _MiscTabBuilder,
-    _PepcTabBuilder, _ThermalThrottleTabBuilder)
-from statscollectlibs.htmlreport.tabs.sysinfo import _TurbostatTabBuilder as _SysInfoTstatTabBuilder
+from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqDTabBuilder, _CPUIdleDTabBuilder,
+    _DMIDecodeDTabBuilder, _DmesgDTabBuilder, _EPPDTabBuilder, _LspciDTabBuilder, _MiscDTabBuilder,
+    _PepcDTabBuilder, _ThermalThrottleDTabBuilder, _TurbostatDTabBuilder)
 
 _LOG = logging.getLogger()
 
@@ -49,16 +48,16 @@ class SysInfoTabBuilder:
 
         _LOG.info("Generating %s tabs.", self.name)
 
-        tab_builders = (_PepcTabBuilder.PepcTabBuilder,
-                        _SysInfoTstatTabBuilder.TurbostatTabBuilder,
-                        _ThermalThrottleTabBuilder.ThermalThrottleTabBuilder,
-                        _DMIDecodeTabBuilder.DMIDecodeTabBuilder,
-                        _EPPTabBuilder.EPPTabBuilder,
-                        _CPUFreqTabBuilder.CPUFreqTabBuilder,
-                        _CPUIdleTabBuilder.CPUIdleTabBuilder,
-                        _DmesgTabBuilder.DmesgTabBuilder,
-                        _LspciTabBuilder.LspciTabBuilder,
-                        _MiscTabBuilder.MiscTabBuilder)
+        tab_builders = (_PepcDTabBuilder.PepcDTabBuilder,
+                        _TurbostatDTabBuilder.TurbostatDTabBuilder,
+                        _ThermalThrottleDTabBuilder.ThermalThrottleDTabBuilder,
+                        _DMIDecodeDTabBuilder.DMIDecodeDTabBuilder,
+                        _EPPDTabBuilder.EPPDTabBuilder,
+                        _CPUFreqDTabBuilder.CPUFreqDTabBuilder,
+                        _CPUIdleDTabBuilder.CPUIdleDTabBuilder,
+                        _DmesgDTabBuilder.DmesgDTabBuilder,
+                        _LspciDTabBuilder.LspciDTabBuilder,
+                        _MiscDTabBuilder.MiscDTabBuilder)
 
         tabs = []
 
