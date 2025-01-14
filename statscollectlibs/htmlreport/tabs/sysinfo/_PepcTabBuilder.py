@@ -8,7 +8,7 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "pepc info" sub-tab of the "SysInfo" container tab.
+Provide API for populating the "pepc info" data tab of the "SysInfo" container tab.
 """
 
 from pathlib import Path
@@ -24,7 +24,7 @@ _FILES = {
 
 class PepcTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
     """
-    Provide API for populating the "pepc info" sub-tab of the "SysInfo" container tab.
+    Provide API for populating the "pepc info" data tab of the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
@@ -32,7 +32,7 @@ class PepcTabBuilder(_SysInfoTabBuilderBase.SysInfoTabBuilderBase):
         The class constructor.
 
         Args:
-            outdir: The output directory path (where the sub-tab files should be placed).
+            outdir: The output directory path (where the D-tab files should be placed).
             stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
