@@ -29,7 +29,7 @@ class FilePreviewDC:
     paths: Dict[str, Path]
 
     # Optional path to a diff file to be included in the file preview.
-    diff: Path = ""
+    diff: Path | None = None
 
 @dataclass
 class DTabDC:
@@ -45,7 +45,7 @@ class DTabDC:
     ppaths: List[Path] = field(default_factory=list)
 
     # Relative path to the summary table dump for the metric.
-    smrytblpath: Path = ""
+    smrytblpath: Path | None = None
 
     # File previews to include in the tab.
     fpreviews: List[FilePreviewDC] = field(default_factory=list)
