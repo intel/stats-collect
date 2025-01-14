@@ -46,6 +46,10 @@ class SysInfoTabBuilder:
 
         stats_paths = {res.reportid: res.stats_path for res in rsts}
 
+        # Sanity check - there are statistics in the raw results.
+        if not any(path for path in stats_paths.values()):
+            raise Error("BUG: No statistics in the raw results")
+
         _LOG.info("Generating %s tabs.", self.name)
 
         tab_builders = (_PepcDTabBuilder.PepcDTabBuilder,

@@ -54,9 +54,6 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
         statistics directory ('stats_paths').
         """
 
-        if not any(fp for fp in stats_paths.values()):
-            raise Error("No raw statistics found")
-
         super().__init__({}, outdir, name, basedir=basedir)
 
         self.name = name
