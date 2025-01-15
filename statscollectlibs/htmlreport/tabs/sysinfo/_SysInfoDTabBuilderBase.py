@@ -24,13 +24,15 @@ class FilePreviewInfoDict(typing.TypedDict):
     file previews for the "pepc cstates info", "pepc pstates info", and so on. Each file preview
     includes the "pepc <something> info" output, and when multiple results are put to a single
     report, each preview will include multiple files, and possibly a diff between them.
+
+    Attributes:
+        title: The file preview title.
+        path: Path to the file preview file relative to the raw result path.
+        diff: Whether a diff should be generated.
     """
 
-    # The file preview title.
     title: str
-    # Path to the file preview file relative to the raw result path.
     path: Path
-    # Whether a diff should be generated.
     diff: bool
 
 class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
@@ -97,7 +99,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
         return super().get_tab()
 
-    def __init__(self, name: str, outdir, fpwis: list[FilePreviewInfoDict],
+    def __init__(self, name: str, outdir: Path, fpwis: list[FilePreviewInfoDict],
                  stats_paths: dict[str, Path], basedir: Path | None = None):
         """
         The class constructor.
