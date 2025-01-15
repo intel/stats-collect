@@ -7,6 +7,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
  - Do not delete logs on error.
 ### Added
+ - Collect 'pepc pmqos' output.
 ### Removed
 ### Changed
 
