@@ -18,6 +18,7 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "cpuidle",
         "path": Path("sysinfo/sys-cpuidle.after.raw.txt"),
+        "diff": False,
     },
 ]
 

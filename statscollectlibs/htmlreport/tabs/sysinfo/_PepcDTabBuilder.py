@@ -18,22 +18,27 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "pepc cstates info",
         "path": Path("sysinfo/pepc_cstates.raw.txt"),
+        "diff": True,
     },
     {
         "title": "pepc pstates info",
         "path": Path("sysinfo/pepc_pstates.raw.txt"),
+        "diff": True,
     },
     {
         "title": "pepc aspm info",
         "path": Path("sysinfo/pepc_aspm.raw.txt"),
+        "diff": True,
     },
     {
         "title": "pepc topology info",
         "path": Path("sysinfo/pepc_topology.raw.txt"),
+        "diff": True,
     },
     {
         "title": "pepc power info",
         "path": Path("sysinfo/pepc_power.raw.txt"),
+        "diff": True,
     },
 ]
 

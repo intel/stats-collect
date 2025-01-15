@@ -18,6 +18,7 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "cpufreq",
         "path": Path("sysinfo/sys-cpufreq.after.raw.txt"),
+        "diff": False,
     },
 ]
 

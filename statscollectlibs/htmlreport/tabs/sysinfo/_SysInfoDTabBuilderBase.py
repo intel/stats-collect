@@ -30,6 +30,8 @@ class FilePreviewInfoDict(typing.TypedDict):
     title: str
     # Path to the file preview file relative to the raw result path.
     path: Path
+    # Whether a diff should be generated.
+    diff: bool
 
 class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     """
@@ -87,7 +89,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
             paths = self._compat_adjust_paths(paths)
 
-            self.add_fpreview(fpwi["title"], paths)
+            self.add_fpreview(fpwi["title"], paths, diff=fpwi["diff"])
 
         return super().get_tab()
 

@@ -14,10 +14,11 @@ Provide API for populating the "dmidecode" data tab of the "SysInfo" container t
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+_FILE_PREVIEWS = [
     {
         "title": "dmidecode",
         "path": Path("sysinfo/dmidecode.raw.txt"),
+        "diff": False,
     },
 ]
 

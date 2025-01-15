@@ -18,6 +18,7 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "thermal throttle",
         "path": Path("sysinfo/sys-thermal_throttle.after.raw.txt"),
+        "diff": True,
     },
 ]
 

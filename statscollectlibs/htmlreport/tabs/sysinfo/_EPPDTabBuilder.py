@@ -18,6 +18,7 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "x86_energy_perf_policy",
         "path": Path("sysinfo/x86_energy_perf_policy.after.raw.txt"),
+        "diff": True,
     },
 ]
 

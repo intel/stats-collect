@@ -18,6 +18,7 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "dmesg",
         "path": Path("sysinfo/dmesg.after.raw.txt"),
+        "diff": False,
     },
 ]
 

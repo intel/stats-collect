@@ -18,10 +18,12 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "uname -a",
         "path": Path("sysinfo/uname-a.raw.txt"),
+        "diff": True,
     },
     {
         "title": "cmdline",
         "path": Path("sysinfo/proc_cmdline.raw.txt"),
+        "diff": True,
     },
 ]
 
