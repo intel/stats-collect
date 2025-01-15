@@ -17,27 +17,32 @@ from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "pepc cstates info",
-        "path": Path("sysinfo/pepc_cstates.raw.txt"),
+        "path": Path("sysinfo/pepc_cstates.after.raw.txt"),
         "diff": True,
     },
     {
         "title": "pepc pstates info",
-        "path": Path("sysinfo/pepc_pstates.raw.txt"),
+        "path": Path("sysinfo/pepc_pstates.after.raw.txt"),
+        "diff": True,
+    },
+    {
+        "title": "pepc pmqos info",
+        "path": Path("sysinfo/pepc_pmqos.after.raw.txt"),
         "diff": True,
     },
     {
         "title": "pepc aspm info",
-        "path": Path("sysinfo/pepc_aspm.raw.txt"),
+        "path": Path("sysinfo/pepc_aspm.after.raw.txt"),
         "diff": True,
     },
     {
         "title": "pepc topology info",
-        "path": Path("sysinfo/pepc_topology.raw.txt"),
+        "path": Path("sysinfo/pepc_topology.after.raw.txt"),
         "diff": True,
     },
     {
         "title": "pepc power info",
-        "path": Path("sysinfo/pepc_power.raw.txt"),
+        "path": Path("sysinfo/pepc_power.after.raw.txt"),
         "diff": True,
     },
 ]

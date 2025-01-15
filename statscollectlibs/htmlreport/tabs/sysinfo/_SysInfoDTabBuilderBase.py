@@ -60,17 +60,21 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
             if path.exists():
                 continue
 
-            if path.name.endswith(".after.raw.txt") or path.name.endswith(".before.raw.txt"):
-                # The file does not exist, but it is not about the compatibility.
+            if path.name.endswith(".after.raw.txt"):
+                suffix = ".after.raw.txt"
+            elif path.name.endswith(".before.raw.txt"):
+                suffix = ".before.raw.txt"
+            else:
+                # Not our customer. The compatibility issue is about ".raw.txt" names changed to
+                # ".before.raw.txt" or ".after.raw.txt".
                 continue
 
-            for suffix in (".after.raw.txt", ".before.raw.txt"):
-                # Turn file name from like "xyz.raw.txt" to like "xyz.after.raw.txt".
-                new_name = path.name[:-len(".raw.txt")] + suffix
-                new_path = path.parent / new_name
-                if new_path.exists():
-                    new_paths[reportid] = new_path
-                    break
+            # Turn file name from like "xyz.after.raw.txt" to like "xyz.raw.txt".
+            new_name = path.name[:-len(suffix)] + ".raw.txt"
+            new_path = path.parent / new_name
+            if new_path.exists():
+                new_paths[reportid] = new_path
+                break
 
         return new_paths
 

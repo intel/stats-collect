@@ -17,7 +17,7 @@ from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 _FILE_PREVIEWS = [
     {
         "title": "dmidecode",
-        "path": Path("sysinfo/dmidecode.raw.txt"),
+        "path": Path("sysinfo/dmidecode.after.raw.txt"),
         "diff": False,
     },
 ]

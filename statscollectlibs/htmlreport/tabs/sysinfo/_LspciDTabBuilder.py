@@ -17,12 +17,12 @@ from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "lspci",
-        "path": Path("sysinfo/lspci.raw.txt"),
+        "path": Path("sysinfo/lspci.after.raw.txt"),
         "diff": False,
     },
     {
         "title": "lspci -vvv",
-        "path": Path("sysinfo/lspci-vvv.raw.txt"),
+        "path": Path("sysinfo/lspci-vvv.after.raw.txt"),
         "diff": False,
     },
 ]

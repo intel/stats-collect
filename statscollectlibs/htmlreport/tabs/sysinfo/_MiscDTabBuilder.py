@@ -17,12 +17,12 @@ from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
     {
         "title": "uname -a",
-        "path": Path("sysinfo/uname-a.raw.txt"),
+        "path": Path("sysinfo/uname-a.after.raw.txt"),
         "diff": True,
     },
     {
         "title": "cmdline",
-        "path": Path("sysinfo/proc_cmdline.raw.txt"),
+        "path": Path("sysinfo/proc_cmdline.after.raw.txt"),
         "diff": True,
     },
 ]
