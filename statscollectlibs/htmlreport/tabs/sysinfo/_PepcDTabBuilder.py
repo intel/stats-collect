@@ -14,13 +14,28 @@ Provide API for populating the "pepc info" data tab of the "SysInfo" container t
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "pepc cstates info": Path("sysinfo/pepc_cstates.raw.txt"),
-    "pepc pstates info": Path("sysinfo/pepc_pstates.raw.txt"),
-    "pepc aspm info": Path("sysinfo/pepc_aspm.raw.txt"),
-    "pepc topology info": Path("sysinfo/pepc_topology.raw.txt"),
-    "pepc power info": Path("sysinfo/pepc_power.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "pepc cstates info",
+        "path": Path("sysinfo/pepc_cstates.raw.txt"),
+    },
+    {
+        "title": "pepc pstates info",
+        "path": Path("sysinfo/pepc_pstates.raw.txt"),
+    },
+    {
+        "title": "pepc aspm info",
+        "path": Path("sysinfo/pepc_aspm.raw.txt"),
+    },
+    {
+        "title": "pepc topology info",
+        "path": Path("sysinfo/pepc_topology.raw.txt"),
+    },
+    {
+        "title": "pepc power info",
+        "path": Path("sysinfo/pepc_power.raw.txt"),
+    },
+]
 
 class PepcDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -37,4 +52,4 @@ class PepcDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("pepc", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("pepc", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

@@ -14,9 +14,12 @@ Provide API for populating the "cpuidle" data tab of the "SysInfo" container tab
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "cpuidle": Path("sysinfo/sys-cpuidle.after.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "cpuidle",
+        "path": Path("sysinfo/sys-cpuidle.after.raw.txt"),
+    },
+]
 
 class CPUIdleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,4 @@ class CPUIdleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("cpuidle", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("cpuidle", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

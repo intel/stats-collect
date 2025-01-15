@@ -14,9 +14,12 @@ Provide API for populating the "dmesg" data tab of the "SysInfo" container tab.
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "dmesg": Path("sysinfo/dmesg.after.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "dmesg",
+        "path": Path("sysinfo/dmesg.after.raw.txt"),
+    },
+]
 
 class DmesgDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,4 @@ class DmesgDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("dmesg", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("dmesg", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

@@ -11,9 +11,25 @@
 Provide the base class for data tabs of the "SysInfo" container tab.
 """
 
+import typing
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
+
+class FilePreviewInfoDict(typing.TypedDict):
+    """
+    A file preview information dictionary. File preview is an element of a D-tab that basically
+    provides the contents of a file for every raw result (each raw result may bring this file), and
+    possibly a diff between the files. For example, the "pepc" D-tab of the "SysInfo" tab includes
+    file previews for the "pepc cstates info", "pepc pstates info", and so on. Each file preview
+    includes the "pepc <something> info" output, and when multiple results are put to a single
+    report, each preview will include multiple files, and possibly a diff between them.
+    """
+
+    # The file preview title.
+    title: str
+    # Path to the file preview file relative to the raw result path.
+    path: Path
 
 class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     """
@@ -65,26 +81,26 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
         """
 
         paths = {}
-        for title, file in self._files.items():
+        for fpwi in self._fpws:
             for reportid, stats_path in self._stats_paths.items():
-                paths[reportid] = stats_path / file
+                paths[reportid] = stats_path / fpwi["path"]
 
             paths = self._compat_adjust_paths(paths)
 
-            self.add_fpreview(title, paths)
+            self.add_fpreview(fpwi["title"], paths)
 
         return super().get_tab()
 
-    def __init__(self, name: str, outdir, files: dict[str, Path], stats_paths: dict[str, Path],
-                 basedir: Path | None = None):
+    def __init__(self, name: str, outdir, fpwis: list[FilePreviewInfoDict],
+                 stats_paths: dict[str, Path], basedir: Path | None = None):
         """
         The class constructor.
 
         Args:
             name: The name to give the generated D-tab.
             outdir: The output directory path (where the D-tab files should be placed).
-            files: A dictionary containing the paths of raw statistics files to include to the
-                   D-tab.
+            fpwis: a list of file preview information dictionaries describing the file previews that
+                   should be included to the D-tab.
             stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
             basedir: The report base directory directory path, defaults to 'outdir'.
 
@@ -96,5 +112,5 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
         super().__init__({}, outdir, name, basedir=basedir)
 
         self.name = name
-        self._files = files
+        self._fpws = fpwis
         self._stats_paths = stats_paths

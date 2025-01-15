@@ -14,9 +14,12 @@ Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "cpufreq": Path("sysinfo/sys-cpufreq.after.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "cpufreq",
+        "path": Path("sysinfo/sys-cpufreq.after.raw.txt"),
+    },
+]
 
 class CPUFreqDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,4 @@ class CPUFreqDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("cpufreq", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("cpufreq", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

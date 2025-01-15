@@ -14,10 +14,16 @@ Provide API for populating the "misc" data tab of the "SysInfo" container tab.
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "uname -a": Path("sysinfo/uname-a.raw.txt"),
-    "cmdline": Path("sysinfo/proc_cmdline.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "uname -a",
+        "path": Path("sysinfo/uname-a.raw.txt"),
+    },
+    {
+        "title": "cmdline",
+        "path": Path("sysinfo/proc_cmdline.raw.txt"),
+    },
+]
 
 class MiscDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -34,4 +40,4 @@ class MiscDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("Misc", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("Misc", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

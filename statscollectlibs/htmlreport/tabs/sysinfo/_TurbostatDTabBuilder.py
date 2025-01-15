@@ -14,9 +14,12 @@ Provide API for populating the "turbostat" data tab of the "SysInfo" container t
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "turbostat -c 0 -S": Path("sysinfo/turbostat-d-c0.after.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "turbostat -c 0 -S",
+        "path": Path("sysinfo/turbostat-d-c0.after.raw.txt"),
+    },
+]
 
 class TurbostatDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,4 @@ class TurbostatDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("turbostat", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("turbostat", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

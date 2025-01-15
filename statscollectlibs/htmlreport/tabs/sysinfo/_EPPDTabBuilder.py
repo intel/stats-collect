@@ -14,9 +14,12 @@ Provide API for populating the "x86_energy_perf_policy" data tab of the "SysInfo
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "x86_energy_perf_policy": Path("sysinfo/x86_energy_perf_policy.after.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "x86_energy_perf_policy",
+        "path": Path("sysinfo/x86_energy_perf_policy.after.raw.txt"),
+    },
+]
 
 class EPPDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,5 @@ class EPPDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("x86_energy_perf_policy", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("x86_energy_perf_policy", outdir, _FILE_PREVIEWS, stats_paths,
+                         basedir=basedir)

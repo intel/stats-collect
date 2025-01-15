@@ -14,9 +14,12 @@ Provide API for populating the "thermal_throttle" data tab of the "SysInfo" cont
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "thermal throttle": Path("sysinfo/sys-thermal_throttle.after.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "thermal throttle",
+        "path": Path("sysinfo/sys-thermal_throttle.after.raw.txt"),
+    },
+]
 
 class ThermalThrottleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,4 @@ class ThermalThrottleDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase)
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("thermal_throttle", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("thermal_throttle", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

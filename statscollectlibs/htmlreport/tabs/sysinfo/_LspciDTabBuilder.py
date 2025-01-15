@@ -14,10 +14,16 @@ Provide API for populating the "lspci" data tab of the "SysInfo" container tab.
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "lspci": Path("sysinfo/lspci.raw.txt"),
-    "lspci -vvv": Path("sysinfo/lspci-vvv.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "lspci",
+        "path": Path("sysinfo/lspci.raw.txt"),
+    },
+    {
+        "title": "lspci -vvv",
+        "path": Path("sysinfo/lspci-vvv.raw.txt"),
+    },
+]
 
 class LspciDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -34,4 +40,4 @@ class LspciDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("lspci", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("lspci", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

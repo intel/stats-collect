@@ -14,9 +14,12 @@ Provide API for populating the "dmidecode" data tab of the "SysInfo" container t
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILES = {
-    "dmidecode": Path("sysinfo/dmidecode.raw.txt")
-}
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+    {
+        "title": "dmidecode",
+        "path": Path("sysinfo/dmidecode.raw.txt"),
+    },
+]
 
 class DMIDecodeDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
@@ -33,4 +36,4 @@ class DMIDecodeDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
             basedir: The report base directory directory path, defaults to 'outdir'.
         """
 
-        super().__init__("dmidecode", outdir, _FILES, stats_paths, basedir=basedir)
+        super().__init__("dmidecode", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)
