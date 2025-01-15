@@ -5,11 +5,15 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+### Added
+### Removed
+### Changed
+
+## [1.0.39] - 2025-01-15
+### Fixed
  - Do not delete logs on error.
 ### Added
  - Collect 'pepc pmqos' output.
-### Removed
-### Changed
 
 ## [1.0.38] - 2025-01-08
 ### Changed

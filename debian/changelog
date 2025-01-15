@@ -1,3 +1,10 @@
+stats-collect (1.0.39) unstable; urgency=low
+
+  * Do not delete logs on error.
+  * Collect 'pepc pmqos' output.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 15 Jan 2025 00:00:00 +0200
+
 stats-collect (1.0.38) unstable; urgency=low
 
   * Improve SEPCjbb2015 results cropping.
