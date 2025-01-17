@@ -63,7 +63,7 @@ UNINITIALIZED = {
 DELIMITER = "--"
 
 # Names of the supported statistics.
-SUPPORTED_STATS = ("turbostat", "ipmi-oob", "ipmi-inband", "acpower")
+SUPPORTED_STATS = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband", "acpower")
 
 LOG = logging.getLogger()
 Logging.setup_logger(prefix=OWN_NAME)
@@ -389,6 +389,24 @@ class TurbostatCollector(_BaseCollector):
         self.props["toolpath"] = "turbostat"
         self.props["hide-irq"] = False
 
+class InterruptsCollector(_BaseCollector):
+    """The interrupts statistics collector - periodically snapshot '/proc/interrupts'."""
+
+    def configure(self):
+        """Configure the statistics collector."""
+
+        super().configure()
+
+        self._command = f"{self.props['toolpath']} --interval {self.props['interval']}"
+
+    def __init__(self):
+        """Initialize a class instance."""
+
+        super().__init__("interrupts")
+
+        self.props["toolpath"] = "proc-interrupts-helper"
+        self._signal = signal.SIGINT
+
 class _IPMICollector(_BaseCollector):
     """Base class for IPMI statistics collectors."""
 
@@ -556,6 +574,8 @@ class STCAgent:
                 LOG.debug("creating the %s collector", name)
                 if name == "turbostat":
                     collector = TurbostatCollector()
+                elif name == "interrupts":
+                    collector = InterruptsCollector()
                 elif name == "ipmi-oob":
                     collector = IPMIOOBCollector()
                 elif name == "ipmi-inband":
