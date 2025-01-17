@@ -11,5 +11,5 @@ This module provides constants for information about the 'stats-collect' tool, s
 toolname.
 """
 
-VERSION = "1.0.39"
+VERSION = "1.0.40"
 TOOLNAME = "stats-collect"

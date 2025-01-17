@@ -6,10 +6,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
- - Support collecting interrupts statistics. No visualisation support yet, just
-   collection.
 ### Removed
 ### Changed
+
+## [1.0.40] - 2025-01-17
+### Added
+ - Support collecting interrupts statistics. No visualisation support yet, just
+   collection.
 
 ## [1.0.39] - 2025-01-15
 ### Fixed
