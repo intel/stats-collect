@@ -50,7 +50,7 @@ class TabBuilderBase:
     """
 
     # The name of the statistics represented in the produced tab.
-    name = None
+    name: str | None = None
 
     def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, title=None):
         """
