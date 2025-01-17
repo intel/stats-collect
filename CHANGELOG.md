@@ -5,6 +5,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix failure to generate 'pepc' tab in 'SysInfo'. Regression since v 1.0.39.
 ### Added
 ### Removed
 ### Changed
