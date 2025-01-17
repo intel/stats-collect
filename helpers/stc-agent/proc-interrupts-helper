@@ -1,0 +1,108 @@
+#!/usr/bin/python3
+#
+# -*- coding: utf-8 -*-
+# vim: ts=4 sw=4 tw=100 et ai si
+#
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+
+"""
+Collect interrupts statistics by making a periodic snapshot of the '/proc/interrups' file.
+"""
+
+import sys
+import time
+import logging
+import argparse
+from pepclibs.helperlibs import Logging, ArgParse
+from pepclibs.helperlibs.Exceptions import Error
+from statscollecttools import ToolInfo
+
+VERSION = ToolInfo.VERSION
+OWN_NAME = "ipmi-helper"
+
+LOG = logging.getLogger()
+Logging.setup_logger(prefix=OWN_NAME)
+
+def parse_arguments():
+    """Parse the input arguments."""
+
+    text = sys.modules[__name__].__doc__
+    parser = ArgParse.ArgsParser(description=text, prog=OWN_NAME, ver=VERSION)
+
+    text = "The interval between snapshots in seconds, default is 5."
+    parser.add_argument("--interval", help=text, type=float, default=5)
+
+    # A hidden option which makes printing paths to all dependencies.
+    parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
+    return parser.parse_args()
+
+def print_module_paths():
+    """Print paths to all modules other than standard."""
+
+    for mobj in sys.modules.values():
+        path = getattr(mobj, "__file__", None)
+        if not path:
+            continue
+
+        if not path.endswith(".py"):
+            continue
+        if "pepclibs/" not in path:
+            continue
+
+        print(path)
+
+def main():
+    """Script entry point."""
+
+    args = parse_arguments()
+
+    try:
+        args.interval = float(args.interval)
+    except ValueError:
+        raise Error(f"bad interval '{args.interval}', should be positive decimal number of "
+                    f"seconds") from None
+
+    if args.print_module_paths:
+        print_module_paths()
+        return 0
+
+    fname = "/proc/interrupts"
+
+    try:
+        fobj = open(fname, "r", encoding="utf-8")
+    except OSError as err:
+        raise Error(f"failed to open '{fname}': {err}") from err
+
+    try:
+        while True:
+            start_time = time.time()
+
+            try:
+                fobj.seek(0)
+            except Error as err:
+                raise Error(f"'seek()' failed on file '{fname}': {err}") from err
+
+            try:
+                # It is OK to read the entire file in one go, it should not be huge.
+                contents = fobj.read()
+            except Error as err:
+                raise Error(f"'failed to read '{fname}': {err}") from err
+
+            LOG.info("timestamp: %s", time.time())
+            LOG.info(contents)
+
+            time.sleep(args.interval - (time.time() - start_time))
+    finally:
+        fobj.close()
+
+# The very first script entry point."""
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        LOG.error_out("interrupted, exiting")
+    except Error as err:
+        LOG.error_out(err, print_tb=True)
