@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
+from statscollectlibs.rawresultlibs import RORawResult
 
 _LOG = logging.getLogger()
 
@@ -50,6 +51,57 @@ class TabBuilderBase:
 
     # The name of the statistics represented in the produced tab.
     name: str | None = None
+    stname: str | None = None
+
+    def _get_and_check_cpunum(self, rsts: list[RORawResult.RORawResult]) -> int | None:
+        """
+        Get the measured CPU number from the raw results and check that all of them have the same
+        measured CPU number.
+
+        Args:
+            rsts: list of raw result objects to get the measured CPU number from.
+
+        Returns:
+            The measured CPU number or 'None' if there is no measured CPU number.
+        """
+
+        infos: dict[int, list[Path]] = {}
+
+        for res in rsts:
+            cpunum = res.info.get("cpunum")
+            if cpunum not in infos:
+                infos[cpunum] = []
+
+            infos[cpunum].append(res.dirpath)
+
+        if len(infos) == 1:
+            return next(iter(infos))
+
+        if len(infos) < 2:
+            raise Error("BUG: no raw results")
+
+        msg = ""
+        some_cpunum = None
+
+        for cpunum, paths in infos.items():
+            if cpunum is None:
+                cpustr = "no measured CPU"
+            else:
+                cpustr = f"CPU{cpunum}:"
+                some_cpunum = cpunum
+
+            msg += f"\n  * {cpustr}"
+            for path in paths:
+                msg += f"\n    * {path}"
+
+        if some_cpunum is not None:
+            cpunum = some_cpunum
+            cpustr = f"CPU{cpunum}:"
+
+        _LOG.notice("A mix of measured CPU numbers in %s statistics detected:%s", self.stname, msg)
+        _LOG.notice("Will use the following for all results: %s", cpustr)
+
+        return cpunum
 
     def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, hist=False,
                             title=None):

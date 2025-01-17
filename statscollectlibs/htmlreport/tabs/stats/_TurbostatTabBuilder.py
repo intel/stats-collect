@@ -207,43 +207,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return dfs
 
-    def _check_cpunum(self, rsts):
-        """Check if the results are for the same CPU number."""
-
-        stname = "turbostat"
-        infos = {}
-
-        for res in rsts:
-            if stname not in res.info["stinfo"]:
-                continue
-            cpunum = res.info.get("cpunum")
-            if cpunum not in infos:
-                infos[cpunum] = []
-            infos[cpunum].append(res.dirpath)
-            self._cpunum = cpunum
-
-        if len(infos) < 2:
-            return
-
-        msg = ""
-        max_cnt = 0
-        for cpunum, paths in infos.items():
-            if len(paths) > max_cnt:
-                max_cnt = len(paths)
-                self._cpunum = cpunum
-            if cpunum is None:
-                cpustr = "no measured CPU"
-            else:
-                cpustr = f"CPU{cpunum}:"
-
-            msg += f"\n  * {cpustr}"
-            for path in paths:
-                msg += f"\n    * {path}"
-
-        _LOG.notice("a mix of measured CPU numbers in %s statistics detected:%s", stname, msg)
-        _LOG.notice("will use the following measured CPU number for all results: %s",
-                    str(self._cpunum))
-
     def __init__(self, rsts, outdir, basedir=None):
         """
         The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
@@ -262,7 +225,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self._col2metric = {}
 
-        self._check_cpunum(rsts)
+        self._cpunum = self._get_and_check_cpunum(rsts)
         dfs = self._load_dfs(rsts)
 
         # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
