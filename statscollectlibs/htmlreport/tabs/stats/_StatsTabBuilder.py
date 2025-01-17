@@ -11,8 +11,8 @@
 import logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.stats import (_ACPowerTabBuilder, _IPMITabBuilder,
-                                                    _TurbostatTabBuilder)
+from statscollectlibs.htmlreport.tabs.stats import (_TurbostatTabBuilder, _InterruptsTabBuilder,
+                                                    _ACPowerTabBuilder, _IPMITabBuilder)
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 
 _LOG = logging.getLogger()
@@ -66,8 +66,9 @@ class StatsTabBuilder:
     def _init_tab_bldrs(self):
         """Initialise tab builder classes."""
 
-        tab_bldr_classes = (_ACPowerTabBuilder.ACPowerTabBuilder,
-                            _TurbostatTabBuilder.TurbostatTabBuilder)
+        tab_bldr_classes = (_TurbostatTabBuilder.TurbostatTabBuilder,
+                            _InterruptsTabBuilder.InterruptsTabBuilder,
+                            _ACPowerTabBuilder.ACPowerTabBuilder)
         tab_builders = {tab_bldr.stname: tab_bldr for tab_bldr in tab_bldr_classes}
 
         collected_stnames = set.union(*[set(res.info["stinfo"]) for res in self._rsts])
