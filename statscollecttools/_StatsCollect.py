@@ -29,7 +29,7 @@ _STC_DEPLOY_INFO = {
     "installables" : {
         "stc-agent" : {
             "category" : "pyhelpers",
-            "deployables" : ("stc-agent", "ipmi-helper", ),
+            "deployables" : ("stc-agent", "ipmi-helper", "proc-interrupts-helper"),
         },
     },
 }

@@ -89,6 +89,14 @@ STINFO = {
             "hide-irq": True
         }
     },
+    "interrupts" : {
+        "interval" : 5,
+        "inband" : True,
+        "toolpath" : "proc-interrupts-helper",
+        "description" : "Collect snapshots of the '/proc/interrupts' file, which includes "
+                        "interrupts count for every interrupt type on every CPU.",
+        "paths": {"stats": "interrupts.raw.txt"},
+    },
     "ipmi-oob" : {
         "interval" : 5,
         "inband" : False,
@@ -121,7 +129,7 @@ STINFO = {
         "inband" : False,
         "toolpath" : "yokotool",
         "description" : "Collect SUT wall socket power consumption from an external Yokogawa power "
-                       "meter using 'yokotool'.",
+                        "meter using 'yokotool'.",
         "paths": {"stats": "acpower.raw.txt"},
         "props" : {
             "devnode" : None,
