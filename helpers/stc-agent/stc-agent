@@ -9,9 +9,8 @@
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This program implements the statistics collection agent (stc-agent) as a service clients can connect
-to. Clients can send it commands to collect various kinds of statistics, e.g. turbostat and AC
-power.
+Statistics collection agent (stc-agent) as a service for collecting statistics. Clients connect to
+the service, then configure and run statistics collectors by sending commands.
 
 This program is designed to work in a local network and may require root privileges. Please, do not
 use it in production environment, use it only in isolated debugging/research setups.
@@ -134,7 +133,7 @@ def sighandler(sig, _):
 
 class _BaseCollector:
     """
-    This is the base class for statistics collectors. Here is the methods overview.
+    The base class for statistics collectors. Here is the methods overview.
 
     1. '__init__()' - the object constructor, performs basic initialization. The collector is not
        usable yet, because it has not been configured yet (e.g., the output directory was not yet
@@ -363,7 +362,7 @@ class _BaseCollector:
             self._fobj = None
 
 class TurbostatCollector(_BaseCollector):
-    """This class represents the turbostat statistics collector."""
+    """The turbostat statistics collector."""
 
     def configure(self):
         """Configure the statistics collector."""
@@ -416,7 +415,7 @@ class _IPMICollector(_BaseCollector):
         self._valid_start = b"timestamp | "
 
 class IPMIInBandCollector(_IPMICollector):
-    """This class represents the in-band IPMI statistics collector."""
+    """The in-band IPMI statistics collector."""
 
     def __init__(self):
         """Initialize a class instance."""
@@ -424,7 +423,7 @@ class IPMIInBandCollector(_IPMICollector):
         super().__init__("ipmi-inband")
 
 class IPMIOOBCollector(_IPMICollector):
-    """This class represents the out-of-band IPMI statistics collector."""
+    """The out-of-band IPMI statistics collector."""
 
     def configure(self):
         """Configure the statistics collector."""
@@ -452,7 +451,7 @@ class IPMIOOBCollector(_IPMICollector):
         self.props["interface"] = UNINITIALIZED["str"]
 
 class ACPowerCollector(_BaseCollector):
-    """This class represents the ACPower statistics collector."""
+    """The ACPower statistics collector."""
 
     def configure(self):
         """Configure the statistics collector."""
@@ -484,9 +483,8 @@ class ACPowerCollector(_BaseCollector):
 
 class STCAgent:
     """
-    This class represents the statistics collection agent (stc-agent) and it implements all the
-    collecting functionality of this program. There should be only one single instance of this
-    class.
+    The the statistics collection agent class, which implements all the statistics collecting
+    functionality.
 
     Public methods overview.
 
@@ -782,7 +780,7 @@ class STCAgent:
         self.props["outdir"] = UNINITIALIZED["str"]
 
 class Client(ClassHelpers.SimpleCloseContext):
-    """This class represents a network client."""
+    """The statistics collection agent network client."""
 
     def get_command(self):
         """Receive and return client command."""
@@ -854,7 +852,7 @@ class Client(ClassHelpers.SimpleCloseContext):
                 self._sock.close()
 
 class Server(ClassHelpers.SimpleCloseContext):
-    """This class represents 'stc-agent' as a network server."""
+    """The statistics collection agent network server."""
 
     def wait_for_client(self):
         """Wait for a client to connect. Returns a 'Client' object."""
@@ -904,9 +902,7 @@ class Server(ClassHelpers.SimpleCloseContext):
         LOG.info(msg)
 
     def _unix_socket_prepare(self):
-        """
-        This is a helper function for '__init__()' which prepares the SUT for using Unix sockets.
-        """
+        """Prepare the SUT for using Unix sockets."""
 
         if self._uspath is None:
             # Select random name for the unix socket file.
@@ -930,7 +926,7 @@ class Server(ClassHelpers.SimpleCloseContext):
     def __init__(self, unix=None, port=None, sutname=None):
         """
         The class constructor. The arguments are as follows.
-          * unix - path to the Unix socket to listen for incomming connections on.
+          * unix - path to the Unix socket to listen for incoming connections on.
           * port - path to the the TCP port number to listen for incoming connetions on.
           * sutname - optional name of the SUT we run on. Currently only used in the unix socket
                       file name prefix.
