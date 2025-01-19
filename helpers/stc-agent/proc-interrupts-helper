@@ -21,7 +21,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 
 VERSION = ToolInfo.VERSION
-OWN_NAME = "ipmi-helper"
+OWN_NAME = "proc-interrupts-helper"
 
 LOG = logging.getLogger()
 Logging.setup_logger(prefix=OWN_NAME)
