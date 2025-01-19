@@ -1,0 +1,649 @@
+timestamp: 1737637445.8761053
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14370 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5252 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5340 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4526 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2701 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2541 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2540 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2535 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2525 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2524 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2524 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2524 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2524 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2524 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2524 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2524 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2524 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 38859 36772 25468 33703 30036 25790 43161 52138 43504 30082 36987 32516 41653 27042 38957 33258 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9478 9783 9260 9145 9291 9390 10571 9978 8867 8912 8745 8700 11646 8525 8771 3150 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637455.8776276
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14409 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5257 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5345 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4531 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2706 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2546 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2545 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2540 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2530 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2529 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2529 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2529 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2529 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2529 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2529 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2529 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2529 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 38931 36818 25512 33752 30072 25808 43274 52196 43552 30125 37001 32595 41688 27073 38988 33285 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9478 9783 9260 9145 9291 9390 10576 9978 8867 8912 8745 8702 11647 8525 8771 3150 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637465.878034
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14409 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5262 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5350 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4536 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2712 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2551 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2550 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2545 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2535 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2534 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2534 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2534 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2534 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2534 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2534 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2534 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2534 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 38997 36882 25527 33792 30121 25852 43418 52290 43580 30164 37041 32633 41766 27086 39022 33353 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9479 9783 9260 9145 9291 9390 10579 9978 8868 8912 8745 8702 11647 8525 8771 3150 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637475.8784559
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14484 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5274 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5357 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4545 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2719 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2556 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2555 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2550 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2540 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2539 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2539 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2539 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2539 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2539 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2539 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2539 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2539 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39068 36937 25577 33864 30181 25903 43578 52373 43646 30263 37068 32666 41865 27137 39092 33400 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9487 9789 9267 9151 9298 9396 10587 9984 8868 8918 8751 8709 11653 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637485.8789132
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14488 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5281 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5363 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4550 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2724 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2561 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2560 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2555 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2545 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2544 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2544 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2544 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2544 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2544 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2544 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2544 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2544 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39129 36986 25650 33918 30226 25936 43683 52432 43680 30286 37095 32755 41888 27145 39160 33461 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9487 9789 9269 9151 9298 9396 10588 9984 8868 8918 8751 8710 11653 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637495.8793588
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14488 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5287 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5369 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4555 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2729 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2566 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2565 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2560 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2550 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2549 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2549 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2549 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2549 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2549 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2549 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2549 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2549 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39198 37039 25670 33970 30281 25972 43780 52492 43732 30323 37131 32863 41958 27152 39232 33529 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9488 9789 9269 9151 9299 9396 10588 9984 8868 8918 8751 8710 11654 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637505.879805
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14494 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5293 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5374 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4560 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2734 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2571 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2570 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2565 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2555 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2554 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2554 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2554 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2554 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2554 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2554 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2554 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2554 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39251 37080 25717 34025 30313 26004 43871 52550 43751 30376 37197 32895 42056 27161 39259 33564 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9488 9790 9269 9151 9299 9396 10588 9984 8868 8918 8751 8710 11655 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637515.8802438
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14495 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5298 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5379 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4565 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2739 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2576 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2575 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2570 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2560 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2559 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2559 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2559 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2559 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2559 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2559 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2559 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2559 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39310 37108 25759 34061 30349 26049 43949 52626 43782 30408 37243 32924 42126 27172 39298 33606 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9488 9790 9270 9151 9300 9396 10588 9984 8868 8918 8751 8710 11656 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637525.880708
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14495 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5303 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5384 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4570 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2745 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2581 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2580 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2575 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2565 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2564 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2564 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2564 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2564 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2564 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2564 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2564 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2564 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39378 37153 25777 34081 30378 26073 44055 52711 43819 30432 37301 32948 42178 27180 39326 33638 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9488 9791 9270 9151 9300 9396 10589 9985 8868 8918 8751 8710 11656 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637535.8808591
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14495 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5309 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5390 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4575 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2750 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2586 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2585 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2580 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2570 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2569 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2569 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2569 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2569 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2569 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2569 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2569 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2569 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39424 37190 25800 34116 30410 26098 44091 52748 43838 30460 37406 33051 42268 27193 39362 33670 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9489 9791 9270 9151 9300 9396 10589 9985 8868 8918 8751 8712 11658 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637545.8813188
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14495 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5314 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5395 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4580 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2755 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2591 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2590 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2585 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2575 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2574 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2574 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2574 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2574 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2574 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2574 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2574 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2574 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39468 37274 25818 34167 30484 26200 44192 52792 43916 30521 37492 33107 42378 27200 39433 33734 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9490 9791 9270 9151 9300 9396 10590 9985 8868 8918 8751 8712 11659 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+timestamp: 1737637555.8818507
+ CPU0 CPU1 CPU2 CPU3 CPU4 CPU5 CPU6 CPU7 CPU8 CPU9 CPU10 CPU11 CPU12 CPU13 CPU14 CPU15 
+ 4: 0 12747 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 4-edge ttyS0
+ 8: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 8-edge rtc0
+ 9: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 9-fasteoi acpi
+ 16: 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-IO-APIC 16-fasteoi i801_smbus
+ 120: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DMAR-MSI 0-edge dmar0
+ 121: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1b.0 0-edge PCIe PME, PCIe bwctrl
+ 122: 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.0 0-edge PCIe PME, PCIe bwctrl
+ 123: 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1c.7 0-edge PCIe PME, PCIe bwctrl
+ 124: 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.0 0-edge PCIe PME, PCIe bwctrl
+ 125: 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:1d.3 0-edge PCIe PME, PCIe bwctrl
+ 126: 0 0 0 0 0 0 0 14495 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:17.0 0-edge ahci[0000:00:17.0]
+ 127: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+ 135: 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 0-edge mhl0net
+ 136: 0 0 0 5319 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 1-edge mhl0net-TxRx-0
+ 137: 0 0 0 0 5400 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 2-edge mhl0net-TxRx-1
+ 138: 0 0 0 0 0 4585 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 3-edge mhl0net-TxRx-2
+ 139: 0 0 0 0 0 0 2760 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:03:00.0 4-edge mhl0net-TxRx-3
+ 140: 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 IR-PCI-MSIX-0000:04:00.0 0-edge i210
+ 141: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2596 0 IR-PCI-MSIX-0000:04:00.0 1-edge i210-TxRx-0
+ 142: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2595 IR-PCI-MSIX-0000:04:00.0 2-edge i210-TxRx-1
+ 143: 2590 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 3-edge i210-TxRx-2
+ 144: 0 2580 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:04:00.0 4-edge i210-TxRx-3
+ 145: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 0-edge enp5s0
+ 146: 0 0 0 0 2579 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 1-edge enp5s0-TxRx-0
+ 147: 0 0 0 0 0 2579 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 2-edge enp5s0-TxRx-1
+ 148: 0 0 0 0 0 0 2579 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 3-edge enp5s0-TxRx-2
+ 149: 0 0 0 0 0 0 0 2579 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:05:00.0 4-edge enp5s0-TxRx-3
+ 150: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 0-edge enp6s0
+ 151: 0 0 0 0 0 0 0 0 0 2579 0 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 1-edge enp6s0-TxRx-0
+ 152: 0 0 0 0 0 0 0 0 0 0 2579 0 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 2-edge enp6s0-TxRx-1
+ 153: 0 0 0 0 0 0 0 0 0 0 0 2579 0 0 0 0 IR-PCI-MSIX-0000:06:00.0 3-edge enp6s0-TxRx-2
+ 154: 0 0 0 0 0 0 0 0 0 0 0 0 2579 0 0 0 IR-PCI-MSIX-0000:06:00.0 4-edge enp6s0-TxRx-3
+ NMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Non-maskable interrupts
+ LOC: 39525 37317 25867 34191 30503 26237 44298 52857 43941 30550 37523 33128 42438 27208 39460 33770 Local timer interrupts
+ SPU: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Spurious interrupts
+ PMI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Performance monitoring interrupts
+ IWI: 0 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 IRQ work interrupts
+ RTR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 APIC ICR read retries
+ RES: 34 50 24 15 39 16 19 20 24 17 25 21 16 34 12 34 Rescheduling interrupts
+ CAL: 9492 9791 9270 9151 9300 9396 10590 9985 8868 8918 8751 8712 11660 8531 8777 3156 Function call interrupts
+ TLB: 4 4 5 3 8 3 2 9 4 10 2 4 15 2 3 1 TLB shootdowns
+ TRM: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Thermal event interrupts
+ THR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Threshold APIC interrupts
+ DFR: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Deferred Error APIC interrupts
+ MCE: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Machine check exceptions
+ MCP: 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 Machine check polls
+ ERR: 0
+ MIS: 0
+ PIN: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt notification event
+ NPI: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Nested posted-interrupt event
+ PIW: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
+
+proc-interrupts-helper: error: interrupted, exiting
