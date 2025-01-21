@@ -40,6 +40,30 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     Base class for data tabs of the "SysInfo" container tab.
     """
 
+    def __init__(self, name: str, outdir: Path, fpwis: list[FilePreviewInfoDict],
+                 stats_paths: dict[str, Path], basedir: Path | None = None):
+        """
+        The class constructor.
+
+        Args:
+            name: The name to give the generated D-tab.
+            outdir: The output directory path (where the D-tab files should be placed).
+            fpwis: a list of file preview information dictionaries describing the file previews that
+                   should be included to the D-tab.
+            stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
+            basedir: The report base directory directory path, defaults to 'outdir'.
+
+        The expected format for 'files' is '{Title: FilePath}' where 'Title' is the title for the
+        raw statistics file and 'FilePath' is path to the raw statistics file relative to the
+        statistics directory ('stats_paths').
+        """
+
+        super().__init__({}, outdir, name, basedir=basedir)
+
+        self.name = name
+        self._fpws = fpwis
+        self._stats_paths = stats_paths
+
     @staticmethod
     def _compat_adjust_paths(paths: dict[str, Path]) -> dict[str, Path]:
         """
@@ -98,27 +122,3 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
             self.add_fpreview(fpwi["title"], paths, diff=fpwi["diff"])
 
         return super().get_tab()
-
-    def __init__(self, name: str, outdir: Path, fpwis: list[FilePreviewInfoDict],
-                 stats_paths: dict[str, Path], basedir: Path | None = None):
-        """
-        The class constructor.
-
-        Args:
-            name: The name to give the generated D-tab.
-            outdir: The output directory path (where the D-tab files should be placed).
-            fpwis: a list of file preview information dictionaries describing the file previews that
-                   should be included to the D-tab.
-            stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
-            basedir: The report base directory directory path, defaults to 'outdir'.
-
-        The expected format for 'files' is '{Title: FilePath}' where 'Title' is the title for the
-        raw statistics file and 'FilePath' is path to the raw statistics file relative to the
-        statistics directory ('stats_paths').
-        """
-
-        super().__init__({}, outdir, name, basedir=basedir)
-
-        self.name = name
-        self._fpws = fpwis
-        self._stats_paths = stats_paths
