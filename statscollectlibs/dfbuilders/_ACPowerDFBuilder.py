@@ -39,12 +39,12 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         if "T" not in df.columns:
             raise Error(f"the 'T' (time-stamp) column was not found in AC power CSV file '{path}")
 
-        # Add the 'ElapsedTime' column for the time elapsed since the beginning of measurements.
-        time_metric = "TimeElapsed"
-        df[time_metric] = df["T"] - df["T"].iloc[0]
+        # Add the 'TImeElapsed' column for the time elapsed since the beginning of measurements.
+        df[self._time_metric] = df["T"] - df["T"].iloc[0]
         return df
 
     def __init__(self):
         """The class constructor."""
 
-        super().__init__("T", "TimeElapsed")
+        self._time_metric = "TimeElapsed"
+        super().__init__("T", self._time_metric)
