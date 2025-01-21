@@ -17,7 +17,7 @@ import filecmp
 import logging
 from pathlib import Path
 from pepclibs.helperlibs import Human
-from pepclibs.helperlibs.Exceptions import Error, ErrorExists
+from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport.tabs import _Tabs
 
@@ -186,7 +186,7 @@ class FilePreviewBuilder:
             new_paths[reportid] = dst_path
 
         if not new_paths:
-            raise Error(f"Unable to generate file preview '{title}'")
+            raise ErrorNotFound(f"Unable to generate file preview '{title}'")
 
         if self._diff and len(new_paths) == 2:
             try:

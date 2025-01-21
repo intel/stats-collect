@@ -11,10 +11,14 @@
 Provide the base class for data tabs of the "SysInfo" container tab.
 """
 
+import logging
 import typing
 from pathlib import Path
+from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
+
+_LOG = logging.getLogger()
 
 class FilePreviewInfoDict(typing.TypedDict):
     """
@@ -119,6 +123,16 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
             paths = self._compat_adjust_paths(paths)
 
-            self.add_fpreview(fpwi["title"], paths, diff=fpwi["diff"])
+            try:
+                self.add_fpreview(fpwi["title"], paths, diff=fpwi["diff"])
+            except ErrorNotFound as err:
+                _LOG.debug("Skipping file preview '%s' in the '%s' tab: %s",
+                           fpwi["title"], self.name, err.indent(2))
+                continue
+            except Error as err:
+                errmsg = err.indent(2)
+                _LOG.warning("Skipping file preview '%s' in the '%s' tab: An error occurred during "
+                             "file preview generation:\n%s", fpwi["title"], self.name, errmsg)
+                continue
 
         return super().get_tab()
