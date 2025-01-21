@@ -104,7 +104,6 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
             new_path = path.parent / new_name
             if new_path.exists():
                 new_paths[reportid] = new_path
-                break
 
         return new_paths
 
