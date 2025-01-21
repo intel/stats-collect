@@ -59,6 +59,20 @@ class FilePreviewBuilder:
     contents of one or mutliple files, and possibly a diff between the files.
     """
 
+    def __init__(self, outdir: Path, basedir: Path | None = None, diff: bool = True):
+        """
+        The class constructor.
+
+        Args:
+            outdir: The output directory path (where the file preview files should be placed).
+            basedir: The report base directory directory path, defaults to 'outdir'.
+            diff: whether the diff should be generated.
+        """
+
+        self._outdir = outdir
+        self._basedir = basedir if basedir else outdir
+        self._diff = diff
+
     def _generate_html_diff(self, paths: list[Path], diff_name: str) -> Path:
         """
         Generate an HTML diff of the files at 'paths' with file name 'diff_name.html'.
@@ -191,17 +205,3 @@ class FilePreviewBuilder:
             new_paths[reportid] = path.relative_to(self._basedir)
 
         return _Tabs.FilePreviewDC(title, new_paths, diff)
-
-    def __init__(self, outdir: Path, basedir: Path | None = None, diff: bool = True):
-        """
-        The class constructor.
-
-        Args:
-            outdir: The output directory path (where the file preview files should be placed).
-            basedir: The report base directory directory path, defaults to 'outdir'.
-            diff: whether the diff should be generated.
-        """
-
-        self._outdir = outdir
-        self._basedir = basedir if basedir else outdir
-        self._diff = diff
