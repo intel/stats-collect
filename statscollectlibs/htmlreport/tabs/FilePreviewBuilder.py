@@ -175,10 +175,11 @@ class FilePreviewBuilder:
                            "doesn't exist", title, reportid, file_path)
                 continue
 
+            if not _has_reasonable_size(file_path, title):
+                continue
+
             # If the file is not in 'outdir' it should be copied to 'outdir'.
             if self._outdir not in file_path.parents:
-                if not _has_reasonable_size(file_path, title):
-                    break
                 dst_path = self._copy_file(file_path, reportid)
             else:
                 dst_path = file_path
