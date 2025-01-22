@@ -89,6 +89,10 @@ class MDCBase:
                                                    what=f"{toolname} definitions file")
         self.mdd = YAML.load(self.path)
 
+        # The YAML files may not have the "name" key, add it.
+        for key, md in self.mdd.items():
+            md["name"] = key
+
     def _handle_pattern(self, metric: str, md: MDTypedDict) -> MDTypedDict:
         """
         Replace patterns in the MD of metric 'metric'.
@@ -161,6 +165,7 @@ class MDCBase:
                 if orig_metric not in replacements:
                     replacements[orig_metric] = {}
 
+                new_md["name"] = new_metric
                 replacements[orig_metric][new_metric] = new_md
 
         new_mdd = {}
@@ -187,12 +192,6 @@ class MDCBase:
             if metric not in keep_metrics:
                 del self.mdd[metric]
 
-    def _add_subkeys(self):
-        """Add some more sub-keys to the metrics definition dictionary."""
-
-        for key, md in self.mdd.items():
-            md["name"] = key
-
     def mangle(self, metrics: list[str] | None = None, drop_missing: bool = True):
         """
         Mangle the metrics definition dictionary. The mangling is related to the "patterns" key in
@@ -214,5 +213,3 @@ class MDCBase:
             self._handle_patterns(metrics)
             if drop_missing:
                 self._drop_missing_metrics(metrics)
-
-        self._add_subkeys()
