@@ -60,7 +60,7 @@ class TurbostatMDC(MDCBase.MDCBase):
         # Metric names arrange by the category.
         self.categories = {}
 
-        super().__init__("stats-collect", "turbostat", defsdir=Path("defs/statscollect"))
+        super().__init__("stats-collect", Path("defs/statscollect/turbostat.yml"))
         self.mangle(metrics)
 
         self._categorize()

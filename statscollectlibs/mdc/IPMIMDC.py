@@ -91,5 +91,5 @@ class IPMIMDC(MDCBase.MDCBase):
 
         self.categories = {}
 
-        super().__init__("stats-collect", "ipmi", defsdir=Path("defs/statscollect"))
+        super().__init__("stats-collect", Path("defs/statscollect/ipmi.yml"))
         self._populate(parsed_dp)

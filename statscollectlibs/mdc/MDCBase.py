@@ -54,19 +54,16 @@ class MDTypedDict(TypedDict, total=False):
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 
-    def __init__(self, prjname: str, toolname: str, defsdir: Path | None = None,
-                 mdd: dict[str, MDTypedDict] | None = None):
+    def __init__(self, prjname: str, yaml_path: Path, mdd: dict[str, MDTypedDict] | None = None):
         """
         The class constructore.
 
         Args:
             prjname: Name of the project the metrics definition YAML file belongs to.
-            toolname: Name of the tool or workload the metrics definition YAML file belongs to.
-            defsdir: Path of directory containing metrics definition YAML files. Defaults to "defs".
+            yaml_path: Path of metrics definition YAML files relative to the project directory.
             mdd: The metrics definition dictionary to use instead of loading it from the YAML file.
         """
 
-        self.toolname = toolname
         self.path = None
         self.mdd: dict[str, MDTypedDict] = {}
 
@@ -74,19 +71,16 @@ class MDCBase:
             self.mdd = mdd
             return
 
-        if defsdir and mdd:
-            raise Error("BUG: 'defsdir' and 'mdd' are mutually exclusive")
-
-        if defsdir is None:
-            defsdir = Path("defs")
+        if yaml_path and mdd:
+            raise Error("BUG: 'yaml_path' and 'mdd' are mutually exclusive")
 
         # TODO: a hack to silence mypy "literal-required" warnings. It might have been fixed in
         # newer # mypy so that the 'tuple' type is fine to use. Refer to
         # https://github.com/python/mypy/issues/7178
         self._mangle_subkeys: Sequence[Literal["title", "descr"]] = ("title", "descr")
 
-        self.path = ProjectFiles.find_project_data(prjname, defsdir / f"{toolname}.yml",
-                                                   what=f"{toolname} definitions file")
+        what = f"the '{yaml_path}' metrics definition file"
+        self.path = ProjectFiles.find_project_data(prjname, yaml_path, what=what)
         self.mdd = YAML.load(self.path)
 
         # The YAML files may not have the "name" key, add it.
@@ -99,10 +93,10 @@ class MDCBase:
 
         Args:
             metric: Name of the metric to substitute the 'mdd' dictionary contents with.
-            mdd: The metric definition dictionary to apply the pattern substitutions to.
+            md: The metric definition to apply the pattern substitutions to.
 
         Returns:
-            The substituted version of the 'mdd' dictionary.
+            The substituted version of the 'md' dictionary.
         """
 
         new_md: MDTypedDict = {}

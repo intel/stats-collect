@@ -20,4 +20,4 @@ class ACPowerMDC(MDCBase.MDCBase):
     def __init__(self):
         """The class constructor."""
 
-        super().__init__("stats-collect", "acpower", defsdir=Path("defs/statscollect"))
+        super().__init__("stats-collect", Path("defs/statscollect/acpower.yml"))
