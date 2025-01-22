@@ -12,11 +12,24 @@ Provide the base class and common logic for populating a group of statistics tab
 
 import logging
 from pathlib import Path
+from typing import cast
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 from statscollectlibs.rawresultlibs import RORawResult
 
 _LOG = logging.getLogger()
+
+class MDTypedDict(MDCBase.MDTypedDict, total=False):
+    """
+    The metric definition dictionary for dataframe column metrics. It is same as
+    'MDCBase.MDTypedDict', but describes metric in scope, like "System" or "CPU0".
+
+    Attributes:
+        colname: column name the definition dictionary describes.
+    """
+
+    colname: str
 
 class TabBuilderBase:
     """
@@ -285,6 +298,24 @@ class TabBuilderBase:
 
         raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
                     f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
+
+    def _build_colnames_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
+                            colnames: list[str]) -> dict[str, MDTypedDict]:
+
+        new_mdd: dict[str, MDTypedDict] = {}
+
+        # Build a metrics definition dictionary describing all columns in the dataframe.
+        for colname in colnames:
+            split = colname.split("-", 1)
+            if len(split) == 1:
+                metric = split[0]
+            else:
+                metric = split[1]
+
+            new_mdd[colname] = cast(MDTypedDict, mdd[metric].copy())
+            new_mdd[colname]["colname"] = colname
+
+        return new_mdd
 
     def __init__(self, dfs, mdd, outdir, basedir=None):
         """

@@ -240,26 +240,22 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Create a metrics definition object which covers all metrics across all the results.
         self._mdo = TurbostatMDC.TurbostatMDC(metrics)
 
-        # Build a metrics definition dictionary describing all columns in the dataframe.
-        mdd = {}
-        time_colnames = []
+        # The dataframes include more columns than 'self._mdo.mdd' has metrics. TODO: better build
+        # smaller dataframes without unnecessary metrics.
+        colnames = []
         for colname, metric in self._col2metric.items():
-            if metric not in self._mdo.mdd:
-                continue
+            if metric in self._mdo.mdd:
+                colnames.append(colname)
 
-            if metric == "TimeElapsed":
-                time_colnames.append(colname)
-            mdd[colname] = self._mdo.mdd[metric].copy()
-            mdd[colname]["colname"] = colname
+        mdd = self._build_colnames_mdd(self._mdo.mdd, colnames)
 
         outdir = outdir / self.name
         super().__init__(dfs, mdd, outdir, basedir=basedir)
 
-        # Convert the elapsed time columns in the dataframe to the "datetime" format so that
+        # Convert the elapsed time column in dataframes to the "datetime" format so that
         # diagrams use a human-readable format.
-        for time_colname in time_colnames:
-            for df in dfs.values():
-                df[time_colname] = pandas.to_datetime(df[time_colname], unit="s")
+        for df in dfs.values():
+            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
         # Build the list of scope names.
         found_snames = set()
