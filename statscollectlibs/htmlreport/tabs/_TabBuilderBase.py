@@ -51,7 +51,8 @@ class TabBuilderBase:
     # The name of the statistics represented in the produced tab.
     name: str | None = None
 
-    def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, title=None):
+    def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, hist=False,
+                            title=None):
         """
         Provide a way to build a default data tab configuration. Return an instance of
         'TabConfig.DTabConfig'. The arguments are as follows.
@@ -68,13 +69,15 @@ class TabBuilderBase:
           * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
                          list of metric definition dictionaries for the metrics which should be
                          included on plots as hover text for the relevant report with id 'reportid'.
+          * hist - whether to include a histogram plot for the metric.
           * title - optionally customize the name of the tab. Defaults to 'y_metric'.
         """
 
         title = title if title is not None else y_metric
         dtab = TabConfig.DTabConfig(title)
         dtab.add_scatter_plot(x_metric, y_metric)
-        dtab.add_hist(y_metric)
+        if hist:
+            dtab.add_hist(y_metric)
         dtab.set_smry_funcs({y_metric: smry_funcs[y_metric]})
         dtab.set_hover_defs(hover_defs)
 
