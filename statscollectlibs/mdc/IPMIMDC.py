@@ -8,6 +8,7 @@
 
 """Provide the IPMI metrics definition class."""
 
+from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.mdc import MDCBase
 
@@ -90,6 +91,6 @@ class IPMIMDC(MDCBase.MDCBase):
 
         self.categories = {}
 
-        super().__init__("stats-collect", "ipmi", defsdir="defs/statscollect")
+        super().__init__("stats-collect", "ipmi", defsdir=Path("defs/statscollect"))
         self._populate(parsed_dp)
         super().mangle()

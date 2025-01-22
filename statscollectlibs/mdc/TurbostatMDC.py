@@ -8,6 +8,7 @@
 
 """Provide the turbostat metrics definition class."""
 
+from pathlib import Path
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.parsers import TurbostatParser
 
@@ -59,7 +60,7 @@ class TurbostatMDC(MDCBase.MDCBase):
         # Metric names arrange by the category.
         self.categories = {}
 
-        super().__init__("stats-collect", "turbostat", defsdir="defs/statscollect")
+        super().__init__("stats-collect", "turbostat", defsdir=Path("defs/statscollect"))
         self.mangle(metrics=metrics)
 
         self._categorize()

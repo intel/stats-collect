@@ -8,6 +8,7 @@
 
 """Provide the AC power metrics definition class."""
 
+from pathlib import Path
 from statscollectlibs.mdc import MDCBase
 
 class ACPowerMDC(MDCBase.MDCBase):
@@ -19,5 +20,5 @@ class ACPowerMDC(MDCBase.MDCBase):
     def __init__(self):
         """The class constructor."""
 
-        super().__init__("stats-collect", "acpower", defsdir="defs/statscollect")
+        super().__init__("stats-collect", "acpower", defsdir=Path("defs/statscollect"))
         self.mangle()
