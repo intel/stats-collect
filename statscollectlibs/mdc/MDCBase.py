@@ -37,20 +37,6 @@ def get_fsname(metric):
     metric = "".join([c for c in metric if c.isalnum()])
     return metric
 
-def is_mdef(dct):
-    """Returns 'True' if 'dct' is a metric definition dictionary. Else, returns 'False'."""
-
-    try:
-        # Try and access the required fields for a metric definition dictionary.
-        _ = dct["name"]
-        _ = dct["title"]
-        _ = dct["descr"]
-        return True
-    except TypeError:
-        return False
-    except KeyError:
-        return False
-
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 

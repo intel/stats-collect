@@ -107,7 +107,21 @@ class TabBuilderBase:
         dictionary from 'self._mdd'.
         """
 
-        if MDCBase.is_mdef(metric):
+        def _is_mdef(dct):
+            """Returns 'True' if 'dct' is a metric definition dictionary. Else, returns 'False'."""
+
+            try:
+                # Try and access the required fields for a metric definition dictionary.
+                _ = dct["name"]
+                _ = dct["title"]
+                _ = dct["descr"]
+                return True
+            except TypeError:
+                return False
+            except KeyError:
+                return False
+
+        if _is_mdef(metric):
             return metric
 
         if metric not in self._mdd:
