@@ -61,6 +61,6 @@ class TurbostatMDC(MDCBase.MDCBase):
         self.categories = {}
 
         super().__init__("stats-collect", "turbostat", defsdir=Path("defs/statscollect"))
-        self.mangle(metrics=metrics)
+        self.mangle(metrics)
 
         self._categorize()

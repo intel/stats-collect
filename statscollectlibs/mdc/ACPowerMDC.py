@@ -21,4 +21,3 @@ class ACPowerMDC(MDCBase.MDCBase):
         """The class constructor."""
 
         super().__init__("stats-collect", "acpower", defsdir=Path("defs/statscollect"))
-        self.mangle()

@@ -192,7 +192,7 @@ class MDCBase:
             if metric not in keep_metrics:
                 del self.mdd[metric]
 
-    def mangle(self, metrics: list[str] | None = None, drop_missing: bool = True):
+    def mangle(self, metrics: list[str], drop_missing: bool = True):
         """
         Mangle the metrics definition dictionary. The mangling is related to the "patterns" key in
         the metrics definition YAML files. The idea is that one YAML file metric may correspond to
@@ -209,7 +209,6 @@ class MDCBase:
                           metrics from the MDD. If 'False', keep all metrics.
         """
 
-        if metrics:
-            self._handle_patterns(metrics)
-            if drop_missing:
-                self._drop_missing_metrics(metrics)
+        self._handle_patterns(metrics)
+        if drop_missing:
+            self._drop_missing_metrics(metrics)

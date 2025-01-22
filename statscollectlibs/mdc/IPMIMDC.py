@@ -93,4 +93,3 @@ class IPMIMDC(MDCBase.MDCBase):
 
         super().__init__("stats-collect", "ipmi", defsdir=Path("defs/statscollect"))
         self._populate(parsed_dp)
-        super().mangle()
