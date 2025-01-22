@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -21,83 +21,165 @@ Terminology.
 
 import re
 from pathlib import Path
+from typing import TypedDict, Literal, Sequence
 from pepclibs.helperlibs import YAML, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error
+
+class MDTypedDict(TypedDict, total=False):
+    """
+    The metric definition dictionary, describes a single metric.
+
+    Attributes:
+        name: Metric name.
+        title: Capitalized metric title, short and human-readable.
+        descr: A longer metric description.
+        unit: The unit of the metric (full name, singular, like "second"). This key is optional.
+        short_unit: A short form of the unit of measurement (e.g., "s" instead of "second"). This
+                   key is optional.
+        scope: The scope of the metric (e.g., "package"). This key is optional.
+        categories: A list of categories that the metric belongs to. This key is optional.
+        patterns: list of regular expressions that is used for metric substitutions. This key is an
+                  internal key for 'MDCBase', which gets removed, do not use it.
+    """
+
+    name: str
+    title: str
+    descr: str
+    unit: str
+    short_unit: str
+    scope: str
+    categories: list[str]
+    patterns: list[str]
 
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 
-    def _handle_pattern(self, metric, mdd):
+    def __init__(self, prjname: str, toolname: str, defsdir: Path | None = None,
+                 mdd: dict[str, MDTypedDict] | None = None):
         """
-        Replace patterns in definition dictionary of a metric. The arguments are as follows.
-         * metric - name of the metric to substitute the 'mdd' dictionary contents with.
-         * mdd - the metric definition dictionary to apply the pattern substitutions to.
+        The class constructore.
 
-        Return the substituted version of the 'mdd' dictionary.
+        Args:
+            prjname: Name of the project the metrics definition YAML file belongs to.
+            toolname: Name of the tool or workload the metrics definition YAML file belongs to.
+            defsdir: Path of directory containing metrics definition YAML files. Defaults to "defs".
+            mdd: The metrics definition dictionary to use instead of loading it from the YAML file.
         """
 
-        new_mdd = None
+        self.toolname = toolname
+        self.path = None
+        self.mdd: dict[str, MDTypedDict] = {}
 
-        for pattern in mdd["patterns"]:
+        if mdd:
+            self.mdd = mdd
+            return
+
+        if defsdir and mdd:
+            raise Error("BUG: 'defsdir' and 'mdd' are mutually exclusive")
+
+        if defsdir is None:
+            defsdir = Path("defs")
+
+        # TODO: a hack to silence mypy "literal-required" warnings. It might have been fixed in
+        # newer # mypy so that the 'tuple' type is fine to use. Refer to
+        # https://github.com/python/mypy/issues/7178
+        self._mangle_subkeys: Sequence[Literal["title", "descr"]] = ("title", "descr")
+
+        self.path = ProjectFiles.find_project_data(prjname, defsdir / f"{toolname}.yml",
+                                                   what=f"{toolname} definitions file")
+        self.mdd = YAML.load(self.path)
+
+    def _handle_pattern(self, metric: str, md: MDTypedDict) -> MDTypedDict:
+        """
+        Replace patterns in the MD of metric 'metric'.
+
+        Args:
+            metric: Name of the metric to substitute the 'mdd' dictionary contents with.
+            mdd: The metric definition dictionary to apply the pattern substitutions to.
+
+        Returns:
+            The substituted version of the 'mdd' dictionary.
+        """
+
+        new_md: MDTypedDict = {}
+
+        for pattern in md["patterns"]:
             mobj = re.match(pattern, metric)
             if not mobj:
                 continue
 
-            new_mdd = mdd.copy()
-            del new_mdd["patterns"]
+            new_md = md.copy()
+            del new_md["patterns"]
 
             for idx, grp in enumerate(mobj.groups()):
                 for skey in self._mangle_subkeys:
-                    text = new_mdd[skey]
+                    text = new_md[skey]
                     for grp_patt, grp_repl in (("{GROUPS[%d]}" % idx, grp.upper()),
                                                ("{groups[%d]}" % idx, grp)):
                         text = text.replace(grp_patt, grp_repl)
-                    new_mdd[skey] = text
+                    new_md[skey] = text
             break
 
-        return new_mdd
+        return new_md
 
-    def _handle_patterns(self, metrics):
+    def _handle_patterns(self, metrics: list[str]):
         """
-        Replace patterns in the definitions dictionary. The arguments are as follows.
-         * metrics - a collection of metric names to use for substituting the patterns in the
-                     definitions dictionary.
+        Replace patterns in the MDD ('self.mdd') with actual metric names from 'metrics'.
+
+        Args:
+            metrics: A list of metric names to use for substituting the patterns in the definitions
+                     dictionary.
         """
 
-        # Parts of the definitions dictionary ('self.mdd') will be replaced with the contents of
-        # this dictionary.
-        replacements = {}
+        # Current MDD has "pattern" metric keys, such as "Cx", instead of "C1". And these "pattern"
+        # metrics definition dictionary includes the "patterns" key, which is a list of regular
+        # expressions that can be used to substitute the "pattern" metric key with the actual
+        # metric.
+        #
+        # The 'replacements' dictionary will store the actual metric definitions (already
+        # substituted).
+        replacements: dict[str, dict[str, MDTypedDict]] = {}
 
-        for key, val in self.mdd.items():
-            if not "patterns" in val:
-                # Nothing to mangle.
+        # Build the list of actual metrics that will be used for pattern substitutions, skipping the
+        # metrics that are already defined in the MDD.
+        actual_metrics: list[str] = []
+        for actual_metric in metrics:
+            if actual_metric in self.mdd:
+                continue
+            actual_metrics.append(actual_metric)
+
+        for orig_metric, orig_md in self.mdd.items():
+            if "patterns" not in orig_md:
+                # Nothing to mangle for this metric.
                 continue
 
-            for metric in metrics:
-                if metric in self.mdd:
-                    # Skip metrics that are explicitly defined.
+            for new_metric in actual_metrics:
+                new_md = self._handle_pattern(new_metric, orig_md)
+                if not new_md:
                     continue
 
-                new_val = self._handle_pattern(metric, val)
-                if new_val:
-                    if key not in replacements:
-                        replacements[key] = {}
-                    replacements[key][metric] = new_val
+                if orig_metric not in replacements:
+                    replacements[orig_metric] = {}
+
+                replacements[orig_metric][new_metric] = new_md
 
         new_mdd = {}
-        for key, val in self.mdd.items():
-            if key not in replacements:
-                new_mdd[key] = val
+        for orig_metric, orig_md in self.mdd.items():
+            if orig_metric not in replacements:
+                new_mdd[orig_metric] = orig_md
                 continue
-            for new_key, new_val in replacements[key].items():
-                new_mdd[new_key] = new_val
+            for new_metric, new_md in replacements[orig_metric].items():
+                new_mdd[new_metric] = new_md
 
         self.mdd = new_mdd
 
-    def _drop_missing_metrics(self, metrics):
+    def _drop_missing_metrics(self, metrics: list[str]):
         """
-        Leave 'metrics' metrics in the MDD (metrics definitions dictionary), and drop any other
-        metrics.
+        Make sure the MDD includes only metrics from 'metrics'. Drop any metric that is not in
+        'metrics' from the MDD.
+
+        Args:
+            metrics: List of metric names to keep in the MDD.
         """
 
         keep_metrics = set(list(metrics))
@@ -108,17 +190,24 @@ class MDCBase:
     def _add_subkeys(self):
         """Add some more sub-keys to the metrics definition dictionary."""
 
-        for key, val in self.mdd.items():
-            val["name"] = key
+        for key, md in self.mdd.items():
+            md["name"] = key
 
-    def mangle(self, metrics=None, drop_missing=True):
+    def mangle(self, metrics: list[str] | None = None, drop_missing: bool = True):
         """
-        Mangle the metrics definition dictionary and replace the pattern metrics. The arguments are
-        as follows.
-          * metrics - a collection of metric names to use for substituting the pattern in the
-                      metric definition dictionary (e.g., substitute 'CCx' with 'CC1', 'CC1E', etc).
-          * drop_missing - if 'True', keep only 'metrics' metrics in the metrics definitions
-                           dictionary, and drop all other metrics. If 'False', keep all metrics.
+        Mangle the metrics definition dictionary. The mangling is related to the "patterns" key in
+        the metrics definition YAML files. The idea is that one YAML file metric may correspond to
+        multiple "versions" of the metric. For example, there may be the "Cx" metric in the YAML
+        file, and it corresponds to "C1", "C2", and "C3" actual metrics. The "patterns" mechanism is
+        about turning "Cx" into "C1", "C2" and "C3" in the metics definitions dictionary. Note, the
+        actual metrics list is platform-specific. For example, one platform may have only "C1", and
+        another platform may have "C1", "C2", and "C3".
+
+        Ars:
+            metrics: List of metric names to use for substituting the pattern in the metric
+                     definition dictionary.
+            drop_missing: If 'True', keep only metrics in 'metrics' in the MDD, and drop all other
+                          metrics from the MDD. If 'False', keep all metrics.
         """
 
         if metrics:
@@ -127,33 +216,3 @@ class MDCBase:
                 self._drop_missing_metrics(metrics)
 
         self._add_subkeys()
-
-    def __init__(self, prjname, toolname, defsdir=None, mdd=None):
-        """
-        The class constructor. The arguments are as follows.
-          * prjname - name of the project the metrics definition YAML file belongs to.
-          * toolname - name of the tool or workload the metrics definition YAML file belong to.
-          * defsdir - path of directory containing metrics definition YAML files, defaults to
-                      "defs".
-          * mdd - the metrics definition dictionary to use instead of loading it from the YAML
-                  file.
-        """
-
-        self.toolname = toolname
-        self.path = None
-
-        if mdd:
-            self.mdd = mdd
-            return
-
-        if defsdir and mdd:
-            raise Error("BUG: 'defsdir' and 'mdd' are mutually exclusive")
-
-        if defsdir is None:
-            defsdir = "defs"
-
-        self._mangle_subkeys = ["title", "descr"]
-
-        self.path = ProjectFiles.find_project_data(prjname, Path(defsdir) / f"{toolname}.yml",
-                                                   what=f"{toolname} definitions file")
-        self.mdd = YAML.load(self.path)
