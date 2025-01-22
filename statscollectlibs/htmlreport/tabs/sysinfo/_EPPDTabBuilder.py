@@ -14,7 +14,7 @@ Provide API for populating the "x86_energy_perf_policy" data tab of the "SysInfo
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoTypedDict] = [
     {
         "title": "x86_energy_perf_policy",
         "path": Path("sysinfo/x86_energy_perf_policy.after.raw.txt"),

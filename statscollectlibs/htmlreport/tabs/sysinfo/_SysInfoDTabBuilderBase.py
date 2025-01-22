@@ -12,15 +12,15 @@ Provide the base class for data tabs of the "SysInfo" container tab.
 """
 
 import logging
-import typing
 from pathlib import Path
+from typing import TypedDict
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
 _LOG = logging.getLogger()
 
-class FilePreviewInfoDict(typing.TypedDict):
+class FilePreviewInfoTypedDict(TypedDict):
     """
     A file preview information dictionary. File preview is an element of a D-tab that basically
     provides the contents of a file for every raw result (each raw result may bring this file), and
@@ -44,7 +44,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     Base class for data tabs of the "SysInfo" container tab.
     """
 
-    def __init__(self, name: str, outdir: Path, fpwis: list[FilePreviewInfoDict],
+    def __init__(self, name: str, outdir: Path, fpwis: list[FilePreviewInfoTypedDict],
                  stats_paths: dict[str, Path], basedir: Path | None = None):
         """
         The class constructor.

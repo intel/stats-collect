@@ -14,7 +14,7 @@ Provide API for populating the "turbostat" data tab of the "SysInfo" container t
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoTypedDict] = [
     {
         "title": "turbostat -c 0 -S",
         "path": Path("sysinfo/turbostat-d-c0.after.raw.txt"),

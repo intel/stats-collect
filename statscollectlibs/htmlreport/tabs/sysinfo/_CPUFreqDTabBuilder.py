@@ -14,7 +14,7 @@ Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 
-_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoDict] = [
+_FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoTypedDict] = [
     {
         "title": "cpufreq",
         "path": Path("sysinfo/sys-cpufreq.after.raw.txt"),
