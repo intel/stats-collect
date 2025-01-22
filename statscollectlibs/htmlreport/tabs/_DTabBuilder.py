@@ -119,17 +119,17 @@ class DTabBuilder:
         """
 
         # Initialise scatter plot.
-        fname = f"{get_fsname(ydef['name'])}-vs-{get_fsname(xdef['name'])}.html"
+        fname = f"{get_fsname(ydef['colname'])}-vs-{get_fsname(xdef['colname'])}.html"
         plottitle = f"scatter plot '{ydef['title']} vs {xdef['title']}'"
 
         s_path = self._outdir / fname
-        s = _ScatterPlot.ScatterPlot(xdef["name"], ydef["name"], s_path, xdef.get("title"),
+        s = _ScatterPlot.ScatterPlot(xdef["colname"], ydef["colname"], s_path, xdef.get("title"),
                                      ydef.get("title"), xdef.get("short_unit"),
                                      ydef.get("short_unit"))
 
         for reportid, df in self._dfs.items():
             for mdef in [xdef, ydef]:
-                if mdef["name"] not in df:
+                if mdef["colname"] not in df:
                     self._warn_plot_skip_res(reportid, plottitle, mdef["title"])
                     break
             else:
@@ -151,17 +151,17 @@ class DTabBuilder:
         """
 
         if cumulative:
-            h_path = self._outdir / f"Percentile-vs-{get_fsname(mdef['name'])}.html"
+            h_path = self._outdir / f"Percentile-vs-{get_fsname(mdef['colname'])}.html"
             plottitle = f"cumulative histogram 'Percentile vs {mdef['title']}'"
         else:
-            h_path = self._outdir / f"Count-vs-{get_fsname(mdef['name'])}.html"
+            h_path = self._outdir / f"Count-vs-{get_fsname(mdef['colname'])}.html"
             plottitle = f"histogram 'Count vs {mdef['title']}'"
 
-        h = _Histogram.Histogram(mdef["name"], h_path, mdef.get("title"), mdef.get("short_unit"),
+        h = _Histogram.Histogram(mdef["colname"], h_path, mdef.get("title"), mdef.get("short_unit"),
                                  cumulative=cumulative, xbins=xbins)
 
         for reportid, df in self._dfs.items():
-            if mdef["name"] not in df:
+            if mdef["colname"] not in df:
                 self._warn_plot_skip_res(reportid, plottitle, mdef["title"])
                 continue
             h.add_df(df, reportid)
@@ -184,23 +184,23 @@ class DTabBuilder:
             plotname = f"{plotname} '{xdef['name']}'"
 
         for mdef in mdefs:
-            mname = mdef["name"]
+            colname = mdef["colname"]
 
-            sdfs_with_data = [sdf for sdf in self._dfs.values() if mname in sdf]
-            # Check that at least one result contains data for metric 'mname'.
+            sdfs_with_data = [sdf for sdf in self._dfs.values() if colname in sdf]
+            # Check that at least one result contains data for column 'colname'.
             if not sdfs_with_data:
-                _LOG.debug("skipping %s: no results have data for '%s'", plotname, mname)
+                _LOG.debug("skipping %s: no results have data for '%s'", plotname, colname)
                 return True
 
             # Check if there is a constant value for all datapoints.
-            sample_dp = sdfs_with_data[0][mname].max()
-            if all((sdf[mname] == sample_dp).all() for sdf in sdfs_with_data):
+            sample_dp = sdfs_with_data[0][colname].max()
+            if all((sdf[colname] == sample_dp).all() for sdf in sdfs_with_data):
                 _LOG.debug("skipping %s: every datapoint in all results is the same, '%s' is "
-                           "always '%s'", plotname, mname, sample_dp)
-                if mname not in self._alerted_metrics:
-                    self._alerts.append(f"'{mname}' was always: '{sample_dp}'. One or more "
+                           "always '%s'", plotname, colname, sample_dp)
+                if colname not in self._alerted_metrics:
+                    self._alerts.append(f"'{colname}' was always: '{sample_dp}'. One or more "
                                         f"diagrams have been skipped.")
-                    self._alerted_metrics.add(mname)
+                    self._alerted_metrics.add(colname)
                 return True
 
         return False
