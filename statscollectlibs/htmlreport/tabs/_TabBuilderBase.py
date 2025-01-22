@@ -255,9 +255,19 @@ class TabBuilderBase:
             raise ErrorNotFound(f"not data for '{self.name}'")
 
         self._dfs = dfs
-        self._mdd = mdd
+        self._mdd = {}
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
+
+        # Make sure the MDs from 'mdd' have the "columns" key, which is the dataframe column names.
+        # Column names may not be the same as metric names from the "name" key of MDs. Note, MDD
+        # keys are the dataframe column names.
+        for colname, md in mdd.items():
+            if "colname" not in md:
+                self._mdd[colname] = md.copy()
+                self._mdd[colname]["colname"] = colname
+            else:
+                self._mdd[colname] = md
 
         try:
             self._outdir.mkdir(parents=True, exist_ok=True)
