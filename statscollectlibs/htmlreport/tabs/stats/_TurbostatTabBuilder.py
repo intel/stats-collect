@@ -287,7 +287,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             if metric == "TimeElapsed":
                 time_colnames.append(colname)
             mdd[colname] = self._mdo.mdd[metric].copy()
-            mdd[colname]["name"] = colname
+            mdd[colname]["colname"] = colname
 
         outdir = outdir / self.name
         super().__init__(dfs, mdd, outdir, basedir=basedir)
