@@ -24,19 +24,6 @@ from pathlib import Path
 from pepclibs.helperlibs import YAML, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error
 
-def get_fsname(metric):
-    """
-    Return a file-system and URL-safe name for a metric. The arguments are as follows.
-      * metric - name of the metric to return an FS and URL-safe name for.
-    """
-
-    # If 'metric' contains "%", we maintain the meaning by replacing with "Percent".
-    metric = metric.replace("%", "Percent")
-
-    # Filter out any remaining non-alphanumeric characters.
-    metric = "".join([c for c in metric if c.isalnum()])
-    return metric
-
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 
@@ -123,7 +110,6 @@ class MDCBase:
 
         for key, val in self.mdd.items():
             val["name"] = key
-            val["fsname"] = get_fsname(key)
 
     def mangle(self, metrics=None, drop_missing=True):
         """

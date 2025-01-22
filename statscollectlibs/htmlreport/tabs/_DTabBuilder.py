@@ -14,11 +14,23 @@ import logging
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
-from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
 
 _LOG = logging.getLogger()
+
+def get_fsname(metric):
+    """
+    Return a file-system and URL-safe name for a metric. The arguments are as follows.
+      * metric - name of the metric to return an FS and URL-safe name for.
+    """
+
+    # If 'metric' contains "%", we maintain the meaning by replacing with "Percent".
+    metric = metric.replace("%", "Percent")
+
+    # Filter out any remaining non-alphanumeric characters.
+    metric = "".join([c for c in metric if c.isalnum()])
+    return metric
 
 class DTabBuilder:
     """
@@ -107,7 +119,7 @@ class DTabBuilder:
         """
 
         # Initialise scatter plot.
-        fname = f"{ydef['fsname']}-vs-{xdef['fsname']}.html"
+        fname = f"{get_fsname(ydef['name'])}-vs-{get_fsname(xdef['name'])}.html"
         plottitle = f"scatter plot '{ydef['title']} vs {xdef['title']}'"
 
         s_path = self._outdir / fname
@@ -139,10 +151,10 @@ class DTabBuilder:
         """
 
         if cumulative:
-            h_path = self._outdir / f"Percentile-vs-{mdef['fsname']}.html"
+            h_path = self._outdir / f"Percentile-vs-{get_fsname(mdef['name'])}.html"
             plottitle = f"cumulative histogram 'Percentile vs {mdef['title']}'"
         else:
-            h_path = self._outdir / f"Count-vs-{mdef['fsname']}.html"
+            h_path = self._outdir / f"Count-vs-{get_fsname(mdef['name'])}.html"
             plottitle = f"histogram 'Count vs {mdef['title']}'"
 
         h = _Histogram.Histogram(mdef["name"], h_path, mdef.get("title"), mdef.get("short_unit"),
@@ -278,7 +290,7 @@ class DTabBuilder:
         self._dfs = dfs
         self.tabname = tabname
         # File system-friendly tab name.
-        self._fsname = MDCBase.get_fsname(self.tabname)
+        self._fsname = get_fsname(self.tabname)
 
         self._outdir = outdir / self._fsname
         self.smry_path = self._outdir / "summary-table.txt"

@@ -13,7 +13,6 @@ Provide the base class and common logic for populating a group of statistics tab
 import logging
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 
 _LOG = logging.getLogger()
@@ -192,7 +191,7 @@ class TabBuilderBase:
                              dtabconfig.name, self.name, err.indent(2))
 
         for subtab_cfg in ctabconfig.ctabs:
-            subdir = Path(outdir) / MDCBase.get_fsname(subtab_cfg.name)
+            subdir = Path(outdir) / _DTabBuilder.get_fsname(subtab_cfg.name)
             subtab = self._build_ctab(subdir, subtab_cfg)
 
             if subtab:
@@ -256,7 +255,7 @@ class TabBuilderBase:
             raise ErrorNotFound(f"not data for '{self.name}'")
 
         self._dfs = dfs
-        self._outdir = outdir / MDCBase.get_fsname(self.name)
+        self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
         self._mdd = mdd
 
