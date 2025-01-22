@@ -1,0 +1,165 @@
+# -*- coding: utf-8 -*-
+# vim: ts=4 sw=4 tw=100 et ai si
+#
+# Definitions for raw interrupts statistics files that contain '/proc/interrupts' snapshots.
+
+Total:
+    title: "Total interrupts count"
+    descr: >-
+        The total number of interrupts and events that occurred during the measurement interval across
+        all CPUs. This is calculated as the sum of all rows and columns in the '/proc/interrupts' file.
+        Note that this number may exceed the total number of hardware interrupts, as it includes events
+        like "RES" (rescheduling events) and "TLB" (TLB shutdown events), which are typically
+        implemented with inter-processor interrupts and may be counted multiple times.
+    scope: "system"
+    patterns:
+        - 'IRQ(\d+)'
+Total_IRQ:
+    title: "Total \"IRQ*\" interrupts count"
+    descr: >-
+        The number of interrupts serviced during the measurement interval. Only the interrupts that
+        are referenced with an interrupt number in the '/proc/interrupts' file are counted. The
+        "special" interrupts and events like "LOC" (local timer interrupts), "CAL" (inter-processor
+        interrupts) or "RES" (rescheduling events) are not included in this count.
+    scope: "system"
+Total_XYZ:
+    title: "Total \"named\" interrupts and events count"
+    descr: >-
+        The number of "named" interrupts and events that occurred during the measurement interval.
+        Only the interrupts and events that are referenced with a name in the '/proc/interrupts'
+        file are counted. For example, "LOC" (local timer interrupts), "CAL" (inter-processor
+        interrupts), or "RES" (rescheduling events). The interrupts that are referenced with a
+        number in the '/proc/interrupts' file are not included in this count.
+    scope: "system"
+IRQx:
+    title: "IRQ{groups[0]} interrupts count"
+    descr: >-
+        The number of IRQ{groups[0]} interrupts serviced during the measurement interval.
+    scope: "CPU"
+    patterns:
+        - 'IRQ(\d+)'
+IRQx_rate:
+    title: "IRQ{groups[0]} rate"
+    descr: >-
+        The average rate of IRQ{groups[0]} interrupts during the measurement interval.
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+    patterns:
+        - 'IRQ(\d+)_rate'
+LOC:
+    title: "Local timer interupts count"
+    descr: >-
+        The number of local timer interrupts serviced during the measurement interval. On modern x86
+        Linux systems, these are usually TSC deadline timer interrupts.
+    scope: "CPU"
+LOC_rate:
+    title: "Local timer interrupts rate"
+    descr: >-
+        The average rate of local timer interrupts during the measurement interval. On modern x86
+        Linux systems, the TSC deadline timer feature of the local APIC is used as the local timer
+        interrupt source. In the Linux '/proc/interrupts' file, these interrupts are referred to as
+        "LOC".
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+CAL:
+    title: "Inter-processor interupts count"
+    descr: >-
+        The number of inter-processor interrupts serviced during the measurement interval. In the
+        Linux '/proc/interrupts' file, these interrupts are referred to as "CAL".
+    scope: "CPU"
+CAL_rate:
+    title: "Inter-processor interupts rate"
+    descr: >-
+        The average rate of inter-processor interrupts during the measurement interval. In the Linux
+        '/proc/interrupts' file, these interrupts are referred to as "CAL".
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+RES:
+    title: "Rescheduling events count"
+    descr: >-
+        The number of rescheduling events that occurred during the measurement interval. These events
+        are triggered by the Linux kernel scheduler in various situations, such as task re-balancing
+        or when a task is preempted by a higher-priority task. Rescheduling events are typically
+        implemented with inter-processor interrupts. In the Linux '/proc/interrupts' file, these
+        interrupts are referred to as "RES".
+    scope: "CPU"
+RES_rate:
+    title: "Rescheduling events count"
+    descr: >-
+        The average rate of rescheduling events during the measurement interval. These events are
+        triggered by the Linux kernel scheduler in various situations, such as task re-balancing or
+        when a task is preempted by a higher-priority task. Rescheduling events are typically
+        implemented with inter-processor interrupts. In the Linux '/proc/interrupts' file, these
+        interrupts are referred to as "RES".
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+TLB:
+    title: "TLB shutdown events count"
+    descr: >-
+        The number of TLB (Translation Lookaside Buffer) shutdown events that occurred during the
+        measurement interval. These events happen one CPU causes a TLB flush on other CPU, for
+        example when viritual->physical address mapping of a shared mempry has to be changed. TLB
+        shutdown events are typically implemented with inter-processor interrupts. In the Linux
+        '/proc/interrupts' file, these interrupts are referred to as "TLB".
+    scope: "CPU"
+TLB_rate:
+    title: "TLB shutdown events rate"
+    descr: >-
+        The average rate of TLB (Translation Lookaside Buffer) shutdown events during the
+        measurement interval. These events happen when one CPU causes a TLB flush on another CPU,
+        for example when virtual->physical address mapping of a shared memory has to be changed. TLB
+        shutdown events are typically implemented with inter-processor interrupts. In the Linux
+        '/proc/interrupts' file, these interrupts are referred to as "TLB".
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+PMI:
+    title: "Performance monitoring interrupts count"
+    descr: >-
+        The number of performance monitoring interrupts serviced during the measurement interval.
+    scope: "CPU"
+PMI_rate:
+    title: "Performance monitoring interrupts rate"
+    descr: >-
+        The average rate of performance monitoring interrupts during the measurement interval.
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+MCP:
+    title: "Machine check poll interrupts count"
+    descr: >-
+        The number of machine check poll interrupts serviced during the measurement interval.
+    scope: "CPU"
+MCP_rate:
+    title: "Machine check poll interrupts rate"
+    descr: >-
+        The average rate of machine check poll interrupts during the measurement interval.
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+NMI:
+    title: "Non-maskable interrupts count"
+    descr: >-
+        The number of non-maskable interrupts serviced during the measurement interval.
+    scope: "CPU"
+NMI_rate:
+    title: "Non-maskable interrupts rate"
+    descr: >-
+        The average rate of non-maskable interrupts during the measurement interval.
+    scope: "CPU"
+    unit: "interrupts/sec"
+    short_unit: "intr/s"
+Timestamp:
+    title: "Timestamp"
+    descr: "The time since epoch just before the '/proc/interrupts' snapshot was taken."
+    unit: "second"
+    short_unit: "s"
+TimeElapsed:
+    title: "Time Elapsed"
+    descr: "The time elapsed since the start of the measurements."
+    unit: "second"
+    short_unit: "s"
