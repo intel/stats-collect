@@ -153,7 +153,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         # There will be C-tab for each category, except for the time-stamps.
         del self._categories["Timestamp"]
 
-        super().__init__(dfs, outdir, basedir=basedir, mdd=self._mdd)
+        super().__init__(dfs, self._mdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.

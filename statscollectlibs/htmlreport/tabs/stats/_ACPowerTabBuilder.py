@@ -58,7 +58,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
 
         mdo = ACPowerMDC.ACPowerMDC()
-        super().__init__(dfs, outdir, basedir=basedir, mdd=mdo.mdd)
+        super().__init__(dfs, mdo.mdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.

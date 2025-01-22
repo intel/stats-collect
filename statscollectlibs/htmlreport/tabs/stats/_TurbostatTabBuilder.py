@@ -290,7 +290,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             mdd[colname]["name"] = colname
 
         outdir = outdir / self.name
-        super().__init__(dfs, outdir, basedir=basedir, mdd=mdd)
+        super().__init__(dfs, mdd, outdir, basedir=basedir)
 
         # Convert the elapsed time columns in the dataframe to the "datetime" format so that
         # diagrams use a human-readable format.

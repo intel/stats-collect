@@ -231,17 +231,17 @@ class TabBuilderBase:
         raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
                     f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
 
-    def __init__(self, dfs, outdir, basedir=None, mdd=None):
+    def __init__(self, dfs, mdd, outdir, basedir=None):
         """
         The class constructor. The arguments are as follows.
           * dfs - a dictionary in the format '{ReportId: pandas.DataFrame}' for each result where
-            the 'pandas.DataFrame' contains that statistics data for that result.
+                  the 'pandas.DataFrame' contains that statistics data for that result.
+          * mdd - the metrics definition dictionary describing all the metrics which should be
+                  included in the output tab.
           * outdir - the output directory in which to create the sub-directory for the container
                      tab.
           * basedir - base directory of the report. All paths should be made relative to this.
                       Defaults to 'outdir'.
-          * mdd - the metrics definition dictionary describing all the metrics which should be
-                  included in the output tab.
 
         Adding a statistics container tab will create a sub-directory and store tabs inside it.
         These tabs will represent all of the metrics stored in 'stats_file'.
@@ -255,9 +255,9 @@ class TabBuilderBase:
             raise ErrorNotFound(f"not data for '{self.name}'")
 
         self._dfs = dfs
+        self._mdd = mdd
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
-        self._mdd = mdd
 
         try:
             self._outdir.mkdir(parents=True, exist_ok=True)
