@@ -9,6 +9,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Improve '/proc/interrupts' collector to save disk space by making the
+   collected data more compact (remove extra white-spaces).
 
 ## [1.0.42] - 2025-01-23
 ### Fixed
