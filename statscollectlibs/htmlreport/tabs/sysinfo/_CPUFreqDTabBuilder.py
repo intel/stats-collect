@@ -11,6 +11,8 @@
 Provide API for populating the "cpufreq" data tab of the "SysInfo" container tab.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pathlib import Path
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoDTabBuilderBase
 

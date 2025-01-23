@@ -13,6 +13,8 @@ Provide API for generating a "SysInfo" container tab, which includes various sys
 such as "dmesg" contents, and so on.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import logging
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
