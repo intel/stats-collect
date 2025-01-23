@@ -90,7 +90,7 @@ STINFO = {
         }
     },
     "interrupts" : {
-        "interval" : 5,
+        "interval" : 10,
         "inband" : True,
         "toolpath" : "proc-interrupts-helper",
         "description" : "Collect snapshots of the '/proc/interrupts' file, which includes "
