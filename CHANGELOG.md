@@ -5,9 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix python < 3.10 breakage.
 ### Added
 ### Removed
+### Changed
+
+## [1.0.43] - 2025-01-23
+### Fixed
+ - Fix python < 3.10 breakage.
 ### Changed
  - Improve '/proc/interrupts' collector to save disk space by making the
    collected data more compact (remove extra white-spaces).
