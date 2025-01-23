@@ -12,6 +12,7 @@
 Collect interrupts statistics by making a periodic snapshot of the '/proc/interrups' file.
 """
 
+import re
 import sys
 import time
 import logging
@@ -46,7 +47,6 @@ def print_module_paths():
         path = getattr(mobj, "__file__", None)
         if not path:
             continue
-
         if not path.endswith(".py"):
             continue
         if "pepclibs/" not in path:
@@ -76,6 +76,8 @@ def main():
     except OSError as err:
         raise Error(f"failed to open '{fname}': {err}") from err
 
+    regex = re.compile(r" +")
+
     try:
         while True:
             start_time = time.time()
@@ -91,8 +93,12 @@ def main():
             except Error as err:
                 raise Error(f"'failed to read '{fname}': {err}") from err
 
+            # The file contents is very sparse and on large servers takes a lot of space. Shrink it
+            # by removing the extra white-spaces.
+            new_contents = re.sub(regex, " ", contents)
+
             LOG.info("timestamp: %s", time.time())
-            LOG.info(contents)
+            LOG.info(new_contents)
 
             time.sleep(args.interval - (time.time() - start_time))
     finally:
