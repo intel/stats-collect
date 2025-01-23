@@ -10,6 +10,8 @@
 Provide the base class and common logic for populating a group of statistics tabs.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import logging
 from pathlib import Path
 from typing import cast

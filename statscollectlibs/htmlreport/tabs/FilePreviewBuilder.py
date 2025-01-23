@@ -12,6 +12,8 @@ API for creating and populating file previews. A file preview is a data tab elem
 the contents of one or mutliple files, and possibly a diff between the files.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import difflib
 import filecmp
 import logging

@@ -19,6 +19,8 @@ Terminology.
                         consists of metric definitions.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import re
 from pathlib import Path
 from typing import TypedDict, Literal, Sequence

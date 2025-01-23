@@ -11,6 +11,8 @@
 Build and populate the turbostat statistics tab.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import logging
 import pandas
 from pepclibs.helperlibs.Exceptions import Error

@@ -11,6 +11,7 @@ Collect the system information statistics.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import logging
 from pathlib import Path
 from typing import TypedDict

@@ -10,6 +10,8 @@
 This module defines what is expected by the JavaScript side when adding a set of tabs to the report.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Union
 from pathlib import Path
