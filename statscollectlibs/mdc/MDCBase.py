@@ -9,14 +9,14 @@
 """
 Provide the base class for metrics definition classes.
 
-Terminology.
-  * metrics definition class - an 'MDCBase' sub-class.
-  * metrics definition object - an object of a 'MDCBase' sub-class.
-  * metrics definition dictionary - the 'mdd' attribute of a metrics definition object, has metric
-                                    names as keys and metric information as values. Typically
-                                    populated form a metrics definition YAML file.
-  * metric definition - a dictionary describing a single metric. The metrics definition dictionary
-                        consists of metric definitions.
+Terminology:
+    Metrics definition class: A subclass of 'MDCBase'.
+    Metrics definition object: An instance of a 'MDCBase' subclass.
+    Metrics definition dictionary: the 'mdd' attribute of a metrics definition object, containing
+                                   metric names as keys and metric information as values. Typically
+                                   populated from a metrics definition YAML file.
+    Metric definition: A dictionary describing a single metric. The metrics definition dictionary
+                       consists of multiple metric definitions.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -29,7 +29,7 @@ from pepclibs.helperlibs.Exceptions import Error
 
 class MDTypedDict(TypedDict, total=False):
     """
-    The metric definition dictionary, describes a single metric.
+    The metric definition dictionary, describing a single metric.
 
     Attributes:
         name: Metric name.
@@ -40,8 +40,6 @@ class MDTypedDict(TypedDict, total=False):
                    key is optional.
         scope: The scope of the metric (e.g., "package"). This key is optional.
         categories: A list of categories that the metric belongs to. This key is optional.
-        patterns: list of regular expressions that is used for metric substitutions. This key is an
-                  internal key for 'MDCBase', which gets removed, do not use it.
     """
 
     name: str
@@ -51,14 +49,13 @@ class MDTypedDict(TypedDict, total=False):
     short_unit: str
     scope: str
     categories: list[str]
-    patterns: list[str]
 
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 
     def __init__(self, prjname: str, yaml_path: Path, mdd: dict[str, MDTypedDict] | None = None):
         """
-        The class constructore.
+        The class constructor.
 
         Args:
             prjname: Name of the project the metrics definition YAML file belongs to.
@@ -77,7 +74,7 @@ class MDCBase:
             raise Error("BUG: 'yaml_path' and 'mdd' are mutually exclusive")
 
         # TODO: a hack to silence mypy "literal-required" warnings. It might have been fixed in
-        # newer # mypy so that the 'tuple' type is fine to use. Refer to
+        # newer mypy versions so that the 'tuple' type is fine to use. Refer to
         # https://github.com/python/mypy/issues/7178
         self._mangle_subkeys: Sequence[Literal["title", "descr"]] = ("title", "descr")
 
@@ -91,7 +88,7 @@ class MDCBase:
 
     def _handle_pattern(self, metric: str, md: MDTypedDict) -> MDTypedDict:
         """
-        Replace patterns in the MD of metric 'metric'.
+        Replace patterns in the metric definition of 'metric'.
 
         Args:
             metric: Name of the metric to substitute the 'mdd' dictionary contents with.
@@ -103,13 +100,13 @@ class MDCBase:
 
         new_md: MDTypedDict = {}
 
-        for pattern in md["patterns"]:
+        for pattern in md["patterns"]: # type: ignore[typeddict-item]
             mobj = re.match(pattern, metric)
             if not mobj:
                 continue
 
             new_md = md.copy()
-            del new_md["patterns"]
+            del new_md["patterns"] # type: ignore[typeddict-item]
 
             for idx, grp in enumerate(mobj.groups()):
                 for skey in self._mangle_subkeys:
@@ -176,14 +173,14 @@ class MDCBase:
 
     def _drop_missing_metrics(self, metrics: list[str]):
         """
-        Make sure the MDD includes only metrics from 'metrics'. Drop any metric that is not in
+        Ensure the MDD includes only metrics from 'metrics'. Drop any metric that is not in
         'metrics' from the MDD.
 
         Args:
             metrics: List of metric names to keep in the MDD.
         """
 
-        keep_metrics = set(list(metrics))
+        keep_metrics = set(metrics)
         for metric in list(self.mdd):
             if metric not in keep_metrics:
                 del self.mdd[metric]
@@ -194,11 +191,11 @@ class MDCBase:
         the metrics definition YAML files. The idea is that one YAML file metric may correspond to
         multiple "versions" of the metric. For example, there may be the "Cx" metric in the YAML
         file, and it corresponds to "C1", "C2", and "C3" actual metrics. The "patterns" mechanism is
-        about turning "Cx" into "C1", "C2" and "C3" in the metics definitions dictionary. Note, the
+        about turning "Cx" into "C1", "C2" and "C3" in the metrics definitions dictionary. Note, the
         actual metrics list is platform-specific. For example, one platform may have only "C1", and
         another platform may have "C1", "C2", and "C3".
 
-        Ars:
+        Args:
             metrics: List of metric names to use for substituting the pattern in the metric
                      definition dictionary.
             drop_missing: If 'True', keep only metrics in 'metrics' in the MDD, and drop all other
