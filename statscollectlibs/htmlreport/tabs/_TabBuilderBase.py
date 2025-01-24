@@ -28,10 +28,12 @@ class MDTypedDict(MDCBase.MDTypedDict, total=False):
     'MDCBase.MDTypedDict', but describes metric in scope, like "System" or "CPU0".
 
     Attributes:
-        colname: column name the definition dictionary describes.
+        colname: Column name the definition dictionary describes.
+        colscope: Column scope, for example "System" or "CPU0".
     """
 
     colname: str
+    colscope: str
 
 class TabBuilderBase:
     """
@@ -301,8 +303,20 @@ class TabBuilderBase:
         raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
                     f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
 
-    def _build_colnames_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
-                            colnames: list[str]) -> dict[str, MDTypedDict]:
+    def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
+                   colnames: list[str]) -> dict[str, MDTypedDict]:
+        """
+        Build a new metrics definition dictionary that describes all columns in the dataframe. This
+        is applicable to dataframes where columns follow the "<scope name>-<metric name>" format.
+
+        Args:
+            mdd: The metrics definition dictionary from one of the 'MCDBase' sub-classes. This
+                 dictionary should include all the metrics referenced in 'colnames'.
+            colnames: the list of column names in the dataframe.
+
+        Returns:
+            A new metrics definition dictionary that describes all columns in the dataframe.
+        """
 
         new_mdd: dict[str, MDTypedDict] = {}
 
@@ -310,12 +324,16 @@ class TabBuilderBase:
         for colname in colnames:
             split = colname.split("-", 1)
             if len(split) == 1:
+                colscope = None
                 metric = split[0]
             else:
-                metric = split[1]
+                colscope, metric = split
 
-            new_mdd[colname] = cast(MDTypedDict, mdd[metric].copy())
-            new_mdd[colname]["colname"] = colname
+            md = new_mdd[colname] = cast(MDTypedDict, mdd[metric].copy())
+            md["colname"] = colname
+
+            if colscope:
+                md["colscope"] = colscope
 
         return new_mdd
 

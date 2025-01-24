@@ -10,23 +10,12 @@
 
 from pathlib import Path
 from statscollectlibs.mdc import MDCBase
-from statscollectlibs.parsers import TurbostatParser
 
 class TurbostatMDC(MDCBase.MDCBase):
     """
     The turbostat metrics definition class provides API to turbostat metrics definitions, which
     describe the metrics provided by the turbostat raw statistics files.
     """
-
-    def mangle_descriptions(self):
-        """Mangle turbostat metric descriptions to describe how they are summarized by turbostat."""
-
-        for metric, mdef in self.mdd.items():
-            name = TurbostatParser.get_totals_func_name(metric)
-            if name is not None:
-                name = TurbostatParser.TOTALS_FUNCS[name] # Get user-friendly name.
-                mdef["descr"] = f"{mdef['descr']} Calculated by finding the {name} of " \
-                                f"\"{mdef['name']}\" across the system."
 
     def _categorize(self):
         """Arrange metrics into a multi-level dictionary by their categories."""

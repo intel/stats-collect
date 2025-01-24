@@ -13,20 +13,104 @@ Build and populate the turbostat statistics tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import logging
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.mdc import TurbostatMDC
+from statscollectlibs.parsers import TurbostatParser
+from statscollectlibs.mdc import MDCBase, TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-
-_LOG = logging.getLogger()
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
 
     name = "Turbostat"
     stname = "turbostat"
+
+    def __init__(self, rsts, outdir, basedir=None):
+        """
+        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
+        except for the following.
+          * rsts - an iterable collection of 'RORawResult' instances for which data should be
+                   included in the built tab.
+        """
+
+        self._cpunum = None
+        self._mdo = None
+        self._hover_defs = {}
+        self._snames = []
+        self._time_metric = "TimeElapsed"
+
+        # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
+        # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
+        self._col2metric = {}
+
+        self._cpunum = self._get_and_check_cpunum(rsts)
+        dfs = self._load_dfs(rsts)
+
+        # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
+        # order.
+        metrics = []
+        metrics_set = set()
+        for metric in self._col2metric.values():
+            if metric not in metrics_set:
+                metrics.append(metric)
+                metrics_set.add(metric)
+
+        # Create a metrics definition object which covers all metrics across all the results.
+        self._mdo = TurbostatMDC.TurbostatMDC(metrics)
+
+        # The dataframes include more columns than 'self._mdo.mdd' has metrics. TODO: better build
+        # smaller dataframes without unnecessary metrics.
+        colnames = []
+        for colname, metric in self._col2metric.items():
+            if metric in self._mdo.mdd:
+                colnames.append(colname)
+
+        mdd = self._build_mdd(self._mdo.mdd, colnames)
+
+        outdir = outdir / self.name
+        super().__init__(dfs, mdd, outdir, basedir=basedir)
+
+        # Convert the elapsed time column in dataframes to the "datetime" format so that
+        # diagrams use a human-readable format.
+        for df in dfs.values():
+            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
+
+        # Build the list of scope names.
+        found_snames = set()
+        for colname in self._mdd:
+            sname, _ = _TurbostatDFBuilder.split_colname(colname)
+            if not sname:
+                continue
+            if sname not in found_snames:
+                found_snames.add(sname)
+                self._snames.append(sname)
+
+    def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
+                   colnames: list[str]) -> dict[str, _TabBuilderBase.MDTypedDict]:
+        """
+        Build a new metrics definition dictionary that describes all columns in the dataframe. This
+        is applicable to dataframes where columns follow the "<scope name>-<metric name>" format.
+
+        Args:
+            mdd: The metrics definition dictionary from one of the 'MCDBase' sub-classes. This
+                 dictionary should include all the metrics referenced in 'colnames'.
+            colnames: the list of column names in the dataframe.
+
+        Returns:
+            A new metrics definition dictionary that describes all columns in the dataframe.
+        """
+
+        new_mdd = super()._build_mdd(mdd, colnames)
+
+        for metric, mdef in mdd.items():
+            name = TurbostatParser.get_totals_func_name(metric)
+            if name is not None:
+                name = TurbostatParser.TOTALS_FUNCS[name] # Get user-friendly name.
+                mdef["descr"] = f"{mdef['descr']} Calculated by finding the {name} of " \
+                                f"\"{mdef['name']}\" across the system."
+
+        return new_mdd
 
     def _get_smry_funcs(self, colname):
         """
@@ -208,63 +292,3 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
 
         return dfs
-
-    def __init__(self, rsts, outdir, basedir=None):
-        """
-        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
-        except for the following.
-          * rsts - an iterable collection of 'RORawResult' instances for which data should be
-                   included in the built tab.
-        """
-
-        self._cpunum = None
-        self._mdo = None
-        self._hover_defs = {}
-        self._snames = []
-        self._time_metric = "TimeElapsed"
-
-        # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
-        # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
-        self._col2metric = {}
-
-        self._cpunum = self._get_and_check_cpunum(rsts)
-        dfs = self._load_dfs(rsts)
-
-        # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
-        # order.
-        metrics = []
-        metrics_set = set()
-        for metric in self._col2metric.values():
-            if metric not in metrics_set:
-                metrics.append(metric)
-                metrics_set.add(metric)
-
-        # Create a metrics definition object which covers all metrics across all the results.
-        self._mdo = TurbostatMDC.TurbostatMDC(metrics)
-
-        # The dataframes include more columns than 'self._mdo.mdd' has metrics. TODO: better build
-        # smaller dataframes without unnecessary metrics.
-        colnames = []
-        for colname, metric in self._col2metric.items():
-            if metric in self._mdo.mdd:
-                colnames.append(colname)
-
-        mdd = self._build_colnames_mdd(self._mdo.mdd, colnames)
-
-        outdir = outdir / self.name
-        super().__init__(dfs, mdd, outdir, basedir=basedir)
-
-        # Convert the elapsed time column in dataframes to the "datetime" format so that
-        # diagrams use a human-readable format.
-        for df in dfs.values():
-            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
-
-        # Build the list of scope names.
-        found_snames = set()
-        for colname in self._mdd:
-            sname, _ = _TurbostatDFBuilder.split_colname(colname)
-            if not sname:
-                continue
-            if sname not in found_snames:
-                found_snames.add(sname)
-                self._snames.append(sname)
