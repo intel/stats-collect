@@ -7,7 +7,7 @@
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Collect the system information statistics.
+Collect system information statistics.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -22,12 +22,11 @@ _LOG = logging.getLogger()
 
 class _CmdInfoTypedDict(TypedDict, total=False):
     """
-    A dictionary that describes the commands that have to be run on the SUT to collect system
-    information.
+    A dictionary that describes the commands to be run on the SUT to collect system information.
 
     Attributes:
-        cmd: the command to run.
-        outfile: path to the output file to save redirect the output of the command to.
+        cmd: The command to run.
+        outfile: Path to the output file to redirect the command's output.
     """
 
     cmd: str
@@ -38,13 +37,13 @@ def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
     Execute commands specified in the 'cmdinfos' dictionary.
 
     Args:
-        cmdinfos: describes the commands to execute.
+        cmdinfos: Describes the commands to execute.
         pman: The process manager object that defines the host to execute the commands on.
     """
 
     if pman.is_remote:
-        # In case of a remote host, it is much more efficient to run all commands in one go, because
-        # in this case only one SSH session needs to be established.
+        # For a remote host, it is more efficient to run all commands in one go, as only one SSH
+        # session needs to be established.
         cmd = ""
         for cmdinfo in cmdinfos:
             cmd += cmdinfo["cmd"] + " &"
@@ -73,18 +72,18 @@ def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
                 cmd_proc.close()
 
         if errors:
-            _LOG.warning("not all the system statistics were collected, here are the failures\n%s",
+            _LOG.warning("Not all system statistics were collected. Here are the failures:\n%s",
                          "\nNext error:\n".join(errors))
 
 def _format_find_cmd(include: str, outfile: Path, exclude: str | None = None) -> str:
     """
-    Format and return a 'find' tool command which finds and dump the contents of files found using
-    regular expression 'include' into 'outfile'. If specified, exclude files matching the 'exclude'
+    Format and return a 'find' tool command to find and dump the contents of files matching the
+    'include' regular expression into 'outfile'. If specified, exclude files matching the 'exclude'
     regular expression.
 
     Args:
         include: The regular expression for file names the 'find' tool should find.
-        outfile: Path to the file the 'find' tool output should be redirected to.
+        outfile: Path to the file where the 'find' tool output should be redirected.
         exclude: The regular expression for file names to exclude from the found files list.
 
     Returns:
@@ -99,11 +98,11 @@ def _format_find_cmd(include: str, outfile: Path, exclude: str | None = None) ->
 
 def _collect_sysinfo(outdir: Path, when: str, pman: ProcessManagerType):
     """
-    Collecting the system information statistics which may change after a workload has been run on
-    the SUT. For example, 'dmesg' may have additional lines.
+    Collect system information statistics that may change after a workload has been run on the SUT.
+    For example, 'dmesg' may have additional lines.
 
     Args:
-        outdir: Path on the system defined by 'pman' to store the collected statistics in.
+        outdir: Path on the system defined by 'pman' to store the collected statistics.
         when: "before" if collecting before the workload starts, "after" if collecting after the
               workload starts.
         pman: The process manager object that defines the host to collect the statistics on.
@@ -116,7 +115,7 @@ def _collect_sysinfo(outdir: Path, when: str, pman: ProcessManagerType):
     cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
 
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
-    # Exclude 'scaling_cpu_freq' files -they are not very interesting.
+    # Exclude 'scaling_cpu_freq' files - they are not very interesting.
     cmd = _format_find_cmd("cpufreq", outfile, exclude=".*/scaling_cur_freq")
     cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
 
@@ -195,7 +194,7 @@ def collect_before(outdir: Path, pman: ProcessManagerType):
     Collect system information statistics before running the workload.
 
     Args:
-        outdir: Path on the system defined by 'pman' to store the collected statistics in.
+        outdir: Path on the system defined by 'pman' to store the collected statistics.
         pman: The process manager object that defines the host to collect the statistics on.
     """
 
@@ -208,16 +207,12 @@ def collect_after(outdir: Path, pman: ProcessManagerType):
     Collect system information statistics after running the workload.
 
     Args:
-        outdir: Path on the system defined by 'pman' to store the collected statistics in.
+        outdir: Path on the system defined by 'pman' to store the collected statistics.
         pman: The process manager object that defines the host to collect the statistics on.
     """
 
     cmdinfos: list[_CmdInfoTypedDict] = []
     when = "after"
-
-    outfile = outdir / f"proc_cmdline.{when}.raw.txt"
-    cmd = f"cat /proc/cmdline > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
 
     outfile = outdir / f"proc_cmdline.{when}.raw.txt"
     cmd = f"cat /proc/cmdline > '{outfile}' 2>&1"
