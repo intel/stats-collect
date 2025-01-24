@@ -8,7 +8,7 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide API for populating the "lspci" data tab of the "SysInfo" container tab.
+Provide an API for populating the "lspci" data tab in the "SysInfo" container tab.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -31,17 +31,17 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoTypedDict] = [
 
 class LspciDTabBuilder(_SysInfoDTabBuilderBase.SysInfoDTabBuilderBase):
     """
-    Provide API for populating the "lspci" data tab of the "SysInfo" container tab.
+    Provide an API for populating the "lspci" data tab in the "SysInfo" container tab.
     """
 
     def __init__(self, outdir: Path, stats_paths: dict[str, Path], basedir: Path | None = None):
         """
-        The class constructor.
+        Class constructor.
 
         Args:
-            outdir: The output directory path (where the D-tab files should be placed).
+            outdir: The output directory path where the D-tab files will be placed.
             stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
-            basedir: The report base directory directory path, defaults to 'outdir'.
+            basedir: The base directory path for the report, defaults to 'outdir'.
         """
 
         super().__init__("lspci", outdir, _FILE_PREVIEWS, stats_paths, basedir=basedir)

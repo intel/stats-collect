@@ -8,7 +8,7 @@
 #          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Provide the base class for data tabs of the "SysInfo" container tab.
+Provide the base class for data tabs in the "SysInfo" container tab.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -24,16 +24,16 @@ _LOG = logging.getLogger()
 
 class FilePreviewInfoTypedDict(TypedDict):
     """
-    A file preview information dictionary. File preview is an element of a D-tab that basically
-    provides the contents of a file for every raw result (each raw result may bring this file), and
-    possibly a diff between the files. For example, the "pepc" D-tab of the "SysInfo" tab includes
-    file previews for the "pepc cstates info", "pepc pstates info", and so on. Each file preview
-    includes the "pepc <something> info" output, and when multiple results are put to a single
-    report, each preview will include multiple files, and possibly a diff between them.
+    A dictionary containing information about a file preview. A file preview is an element of a
+    D-tab that displays the contents of a file for each raw result, and possibly a diff between
+    the files. For example, the "pepc" D-tab of the "SysInfo" tab includes file previews for
+    "pepc cstates info", "pepc pstates info", and so on. Each file preview includes the "pepc
+    <something> info" output, and when multiple results are included in a single report, each
+    preview will include multiple files, and possibly a diff between them.
 
     Attributes:
-        title: The file preview title.
-        path: Path to the file preview file relative to the raw result path.
+        title: The title of the file preview.
+        path: The path to the file preview file relative to the raw result path.
         diff: Whether a diff should be generated.
     """
 
@@ -43,24 +43,24 @@ class FilePreviewInfoTypedDict(TypedDict):
 
 class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     """
-    Base class for data tabs of the "SysInfo" container tab.
+    Base class for data tabs in the "SysInfo" container tab.
     """
 
     def __init__(self, name: str, outdir: Path, fpwis: list[FilePreviewInfoTypedDict],
                  stats_paths: dict[str, Path], basedir: Path | None = None):
         """
-        The class constructor.
+        Class constructor.
 
         Args:
-            name: The name to give the generated D-tab.
-            outdir: The output directory path (where the D-tab files should be placed).
-            fpwis: a list of file preview information dictionaries describing the file previews that
-                   should be included to the D-tab.
+            name: The name of the generated D-tab.
+            outdir: The output directory path where the D-tab files should be placed.
+            fpwis: A list of file preview information dictionaries describing the file previews
+                   to be included in the D-tab.
             stats_paths: A dictionary mapping report IDs to raw statistics directory paths.
-            basedir: The report base directory directory path, defaults to 'outdir'.
+            basedir: The report base directory path, defaults to 'outdir'.
 
         The expected format for 'files' is '{Title: FilePath}' where 'Title' is the title for the
-        raw statistics file and 'FilePath' is path to the raw statistics file relative to the
+        raw statistics file and 'FilePath' is the path to the raw statistics file relative to the
         statistics directory ('stats_paths').
         """
 
@@ -73,13 +73,16 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     @staticmethod
     def _compat_adjust_paths(paths: dict[str, Path]) -> dict[str, Path]:
         """
-        Paths to some of the sysinfo statistics files changed in 'stats-collect' version 1.0.39. For
-        example, "dmidecode.raw.txt" became "dmidecode.before.raw.txt". Basically all files got
-        either "before" or "after" suffix. Make sure that 'stats-collect' version 1.0.39+ supports
-        the raw results from 'stats-collect' version 1.0.38 and older. TODO: remove in 2026.
+        Adjust paths to some of the sysinfo statistics files that changed in 'stats-collect'
+        version 1.0.39. For example, "dmidecode.raw.txt" became "dmidecode.before.raw.txt".
+        Basically, all files got either "before" or "after" suffixes. This ensures that
+        'stats-collect' version 1.0.39+ supports raw results from 'stats-collect' version 1.0.38
+        and older.
+
+        TODO: remove in 2026.
 
         Args:
-            paths: the raw sysinfo statistics file paths for every raw result (same as in
+            paths: The raw sysinfo statistics file paths for each raw result (same as in
                    'add_fpreview()).
 
         Returns:
@@ -97,11 +100,11 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
             elif path.name.endswith(".before.raw.txt"):
                 suffix = ".before.raw.txt"
             else:
-                # Not our customer. The compatibility issue is about ".raw.txt" names changed to
+                # Not our concern. The compatibility issue is about ".raw.txt" names changing to
                 # ".before.raw.txt" or ".after.raw.txt".
                 continue
 
-            # Turn file name from like "xyz.after.raw.txt" to like "xyz.raw.txt".
+            # Change file name from "xyz.after.raw.txt" to "xyz.raw.txt".
             new_name = path.name[:-len(suffix)] + ".raw.txt"
             new_path = path.parent / new_name
             if new_path.exists():
@@ -111,7 +114,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
     def get_tab(self) -> _Tabs.DTabDC:
         """
-        Generate and return a D-tab of for the "Sysinfo" C-tab.
+        Generate and returns a D-tab for the "Sysinfo" C-tab.
 
         Returns:
             The data tab object.

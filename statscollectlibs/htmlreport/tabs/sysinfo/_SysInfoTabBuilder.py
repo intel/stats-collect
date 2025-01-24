@@ -9,8 +9,8 @@
 
 
 """
-Provide API for generating a "SysInfo" container tab, which includes various system information,
-such as "dmesg" contents, and so on.
+Provide an API for generating a "SysInfo" container tab, which includes various system information,
+such as "dmesg" contents, and more.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -28,27 +28,27 @@ _LOG = logging.getLogger()
 
 class SysInfoTabBuilder:
     """
-    Provide API for generating a "SysInfo" container tab, which includes various system information,
-    such as "dmesg" contents, and so on.
-"""
+    Provide an API for generating a "SysInfo" container tab, which includes various system
+    information, such as "dmesg" contents, and more.
+    """
 
     name = "SysInfo"
     stname = "sysinfo"
 
     def get_tab(self, rsts: list[RORawResult.RORawResult]) -> _Tabs.CTabDC:
         """
-        Generate and return "SysInfo" container tab for raw results in 'rsts'.
+        Generate and return the "SysInfo" container tab for the given raw results.
 
         Args:
-            rsts: collection of 'RORawResult' objects to generate the "Sysinfo" tab for.
+            rsts: A list of 'RORawResult' objects to generate the "SysInfo" tab for.
 
         Returns:
-            The "SysInfo" container tab for raw results in 'rsts'.
+            The "SysInfo" container tab for the given raw results.
         """
 
         stats_paths = {res.reportid: res.stats_path for res in rsts}
 
-        # Sanity check - there are statistics in the raw results.
+        # Sanity check - ensure there are statistics in the raw results.
         if not any(path for path in stats_paths.values()):
             raise Error("BUG: No statistics in the raw results")
 
@@ -90,8 +90,8 @@ class SysInfoTabBuilder:
         The class constructor.
 
         Args:
-            outdir: The output directory path (where the "SysInfo" tab files should be placed).
-            basedir: The report base directory directory path, defaults to 'outdir'.
+            outdir: The output directory path where the "SysInfo" tab files should be placed.
+            basedir: The report base directory path, defaults to 'outdir'.
         """
 
         self._outdir = outdir
