@@ -6,8 +6,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
+ - Add interrupt statistics visualization.
 ### Removed
 ### Changed
+ - Do not add histograms to HTML reports to save disk space.
 
 ## [1.0.43] - 2025-01-23
 ### Fixed
