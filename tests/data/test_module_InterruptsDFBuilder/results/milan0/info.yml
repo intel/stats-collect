@@ -29,7 +29,7 @@ stinfo:
     paths:
       stats: turbostat.raw.txt
     props:
-      hide-irq: true
+      opts: "--hide IRQ"
     enabled: true
     fallible: false
   interrupts:

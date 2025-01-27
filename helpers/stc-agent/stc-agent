@@ -370,8 +370,10 @@ class TurbostatCollector(_BaseCollector):
         super().configure()
 
         self._command = f"{self.props['toolpath']} --enable Time_Of_Day_Seconds " \
-                        f"--interval '{self.props['interval']}' " \
-                        f"{'--hide IRQ' if self.props['hide-irq'] else ''}"
+                        f"--interval '{self.props['interval']}'"
+
+        if self.props["opts"] != UNINITIALIZED["str"]:
+            self._command += " " + self.props["opts"]
 
         toolname = os.path.basename(self.props["toolpath"])
         self._stale_search = f"{toolname} --enable Time_Of_Day_Seconds --interval "
@@ -387,7 +389,7 @@ class TurbostatCollector(_BaseCollector):
 
         super().__init__("turbostat")
         self.props["toolpath"] = "turbostat"
-        self.props["hide-irq"] = False
+        self.props["opts"] = UNINITIALIZED["str"]
 
 class InterruptsCollector(_BaseCollector):
     """The interrupts statistics collector - periodically snapshot '/proc/interrupts'."""
@@ -618,11 +620,12 @@ class STCAgent:
         if self._started:
             raise Error("statistics collection has been started, cannot change properties")
 
-        if len(args.split()) != 3:
+        if len(args.split()) < 3:
             raise Error(f"incorrect argument '{args}'\nThe argument must be in the following "
                         f"format:\n<stat_name> <property_name> <property_value>")
 
-        args = args.split()
+        args = args.split(maxsplit=2)
+        print(args)
         if args[0] not in self._collectors:
             all_stats = ", ".join(SUPPORTED_STATS)
             raise Error(f"unknown collector name '{args[0]}', use one of:\n{all_stats}")

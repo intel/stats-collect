@@ -49,8 +49,7 @@ _DELIMITER = "--\n".encode("utf-8")
 # Here are the currently supported properties.
 #
 # turbostat:
-#     hide-irq: a boolean representing whether to hide the IRQ column in turbostat. The IRQ column
-#               has a high overhead in turbostat so it is hidden by default.
+#     opts: additional turbostat options.
 # ipmi-oob:
 #     host: name or address of the host to read IPMI data from (using 'ipmitool').
 #     user: name of the BMC user to use when talking to the BMC host (same as 'ipmitool -U').
@@ -86,7 +85,9 @@ STINFO = {
                         "average CPU frequency, RAPL data, and more.",
         "paths" : {"stats": "turbostat.raw.txt"},
         "props": {
-            "hide-irq": True
+            # Do not collect IRQ statistics, there is the a separate "interrupts" statistics
+            # collector for that.
+            "opts": "--hide IRQ"
         }
     },
     "interrupts" : {
