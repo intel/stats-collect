@@ -1,3 +1,9 @@
+stats-collect (1.0.45) unstable; urgency=low
+
+  * Fix a regression since 1.0.44: pbe reports generation crashes.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Mon, 27 Jan 2025 00:00:00 +0200
+
 stats-collect (1.0.44) unstable; urgency=low
 
   * Add interrupt statistics visualization.

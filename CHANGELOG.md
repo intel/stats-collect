@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
-  - Fix a regression since 1.0.44: pbe reports generation crashes.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.45] - 2025-01-27
+### Fixed
+  - Fix a regression since 1.0.44: pbe reports generation crashes.
 
 ## [1.0.44] - 2025-01-25
 ### Added
