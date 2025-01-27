@@ -92,7 +92,7 @@ Cx:
     title: "{groups[0]} requests count"
     descr: >-
         The number times Linux requested the {groups[0]} C-state during the measurement interval.
-    type: "float"
+    type: "int"
     scope: "CPU"
     categories: ["C-state", "Requested"]
     patterns:
