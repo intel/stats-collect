@@ -53,6 +53,21 @@ class DTabBuilder:
        * 'get_tab()'
     """
 
+    def _get_colname(self, md: dict) -> str:
+        """
+        Return dataframe column name for the metric described by 'md'.
+
+        Args:
+            md: the metric definition dictionary
+
+        Returns:
+            The dataframe column name.
+        """
+
+        if "colname" in md:
+            return md["colname"]
+        return md["name"]
+
     def add_smrytbl(self, smry_funcs, mdd):
         """
         Construct a 'SummaryTable' to summarise the metrics in 'smry_funcs' in the results given
@@ -116,18 +131,21 @@ class DTabBuilder:
                         By default, only includes hovertext for 'xdef' and 'ydef'.
         """
 
+        xcolname = self._get_colname(xdef)
+        ycolname = self._get_colname(ydef)
+
         # Initialise scatter plot.
-        fname = f"{get_fsname(ydef['colname'])}-vs-{get_fsname(xdef['colname'])}.html"
+        fname = f"{get_fsname(ycolname)}-vs-{get_fsname(xcolname)}.html"
         plottitle = f"scatter plot '{ydef['title']} vs {xdef['title']}'"
 
         s_path = self._outdir / fname
-        s = _ScatterPlot.ScatterPlot(xdef["colname"], ydef["colname"], s_path, xdef.get("title"),
+        s = _ScatterPlot.ScatterPlot(xcolname, ycolname, s_path, xdef.get("title"),
                                      ydef.get("title"), xdef.get("short_unit"),
                                      ydef.get("short_unit"))
 
         for reportid, df in self._dfs.items():
             for mdef in [xdef, ydef]:
-                if mdef["colname"] not in df:
+                if self._get_colname(mdef) not in df:
                     self._warn_plot_skip_res(reportid, plottitle, mdef["title"])
                     break
             else:
@@ -148,18 +166,19 @@ class DTabBuilder:
         'xbins' arguments.
         """
 
+        colname = self._get_colname(mdef)
         if cumulative:
-            h_path = self._outdir / f"Percentile-vs-{get_fsname(mdef['colname'])}.html"
+            h_path = self._outdir / f"Percentile-vs-{get_fsname(colname)}.html"
             plottitle = f"cumulative histogram 'Percentile vs {mdef['title']}'"
         else:
-            h_path = self._outdir / f"Count-vs-{get_fsname(mdef['colname'])}.html"
+            h_path = self._outdir / f"Count-vs-{get_fsname(colname)}.html"
             plottitle = f"histogram 'Count vs {mdef['title']}'"
 
-        h = _Histogram.Histogram(mdef["colname"], h_path, mdef.get("title"), mdef.get("short_unit"),
+        h = _Histogram.Histogram(colname, h_path, mdef.get("title"), mdef.get("short_unit"),
                                  cumulative=cumulative, xbins=xbins)
 
         for reportid, df in self._dfs.items():
-            if mdef["colname"] not in df:
+            if colname not in df:
                 self._warn_plot_skip_res(reportid, plottitle, mdef["title"])
                 continue
             h.add_df(df, reportid)
@@ -182,7 +201,7 @@ class DTabBuilder:
             plotname = f"{plotname} '{xdef['name']}'"
 
         for mdef in mdefs:
-            colname = mdef["colname"]
+            colname = self._get_colname(mdef)
 
             sdfs_with_data = [sdf for sdf in self._dfs.values() if colname in sdf]
             # Check that at least one result contains data for column 'colname'.
