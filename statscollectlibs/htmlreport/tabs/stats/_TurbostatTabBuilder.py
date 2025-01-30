@@ -13,12 +13,14 @@ Build and populate the turbostat statistics tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+from pathlib import Path
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import MDCBase, TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.rawresultlibs.RORawResult import RORawResult
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
@@ -26,23 +28,27 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stname = "turbostat"
 
-    def __init__(self, rsts, outdir, basedir=None):
+    def __init__(self, rsts: list[RORawResult], outdir: Path, basedir: Path | None = None):
         """
-        The class constructor. The arguments are the same as in '_TabBuilderBase.TabBuilderBase()'
-        except for the following.
-          * rsts - an iterable collection of 'RORawResult' instances for which data should be
-                   included in the built tab.
+        Class constructor.
+
+        Args:
+            rsts: A list of raw results to include in the tab.
+            outdir: The output directory in which to create the sub-directory for the container tab.
+            basedir: The base directory of the report. All paths should be made relative to this.
+                     Defaults to 'outdir'.
         """
 
-        self._cpunum = None
-        self._mdo = None
-        self._hover_defs = {}
-        self._snames = []
         self._time_metric = "TimeElapsed"
+
+        self._cpunum: int | None = None
+        self._mdo: TurbostatMDC.TurbostatMDC = {}
+        self._snames: list[str] = []
+        self._hover_defs: dict[str, dict[str, _TabBuilderBase.MDTypedDict]] = {}
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
-        self._col2metric = {}
+        self._col2metric: dict[str, dict] = {}
 
         self._cpunum = self._get_and_check_cpunum(rsts)
         dfs = self._load_dfs(rsts)
@@ -112,10 +118,16 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return new_mdd
 
-    def _get_smry_funcs(self, colname):
+    def _get_smry_funcs(self, colname: str) -> list[str]:
         """
-        Return the list of summary function names to include to the D-tab for dataframe column
-        'colname'.
+        Return the list of summary function names to include to the D-tab summary table for
+        dataframe column 'colname' (e.g., "max" for the maximum value, etc).
+
+        Args:
+            colname: dataframe column name to return the summary funcion names for.
+
+        Returns:
+            A summary function names list.
         """
 
         colinfo = self._mdd[colname]
@@ -127,17 +139,26 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return funcs
 
-    def _build_ctab_cfg(self, title, metrics, sname):
+    def _build_ctab_cfg(self, title: str, metrics: list[str], sname: str):
         """
-        Build a and return a leaf level C-tab with a D-tab for every metric in 'metrics' and scope
+        Build and return a leaf-level C-tab with a D-tab for every metric in 'metrics' and scope
         'sname'.
+
+        Args:
+            title: The title of the C-tab.
+            metrics: A list of metrics to include in the D-tabs.
+            sname: The scope name for the metrics.
+
+        Returns:
+            TabConfig.CTabConfig: The configuration for the C-tab containing D-tabs for each metric.
+            None: If no valid metrics are found for the given scope.
         """
 
         dtabs = []
         for metric in metrics:
             colname = _TurbostatDFBuilder.format_colname(metric, sname)
             if colname not in self._mdd:
-                # The metric does not exist in for this scope, e.g., 'CPU0-Pkg%pc6'.
+                # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
             smry_funcs = {}
@@ -151,17 +172,29 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return None
 
-    def _get_l2_tab_cfg(self, sname):
-        """Assemble the C-tab configuration object for scope 'sname'."""
+    def _get_l2_tab_cfg(self, sname: str) -> TabConfig.CTabConfig | None:
+        """
+        Assemble the C-tab configuration object for the given scope name.
+
+        This method creates a hierarchical configuration of tabs (C-tabs) based on various metric
+        categories such as Frequency, C-state, and so on.
+
+        Args:
+            sname: The scope name for which the C-tab configuration is being assembled.
+
+        Returns:
+            TabConfig.CTabConfig: The assembled C-tab configuration object for the given scope name.
+            None: If no relevant metrics are found.
+        """
 
         # Remember: 'self._mdo.categories' refers to metric names, while 'self._mdd' refers to
         # column names.
 
-        l3_ctabs = []
+        l3_ctabs: list[TabConfig.CTabConfig] = []
 
         # Create a combined level 3 C-tab for frequency-related metrics, both core and uncore.
         if "Frequency" in self._mdo.categories:
-            metrics = []
+            metrics: list[str] = []
             for cs_metrics in self._mdo.categories["Frequency"].values():
                 metrics += cs_metrics
 
@@ -171,7 +204,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Create a level 3 C-tab for C-state metrics.
         if "C-state" in self._mdo.categories:
-            cs_l3_ctabs = []
+            cs_l3_ctabs: list[TabConfig.CTabConfig] = []
 
             if "Hardware" in self._mdo.categories["C-state"]:
                 metrics = self._mdo.categories["C-state"]["Hardware"]
@@ -182,10 +215,10 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             if "Requested" in self._mdo.categories["C-state"]:
                 # The level 3 "Requested" C-tab is going to have level 4 C-tabs for different
                 # sub-categories of metrics.
-                csres_metrics = []
-                csrate_metrics = []
-                cstime_metrics = []
-                cscnt_metrics = []
+                csres_metrics: list[str] = []
+                csrate_metrics: list[str] = []
+                cstime_metrics: list[str] = []
+                cscnt_metrics: list[str] = []
 
                 for metric in self._mdo.categories["C-state"]["Requested"]:
                     unit = self._mdo.mdd[metric].get("unit")
@@ -199,7 +232,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                     else:
                         cscnt_metrics.append(metric)
 
-                l4_ctabs = []
+                l4_ctabs: list[TabConfig.CTabConfig] = []
 
                 l3_ctab = self._build_ctab_cfg("Residency", csres_metrics, sname)
                 if l3_ctab:
@@ -258,13 +291,13 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return None
 
-    def get_default_tab_cfg(self):
+    def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
         """
-        Build and return the "root" container tab ('CTabConfig') instance, titled 'self.name'. It
-        will include level 2 C-tabs representing the scope (e.g., "System"), then level 3 C-tabs for
-        categories of metrics (e.g., "C-states"). The leaf level is going to be D-tabs (data tabs),
-        one D-tab for a metric. See 'TabBuilderBase' for more information on default tab
-        configurations.
+        Get a 'TabConfig.DTabConfig' instance with the default turbostat tab configuration. See
+        '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
+
+        Returns:
+            A 'TabConfig.DTabConfig' instance with the default turbostat tab configuration.
         """
 
         l2_ctabs = []
@@ -278,15 +311,25 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         raise Error("no turbostat metrics found")
 
-    def _load_dfs(self, rsts):
-        """Load 'pandas.DataFrames' from raw turbostat statistics files in 'rsts'."""
+    def _load_dfs(self, rsts: list[RORawResult]) -> dict[str, pandas.DataFrame]:
+        """
+        Load the turbostat statistics dataframes for raw results in 'rsts'.
 
-        dfs = {}
+        Args:
+            rsts: The raw results to process and load the dataframes for.
+
+        Returns:
+            A dictionary with keys being report IDs and values being turbostat statistics
+            dataframes.
+        """
+
         dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpunum=self._cpunum)
 
+        dfs = {}
         for res in rsts:
             if "turbostat" not in res.info["stinfo"]:
                 continue
+
             dfs[res.reportid] = res.load_stat("turbostat", dfbldr)
             self._col2metric.update(dfbldr.col2metric)
             self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
