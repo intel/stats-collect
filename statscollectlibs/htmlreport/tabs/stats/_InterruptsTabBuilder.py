@@ -14,12 +14,11 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import string
 from pathlib import Path
-from typing import Any
 import pandas
 from statscollectlibs.mdc import MDCBase, InterruptsMDC
 from statscollectlibs.dfbuilders import _InterruptsDFBuilder
-from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.rawresultlibs.RORawResult import RORawResult
+from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
@@ -41,7 +40,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._time_metric = "TimeElapsed"
         self._ts_metric = "Timestamp"
 
-        self._hover_defs: dict[str, dict[str, Any]] = {}
+        self._hover_defs: dict[str, dict[str, _TabBuilderBase.MDTypedDict]] = {}
 
         # The column names to include in the interrupts statistics tab.
         self._tab_colnames: list[str] = []
