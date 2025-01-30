@@ -6,9 +6,12 @@
 Busy%:
     title: "Busy percent"
     descr: >-
-        The proportion of time the CPU was busy executing instructions, as opposed to staying in an
-        idle state (not executing instructions). In other words, this is the C0 state residency.
-        Turbostat calculates it as (delta MPERF / delta TSC) * 100%.
+        The percentage of time the CPU was actively executing instructions (C0 state) during the
+        measurement interval, as opposed to being idle (C-state). This is also known as C0 state
+        residency. Turbostat calculates it as "(delta MPERF / delta TSC) * 100%". "Delta MPERF"
+        represents the number of cycles the CPU was in the C0 state, while "delta TSC" represents
+        the total number of cycles during the measurement interval. Note that MPERF increments at a
+        constant rate, which is the same or very close to the TSC rate.
     unit: "%"
     short_unit: "%"
     scope: "CPU"
@@ -17,9 +20,12 @@ Busy%:
 Bzy_MHz:
     title: "Busy frequency"
     descr: >-
-        The average CPU frequency in C0 state (C0 state is the state when the CPU executes
-        instructions, as opposed to an idle state, where the CPU does not execute instructions).
-        Turbostat calculates it as (delta APERF / delta MPERF) * 100%.
+        The average CPU frequency while in the C0 state (the state when the CPU is executing
+        instructions, as opposed to being idle). Turbostat calculates it as "(delta APERF / delta
+        MPERF) * 100%". Both "delta APERF" and "delta MPERF" represent the number of cycles the CPU
+        was in the C0 state during the measurement interval. APERF increments at a variable rate
+        that follows the CPU frequency (as CPU frequency increases, APERF increments faster), while
+        MPERF increments at a constant rate, which is the same or very close to the TSC rate.
     unit: "megahertz"
     short_unit: "MHz"
     scope: "CPU"
@@ -27,8 +33,12 @@ Bzy_MHz:
 Avg_MHz:
     title: "Average frequency"
     descr: >-
-        The average CPU frequency. Includes both idle and non-idle periods. Turbostat calculates it
-        as (delta APERF / delta TSC) * 100%.
+        The average CPU frequency, accounting for both idle and non-idle periods. Turbostat
+        calculates it as "(delta APERF / delta TSC) * 100%". "Delta APERF" represents the number of
+        cycles the CPU was in the C0 state during the measurement interval, while "delta TSC"
+        represents the total number of cycles during the same interval. Note that APERF increments
+        at a variable rate that follows the CPU frequency (i.e., as CPU frequency increases, APERF
+        increments faster).
     unit: "megahertz"
     short_unit: "MHz"
     scope: "CPU"
@@ -36,7 +46,7 @@ Avg_MHz:
 UncMHz:
     title: "Uncore frequency"
     descr: >-
-        Instantaneous samples of the uncore frequency. Turbostat reads them from sysfs files at
+        Instantaneous samples of the uncore frequency, read by turbostat from sysfs files located at
         '/sys/devices/system/cpu/intel_uncore_frequency/'.
     unit: "megahertz"
     short_unit: "MHz"
@@ -45,8 +55,8 @@ UncMHz:
 UMHzX.Y:
     title: "Uncore frequency (domain {groups[0]}, cluster {groups[1]})"
     descr: >-
-        Instantaneous samples of the uncore frequency for TPMI domain {groups[0]} cluster
-        {groups[1]}. Turbostat reads them from sysfs files at
+        Instantaneous samples of the uncore frequency for TPMI domain {groups[0]} and cluster
+        {groups[1]}. Turbostat reads these values from sysfs files located at
         '/sys/devices/system/cpu/intel_uncore_frequency/'.
     unit: "megahertz"
     short_unit: "MHz"
@@ -57,7 +67,11 @@ UMHzX.Y:
 CPU%cx:
     title: "C{GROUPS[0]} residency"
     descr: >-
-        The percentage of time spent in core {GROUPS[0]} hardware C-state.
+        The percentage of time the core spent in the C{GROUPS[0]} hardware C-state. Turbostat
+        calculates it as "(delta C{GROUPS[0]} / total cycles) * 100%". "Delta C{GROUPS[0]}"
+        represents the number of cycles the core was in the C{GROUPS[0]} state during the
+        measurement interval. This data typically comes from an MSR register or Power Management
+        Telemetry (PMT).
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -68,7 +82,11 @@ CPU%cx:
 Mod%cx:
     title: "M{GROUPS[0]} residency"
     descr: >-
-        The percentage of time spent in module {GROUPS[0]} hardware C-state.
+        The percentage of time the module spent in the M{GROUPS[0]} hardware C-state. Turbostat
+        calculates it as "(delta M{GROUPS[0]} / total cycles) * 100%". "Delta M{GROUPS[0]}"
+        represents the number of cycles the module was in the M{GROUPS[0]} state during the
+        measurement interval. This data typically comes from an MSR register or Power Management
+        Telemetry (PMT).
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -79,7 +97,11 @@ Mod%cx:
 Pkg%pcx:
     title: "P{GROUPS[0]} residency"
     descr: >-
-        The percentage of time spent in package {GROUPS[0]} hardware C-state.
+        The percentage of time the package spent in the P{GROUPS[0]} hardware C-state. Turbostat
+        calculates it as "(delta P{GROUPS[0]} / total cycles) * 100%". "Delta P{GROUPS[0]}"
+        represents the number of cycles the package was in the P{GROUPS[0]} state during the
+        measurement interval. This data typically comes from an MSR register or Power Management
+        Telemetry (PMT).
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -91,7 +113,9 @@ Pkg%pcx:
 Cx:
     title: "{groups[0]} requests count"
     descr: >-
-        The number times Linux requested the {groups[0]} C-state during the measurement interval.
+        The number of times Linux requested the {groups[0]} C-state during the measurement interval.
+        Turbostat retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/residency'.
     type: "int"
     scope: "CPU"
     categories: ["C-state", "Requested"]
@@ -102,8 +126,12 @@ Cx:
 Cx%:
     title: "{groups[0]} residency"
     descr: >-
-        The percentage of time the CPU spent in the {groups[0]} requestable C-state. Note, this
-        number does not come from the hardware, it is calculated by Linux.
+        The percentage of time the CPU spent in the {groups[0]} requestable C-state. Turbostat
+        calculates it as "(delta {groups[0]} / measurement interval) * 100%". "Delta {groups[0]}"
+        represents the duration Linux spent in the {groups[0]} requestable C-state during the
+        measurement interval. Turbostat retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/time'. Note that these values represent the
+        requestable C-state residency as tracked by Linux, not the hardware C-state residency.
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -116,9 +144,8 @@ Cx%:
 Cx_rate:
     title: "Average {groups[0]} requests rate"
     descr: >-
-        Average count of times per second Linux requested the {groups[0]} C-state in average.
-        Calculated as the turbostat measurement interval divided by the {groups[0]} requests count
-        during the measurement interval.
+        The average rate at which Linux requested the {groups[0]} C-state per second. Calculated as
+        the number of {groups[0]} requests divided by the turbostat measurement interval.
     type: "float"
     unit: "requests/sec"
     short_unit: "req/s"
@@ -131,10 +158,9 @@ Cx_rate:
 Cx_time:
     title: "Average {groups[0]} time per request"
     descr: >-
-        The amount of time spent in a single {groups[0]} request in average. Calculated as
-        {groups[0]} requests count during the turbostat measurement interval divided by the
+        The average duration of a single {groups[0]} request. Calculated as the total time spent in
+        {groups[0]} requests divided by the number of {groups[0]} requests during the turbostat
         measurement interval.
-        count.
     type: "float"
     unit: "microsecond"
     short_unit: "us"
@@ -147,7 +173,12 @@ Cx_time:
 SYS%LPI:
     title: "S0ix residency"
     descr: >-
-        The percentage of time the system spent in the the S0ix sleep state.
+        The percentage of time the system spent in the S0ix sleep state. Turbostat calculates it as
+        "(delta SYS%LPI / measurement interval) * 100%". "Delta SYS%LPI" represents the time the
+        system spent in S0ix during the measurement interval. Turbostat retrieves these values from
+        one of the following sysfs files:
+        '/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us' or
+        '/sys/kernel/debug/pmc_core/slp_s0_residency_usec'.
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -156,28 +187,30 @@ SYS%LPI:
 CorWatt:
     title: "Core power"
     descr: >-
-        RAPL CPU core power.
+        Instantaneous samples of core power, obtained from the RAPL interface via MSR 0x639
+        (MSR_PP0_ENERGY_STATUS).
     type: "float"
     unit: "Watt"
     short_unit: "W"
     scope: "core"
     categories: ["Power"]
 PkgWatt:
-    title: "Package(s) power"
+    title: "Package power"
     descr: >-
-        RAPL package(s) power. On multi-package systems, this is the sum of RAPL package power for
-        all packages.
+        Instantaneous samples of package power, obtained from the RAPL interface via MSR 0x611
+        (MSR_PKG_ENERGY_STATUS).
     type: "float"
     unit: "Watt"
     short_unit: "W"
     scope: "package"
     categories: ["Power"]
 PkgWatt%TDP:
-    title: "Package(s) power as percentage of TDP"
+    title: "Package power as percentage of TDP"
     descr: >-
-        RAPL package(s) power as a percentage of TDP. RAPL package power is retrieved from the
-        "PkgWatt" turbostat column. TDP is retrieved from the turbostat header. On multi-package
-        systems, the values for "TDP" and "PkgWatt" are the sum of the values for all packages.
+        RAPL package power as a percentage of TDP. Calculated as "(PkgWatt / TDP) * 100%". "PkgWatt"
+        is an instantaneous sample of package power obtained from the RAPL interface via MSR 0x611
+        (MSR_PKG_ENERGY_STATUS). TDP (Thermal Design Power) is obtained from MSR 0x614
+        (MSR_PKG_POWER_INFO).
     type: "float"
     unit: "%"
     short_unit: "%"
@@ -186,7 +219,8 @@ PkgWatt%TDP:
 GFXWatt:
     title: "Graphics power"
     descr: >-
-        RAPL graphics power.
+        Instantaneous samples of graphics power, obtained from the RAPL interface via MSR 0x641
+        (MSR_PP1_ENERGY_STATUS).
     type: "float"
     unit: "Watt"
     short_unit: "W"
@@ -195,7 +229,8 @@ GFXWatt:
 RAMWatt:
     title: "RAM power"
     descr: >-
-        RAPL RAM power.
+        Instantaneous samples of RAM (Random Access Memory) power, obtained from the RAPL interface
+        via MSR 0x619 (MSR_DRAM_ENERGY_STATUS).
     type: "float"
     unit: "Watt"
     short_unit: "W"
@@ -204,7 +239,8 @@ RAMWatt:
 CoreTmp:
     title: "Core temperature"
     descr: >-
-        Core temperature. Reported by the per-core Digital Thermal Sensor.
+        Instantaneous samples of core temperature, obtained from the per-core Digital Thermal Sensor
+        vial MSR 0x19C (MSR_IA32_THERM_STATUS).
     type: "float"
     unit: "degrees C"
     short_unit: "°C"
@@ -213,7 +249,9 @@ CoreTmp:
 PkgTmp:
     title: "Package temperature"
     descr: >-
-        Package temperature. Reported by the per-package Package Thermal Monitor.
+        Instantaneous samples of package temperature, typically representing the highest core
+        temperature value from the per-core Digital Thermal Sensors. Retrieved from MSR 0x1B1
+        (MSR_IA32_PACKAGE_THERM_STATUS).
     type: "float"
     unit: "degrees C"
     short_unit: "°C"
@@ -222,33 +260,49 @@ PkgTmp:
 IRQ:
     title: "Interrupts"
     descr: >-
-        The number of interrupts serviced by all CPUs.
+        The total number of interrupts and events that occurred during the measurement interval across
+        all CPUs. This is calculated as the sum of all rows and columns in the '/proc/interrupts' file.
+        Note that this number may exceed the total number of hardware interrupts, as it includes events
+        like "RES" (rescheduling events) and "TLB" (TLB shutdown events), which are typically
+        implemented with inter-processor interrupts and may be counted multiple times.
     type: "int"
     scope: "CPU"
     categories: ["Interrupts"]
 SMI:
     title: "System management interrupts"
     descr: >-
-        The number of system management interrupts serviced by the system.
+        The number of system management interrupts (SMIs) handled by the system during the measurement
+        interval. SMIs are typically triggered by the system firmware to address critical events such
+        as thermal issues or power management tasks. When an SMI occurs, it "pauses" all CPUs and
+        executes the SMI handler in the system firmware. From the OS perspective, an SMI is a
+        blackout where CPUs stop executing OS code for a period of time (hopefully a short period).
+        Frequent SMIs can indicate underlying problems. Turbostat reads this value from MSR 0x34
+        (MSR_SMI_COUNT).
     type: "int"
     scope: "CPU"
     categories: ["Interrupts"]
 IPC:
     title: "Instructions per cycle"
     descr: >-
-        The number of instructions executed per-cycle by a CPU.
+        The number of instructions executed by the CPU per cycle. Turbostat calculates it as
+        "Retired Instructions / delta APERF". "Retired Instructions" represents the number of
+        instructions completed by the CPU during the measurement interval, obtained from PMU
+        (Performance Monitoring Unit) counters using Linux "perf" events. "Delta APERF" is the
+        number of cycles the CPU was active during the measurement interval. Note that APERF
+        increments at a variable rate that follows the CPU frequency (i.e., as CPU frequency
+        increases, APERF increments faster).
     type: "int"
     scope: "CPU"
     categories: ["Instructions"]
 Time_Of_Day_Seconds:
     title: "Time-stamp"
-    descr: "The time since epoch value at the moment the measurement was recorded."
+    descr: "The local time since the epoch at the end of the measurement interval, obtained from the
+           'gettimeofday' system call."
     unit: "second"
     short_unit: "s"
 TimeElapsed:
     title: "Time Elapsed"
     descr: >-
-        Time elapsed since the start of the measurements. Derived from the "Time_Of_Day_Seconds"
-        turbostat column.
+        Time elapsed since the start of the measurements.
     unit: "second"
     short_unit: "s"
