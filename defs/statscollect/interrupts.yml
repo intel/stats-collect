@@ -67,7 +67,8 @@ CAL:
     title: "Inter-processor interupts count"
     descr: >-
         The number of inter-processor interrupts serviced during the measurement interval. In the
-        Linux '/proc/interrupts' file, these interrupts are referred to as "CAL".
+        Linux '/proc/interrupts' file, these interrupts are referred to as "CAL", which comes from
+        "remote function call".
     scope: "CPU"
 CAL_rate:
     title: "Inter-processor interupts rate"
