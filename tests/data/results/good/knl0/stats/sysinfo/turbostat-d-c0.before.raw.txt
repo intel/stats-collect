@@ -1,0 +1,53 @@
+turbostat version 2024.12.03 - Len Brown <lenb@kernel.org>
+Measurement interval: 5.000 seconds
+Kernel command line: BOOT_IMAGE=http://powerlab/pxelinux/node/knl0/custom-kernel/kernel initrd=http://powerlab/pxelinux/node/knl0/custom-kernel/initramfs.img root=UUID=f9fa333a-9d14-4a15-933f-c88fa4e6b9fe ro console=ttyS0,115200 msr.allow_writes=on
+CPUID(0): GenuineIntel 0xd CPUID levels
+CPUID(1): family:model:stepping 0x6:57:1 (6:87:1) microcode 0x1b6
+CPUID(0x80000000): max_extended_levels: 0x80000008
+CPUID(1): SSE3 MONITOR - EIST TM2 TSC MSR ACPI-TM HT TM
+CPUID(6): APERF, TURBO, DTS, PTM, No-HWP, No-HWPnotify, No-HWPwindow, No-HWPepp, No-HWPpkg, EPB
+cpu0: MSR_IA32_MISC_ENABLE: 0x00850089 (TCC EIST MWAIT PREFETCH TURBO)
+CPUID(7): No-SGX No-Hybrid
+cpu0: MSR_PLATFORM_INFO: 0x80a2bf9800e00
+10 * 100.0 = 1000.0 MHz max efficiency frequency
+14 * 100.0 = 1400.0 MHz base frequency
+cpu0: MSR_TURBO_RATIO_LIMIT: 0x28061e3e1004
+14 * 100.0 = 1400.0 MHz max turbo 76 active cores
+15 * 100.0 = 1500.0 MHz max turbo 32 active cores
+16 * 100.0 = 1600.0 MHz max turbo 2 active cores
+cpu0: MSR_CONFIG_TDP_NOMINAL: 0x0000000e (base_ratio=14)
+cpu0: MSR_CONFIG_TDP_LEVEL_1: 0x18808a0000c0000 (PKG_MIN_PWR_LVL1=392 PKG_MAX_PWR_LVL1=2208 LVL1_RATIO=12 PKG_TDP_LVL1=0)
+cpu0: MSR_CONFIG_TDP_LEVEL_2: 0x18808a000000000 (PKG_MIN_PWR_LVL2=392 PKG_MAX_PWR_LVL2=2208 LVL2_RATIO=0 PKG_TDP_LVL2=0)
+cpu0: MSR_CONFIG_TDP_CONTROL: 0x00000000 ( lock=0)
+cpu0: MSR_TURBO_ACTIVATION_RATIO: 0x0000000e (MAX_NON_TURBO_RATIO=14 lock=0)
+cpu0: cpufreq driver: intel_cpufreq
+cpu0: cpufreq governor: schedutil
+cpufreq intel_pstate no_turbo: 0
+cpu0: MSR_MISC_PWR_MGMT: 0x00400000 (ENable-EIST_Coordination DISable-EPB DISable-OOB)
+cpu0: EPB: 7 (custom)
+cpu0: MSR_IA32_POWER_CTL: 0x0a24005f (C1E auto-promotion: ENabled)
+cpu0: MSR_PKG_CST_CONFIG_CONTROL: 0x14008403 (UNdemote-C1, demote-C1, locked, pkg-cstate-limit=3 (pc6r))
+/dev/cpu_dma_latency: 2000000000 usec (default)
+current_driver: intel_idle
+current_governor: menu
+current_governor_ro: menu
+cpu0: POLL: CPUIDLE CORE POLL IDLE
+cpu0: C1: MWAIT 0x00
+cpu0: C6: MWAIT 0x10
+RAPL: 1140 sec. Joule Counter Range, at 230 Watts
+cpu0: MSR_RAPL_POWER_UNIT: 0x000a0e03 (0.125000 Watts, 0.000061 Joules, 0.000977 sec.)
+cpu0: MSR_PKG_POWER_INFO: 0x2f08a003100730 (230 W TDP, RAPL 98 - 276 W, 0.045898 sec.)
+cpu0: MSR_PKG_POWER_LIMIT: 0x4788a000158730 (UNlocked)
+cpu0: PKG Limit #1: ENabled (230.000 Watts, 1.000000 sec, clamp ENabled)
+cpu0: PKG Limit #2: ENabled (276.000 Watts, 0.009766* sec, clamp ENabled)
+cpu0: MSR_VR_CURRENT_CONFIG: 0x80000280
+cpu0: PKG Limit #4: 80.000000 Watts (locked)
+cpu0: MSR_DRAM_POWER_INFO,: 0x2f025800780118 (35 W TDP, RAPL 15 - 75 W, 0.045898 sec.)
+cpu0: MSR_DRAM_POWER_LIMIT: 0x80000000 (locked)
+cpu0: DRAM Limit: DISabled (0.000 Watts, 0.000977 sec, clamp DISabled)
+cpu0: MSR_IA32_TEMPERATURE_TARGET: 0x005c0a00 (92 C)
+cpu0: MSR_IA32_PACKAGE_THERM_STATUS: 0x88280000 (52 C)
+cpu0: MSR_IA32_PACKAGE_THERM_INTERRUPT: 0x00000003 (92 C, 92 C)
+0.026899 sec
+Avg_MHz	Busy%	Bzy_MHz	TSC_MHz	IPC	IRQ	SMI	POLL	C1	C6	POLL%	C1%	C6%	CPU%c1	CPU%c6	CoreTmp	CoreThr	PkgTmp	Pkg%pc3	Pkg%pc6	PkgWatt	RAMWatt	PKG_%	RAM_%
+1	0.06	1500	1401	670.43	32	0	0	11	0	0.00	36.21	0.00	99.94	0.00	48	0	53	0.00	0.00	113.79	6.67	0.00	0.00

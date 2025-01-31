@@ -1,0 +1,24 @@
+00:00.0 Host bridge: Intel Corporation Raptor Lake-P/U 4p+8e cores Host Bridge/DRAM Controller
+00:02.0 VGA compatible controller: Intel Corporation Raptor Lake-P [Iris Xe Graphics] (rev 04)
+00:06.0 PCI bridge: Intel Corporation Raptor Lake PCIe 4.0 Graphics Port
+00:07.0 PCI bridge: Intel Corporation Raptor Lake-P Thunderbolt 4 PCI Express Root Port #0
+00:07.2 PCI bridge: Intel Corporation Raptor Lake-P Thunderbolt 4 PCI Express Root Port #2
+00:08.0 System peripheral: Intel Corporation GNA Scoring Accelerator module
+00:0a.0 Signal processing controller: Intel Corporation Raptor Lake Crashlog and Telemetry (rev 01)
+00:0d.0 USB controller: Intel Corporation Raptor Lake-P Thunderbolt 4 USB Controller
+00:0d.2 USB controller: Intel Corporation Raptor Lake-P Thunderbolt 4 NHI #0
+00:0d.3 USB controller: Intel Corporation Raptor Lake-P Thunderbolt 4 NHI #1
+00:14.0 USB controller: Intel Corporation Alder Lake PCH USB 3.2 xHCI Host Controller (rev 01)
+00:14.2 RAM memory: Intel Corporation Alder Lake PCH Shared SRAM (rev 01)
+00:14.3 Network controller: Intel Corporation Raptor Lake PCH CNVi WiFi (rev 01)
+00:15.0 Serial bus controller: Intel Corporation Alder Lake PCH Serial IO I2C Controller #0 (rev 01)
+00:15.1 Serial bus controller: Intel Corporation Alder Lake PCH Serial IO I2C Controller #1 (rev 01)
+00:16.0 Communication controller: Intel Corporation Alder Lake PCH HECI Controller (rev 01)
+00:17.0 SATA controller: Intel Corporation Alder Lake-P SATA AHCI Controller (rev 01)
+00:1d.0 PCI bridge: Intel Corporation Alder Lake PCI Express Root Port #9 (rev 01)
+00:1f.0 ISA bridge: Intel Corporation Raptor Lake LPC/eSPI Controller (rev 01)
+00:1f.3 Multimedia audio controller: Intel Corporation Raptor Lake-P/U/H cAVS (rev 01)
+00:1f.4 SMBus: Intel Corporation Alder Lake PCH-P SMBus Host Controller (rev 01)
+00:1f.5 Serial bus controller: Intel Corporation Alder Lake-P PCH SPI Controller (rev 01)
+01:00.0 Non-Volatile memory controller: Kingston Technology Company, Inc. NV2 NVMe SSD [E21T] (DRAM-less)
+56:00.0 Ethernet controller: Intel Corporation Ethernet Controller I226-V (rev 04)

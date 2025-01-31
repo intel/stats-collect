@@ -1,0 +1,1 @@
+Linux snr0 6.13.0-rc6-custom-00051-geea6e4b4dfb8 #1 SMP PREEMPT_DYNAMIC Sun Jan 12 18:44:06 EET 2025 x86_64 GNU/Linux

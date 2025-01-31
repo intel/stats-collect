@@ -1,0 +1,48 @@
+Module                  Size  Used by
+vfat                   24576  1
+fat                   102400  1 vfat
+intel_rapl_msr         20480  0
+intel_rapl_common      53248  1 intel_rapl_msr
+x86_pkg_temp_thermal    16384  0
+intel_powerclamp       20480  0
+iTCO_wdt               16384  0
+iTCO_vendor_support    12288  1 iTCO_wdt
+at24                   28672  0
+kvm_intel             311296  0
+watchdog               40960  1 iTCO_wdt
+regmap_i2c             12288  1 at24
+ipmi_si                86016  0
+pktcdvd                57344  0
+ipmi_devintf           16384  0
+kvm                  1314816  1 kvm_intel
+i2c_i801               36864  0
+lpc_ich                28672  0
+pcspkr                 12288  0
+ipmi_msghandler        86016  2 ipmi_devintf,ipmi_si
+i2c_smbus              20480  1 i2c_i801
+mfd_core               12288  1 lpc_ich
+joydev                 24576  0
+loop                   40960  0
+drm                   724992  0
+nfnetlink              20480  1
+zram                   32768  1
+crct10dif_pclmul       12288  1
+crc32_pclmul           12288  0
+sha512_ssse3           49152  0
+sha512_generic         16384  1 sha512_ssse3
+sha256_ssse3           32768  0
+igb                   311296  0
+sha1_ssse3             32768  0
+i2c_algo_bit           12288  1 igb
+video                  77824  0
+wmi                    28672  1 video
+btrfs                2084864  0
+blake2b_generic        20480  0
+xor                    20480  1 btrfs
+zstd_compress         524288  1 btrfs
+raid6_pq              122880  1 btrfs
+libcrc32c              12288  1 btrfs
+crc32c_intel           12288  3
+sunrpc                847872  1
+fuse                  217088  1
+dm_multipath           49152  0

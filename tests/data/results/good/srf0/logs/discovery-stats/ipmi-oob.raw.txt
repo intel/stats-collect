@@ -1,0 +1,241 @@
+timestamp | 1737461891.6293876
+CPU1 North VR Ou | 0 Amps            | ok
+CPU1 PVCCA EHV I | 0.16 Amps         | ok
+CPU1 PVCCA EHV O | 0.78 Amps         | ok
+CPU1 PVCCD0 In C | 0.03 Amps         | ok
+CPU1 PVCCD0 Out  | 0.39 Amps         | ok
+CPU1 PVCCD1 In C | 0 Amps            | ok
+CPU1 PVCCD1 Out  | 0.47 Amps         | ok
+CPU1 PVCCFA EHV  | 1.25 Amps         | ok
+CPU1 PVCCFA EHV  | 8 Amps            | ok
+CPU1 PVCCINFAON  | 0.39 Amps         | ok
+CPU1 PVCCINFAON  | 6 Amps            | ok
+CPU1 PVNN In Cur | 0.06 Amps         | ok
+CPU1 PVNN Out Cu | 0.59 Amps         | ok
+CPU1 South VR Ou | 1 Amps            | ok
+CPU1 VCCIN Out C | 77 Amps           | ok
+CPU1 VNN EHV Out | 2 Amps            | ok
+CPU2 North VR Ou | 0 Amps            | ok
+CPU2 PVCCA EHV I | 0.25 Amps         | ok
+CPU2 PVCCA EHV O | 1.18 Amps         | ok
+CPU2 PVCCD0 In C | 0.06 Amps         | ok
+CPU2 PVCCD0 Out  | 0.39 Amps         | ok
+CPU2 PVCCD1 In C | 0 Amps            | ok
+CPU2 PVCCD1 Out  | 0 Amps            | ok
+CPU2 PVCCFA EHV  | 0.86 Amps         | ok
+CPU2 PVCCFA EHV  | 4 Amps            | ok
+CPU2 PVCCINFAON  | 0.39 Amps         | ok
+CPU2 PVCCINFAON  | 5 Amps            | ok
+CPU2 PVNN In Cur | 0.06 Amps         | ok
+CPU2 PVNN Out Cu | 0.59 Amps         | ok
+CPU2 South VR Ou | 1 Amps            | ok
+CPU2 VCCIN Out C | 76 Amps           | ok
+CPU2 VNN EHV Out | 2 Amps            | ok
+DCSCM OCP 12V Ou | 0 Amps            | ok
+PCIe 12V Out Cur | 1 Amps            | ok
+PSU1 In Current  | 0.39 Amps         | ok
+PSU1 Out Current | 9 Amps            | ok
+PSU2 In Current  | 0.47 Amps         | ok
+PSU2 Out Current | 9 Amps            | ok
+System Fans SE 1 | 0 Amps            | ok
+System Fans SW 1 | 0 Amps            | ok
+Cpu Energy CPU1  | 688.80 unspecif   | ok
+Cpu Energy CPU2  | 1226.40 unspeci   | ok
+Dimm Energy CPU1 | 672 unspecified   | ok
+Dimm Energy CPU2 | 655.20 unspecif   | ok
+Platform Energy  | 1881.60 unspeci   | ok
+Platform Energy  | 957.60 unspecif   | ok
+Pwm 1 2          | 39.98 unspecifi   | ok
+Pwm 3 4          | 39.98 unspecifi   | ok
+Pwm 5 6          | 39.98 unspecifi   | ok
+Pwm 7 8          | 39.98 unspecifi   | ok
+Pwm 9 10         | 39.98 unspecifi   | ok
+Pwm 11 12        | 39.98 unspecifi   | ok
+Pwm PSU1 Fan 1   | 39.98 unspecifi   | ok
+Pwm PSU1 Fan 2   | 39.98 unspecifi   | ok
+Pwm PSU2 Fan 1   | 39.98 unspecifi   | ok
+Pwm PSU2 Fan 2   | 39.98 unspecifi   | ok
+Fan 1            | 2940 RPM          | ok
+Fan 2            | 3234 RPM          | ok
+Fan 3            | 2842 RPM          | ok
+Fan 4            | 2940 RPM          | ok
+Fan 5            | 2842 RPM          | ok
+Fan 6            | 3136 RPM          | ok
+Fan 7            | 2940 RPM          | ok
+Fan 8            | 2940 RPM          | ok
+Fan 9            | 2842 RPM          | ok
+Fan 10           | 3038 RPM          | ok
+Fan 11           | 2940 RPM          | ok
+Fan 12           | 3136 RPM          | ok
+PSU1 Fan Speed 1 | 8142 RPM          | ok
+PSU1 Fan Speed 2 | 6962 RPM          | ok
+PSU2 Fan Speed 1 | 8260 RPM          | ok
+PSU2 Fan Speed 2 | 6962 RPM          | ok
+CPU1 North VR In | 0 Watts           | ok
+CPU1 PVCCA EHV I | 2.01 Watts        | ok
+CPU1 PVCCA EHV O | 2.01 Watts        | ok
+CPU1 PVCCD0 In P | 0 Watts           | ok
+CPU1 PVCCD0 Out  | 0 Watts           | ok
+CPU1 PVCCD1 In P | 0 Watts           | ok
+CPU1 PVCCD1 Out  | 0 Watts           | ok
+CPU1 PVCCFA EHV  | 11.80 Watts       | ok
+CPU1 PVCCFA EHV  | 11.80 Watts       | ok
+CPU1 PVCCINFAON  | 0 Watts           | ok
+CPU1 PVCCINFAON  | 0 Watts           | ok
+CPU1 PVNN In Pow | 0 Watts           | ok
+CPU1 PVNN Out Po | 0 Watts           | ok
+CPU1 South VR In | 0 Watts           | ok
+CPU1 VCCIN In Po | 23.60 Watts       | ok
+CPU1 VCCIN Out P | 23.60 Watts       | ok
+CPU1 VNN EHV In  | 0 Watts           | ok
+CPU2 North VR In | 0 Watts           | ok
+CPU2 PVCCA EHV I | 2.01 Watts        | ok
+CPU2 PVCCA EHV O | 2.01 Watts        | ok
+CPU2 PVCCD0 In P | 0 Watts           | ok
+CPU2 PVCCD0 Out  | 0 Watts           | ok
+CPU2 PVCCD1 In P | 0 Watts           | ok
+CPU2 PVCCD1 Out  | 0 Watts           | ok
+CPU2 PVCCFA EHV  | 11.80 Watts       | ok
+CPU2 PVCCFA EHV  | 11.80 Watts       | ok
+CPU2 PVCCINFAON  | 0 Watts           | ok
+CPU2 PVCCINFAON  | 0 Watts           | ok
+CPU2 PVNN In Pow | 0 Watts           | ok
+CPU2 PVNN Out Po | 0 Watts           | ok
+CPU2 South VR In | 0 Watts           | ok
+CPU2 VCCIN In Po | 23.60 Watts       | ok
+CPU2 VCCIN Out P | 11.80 Watts       | ok
+CPU2 VNN EHV In  | 0 Watts           | ok
+Cpu Power Averag | 28 Watts          | ok
+Cpu Power Averag | 30 Watts          | ok
+Cpu Power Cap CP | 0 Watts           | ok
+Cpu Power Cap CP | 0 Watts           | ok
+DCSCM OCP 12V In | 0 Watts           | ok
+Dimm Power Avera | 4 Watts           | ok
+Dimm Power Avera | 2 Watts           | ok
+Dimm Power Cap C | 0 Watts           | ok
+Dimm Power Cap C | 0 Watts           | ok
+PCIe 12V In Powe | 0 Watts           | ok
+PSU1 Input Power | 70.80 Watts       | ok
+PSU1 Out Power   | 59 Watts          | ok
+PSU2 Input Power | 82.60 Watts       | ok
+PSU2 Out Power   | 106.20 Watts      | ok
+Platform Power A | 126 Watts         | ok
+Platform Power A | 142 Watts         | ok
+Platform Power C | 0 Watts           | ok
+Platform Power C | 0 Watts           | ok
+System Fans SE 1 | 0 Watts           | ok
+System Fans SW 1 | 0 Watts           | ok
+BMC Temp         | 33 degrees C      | ok
+CPU1 PVCCA Contr | 32 degrees C      | ok
+CPU1 PVCCA EHV T | 30 degrees C      | ok
+CPU1 PVCCD0 Temp | 33 degrees C      | ok
+CPU1 PVCCFA Cont | 31 degrees C      | ok
+CPU1 PVCCFA EHV  | 29 degrees C      | ok
+CPU1 VCCIN Tempe | 32 degrees C      | ok
+CPU2 PVCCA Contr | 30 degrees C      | ok
+CPU2 PVCCA EHV T | 30 degrees C      | ok
+CPU2 PVCCD0 Temp | 34 degrees C      | ok
+CPU2 PVCCFA Cont | 30 degrees C      | ok
+CPU2 PVCCFA EHV  | 29 degrees C      | ok
+CPU2 VCCIN Tempe | 34 degrees C      | ok
+DIMM A1 CPU1     | 26 degrees C      | ok
+DIMM A1 CPU2     | 28 degrees C      | ok
+DIMM A2 CPU1     | 26 degrees C      | ok
+DIMM A2 CPU2     | 28 degrees C      | ok
+DIMM B1 CPU1     | 26 degrees C      | ok
+DIMM B1 CPU2     | 28 degrees C      | ok
+DIMM B2 CPU1     | 26 degrees C      | ok
+DIMM B2 CPU2     | 28 degrees C      | ok
+DIMM C1 CPU1     | 25 degrees C      | ok
+DIMM C1 CPU2     | 27 degrees C      | ok
+DIMM C2 CPU1     | 25 degrees C      | ok
+DIMM C2 CPU2     | 27 degrees C      | ok
+DIMM D1 CPU1     | 26 degrees C      | ok
+DIMM D1 CPU2     | 27 degrees C      | ok
+DIMM D2 CPU1     | 26 degrees C      | ok
+DIMM D2 CPU2     | 27 degrees C      | ok
+DIMM E1 CPU1     | 28 degrees C      | ok
+DIMM E1 CPU2     | 27 degrees C      | ok
+DIMM E2 CPU1     | 28 degrees C      | ok
+DIMM E2 CPU2     | 27 degrees C      | ok
+DIMM F1 CPU1     | 27 degrees C      | ok
+DIMM F1 CPU2     | 27 degrees C      | ok
+DIMM F2 CPU1     | 27 degrees C      | ok
+DIMM F2 CPU2     | 27 degrees C      | ok
+DIMM G1 CPU1     | 27 degrees C      | ok
+DIMM G1 CPU2     | 26 degrees C      | ok
+DIMM G2 CPU1     | 27 degrees C      | ok
+DIMM G2 CPU2     | 26 degrees C      | ok
+DIMM H1 CPU1     | 26 degrees C      | ok
+DIMM H1 CPU2     | 26 degrees C      | ok
+DIMM H2 CPU1     | 26 degrees C      | ok
+DIMM H2 CPU2     | 26 degrees C      | ok
+DTS CPU1         | 43 degrees C      | ok
+DTS CPU2         | 42 degrees C      | ok
+Die CPU1         | 43 degrees C      | ok
+Die CPU2         | 42 degrees C      | ok
+Inlet BRD Temp   | 21 degrees C      | ok
+Left DIMM Bank T | 26 degrees C      | ok
+Left Mid Board T | 23 degrees C      | ok
+Left Rear Board  | 20 degrees C      | ok
+PSU1 Temperature | 21 degrees C      | ok
+PSU2 Temperature | 21 degrees C      | ok
+Right DIMM Bank  | 28 degrees C      | ok
+Right Mid Board  | 27 degrees C      | ok
+Right Rear Board | 22 degrees C      | ok
+AverageCupsIndex | no reading        | ns
+AverageHostCpuUt | no reading        | ns
+AverageHostMemor | no reading        | ns
+AverageHostPciBa | no reading        | ns
+CupsIndex        | no reading        | ns
+HostCpuUtilizati | no reading        | ns
+HostMemoryBandwi | no reading        | ns
+HostPciBandwidth | no reading        | ns
+CPU1 North VR In | 1.18 Volts        | ok
+CPU1 PVCCA EHV I | 11.80 Volts       | ok
+CPU1 PVCCA EHV O | 2 Volts           | ok
+CPU1 PVCCD0 Out  | 1 Volts           | ok
+CPU1 PVCCD1 Out  | 1 Volts           | ok
+CPU1 PVCCD In Vo | 11.80 Volts       | ok
+CPU1 PVCCFA EHV  | 11.80 Volts       | ok
+CPU1 PVCCFA EHV  | 2 Volts           | ok
+CPU1 PVCCINFAON  | 1 Volts           | ok
+CPU1 PVNN Out Vo | 1 Volts           | ok
+CPU1 South VR In | 1.18 Volts        | ok
+CPU1 VNN EHV In  | 1.18 Volts        | ok
+CPU2 North VR In | 1.18 Volts        | ok
+CPU2 PVCCA EHV I | 11.80 Volts       | ok
+CPU2 PVCCA EHV O | 2 Volts           | ok
+CPU2 PVCCD0 Out  | 1 Volts           | ok
+CPU2 PVCCD1 Out  | 1 Volts           | ok
+CPU2 PVCCD In Vo | 11.80 Volts       | ok
+CPU2 PVCCFA EHV  | 11.80 Volts       | ok
+CPU2 PVCCFA EHV  | 2 Volts           | ok
+CPU2 PVCCINFAON  | 1 Volts           | ok
+CPU2 PVNN Out Vo | 1 Volts           | ok
+CPU2 South VR In | 1.18 Volts        | ok
+CPU2 VNN EHV In  | 1.18 Volts        | ok
+DCSCM OCP 12V In | 1.18 Volts        | ok
+P1V8 AUX         | 1.79 Volts        | ok
+P3V3 AUX         | 3.32 Volts        | ok
+P12V AUX         | 11.97 Volts       | ok
+PCIe 12V In Volt | 1.18 Volts        | ok
+PSU1 In Voltage  | 228.92 Volts      | ok
+PSU2 In Voltage  | 228.92 Volts      | ok
+PVCCD0 HV CPU0   | 1.12 Volts        | ok
+PVCCD0 HV CPU1   | 1.12 Volts        | ok
+PVCCD1 HV CPU0   | 1.12 Volts        | ok
+PVCCD1 HV CPU1   | 1.12 Volts        | ok
+PVCCFA EHV CPU0  | 1.82 Volts        | ok
+PVCCFA EHV CPU1  | 1.82 Volts        | ok
+PVCCFA EHV FIVRA | 1.80 Volts        | ok
+PVCCFA EHV FIVRA | 1.80 Volts        | ok
+PVCCINFAON CPU0  | 0.76 Volts        | ok
+PVCCINFAON CPU1  | 0.77 Volts        | ok
+PVCCIN CPU0      | 1.83 Volts        | ok
+PVCCIN CPU1      | 1.83 Volts        | ok
+PVNN MAIN CPU0   | 1.01 Volts        | ok
+PVNN MAIN CPU1   | 1.01 Volts        | ok
+System Fans SE 1 | 12 Volts          | ok
+System Fans SW 1 | 12 Volts          | ok
+

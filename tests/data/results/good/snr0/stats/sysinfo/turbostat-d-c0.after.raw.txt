@@ -1,0 +1,43 @@
+turbostat version 2024.12.03 - Len Brown <lenb@kernel.org>
+Measurement interval: 5.000 seconds
+Kernel command line: BOOT_IMAGE=http://powerlab/pxelinux/node/snr0/custom-kernel/kernel initrd=http://powerlab/pxelinux/node/snr0/custom-kernel/initramfs.img root=UUID=023c6c96-4951-4b6e-99af-5f8c7b889956 ro console=ttyS0,115200 msr.allow_writes=on
+CPUID(0): GenuineIntel 0x1b CPUID levels
+CPUID(1): family:model:stepping 0x6:86:7 (6:134:7) microcode 0x4c000020
+CPUID(0x80000000): max_extended_levels: 0x80000008
+CPUID(1): SSE3 MONITOR SMX EIST TM2 TSC MSR ACPI-TM HT TM
+CPUID(6): APERF, No-TURBO, DTS, PTM, No-HWP, No-HWPnotify, No-HWPwindow, No-HWPepp, No-HWPpkg, EPB
+cpu0: MSR_IA32_MISC_ENABLE: 0x00850089 (TCC EIST MWAIT PREFETCH TURBO)
+CPUID(7): No-SGX No-Hybrid
+CPUID(0x15): eax_crystal: 2 ebx_tsc: 176 ecx_crystal_hz: 25000000
+TSC: 2200 MHz (25000000 Hz * 176 / 2 / 1000000)
+CPUID(0x16): base_mhz: 2200 max_mhz: 2200 bus_mhz: 100
+cpu0: MSR_PLATFORM_INFO: 0x80820f0801600
+8 * 100.0 = 800.0 MHz max efficiency frequency
+22 * 100.0 = 2200.0 MHz base frequency
+cpu0: cpufreq driver: acpi-cpufreq
+cpu0: cpufreq governor: schedutil
+cpu0: MSR_MISC_PWR_MGMT: 0x00402000 (ENable-EIST_Coordination DISable-EPB DISable-OOB)
+cpu0: EPB: 6 (balanced)
+cpu0: MSR_IA32_POWER_CTL: 0xa00a40059 (C1E auto-promotion: DISabled)
+cpu0: MSR_PKG_CST_CONFIG_CONTROL: 0x00008000 (locked, pkg-cstate-limit=0 (unlimited))
+/dev/cpu_dma_latency: 2000000000 usec (default)
+current_driver: intel_idle
+current_governor: menu
+current_governor_ro: menu
+cpu0: POLL: CPUIDLE CORE POLL IDLE
+cpu0: C1: MWAIT 0x00
+cpu0: C1E: MWAIT 0x01
+RAPL: 3158 sec. Joule Counter Range, at 83 Watts
+cpu0: MSR_RAPL_POWER_UNIT: 0x000a0e03 (0.125000 Watts, 0.000061 Joules, 0.000977 sec.)
+cpu0: MSR_PKG_POWER_INFO: 0xf040602200298 (83 W TDP, RAPL 68 - 129 W, 0.014648 sec.)
+cpu0: MSR_PKG_POWER_LIMIT: 0x15831d00158298 (UNlocked)
+cpu0: PKG Limit #1: ENabled (83.000 Watts, 1.000000 sec, clamp ENabled)
+cpu0: PKG Limit #2: ENabled (99.625 Watts, 1.000000* sec, clamp ENabled)
+cpu0: MSR_VR_CURRENT_CONFIG: 0x800001d8
+cpu0: PKG Limit #4: 59.000000 Watts (locked)
+cpu0: MSR_IA32_TEMPERATURE_TARGET: 0x00661400 (102 C)
+cpu0: MSR_IA32_PACKAGE_THERM_STATUS: 0x88330000 (51 C)
+cpu0: MSR_IA32_PACKAGE_THERM_INTERRUPT: 0x00000003 (102 C, 102 C)
+0.013048 sec
+Avg_MHz	Busy%	Bzy_MHz	TSC_MHz	IPC	IRQ	SMI	POLL	C1	C1E	POLL%	C1%	C1E%	CPU%c1	CPU%c6	CoreTmp	CoreThr	PkgTmp	PkgWatt	PKG_%
+589	26.80	2200	2199	1.38	15	0	0	5	21	0.00	15.09	58.21	73.20	0.00	51	0	52	41.98	0.00

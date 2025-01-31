@@ -1,0 +1,33 @@
+Source: Linux sysfs file-system
+ - POLL: 'on' for all CPUs
+    - description: CPUIDLE CORE POLL IDLE
+    - expected latency: 0 us
+    - target residency: 0 us
+ - C1: 'on' for all CPUs
+    - description: MWAIT 0x00
+    - expected latency: 2 us
+    - target residency: 2 us
+ - C1E: 'on' for all CPUs
+    - description: MWAIT 0x01
+    - expected latency: 10 us
+    - target residency: 20 us
+ - C3: 'on' for all CPUs
+    - description: MWAIT 0x10
+    - expected latency: 40 us
+    - target residency: 100 us
+ - C6: 'on' for all CPUs
+    - description: MWAIT 0x20
+    - expected latency: 133 us
+    - target residency: 400 us
+Source: Model Specific Register (MSR)
+ - Package C-state limit: 'PC6' for all CPUs
+ - Package C-state limit lock: 'on' for all CPUs
+ - C1 demotion: 'on' for all CPUs
+ - C1 undemotion: 'on' for all CPUs
+ - C1E autopromote: 'off' for all CPUs
+Source: Hardware documentation
+ - Available package C-state limits: PC0, PC2, PC3, PC6
+Source: Linux sysfs file-system
+ - Idle driver: intel_idle
+ - Idle governor: menu
+ - Available idle governors: ladder, menu, teo

@@ -1,0 +1,7 @@
+Command line: /opt/powerlab/bin/stats-collect start --stats all -o /home/abityuts/tmp/stats-collect-interrupts/rpl0 -H rpl0 sleep 120
+Collecting rpl0 system information
+Starting statistics collectors
+Running the following command on host 'rpl0': sleep 120
+Stopping statistics collectors
+Collecting more rpl0 system information
+Copy collected statistics from 'rpl0' to '/home/abityuts/tmp/stats-collect-interrupts/rpl0'

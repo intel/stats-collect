@@ -1,0 +1,7 @@
+Command line: /opt/powerlab/bin/stats-collect start --stats all -o /home/abityuts/tmp/stats-collect-interrupts/snr0 -H snr0 sleep 120
+Collecting snr0 system information
+Starting statistics collectors
+Running the following command on host 'snr0': sleep 120
+Stopping statistics collectors
+Collecting more snr0 system information
+Copy collected statistics from 'snr0' to '/home/abityuts/tmp/stats-collect-interrupts/snr0'

@@ -1,0 +1,8 @@
+cpu0: EPB 6
+cpu1: EPB 6
+cpu2: EPB 6
+cpu3: EPB 6
+cpu4: EPB 6
+cpu5: EPB 6
+cpu6: EPB 6
+cpu7: EPB 6

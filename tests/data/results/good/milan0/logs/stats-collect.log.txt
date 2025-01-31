@@ -1,0 +1,7 @@
+Command line: /opt/powerlab/bin/stats-collect start --stats all -o /home/abityuts/tmp/stats-collect-interrupts/milan0 -H milan0 sleep 120
+Collecting milan0 system information
+Starting statistics collectors
+Running the following command on host 'milan0': sleep 120
+Stopping statistics collectors
+Collecting more milan0 system information
+Copy collected statistics from 'milan0' to '/home/abityuts/tmp/stats-collect-interrupts/milan0'

@@ -1,0 +1,17 @@
+Source: Linux sysfs file-system
+ - POLL: 'on' for all CPUs
+    - description: CPUIDLE CORE POLL IDLE
+    - expected latency: 0 us
+    - target residency: 0 us
+ - C1: 'on' for all CPUs
+    - description: ACPI FFH MWAIT 0x0
+    - expected latency: 1 us
+    - target residency: 2 us
+ - C2: 'on' for all CPUs
+    - description: ACPI IOPORT 0x414
+    - expected latency: 30 us
+    - target residency: 60 us
+Source: Linux sysfs file-system
+ - Idle driver: acpi_idle
+ - Idle governor: menu
+ - Available idle governors: ladder, menu, teo

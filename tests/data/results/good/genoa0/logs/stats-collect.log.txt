@@ -1,0 +1,7 @@
+Command line: /opt/powerlab/bin/stats-collect start --stats all -o /home/abityuts/tmp/stats-collect-interrupts/genoa0 -H genoa0 sleep 120
+Collecting genoa0 system information
+Starting statistics collectors
+Running the following command on host 'genoa0': sleep 120
+Stopping statistics collectors
+Collecting more genoa0 system information
+Copy collected statistics from 'genoa0' to '/home/abityuts/tmp/stats-collect-interrupts/genoa0'

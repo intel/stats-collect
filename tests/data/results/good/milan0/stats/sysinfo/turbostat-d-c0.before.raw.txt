@@ -1,0 +1,24 @@
+turbostat version 2024.12.03 - Len Brown <lenb@kernel.org>
+Measurement interval: 5.000 seconds
+Kernel command line: BOOT_IMAGE=http://powerlab/pxelinux/node/milan0/custom-kernel/kernel initrd=http://powerlab/pxelinux/node/milan0/custom-kernel/initramfs.img root=UUID=92cbe7ba-b5a2-4c60-8935-e11d53802a7e ro console=ttyS0,115200 msr.allow_writes=on
+CPUID(0): AuthenticAMD 0x10 CPUID levels
+CPUID(1): family:model:stepping 0x19:1:1 (25:1:1) microcode 0x0
+CPUID(0x80000000): max_extended_levels: 0x80000023
+CPUID(1): SSE3 MONITOR - - - TSC MSR - HT -
+CPUID(6): APERF, No-TURBO, No-DTS, No-PTM, No-HWP, No-HWPnotify, No-HWPwindow, No-HWPepp, No-HWPpkg, No-EPB
+CPUID(7): No-SGX No-Hybrid
+cpu0: cpufreq driver: acpi-cpufreq
+cpu0: cpufreq governor: schedutil
+cpufreq boost: 1
+/dev/cpu_dma_latency: 2000000000 usec (default)
+current_driver: acpi_idle
+current_governor: menu
+current_governor_ro: menu
+cpu0: POLL: CPUIDLE CORE POLL IDLE
+cpu0: C1: ACPI FFH MWAIT 0x0
+cpu0: C2: ACPI IOPORT 0x414
+RAPL: 234 sec. Joule Counter Range, at 280 Watts
+cpu0: MSR_RAPL_PWR_UNIT: 0x000a1003 (0.125000 Watts, 0.000015 Joules, 0.000977 sec.)
+0.017719 sec
+Avg_MHz	Busy%	Bzy_MHz	TSC_MHz	IPC	IRQ	SMI	POLL	C1	C2	POLL%	C1%	C2%	CorWatt	PkgWatt
+1555	43.13	3606	2807	2.04	34	0	0	0	17	0.00	0.00	57.15	2.32	132.84

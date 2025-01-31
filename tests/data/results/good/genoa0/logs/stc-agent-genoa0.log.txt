@@ -1,0 +1,1 @@
+Listening on Unix socket /tmp/stc-agent-genoa0-duldc2rz

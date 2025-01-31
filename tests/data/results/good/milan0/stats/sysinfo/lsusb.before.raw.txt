@@ -1,0 +1,8 @@
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 003 Device 002: ID 1604:10c0 Tascam Dell Integrated Hub
+Bus 003 Device 003: ID 0424:2514 Microchip Technology, Inc. (formerly SMSC) USB 2.0 Hub
+Bus 003 Device 004: ID 1604:10c0 Tascam Dell Integrated Hub
+Bus 003 Device 005: ID 1604:10c0 Tascam Dell Integrated Hub
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub

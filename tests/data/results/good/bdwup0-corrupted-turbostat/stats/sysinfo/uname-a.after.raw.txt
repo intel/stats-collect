@@ -1,0 +1,1 @@
+Linux bdwup0 6.13.0-rc4-00002-gee7c5025cae3 #1 SMP PREEMPT_DYNAMIC Fri Jan 17 09:53:21 EET 2025 x86_64 GNU/Linux

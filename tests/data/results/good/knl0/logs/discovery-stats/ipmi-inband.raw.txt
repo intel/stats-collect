@@ -1,0 +1,36 @@
+timestamp | 1737462124.7542188
+System Airflow   | 6 CFM             | ok
+BB Inlet Temp    | 21 degrees C      | ok
+HSBP Temp        | 15 degrees C      | ok
+SSB Temp         | 44 degrees C      | ok
+BMC Temp         | 35 degrees C      | ok
+BB P1 VR Temp    | 44 degrees C      | ok
+HSBP PSOC Temp   | 21 degrees C      | ok
+Exit Air Temp    | 37 degrees C      | ok
+BB Mem VR Temp   | 37 degrees C      | ok
+Riser 1 Temp     | 27 degrees C      | ok
+Riser 2 Temp     | 23 degrees C      | ok
+System Fan 1a    | 7252 RPM          | ok
+System Fan 1b    | 7742 RPM          | ok
+System Fan 2a    | 7350 RPM          | ok
+System Fan 2b    | 7644 RPM          | ok
+System Fan 3a    | 7448 RPM          | ok
+System Fan 3b    | 7840 RPM          | ok
+PS1 Input Power  | 180 Watts         | ok
+PS2 Input Power  | 0 Watts           | ok
+PS2 Input Power  | 0 Watts           | ok
+PS1 Curr Out %   | 9 percent         | ok
+PS2 Curr Out %   | 0 percent         | ok
+PS2 Curr Out %   | 0 percent         | ok
+PS1 Temperature  | 21 degrees C      | ok
+PS2 Temperature  | 26 degrees C      | ok
+P1 Therm Margin  | -38 degrees C     | ok
+P1 Therm Ctrl %  | 0 percent         | ok
+P1 DTS Therm Mgn | -7 degrees C      | ok
+DIMM Thrm Mrgn 1 | no reading        | ns
+DIMM Thrm Mrgn 2 | no reading        | ns
+Agg Therm Mgn 1  | -35 degrees C     | ok
+BB +12.0V        | 11.83 Volts       | ok
+BB +3.0V VBAT    | 2.88 Volts        | ok
+MTT CPU1         | no reading        | ns
+

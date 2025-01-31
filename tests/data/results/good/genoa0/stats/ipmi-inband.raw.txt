@@ -1,0 +1,814 @@
+timestamp | 1737461939.444906
+Temp             | 50 degrees C      | ok
+Temp             | 49 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 7200 RPM          | ok
+Fan3A            | 7200 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 7200 RPM          | ok
+Fan7A            | 7080 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6720 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6600 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6720 RPM          | ok
+Fan7B            | 6600 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 312 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 33 degrees C      | ok
+VCCIN VR         | 1.11 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.12 Volts        | ok
+
+timestamp | 1737461945.0237906
+Temp             | 51 degrees C      | ok
+Temp             | 50 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 7080 RPM          | ok
+Fan3A            | 7080 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 7080 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6600 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6600 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 33 degrees C      | ok
+VCCIN VR         | 1.10 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.10 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.12 Volts        | ok
+
+timestamp | 1737461949.409235
+Temp             | 52 degrees C      | ok
+Temp             | 50 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6840 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 312 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 33 degrees C      | ok
+VCCIN VR         | 0.91 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.91 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.90 Volts        | ok
+
+timestamp | 1737461954.2002094
+Temp             | 52 degrees C      | ok
+Temp             | 50 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6840 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6600 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 0.60 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.11 Volts        | ok
+
+timestamp | 1737461960.138238
+Temp             | 52 degrees C      | ok
+Temp             | 50 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 7680 RPM          | ok
+Fan3A            | 7680 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7200 RPM          | ok
+Fan6A            | 7800 RPM          | ok
+Fan7A            | 7680 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6960 RPM          | ok
+Fan3B            | 7080 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6960 RPM          | ok
+Fan7B            | 6960 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737461966.392055
+Temp             | 52 degrees C      | ok
+Temp             | 50 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 7080 RPM          | ok
+Fan2A            | 7680 RPM          | ok
+Fan3A            | 7680 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 7440 RPM          | ok
+Fan7A            | 7440 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6960 RPM          | ok
+Fan3B            | 7080 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6960 RPM          | ok
+Fan7B            | 6840 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737461972.641332
+Temp             | 53 degrees C      | ok
+Temp             | 51 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 7080 RPM          | ok
+Fan2A            | 7200 RPM          | ok
+Fan3A            | 7200 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 7200 RPM          | ok
+Fan7A            | 7080 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6720 RPM          | ok
+Fan3B            | 6840 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6600 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737461978.9345443
+Temp             | 53 degrees C      | ok
+Temp             | 52 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6600 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737461985.1741886
+Temp             | 54 degrees C      | ok
+Temp             | 52 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6840 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6600 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.11 Volts        | ok
+
+timestamp | 1737461991.4354079
+Temp             | 54 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6840 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6840 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6600 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6600 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 34 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.80 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737461997.7012436
+Temp             | 55 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6840 RPM          | ok
+Fan7A            | 6840 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6600 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 35 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.80 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.11 Volts        | ok
+
+timestamp | 1737462002.1351898
+Temp             | 55 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6840 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6840 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 35 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462006.886028
+Temp             | 55 degrees C      | ok
+Temp             | 54 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6840 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6600 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6600 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 35 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462011.8003018
+Temp             | 55 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6600 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 2 Amps            | ok
+Current 2        | disabled          | ns
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 35 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462016.8033323
+Temp             | 54 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6600 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6600 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6600 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 0.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462022.1213057
+Temp             | 54 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6840 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6600 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 0.60 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 130 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 0.91 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462026.7942812
+Temp             | 54 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6840 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6600 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+VCCIN VR         | 1.11 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462031.5259757
+Temp             | 55 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6600 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6600 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6600 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 1.80 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462036.6273663
+Temp             | 55 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6600 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 0.60 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+VCCIN VR         | 1.11 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462041.649236
+Temp             | 54 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6960 RPM          | ok
+Fan3A            | 6840 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6600 RPM          | ok
+Current 1        | 0.60 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.09 Volts        | ok
+VCCIN VR         | 1.12 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 1.11 Volts        | ok
+
+timestamp | 1737462046.9560618
+Temp             | 54 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6840 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6960 RPM          | ok
+Fan5A            | 7080 RPM          | ok
+Fan6A            | 6840 RPM          | ok
+Fan7A            | 6840 RPM          | ok
+Fan8A            | 6840 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6600 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6480 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1.40 Amps         | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+VCCIN VR         | 1.11 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+
+timestamp | 1737462051.5743413
+Temp             | 55 degrees C      | ok
+Temp             | 53 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 6960 RPM          | ok
+Fan2A            | 6840 RPM          | ok
+Fan3A            | 6960 RPM          | ok
+Fan4A            | 6840 RPM          | ok
+Fan5A            | 6960 RPM          | ok
+Fan6A            | 6960 RPM          | ok
+Fan7A            | 6960 RPM          | ok
+Fan8A            | 6960 RPM          | ok
+Fan1B            | 6480 RPM          | ok
+Fan2B            | 6480 RPM          | ok
+Fan3B            | 6480 RPM          | ok
+Fan4B            | 6480 RPM          | ok
+Fan5B            | 6600 RPM          | ok
+Fan6B            | 6480 RPM          | ok
+Fan7B            | 6480 RPM          | ok
+Fan8B            | 6480 RPM          | ok
+Current 1        | 1 Amps            | ok
+Current 2        | disabled          | ns
+Voltage 1        | 232 Volts         | ok
+Voltage 2        | disabled          | ns
+Pwr Consumption  | 286 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Exhaust Temp     | 36 degrees C      | ok
+VCCIN VR         | 0.81 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.81 Volts        | ok
+VCCIN VR         | 1.11 Volts        | ok
+VDDIO VR         | 1.09 Volts        | ok
+HV VR            | 0.80 Volts        | ok
+

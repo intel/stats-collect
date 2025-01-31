@@ -1,0 +1,100 @@
+00:00.0 System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 02)
+00:00.1 System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 02)
+00:00.2 System peripheral: Intel Corporation Ice Lake RAS (rev 02)
+00:00.3 System peripheral: Intel Corporation Device 09a5 (rev 02)
+00:00.4 Host bridge: Intel Corporation Ice Lake IEH
+00:01.0 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.1 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.2 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.3 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.4 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.5 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.6 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:01.7 System peripheral: Intel Corporation Ice Lake CBDMA [QuickData Technology]
+00:02.0 System peripheral: Intel Corporation Ice Lake MSM
+00:02.1 System peripheral: Intel Corporation Ice Lake PMON MSM
+00:02.2 System peripheral: Intel Corporation Device 09a8
+00:02.4 Non-Essential Instrumentation [1300]: Intel Corporation Ice Lake NorthPeak (rev 01)
+00:07.0 SATA controller: Intel Corporation Atom Processor P5xxx Series SATA Controller (rev 11)
+00:0c.0 PCI bridge: Intel Corporation Device 18a7 (rev 11)
+00:0e.0 SATA controller: Intel Corporation Atom Processor P5xxx Series SATA Controller (rev 11)
+00:0f.0 System peripheral: Intel Corporation Device 18ac (rev 11)
+00:18.0 Communication controller: Intel Corporation Atom Processor P5xxx Series MEI Controller (rev 11)
+00:18.4 Communication controller: Intel Corporation Atom Processor P5xxx Series MEI Controller (rev 11)
+00:1d.0 Host bridge: Intel Corporation Ice Lake IEH
+00:1e.0 USB controller: Intel Corporation Atom Processor P5xxx Series USB xHCI Controller (rev 11)
+00:1f.0 ISA bridge: Intel Corporation Device 18dc (rev 11)
+00:1f.4 SMBus: Intel Corporation Atom Processor P5xxx Series SMBus Controller (rev 11)
+00:1f.5 Serial bus controller: Intel Corporation Atom Processor P5xxx Series SPI Controller (rev 11)
+00:1f.7 Non-Essential Instrumentation [1300]: Intel Corporation Atom Processor P5xxx Series Trace Hub (rev 11)
+01:00.0 PCI bridge: ASPEED Technology, Inc. AST1150 PCI-to-PCI Bridge (rev 04)
+02:00.0 VGA compatible controller: ASPEED Technology, Inc. ASPEED Graphics Family (rev 41)
+14:00.0 System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 02)
+14:00.1 System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 02)
+14:00.2 System peripheral: Intel Corporation Ice Lake RAS (rev 02)
+14:00.3 System peripheral: Intel Corporation Device 09a5 (rev 02)
+14:00.4 Host bridge: Intel Corporation Ice Lake IEH
+14:04.0 PCI bridge: Intel Corporation Device 334a
+14:06.0 PCI bridge: Intel Corporation Device 334c
+15:00.0 Ethernet controller: Intel Corporation I350 Gigabit Network Connection (rev 01)
+15:00.1 Ethernet controller: Intel Corporation I350 Gigabit Network Connection (rev 01)
+15:00.2 Ethernet controller: Intel Corporation I350 Gigabit Network Connection (rev 01)
+15:00.3 Ethernet controller: Intel Corporation I350 Gigabit Network Connection (rev 01)
+16:00.0 Ethernet controller: Intel Corporation I210 Gigabit Network Connection (rev 03)
+e3:00.0 System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 02)
+e3:00.1 System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 02)
+e3:00.2 System peripheral: Intel Corporation Ice Lake RAS (rev 02)
+e3:00.3 System peripheral: Intel Corporation Device 09a5 (rev 02)
+e3:00.4 Host bridge: Intel Corporation Ice Lake IEH
+e7:00.0 Co-processor: Intel Corporation Device 270b
+eb:00.0 System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 02)
+eb:00.1 System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 02)
+eb:00.2 System peripheral: Intel Corporation Ice Lake RAS (rev 02)
+eb:00.3 System peripheral: Intel Corporation Device 09a5 (rev 02)
+eb:00.4 Host bridge: Intel Corporation Ice Lake IEH
+eb:04.0 PCI bridge: Intel Corporation Device 18d1 (rev 20)
+ec:00.0 Ethernet controller: Intel Corporation Ethernet Connection E822-C for SFP (rev 20)
+ec:00.1 Ethernet controller: Intel Corporation Ethernet Connection E822-C for SFP (rev 20)
+ec:00.4 Ethernet controller: Intel Corporation Ethernet Connection E822-C 1GbE (rev 20)
+ec:00.5 Ethernet controller: Intel Corporation Ethernet Connection E822-C 1GbE (rev 20)
+ec:00.6 Ethernet controller: Intel Corporation Ethernet Connection E822-C 1GbE (rev 20)
+ec:00.7 Ethernet controller: Intel Corporation Ethernet Connection E822-C 1GbE (rev 20)
+f3:00.0 System peripheral: Intel Corporation Ice Lake Memory Map/VT-d (rev 02)
+f3:00.1 System peripheral: Intel Corporation Ice Lake Mesh 2 PCIe (rev 02)
+f3:00.2 System peripheral: Intel Corporation Ice Lake RAS (rev 02)
+f3:00.3 System peripheral: Intel Corporation Device 09a5 (rev 02)
+f3:00.4 Host bridge: Intel Corporation Ice Lake IEH
+f3:05.0 PCI bridge: Intel Corporation Device 18da (rev 20)
+f4:00.0 Co-processor: Intel Corporation Atom Processor P5xxx Series QAT (rev 20)
+fe:00.0 System peripheral: Intel Corporation Device 3460
+fe:00.1 System peripheral: Intel Corporation Device 3451
+fe:00.2 System peripheral: Intel Corporation Device 3452
+fe:00.3 Host bridge: Intel Corporation Ice Lake IEH
+fe:00.5 System peripheral: Intel Corporation Device 3455
+fe:0b.0 System peripheral: Intel Corporation Device 3448
+fe:0b.1 System peripheral: Intel Corporation Device 3448
+fe:0b.2 System peripheral: Intel Corporation Device 344b
+fe:0c.0 Performance counters: Intel Corporation Device 344a
+fe:1a.0 Performance counters: Intel Corporation Device 2880
+ff:00.0 System peripheral: Intel Corporation Device 344c
+ff:00.1 System peripheral: Intel Corporation Device 344c
+ff:00.2 System peripheral: Intel Corporation Device 344c
+ff:00.3 System peripheral: Intel Corporation Device 344c
+ff:00.4 System peripheral: Intel Corporation Device 344c
+ff:00.5 System peripheral: Intel Corporation Device 344c
+ff:0a.0 System peripheral: Intel Corporation Device 344d
+ff:0a.1 System peripheral: Intel Corporation Device 344d
+ff:0a.2 System peripheral: Intel Corporation Device 344d
+ff:0a.3 System peripheral: Intel Corporation Device 344d
+ff:0a.4 System peripheral: Intel Corporation Device 344d
+ff:0a.5 System peripheral: Intel Corporation Device 344d
+ff:1d.0 System peripheral: Intel Corporation Device 344f
+ff:1d.1 System peripheral: Intel Corporation Device 3457
+ff:1e.0 System peripheral: Intel Corporation Device 3458 (rev 07)
+ff:1e.1 System peripheral: Intel Corporation Device 3459 (rev 07)
+ff:1e.2 System peripheral: Intel Corporation Device 345a (rev 07)
+ff:1e.3 System peripheral: Intel Corporation Device 345b (rev 07)
+ff:1e.4 System peripheral: Intel Corporation Device 345c (rev 07)
+ff:1e.5 System peripheral: Intel Corporation Device 345d (rev 07)
+ff:1e.6 System peripheral: Intel Corporation Device 345e (rev 07)
+ff:1e.7 System peripheral: Intel Corporation Device 345f (rev 07)

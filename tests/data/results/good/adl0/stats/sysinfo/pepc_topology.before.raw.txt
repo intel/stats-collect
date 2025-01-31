@@ -1,0 +1,17 @@
+CPU    Core    Module    Node    Package    Hybrid
+  0       0         0       0          0    P-core
+  1       0         0       0          0    P-core
+  2       4         1       0          0    P-core
+  3       4         1       0          0    P-core
+  4       8         2       0          0    P-core
+  5       8         2       0          0    P-core
+  6      12         3       0          0    P-core
+  7      12         3       0          0    P-core
+  8      16         4       0          0    E-core
+  9      17         4       0          0    E-core
+ 10      18         4       0          0    E-core
+ 11      19         4       0          0    E-core
+ 12      20         5       0          0    E-core
+ 13      21         5       0          0    E-core
+ 14      22         5       0          0    E-core
+ 15      23         5       0          0    E-core

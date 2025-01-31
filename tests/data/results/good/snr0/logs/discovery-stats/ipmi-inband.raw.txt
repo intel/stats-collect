@@ -1,0 +1,56 @@
+timestamp | 1737462006.3050265
+CPU Temp         | 51 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 33 degrees C      | ok
+VcpuVRM Temp     | 34 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462011.2348766
+CPU Temp         | 51 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 33 degrees C      | ok
+VcpuVRM Temp     | 34 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+

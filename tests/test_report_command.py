@@ -1,63 +1,40 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Author: Adam Hawley <adam.james.hawley@intel.com>
+# Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""This module contains the tests for the 'stats-collect report' command."""
+"""Tests for 'pepc report' command."""
 
-from pepclibs.helperlibs import Exceptions
+from pathlib import Path
 import common
+from pepclibs.helperlibs.Exceptions import Error
 
-def test_all_stats(tmpdir, data_path):
-    """Test 'report' command for good input data with all statistics."""
+_TEST_FILES_DIR = Path("tests/data/results")
 
-    good_data_path = data_path / "good" / "all-stats"
-    args = f"report -o {tmpdir} {good_data_path}"
-    common.run_stats_collect(args)
-
-def test_only_sysinfo(tmpdir, data_path):
-    """Test 'report' command for good input data with only 'SysInfo' statistics."""
-
-    good_data_path = data_path / "good" / "sysinfo"
-    args = f"report -o {tmpdir} {good_data_path}"
-    common.run_stats_collect(args)
-
-def test_no_stats(tmpdir, data_path):
-    """Test 'report' command for good input data with no statistics."""
-
-    good_data_path = data_path / "good" / "no-stats"
-    args = f"report -o {tmpdir} {good_data_path}"
-    common.run_stats_collect(args)
-
-def test_client_tstat(tmpdir, data_path):
+def test_report_command_good(tmp_path: Path):
     """
-    Test 'report' command for good client input data with turbostat statistics. Turbostat on client
-    platforms contains a bigger variety of columns, so test that those extra columns don't break
-    anything.
+    Test the 'report' command with good input data.
     """
 
-    good_data_path = data_path / "good" / "client-tstat"
-    args = f"report -o {tmpdir} {good_data_path}"
-    common.run_stats_collect(args)
+    results_dir = _TEST_FILES_DIR / "good"
 
-def test_bad_ac_power_file(tmpdir, data_path):
-    """
-    Test that a badly-formatted 'Ac Power' raw statistics file does not cause 'stats-collect report'
-    to crash.
-    """
+    for resdir in results_dir.iterdir():
+        outdir = tmp_path / resdir.name
+        args = f"report -o {outdir} {resdir}"
+        common.run_stats_collect(args)
 
-    data_path = data_path / "bad" / "bad-ac-power-file"
-    args = f"report -o {tmpdir} {data_path}"
-    common.run_stats_collect(args)
-
-def test_missing_info_file(tmpdir, data_path):
+def test_report_command_bad(tmp_path: Path):
     """
-    Test 'report' command for a bad dataset which does not contain the required 'info.yml' file.
+    Test the 'report' command with bad input data.
     """
 
-    data_path = data_path / "bad" / "missing-info-file"
-    args = f"report -o {tmpdir} {data_path}"
-    common.run_stats_collect(args, Exceptions.Error)
+    results_dir = _TEST_FILES_DIR / "bad"
+
+    for resdir in results_dir.iterdir():
+        outdir = tmp_path / resdir.name
+        args = f"report -o {outdir} {resdir}"
+        common.run_stats_collect(args, Error)

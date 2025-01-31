@@ -1,0 +1,7 @@
+Command line: /opt/powerlab/bin/stats-collect start --stats all -o /home/abityuts/tmp/stats-collect-interrupts/bdwup0 -H bdwup0 sleep 120
+Collecting bdwup0 system information
+Starting statistics collectors
+Running the following command on host 'bdwup0': sleep 120
+Stopping statistics collectors
+Collecting more bdwup0 system information
+Copy collected statistics from 'bdwup0' to '/home/abityuts/tmp/stats-collect-interrupts/bdwup0'

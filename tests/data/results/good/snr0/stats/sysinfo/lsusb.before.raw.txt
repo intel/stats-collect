@@ -1,0 +1,8 @@
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 9999:0120 Odeon CAT5 Adapter
+Bus 001 Device 003: ID 1d6b:0107 Linux Foundation USB Virtual Hub
+Bus 001 Device 004: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 001 Device 005: ID 0557:9241 ATEN International Co., Ltd SMCI HID KM
+Bus 001 Device 006: ID 05e3:0610 Genesys Logic, Inc. Hub
+Bus 001 Device 007: ID 0b1f:03ee Insyde Software Corp. RNDIS/Ethernet Gadget
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub

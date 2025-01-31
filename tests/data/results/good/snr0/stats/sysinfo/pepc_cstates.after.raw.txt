@@ -1,0 +1,21 @@
+Source: Linux sysfs file-system
+ - POLL: 'on' for all CPUs
+    - description: CPUIDLE CORE POLL IDLE
+    - expected latency: 0 us
+    - target residency: 0 us
+ - C1: 'on' for all CPUs
+    - description: MWAIT 0x00
+    - expected latency: 2 us
+    - target residency: 2 us
+ - C1E: 'on' for all CPUs
+    - description: MWAIT 0x01
+    - expected latency: 15 us
+    - target residency: 25 us
+Source: Model Specific Register (MSR)
+ - C1 demotion: 'off' for all CPUs
+ - C1 undemotion: 'off' for all CPUs
+ - C1E autopromote: 'off' for all CPUs
+Source: Linux sysfs file-system
+ - Idle driver: intel_idle
+ - Idle governor: menu
+ - Available idle governors: ladder, menu, teo

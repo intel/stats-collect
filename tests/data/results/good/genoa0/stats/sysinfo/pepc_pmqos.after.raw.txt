@@ -1,0 +1,4 @@
+Source: Linux sysfs file-system
+ - Linux per-CPU PM QoS latency limit: 0 (no limit) for all CPUs
+Source: Linux character device node
+ - Linux global PM QoS latency limit: 2000s

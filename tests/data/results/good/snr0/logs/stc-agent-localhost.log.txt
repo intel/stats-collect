@@ -1,0 +1,1 @@
+Listening on Unix socket /tmp/stc-agent-snr0-d_k77txo

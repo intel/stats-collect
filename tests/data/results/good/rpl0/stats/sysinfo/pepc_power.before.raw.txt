@@ -1,0 +1,10 @@
+Source: Model Specific Register (MSR)
+ - TDP: 28W for all CPUs
+ - RAPL PPL1: 40W for all CPUs
+ - RAPL PPL1: 'on' for all CPUs
+ - RAPL PPL1 clamping: 'on' for all CPUs
+ - RAPL PPL1 time window: 28s for all CPUs
+ - RAPL PPL2: 64W for all CPUs
+ - RAPL PPL2: 'on' for all CPUs
+ - RAPL PPL2 clamping: 'off' for all CPUs
+ - RAPL PPL2 time window: 2.44ms for all CPUs

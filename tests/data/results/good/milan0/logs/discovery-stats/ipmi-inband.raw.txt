@@ -1,0 +1,82 @@
+timestamp | 1737461880.5292444
+Temp             | 26 degrees C      | ok
+Temp             | 26 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 7920 RPM          | ok
+Fan2A            | 7920 RPM          | ok
+Fan3A            | 7920 RPM          | ok
+Fan4A            | 7920 RPM          | ok
+Fan5A            | 7920 RPM          | ok
+Fan6A            | 7920 RPM          | ok
+Fan1B            | disabled          | ns
+Fan2B            | disabled          | ns
+Fan3B            | disabled          | ns
+Fan4B            | disabled          | ns
+Fan5B            | disabled          | ns
+Fan6B            | disabled          | ns
+Current 1        | 1 Amps            | ok
+Current 2        | 0 Amps            | ok
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | 232 Volts         | ok
+Pwr Consumption  | 231 Watts         | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Temp 4           | disabled          | ns
+Temp 5           | disabled          | ns
+Temp 6           | disabled          | ns
+Temp 7           | disabled          | ns
+Temp 8           | disabled          | ns
+Exhaust Temp     | 23 degrees C      | ok
+VCORE VR         | 0.76 Volts        | ok
+VCORE VR         | 0.75 Volts        | ok
+MEMABCD VR       | 1.22 Volts        | ok
+MEMEFGH VR       | 1.22 Volts        | ok
+MEMABCD VR       | 1.22 Volts        | ok
+MEMEFGH VR       | 1.22 Volts        | ok
+Fan7A            | disabled          | ns
+Fan8A            | disabled          | ns
+Fan9A            | disabled          | ns
+
+timestamp | 1737461885.540607
+Temp             | 27 degrees C      | ok
+Temp             | 26 degrees C      | ok
+Inlet Temp       | 18 degrees C      | ok
+Fan1A            | 7680 RPM          | ok
+Fan2A            | 7680 RPM          | ok
+Fan3A            | 7680 RPM          | ok
+Fan4A            | 7680 RPM          | ok
+Fan5A            | 7680 RPM          | ok
+Fan6A            | 7680 RPM          | ok
+Fan1B            | disabled          | ns
+Fan2B            | disabled          | ns
+Fan3B            | disabled          | ns
+Fan4B            | disabled          | ns
+Fan5B            | disabled          | ns
+Fan6B            | disabled          | ns
+Current 1        | 0.60 Amps         | ok
+Current 2        | 0 Amps            | ok
+Voltage 1        | 228 Volts         | ok
+Voltage 2        | 228 Volts         | ok
+Pwr Consumption  | 99 Watts          | ok
+CPU Usage        | 0 percent         | ok
+Temp 1           | disabled          | ns
+Temp 2           | disabled          | ns
+Temp 3           | disabled          | ns
+Temp 4           | disabled          | ns
+Temp 5           | disabled          | ns
+Temp 6           | disabled          | ns
+Temp 7           | disabled          | ns
+Temp 8           | disabled          | ns
+Exhaust Temp     | 23 degrees C      | ok
+VCORE VR         | 0.71 Volts        | ok
+VCORE VR         | 0.71 Volts        | ok
+MEMABCD VR       | 1.22 Volts        | ok
+MEMEFGH VR       | 1.22 Volts        | ok
+MEMABCD VR       | 1.22 Volts        | ok
+MEMEFGH VR       | 1.22 Volts        | ok
+Fan7A            | disabled          | ns
+Fan8A            | disabled          | ns
+Fan9A            | disabled          | ns
+

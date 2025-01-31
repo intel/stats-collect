@@ -1,0 +1,4 @@
+usage: pepc [-h] [-q] [-d] [--version] [-H HOSTNAME] [-U USERNAME]
+            [-K PRIVKEY] [-T TIMEOUT] [-D DATASET] [--force-color]
+            {cpu-hotplug,cstates,pstates,power,aspm,topology,tpmi} ...
+pepc: error: argument a command: invalid choice: 'pmqos' (choose from cpu-hotplug, cstates, pstates, power, aspm, topology, tpmi)

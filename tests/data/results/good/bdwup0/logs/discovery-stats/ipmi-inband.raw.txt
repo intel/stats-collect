@@ -1,0 +1,72 @@
+timestamp | 1737461815.165736
+System Airflow   | 22 CFM            | ok
+BB EDGE Temp     | 18 degrees C      | ok
+Front Panel Temp | 17 degrees C      | ok
+PCH Temp         | 28 degrees C      | ok
+BB BMC Temp      | 26 degrees C      | ok
+BB CPU VR Temp   | 22 degrees C      | ok
+HSBP 1 Temp      | 20 degrees C      | ok
+Exit Air Temp    | 19 degrees C      | ok
+System Fan 1     | 4998 RPM          | ok
+System Fan 2     | 5978 RPM          | ok
+System Fan 3     | 5978 RPM          | ok
+PS1 Power In     | 20 Watts          | ok
+PS2 Power In     | 4 Watts           | ok
+PS1 Curr Out %   | 5 percent         | ok
+PS2 Curr Out %   | 0 percent         | ok
+PS1 Temperature  | 22 degrees C      | ok
+PS2 Temperature  | 24 degrees C      | ok
+P1 Therm Margin  | -73 degrees C     | ok
+P1 Therm Ctrl %  | no reading        | ns
+P1 DTS Therm Mgn | -73 degrees C     | ok
+DIMM Thrm Mrgn 1 | -61 degrees C     | ok
+BB +12.0V        | 11.73 Volts       | ok
+BB +5.0V1        | 5.00 Volts        | ok
+BB +3.3V         | 3.28 Volts        | ok
+BB +5.0V2        | 5.02 Volts        | ok
+BB +12.0V V2     | 11.88 Volts       | ok
+BB +1.75V Vccp   | 1.77 Volts        | ok
+BB +1.5 P1DDR    | disabled          | ns
+BB VBAT          | 2.98 Volts        | ok
+BB +1.05V PCH    | 1.03 Volts        | ok
+BB +1.05V AUX    | 1.03 Volts        | ok
+BB +1.35V MEM    | 1.32 Volts        | ok
+BB +12.0V V1     | 11.88 Volts       | ok
+P1 MTT           | 0 percent         | ok
+
+timestamp | 1737461820.539886
+System Airflow   | 22 CFM            | ok
+BB EDGE Temp     | 18 degrees C      | ok
+Front Panel Temp | 17 degrees C      | ok
+PCH Temp         | 29 degrees C      | ok
+BB BMC Temp      | 26 degrees C      | ok
+BB CPU VR Temp   | 22 degrees C      | ok
+HSBP 1 Temp      | 20 degrees C      | ok
+Exit Air Temp    | 19 degrees C      | ok
+System Fan 1     | 4998 RPM          | ok
+System Fan 2     | 5978 RPM          | ok
+System Fan 3     | 5978 RPM          | ok
+PS1 Power In     | 12 Watts          | ok
+PS2 Power In     | 4 Watts           | ok
+PS1 Curr Out %   | 2 percent         | ok
+PS2 Curr Out %   | 0 percent         | ok
+PS1 Temperature  | 22 degrees C      | ok
+PS2 Temperature  | 24 degrees C      | ok
+P1 Therm Margin  | -72 degrees C     | ok
+P1 Therm Ctrl %  | no reading        | ns
+P1 DTS Therm Mgn | -73 degrees C     | ok
+DIMM Thrm Mrgn 1 | -61 degrees C     | ok
+BB +12.0V        | 11.73 Volts       | ok
+BB +5.0V1        | 5.00 Volts        | ok
+BB +3.3V         | 3.28 Volts        | ok
+BB +5.0V2        | 5.02 Volts        | ok
+BB +12.0V V2     | 11.88 Volts       | ok
+BB +1.75V Vccp   | 1.77 Volts        | ok
+BB +1.5 P1DDR    | disabled          | ns
+BB VBAT          | 2.98 Volts        | ok
+BB +1.05V PCH    | 1.03 Volts        | ok
+BB +1.05V AUX    | 1.03 Volts        | ok
+BB +1.35V MEM    | 1.32 Volts        | ok
+BB +12.0V V1     | 11.88 Volts       | ok
+P1 MTT           | 0 percent         | ok
+

@@ -1,7 +1,0 @@
-Command line: /opt/powerlab/bin/stats-collect start -H bdwep1 --stats=all -o good sleep 5
-Collecting bdwep1 system information
-Starting statistics collectors
-Running the following command on host 'bdwep1': sleep 5
-Stopping statistics collectors
-Collecting more bdwep1 system information
-Copy collected statistics from 'bdwep1' to '/home/adamjame/powerlab/git/stats-collect/good'

@@ -1,0 +1,2 @@
+ASPM policy: default
+Available policies: default, performance, powersave, powersupersave

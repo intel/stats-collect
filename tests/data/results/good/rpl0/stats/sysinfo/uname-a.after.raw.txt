@@ -1,0 +1,1 @@
+Linux rpl0 6.11.0-intelidle_250hz+ #1 SMP PREEMPT_DYNAMIC Tue Jan 14 00:04:40 EET 2025 x86_64 GNU/Linux

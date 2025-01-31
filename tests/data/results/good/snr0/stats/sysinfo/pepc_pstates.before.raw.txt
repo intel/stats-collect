@@ -1,0 +1,17 @@
+Source: Linux sysfs file-system
+ - Min. CPU frequency: 800MHz for all CPUs
+ - Max. CPU frequency: 2.2GHz for all CPUs
+ - Min. supported CPU frequency: 800MHz for all CPUs
+ - Max. supported CPU frequency: 2.2GHz for all CPUs
+ - Base CPU frequency: 2.2GHz for all CPUs
+ - Acceptable CPU frequencies: 800MHz - 2.2GHz with step 100MHz for all CPUs
+ - EPB: 6 for all CPUs
+ - CPU frequency driver: acpi-cpufreq
+ - CPU frequency governor: 'schedutil' for all CPUs
+ - Available CPU frequency governors: conservative, userspace, powersave, performance, schedutil
+Source: Hardware documentation
+ - Bus clock speed: 100MHz
+Source: Model Specific Register (MSR)
+ - Min. CPU operating frequency: 800MHz for all CPUs
+ - Max. CPU efficiency frequency: 800MHz for all CPUs
+ - Max. CPU turbo frequency: 2.2GHz for all CPUs

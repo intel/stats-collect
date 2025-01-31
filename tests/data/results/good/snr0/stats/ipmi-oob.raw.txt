@@ -1,0 +1,700 @@
+timestamp | 1737462032.369369
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462037.3403761
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462042.385712
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462047.4065208
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462052.4042125
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 34 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462057.2132888
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462062.3056052
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462067.400795
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 33 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 4760 RPM          | ok
+FAN2             | 4620 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462072.3892696
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462077.3698857
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462082.296673
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462087.29882
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462092.4616497
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 35 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462097.4182477
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462102.285869
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 34 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462107.288935
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.57 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462112.34773
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462117.4131284
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 35 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462122.4045725
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462127.386184
+CPU Temp         | 52 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462132.2775104
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462137.2816603
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462142.3792546
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 29 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5040 RPM          | ok
+FAN2             | 4900 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462147.4175885
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 28 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5180 RPM          | ok
+FAN2             | 5040 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.06 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+
+timestamp | 1737462152.399452
+CPU Temp         | 53 degrees C      | ok
+System Temp      | 29 degrees C      | ok
+Peripheral Temp  | 35 degrees C      | ok
+VcpuVRM Temp     | 36 degrees C      | ok
+NACVRM Temp      | 36 degrees C      | ok
+PVNNVRM Temp     | 34 degrees C      | ok
+M2_SSD Temp      | no reading        | ns
+DIMMAB Temp      | 29 degrees C      | ok
+FAN1             | 5180 RPM          | ok
+FAN2             | 5180 RPM          | ok
+FAN3             | no reading        | ns
+FANA             | 4620 RPM          | ok
+FANB             | no reading        | ns
+12V              | 12.12 Volts       | ok
+5VCC             | 5.08 Volts        | ok
+3.3VCC           | 3.33 Volts        | ok
+VBAT             | 0x04              | ok
+Vcpu             | 1.79 Volts        | ok
+VDimmAB          | 1.21 Volts        | ok
+PVNN_PCH         | 0.87 Volts        | ok
+P1V05_PCH        | 1.05 Volts        | ok
+5VSB             | 5.12 Volts        | ok
+3.3VSB           | 3.33 Volts        | ok
+PVNN_NAC         | 0.85 Volts        | ok
+PVPP             | 2.58 Volts        | ok
+Chassis Intru    | 0x01              | ok
+

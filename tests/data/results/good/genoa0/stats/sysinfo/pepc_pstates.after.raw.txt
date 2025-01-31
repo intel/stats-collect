@@ -1,0 +1,14 @@
+Source: Linux sysfs file-system
+ - Turbo: on
+ - Min. CPU frequency: 1.5GHz for all CPUs
+ - Max. CPU frequency: 3.25GHz for all CPUs
+ - Min. supported CPU frequency: 1.5GHz for all CPUs
+ - Max. supported CPU frequency: 3.8GHz for all CPUs
+ - Base CPU frequency: 3.25GHz for all CPUs
+ - Acceptable CPU frequencies: 1.5GHz, 2.3GHz, 3.25GHz for all CPUs
+ - CPU frequency driver: acpi-cpufreq
+ - CPU frequency governor: 'schedutil' for all CPUs
+ - Available CPU frequency governors: conservative, userspace, powersave, performance, schedutil
+Source: ACPI Collaborative Processor Performance Control (CPPC)
+ - Min. CPU operating frequency: 400MHz for all CPUs
+ - Max. CPU turbo frequency: 3.8GHz for all CPUs

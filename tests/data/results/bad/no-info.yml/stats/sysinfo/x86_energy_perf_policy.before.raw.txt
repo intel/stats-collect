@@ -1,0 +1,51 @@
+pkg0: MSR_HWP_INTERRUPT: 0x00000005 (Excursion_Min-Disabled, Guaranteed_Perf_Change-ENabled)
+pkg0: MSR_HWP_STATUS: 0x00000000 (No-Excursion_Min, No-Guaranteed_Perf_Change)
+cpu0: EPB 7
+cpu0: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu0: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu1: EPB 7
+cpu1: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu1: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu2: EPB 7
+cpu2: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu2: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu3: EPB 7
+cpu3: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu3: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu4: EPB 7
+cpu4: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu4: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu5: EPB 7
+cpu5: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu5: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu6: EPB 7
+cpu6: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu6: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu7: EPB 7
+cpu7: HWP_REQ: min 6 max 60 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu7: HWP_CAP: low 1 eff 17 guar 27 high 60
+cpu8: EPB 7
+cpu8: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu8: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu9: EPB 7
+cpu9: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu9: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu10: EPB 7
+cpu10: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu10: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu11: EPB 7
+cpu11: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu11: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu12: EPB 7
+cpu12: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu12: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu13: EPB 7
+cpu13: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu13: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu14: EPB 7
+cpu14: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu14: HWP_CAP: low 1 eff 13 guar 15 high 34
+cpu15: EPB 7
+cpu15: HWP_REQ: min 4 max 34 des 0 epp 102 window 0x0 (0*10^0us) use_pkg 0
+cpu15: HWP_CAP: low 1 eff 13 guar 15 high 34
+pkg0: HWP_REQ_PKG: min 1 max 255 des 0 epp 128 window 0x0 (0*10^0us)

@@ -1,25 +1,28 @@
-# Copyright (C) 2023 Intel Corporation
-# SPDX-License-Identifier: BSD-3-Clause
-#
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Author: Adam Hawley <adam.james.hawley@intel.com>
+# Copyright (C) 2023-2025 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""Common bits for the 'stats-collect' tests."""
+"""Common bits for the tests."""
 
 import os
 from pathlib import Path
 from pepclibs.helperlibs import TestRunner
 from statscollecttools import _StatsCollect, ToolInfo
 
-def run_stats_collect(arguments, exp_exc=None):
+def run_stats_collect(arguments: str, exp_exc: Exception | None = None):
     """
-    Run stats-collect command and verify the outcome. The arguments are as follows.
-      * arguments - the arguments to run the command with, e.g. 'report -o tmpdir'.
-      * exp_exc - the expected exception, by default, any exception is considered to be a failure.
-                  But when set if the command did not raise the expected exception then the test is
-                  considered to be a failure.
+    Run 'stats-collect' command and verify the outcome.
+
+    Args:
+      arguments: The arguments to run the command with.
+      exp_exc (Exception, optional): The expected exception. By default, any exception is 
+        considered to be a failure. If set, the test is considered to be a failure if the 
+        command did not raise the expected exception.
     """
 
     # Set the environment variable to force the tester to use the data files of
