@@ -120,8 +120,28 @@ class TabBuilderBase:
 
         return cpunum
 
-    def _build_def_dtab_cfg(self, y_metric, x_metric, smry_funcs, hover_defs, hist=False,
-                            title=None):
+    def _get_smry_funcs(self, colname: str) -> list[str]:
+        """
+        Return the list of summary function names to include to the D-tab summary table for
+        dataframe column 'colname' (e.g., "max" for the maximum value, etc).
+
+        Args:
+            colname: dataframe column name to return the summary funcion names for.
+
+        Returns:
+            A summary function names list.
+        """
+
+        colinfo = self._mdd[colname]
+        unit = colinfo.get("unit")
+        if not unit:
+            funcs = ["max", "avg", "min", "std"]
+        else:
+            funcs = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min", "std"]
+
+        return funcs
+
+    def _build_def_dtab_cfg(self, y_metric, x_metric, hover_defs, hist=False, title=None):
         """
         Provide a way to build a default data tab configuration. Return an instance of
         'TabConfig.DTabConfig'. The arguments are as follows.
@@ -129,12 +149,6 @@ class TabBuilderBase:
                        scatter plot.
           * x_metric - the name of the metric which will be plotted on the x-axis of the tab's
                        scatter plot.
-          * smry_funcs - a dictionary in the format '{metric: summary_func}', for example:
-                         {Metric1: ["99.999%", "99.99%",...],
-                          Metric2: ["max", "min",...]}
-                         Note, 'summary_func' is allowed to be 'None', which means that no functions
-                         will be applied to the metric, and can be used for metrics that have only
-                         on value.
           * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
                          list of metric definition dictionaries for the metrics which should be
                          included on plots as hover text for the relevant report with id 'reportid'.
@@ -147,7 +161,9 @@ class TabBuilderBase:
         dtab.add_scatter_plot(x_metric, y_metric)
         if hist:
             dtab.add_hist(y_metric)
-        dtab.set_smry_funcs({y_metric: smry_funcs[y_metric]})
+
+        smry_funcs = self._get_smry_funcs(y_metric)
+        dtab.set_smry_funcs({y_metric: smry_funcs})
         dtab.set_hover_defs(hover_defs)
 
         return dtab

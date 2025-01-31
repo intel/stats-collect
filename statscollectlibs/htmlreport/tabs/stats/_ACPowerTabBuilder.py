@@ -29,9 +29,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         power_metric = "P"
 
-        smry_funcs = {power_metric: ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg",
-                                     "min", "std"]}
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, smry_funcs, None)
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, None)
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name

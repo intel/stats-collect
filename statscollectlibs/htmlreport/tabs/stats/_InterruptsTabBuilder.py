@@ -133,12 +133,6 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             A 'TabConfig.DTabConfig' instance with the default interrupts tab configuration.
         """
 
-        # Define which summary functions should be included in the generated summary table.
-        smry_funcs = {}
-        for colname in self._tab_colnames:
-            smry_funcs[colname] = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min",
-                                   "std"]
-
         # Scope -> Count/Rate -> list of 'TabConfig.DTabConfig' objects.
         dtabs: dict[str, dict[str, list[TabConfig.DTabConfig]]] = {}
 
@@ -147,8 +141,8 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             if scope not in dtabs:
                 dtabs[scope] = {"Interrupts Rate": [], "Interrupts Count": []}
 
-            dtab = self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
-                                            self._hover_defs, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, self._time_metric, self._hover_defs,
+                                            title=metric)
             if metric.endswith("_rate"):
                 dtabs[scope]["Interrupts Rate"].append(dtab)
             else:

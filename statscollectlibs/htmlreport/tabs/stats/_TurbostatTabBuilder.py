@@ -118,27 +118,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return new_mdd
 
-    def _get_smry_funcs(self, colname: str) -> list[str]:
-        """
-        Return the list of summary function names to include to the D-tab summary table for
-        dataframe column 'colname' (e.g., "max" for the maximum value, etc).
-
-        Args:
-            colname: dataframe column name to return the summary funcion names for.
-
-        Returns:
-            A summary function names list.
-        """
-
-        colinfo = self._mdd[colname]
-        unit = colinfo.get("unit")
-        if not unit:
-            funcs = ["max", "avg", "min", "std"]
-        else:
-            funcs = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min", "std"]
-
-        return funcs
-
     def _build_ctab_cfg(self, title: str, metrics: list[str], sname: str):
         """
         Build and return a leaf-level C-tab with a D-tab for every metric in 'metrics' and scope
@@ -161,10 +140,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            smry_funcs = {}
-            smry_funcs[colname] = self._get_smry_funcs(colname)
-            dtab = self._build_def_dtab_cfg(colname, self._time_metric, smry_funcs,
-                                            self._hover_defs, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, self._time_metric, self._hover_defs,
+                                            title=metric)
             dtabs.append(dtab)
 
         if dtabs:

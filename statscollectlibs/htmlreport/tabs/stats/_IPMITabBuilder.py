@@ -49,17 +49,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, self._time_metric, smry_funcs,
-                                                self._hover_defs, title=metric)
+                dtab = self._build_def_dtab_cfg(metric, self._time_metric, self._hover_defs,
+                                                title=metric)
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)
-
-        # Define which summary functions should be included in the generated summary table.
-        smry_funcs = {}
-        for metric in self._mdd:
-            smry_funcs[metric] = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min",
-                                  "std"]
 
         ctabs = []
 
