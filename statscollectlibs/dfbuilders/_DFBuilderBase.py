@@ -89,6 +89,9 @@ class DFBuilderBase:
         df.drop(df.loc[df[colname] < ts_limits["begin"]].index, inplace=True)
         df.drop(df.loc[df[colname] > ts_limits["end"]].index, inplace=True)
 
+        # Normalize the Elapsed time column to start from 0.
+        df[self._time_colname] -= df[self._time_colname].iloc[0]
+
     def _read_stats_file(self, path):
         """
         Return a 'pandas.DataFrame' containing the data stored in the raw statistics file at
