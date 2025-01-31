@@ -59,7 +59,7 @@ class StatsTabBuilder:
                 continue
 
         if not tabs:
-            raise Error(f"all '{self.name}' tabs were skipped")
+            _LOG.warning("all statistics tabs were skipped")
 
         return _Tabs.CTabDC(self.name, tabs)
 

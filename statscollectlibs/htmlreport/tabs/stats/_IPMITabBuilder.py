@@ -13,6 +13,7 @@ Provide the capability of populating the IPMI statistics tab.
 import logging
 import pandas
 from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
@@ -105,11 +106,15 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 if stname not in res.info["stinfo"]:
                     continue
 
+                try:
+                    path = res.get_stats_path(stname)
+                except ErrorNotFound:
+                    continue
+
                 if stname not in stinfos:
                     stinfos[stname] = []
 
                 # Save the path to the raw statistics file.
-                path = res.stats_path / res.info["stinfo"][stname]["paths"]["stats"]
                 stinfos[stname].append(path)
 
         if len(stinfos) < 2:

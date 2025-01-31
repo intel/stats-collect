@@ -50,7 +50,7 @@ class SysInfoTabBuilder:
 
         # Sanity check - ensure there are statistics in the raw results.
         if not any(path for path in stats_paths.values()):
-            raise Error("BUG: No statistics in the raw results")
+            raise Error("No statistics in the raw results")
 
         _LOG.info("Generating %s tabs.", self.name)
 

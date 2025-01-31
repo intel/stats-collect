@@ -95,7 +95,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         _LOG.debug("set time-stamp limits for report ID '%s': begin %s, end %s, absolute %s",
                    self.reportid, begin_ts, end_ts, absolute)
 
-    def _get_stats_path(self, stname):
+    def get_stats_path(self, stname):
         """
         Return path to the raw statistics file for statistic 'stname'. The arguments are as follows.
           * stname - the name of the statistic for which paths should be found.
@@ -106,6 +106,9 @@ class RORawResult(_RawResultBase.RawResultBase):
         except KeyError:
             raise ErrorNotFound(f"raw '{stname}' statistics file path not found in "
                                 f"'{self.info_path}'") from None
+
+        if not self.stats_path:
+            raise ErrorNotFound(f"'{self.dirpath}' does not have the statistics sub-directory")
 
         path = self.stats_path / subpath
         if path.exists():
@@ -136,7 +139,7 @@ class RORawResult(_RawResultBase.RawResultBase):
                      'pandas.DataFrame' from the raw statistics file.
         """
 
-        path = self._get_stats_path(stname)
+        path = self.get_stats_path(stname)
         labels_path = self._get_labels_path(stname)
         return dfbldr.load_df(path, labels_path=labels_path, ts_limits=self._ts_limits)
 
@@ -235,7 +238,8 @@ class RORawResult(_RawResultBase.RawResultBase):
         self._check_info_yml(dstpath)
 
         srcpaths = [self.info_path]
-        srcpaths.append(self.stats_path)
+        if self.stats_path:
+            srcpaths.append(self.stats_path)
         if self.logs_path:
             srcpaths.append(self.logs_path)
         if self.wldata_path:
