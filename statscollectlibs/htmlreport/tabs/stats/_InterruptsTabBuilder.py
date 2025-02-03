@@ -60,10 +60,13 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                     colnames.append(colname)
                     colnames_set.add(colname)
 
-                    if colname not in (self._time_metric, self._ts_metric):
+                    # Keep in mind that there may be columns not prefixed by scope, e.g., ones that
+                    # came from the labels
+                    split = colname.split("-", 1)
+                    if len(split) == 2:
                         self._tab_colnames.append(colname)
 
-                metric = colname.split("-", 1)[-1]
+                metric = split[-1]
                 if metric not in metrics_set:
                     metrics.append(metric)
                     metrics_set.add(metric)
