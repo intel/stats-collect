@@ -66,8 +66,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # These are initialized in '_read_stats_file()'.
         self._path: Path
-        self._data: dict[float, list[int | float]]
-        self._index: int
+        self._data: list[list[int | float]]
         self._first_ts: float | None
         self._irqcnt_colnames: list[str] # All 'self.colnames' columns, excluding time columns.
 
@@ -159,8 +158,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
                 raise Error(f"BUG: unsupported scope '{scope}' in column name "
                             f"'{colname}'") from None
 
-        self._data[self._index] = data
-        self._index += 1
+        self._data.append(data)
 
     def _fetch_hottest_irqs(self, irqs: dict[str, int], scope: str) -> list[str]:
         """
@@ -282,8 +280,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         self._path = path
-        self._data = {}
-        self._index = 0
+        self._data = []
         self._first_ts = None
 
         parser = InterruptsParser.InterruptsParser(path)
@@ -308,11 +305,11 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # The raw file is parsed, and all the data are in 'self._data'. Now build the dataframe.
         colnames = self._time_colnames + irq_colnames
-        df = DataFrame.from_dict(self._data, orient="index", columns=colnames)
+        df = DataFrame(self._data, columns=colnames)
 
         # Drop the unneeded and potentially large 'self._data'.
         del self._data
-        self._data = {}
+        self._data = []
 
         # Interrupt counters are counts of serviced interrupts since the system has booted up. Turn
         # them into counts of interrupts serviced during the measurement interval. Ensure the type
