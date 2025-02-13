@@ -64,7 +64,15 @@ def build_arguments_parser():
     subpars.set_defaults(func=_start_command)
     man_msg = "Please, refer to 'stats-collect-start' manual page for more information."
 
-    ArgParse.add_ssh_options(subpars)
+    # Adjust the help message for the '-H' option.
+    ssh_options = []
+    for optinfo in ArgParse.SSH_OPTIONS:
+        if optinfo["short"] == "-H":
+            optinfo = optinfo.copy()
+            optinfo["kwargs"]["help"] = "The hostname of the system under test (SUT)."
+        ssh_options.append(optinfo)
+
+    ArgParse.add_ssh_options(subpars, ssh_options=ssh_options)
 
     text = f"""If the executed command stresses a particular CPU number, you can specify it via this
                option so that the number is saved in the test result and later the
@@ -99,9 +107,14 @@ def build_arguments_parser():
     subpars.add_argument("--stats-intervals", help=text)
     subpars.add_argument("--report", action="store_true")
 
-    text = """Command to run on the SUT during statistics collection. If 'HOSTNAME' is provided,
-              the tool will run the command on that host, otherwise the tool will run the command on
-              'localhost'."""
+    text = """Run the command on the local host instead of the SUT ('HOSTNAME'). This is useful for
+              client/server workloads where the SUT runs the server and the local host runs the
+              client."""
+    subpars.add_argument("--cmd-local", action="store_true", help=text)
+
+    text = """Command to run on the during statistics collection. If 'HOSTNAME' is provided,
+              the tool will run the command on that host (unless '--cmd-local' was specified).
+              Otherwise the tool will run the command on 'localhost'."""
     subpars.add_argument("cmd", type=str, nargs="+", help=text)
 
     #

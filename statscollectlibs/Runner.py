@@ -1,36 +1,81 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
 """
-This module provides the capability to execute a given command on a SUT and control the simultaneous
-collection of statistics.
+Provide capability to execute a given command on a System Under Test (SUT) and control the
+simultaneous collection of statistics.
 """
+
+from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import logging
 import time
 from pepclibs.helperlibs.Exceptions import Error
 from pepclibs.helperlibs import ClassHelpers, Human
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
 from statscollectlibs.helperlibs import ProcHelpers
+from statscollectlibs.rawresultlibs.WORawResult import WORawResult
+from statscollectlibs.collector.StatsCollect import StatsCollect
 from statscollecttools import ToolInfo
 
 _LOG = logging.getLogger()
 
 class Runner(ClassHelpers.SimpleCloseContext):
     """
-    This class provides the capability to execute a given command on a SUT and control the
+    Provide capability to execute a given command on a System Under Test (SUT) and control the
     simultaneous collection of statistics.
     """
 
-    def _run_command(self, tlimit):
-        """Run the command."""
+    def __init__(self, res: WORawResult, cmd_pman: ProcessManagerType, stcoll: StatsCollect | None):
+        """
+        The class constructor.
 
-        _LOG.info("Running the following command%s: %s", self._pman.hostmsg, self._cmd)
+        Args:
+            res: Instance to store the results in.
+            cmd_pman: The process manager object that defines the host where the command run by the
+                      'run()' method will be executed.
+            stcoll: The 'StatsCollect' object to use for collecting statistics. No statistics are
+                    collected by default.
+        """
+
+        self.res = res
+        self._cmd_pman = cmd_pman
+        self._stcoll = stcoll
+
+        # Class attributes representing the command and process run by 'run()'.
+        self._cmd: str | None = None
+        self._proc: ProcessType | None = None
+
+    def close(self):
+        """Close the runner."""
+
+        if self._proc.poll() is None:
+            _LOG.info("The command is still running%s: attempting to kill it",
+                      self._cmd_pman.hostmsg)
+            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
+                                  pman=self._cmd_pman)
+
+        ClassHelpers.close(self, close_attrs=("_proc",), unref_attrs=("_cmd_pman",))
+
+    def _run_command(self, tlimit: int | None):
+        """
+        Run the specified command with an optional time limit.
+
+        Args:
+            tlimit: The time limit in seconds for the command to run. If None, the command
+                    will run indefinitely with a default time limit of 4 hours.
+
+        Returns:
+            tuple: A tuple containing the standard output and standard error of the command.
+        """
+
+        _LOG.info("Running the following command%s: %s", self._cmd_pman.hostmsg, self._cmd)
 
         if not tlimit:
             run_forever = True
@@ -38,7 +83,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         else:
             run_forever = False
 
-        self._proc = self._pman.run_async(self._cmd)
+        self._proc = self._cmd_pman.run_async(self._cmd)
         while True:
             stdout, stderr, exitcode = self._proc.wait(timeout=tlimit)
             if exitcode is not None:
@@ -47,23 +92,24 @@ class Runner(ClassHelpers.SimpleCloseContext):
             if run_forever:
                 continue
 
-            _LOG.notice("statistics collection stopped because the time limit was reached "
+            _LOG.notice("Statistics collection stopped because the time limit was reached "
                         "before the command finished executing.")
             ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
-                                  pman=self._pman)
+                                  pman=self._cmd_pman)
             break
 
         if exitcode:
-            raise Error(f"there was an error running command '{self._cmd}':\n{stderr}")
+            raise Error(f"There was an error running command '{self._cmd}':\n{stderr}")
 
         return stdout, stderr
 
-    def run(self, cmd, tlimit=None):
+    def run(self, cmd: str, tlimit: int | None = None):
         """
-        Run command 'cmd' and collect statistics about the SUT during command execution. Arguments
-        are as follows:
-         * cmd - the command to run on the SUT during statistics collection.
-         * tlimit - the time limit to execute 'cmd' in seconds.
+        Run command 'cmd' and collect statistics about the SUT during command execution.
+
+        Args:
+            cmd: The command to run on the SUT during statistics collection.
+            tlimit: The time limit to execute 'cmd' in seconds. Defaults to None.
         """
 
         self._cmd = cmd
@@ -78,7 +124,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         if self._stcoll:
             min_duration = 2 * self._stcoll.get_max_interval()
             if duration < min_duration:
-                raise Error(f"command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' "
+                raise Error(f"Command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' "
                             f"collected the mininum amount of statistics. Command should run for "
                             f"at least {Human.duration(min_duration)}")
 
@@ -95,31 +141,3 @@ class Runner(ClassHelpers.SimpleCloseContext):
 
         self.res.info["duration"] = Human.duration(duration)
         self.res.write_info()
-
-    def __init__(self, res, pman, stcoll=None):
-        """
-        Class constructor. Arguments are as follows:
-         * res - 'WORawResult' instance to store the results in.
-         * pman - the process manager object that defines the host to run the measurements on.
-         * stcoll - the 'StatsCollect' object to use for collecting statistics. No statistics
-                    are collected by default.
-        """
-
-        self.res = res
-        self._pman = pman
-        self._stcoll = stcoll
-
-        # Class attributes representing the command and process run by 'run()'.
-        self._cmd = None
-        self._proc = None
-
-    def close(self):
-        """Close the runner."""
-
-        if self._proc.poll() is None:
-            _LOG.info("'%s' is still running %s: attempting to kill it", self._cmd,
-                      self._pman.hostmsg)
-            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
-                                  pman=self._pman)
-
-        ClassHelpers.close(self, close_attrs=("_proc",), unref_attrs=("_pman",))

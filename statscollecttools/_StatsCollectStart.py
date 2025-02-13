@@ -13,7 +13,7 @@ import contextlib
 import logging
 from pathlib import Path
 from pepclibs import CPUInfo
-from pepclibs.helperlibs import Trivial, Human, Logging
+from pepclibs.helperlibs import Trivial, Human, Logging, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common
 from statscollectlibs import Runner
@@ -95,7 +95,13 @@ def start_command(args):
 
         Logging.setup_stdout_logging(args.toolname, res.logs_path)
 
-        runner = Runner.Runner(res, pman, stcoll)
+        if not args.cmd_local:
+            cmd_pman = pman
+        else:
+            cmd_pman = LocalProcessManager.LocalProcessManager()
+            stack.enter_context(cmd_pman)
+
+        runner = Runner.Runner(res, cmd_pman, stcoll)
         stack.enter_context(runner)
 
         runner.run(args.cmd, args.tlimit)
