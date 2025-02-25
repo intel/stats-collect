@@ -12,15 +12,15 @@ Provide the base class and common logic for populating a group of statistics tab
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import logging
 from pathlib import Path
 from typing import cast
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 from statscollectlibs.rawresultlibs import RORawResult
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class MDTypedDict(MDCBase.MDTypedDict, total=False):
     """

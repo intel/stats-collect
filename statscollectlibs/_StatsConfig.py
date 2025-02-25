@@ -10,16 +10,15 @@
 This module provides the API for parsing and reading statistics collection configuration files.
 """
 
-import logging
 from pathlib import Path
-from pepclibs.helperlibs import YAML
+from pepclibs.helperlibs import Logging, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported
 from statscollectlibs.collector import _STCAgent
 
 _SYSTEM_CFG_FILE = "/etc/stats-collect.conf"
 _USER_CFG_FILE_NAME = ".stats-collect.conf"
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class StatsConfig:
     """

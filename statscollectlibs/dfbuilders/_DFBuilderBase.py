@@ -13,11 +13,11 @@ is to build a 'pandas.DataFrame' object from raw statistics files.
 """
 
 import json
-import logging
 import numpy
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class DFBuilderBase:
     """

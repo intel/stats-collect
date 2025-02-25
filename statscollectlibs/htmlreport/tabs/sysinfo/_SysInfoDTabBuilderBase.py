@@ -13,14 +13,14 @@ Provide the base class for data tabs in the "SysInfo" container tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import logging
 from pathlib import Path
 from typing import TypedDict
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class FilePreviewInfoTypedDict(TypedDict):
     """

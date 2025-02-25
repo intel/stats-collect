@@ -9,14 +9,13 @@
 """This module provides the API for building an instance of 'StatsCollect'."""
 
 import contextlib
-import logging
-from pepclibs.helperlibs import Trivial, ClassHelpers
+from pepclibs.helperlibs import Logging, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.collector import StatsCollect
 from statscollectlibs.deploylibs import DeployBase
 from statscollectlibs.rawresultlibs import WORawResult
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 DEFAULT_STNAMES = ("turbostat", "sysinfo")
 

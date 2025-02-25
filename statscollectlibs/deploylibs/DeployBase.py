@@ -37,12 +37,12 @@ Helpers types.
 import os
 import time
 import copy
-import logging
 from pathlib import Path
+from pepclibs.helperlibs import Logging, ClassHelpers, ProcessManager, LocalProcessManager
+from pepclibs.helperlibs import ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
-from pepclibs.helperlibs import ClassHelpers, ProcessManager, LocalProcessManager, ProjectFiles
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # The supported installable categories.
 CATEGORIES = {"drivers"    : "kernel driver",

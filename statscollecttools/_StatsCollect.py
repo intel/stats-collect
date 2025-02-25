@@ -10,7 +10,6 @@
 """stats-collect - a tool for collecting and visualizing system statistics and telemetry."""
 
 import sys
-import logging
 from pathlib import Path
 
 try:
@@ -34,8 +33,11 @@ _STC_DEPLOY_INFO = {
     },
 }
 
-_LOG = logging.getLogger()
-Logging.setup_logger(prefix=ToolInfo.TOOLNAME)
+# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
+# projcect. This way logging from "pepc" modules will use consistent style and prefix.
+Logging.getLogger("pepc").configure(prefix=ToolInfo.TOOLNAME)
+_LOG = Logging.getLogger("stats-collect")
+_LOG.configure(prefix=ToolInfo.TOOLNAME)
 
 def build_arguments_parser():
     """Build and return the arguments parser object."""

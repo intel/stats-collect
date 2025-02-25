@@ -10,10 +10,9 @@
 """This module includes the "start" 'stats-collect' command implementation."""
 
 import contextlib
-import logging
 from pathlib import Path
 from pepclibs import CPUInfo
-from pepclibs.helperlibs import Trivial, Human, Logging, LocalProcessManager
+from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common
 from statscollectlibs import Runner
@@ -23,7 +22,7 @@ from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult, WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 def generate_reportid(args, pman):
     """

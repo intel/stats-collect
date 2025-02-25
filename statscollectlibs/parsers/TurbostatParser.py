@@ -21,13 +21,12 @@ Terminology.
 """
 
 import re
-import logging
 from itertools import zip_longest
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # The default regular expression for turbostat columns to parse.
 _TABLE_START_REGEX = r".*\s*Avg_MHz\s+Busy%\s+Bzy_MHz\s+.*"

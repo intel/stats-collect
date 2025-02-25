@@ -17,23 +17,25 @@ periodically makes a snapshot of the IPMI statistics and prints them to the stan
 
 import sys
 import time
-import logging
 import argparse
 from pepclibs.helperlibs import Logging, ArgParse, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 
 VERSION = ToolInfo.VERSION
-OWN_NAME = "ipmi-helper"
+TOOLNAME = "ipmi-helper"
 
-LOG = logging.getLogger()
-Logging.setup_logger(prefix=OWN_NAME)
+# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
+# projcect. This way logging from "pepc" modules will use consistent style and prefix.
+Logging.getLogger("pepc").configure(prefix=TOOLNAME)
+_LOG = Logging.getLogger("stats-collect")
+_LOG.configure(prefix=TOOLNAME)
 
 def parse_arguments():
     """A helper function which parses the input arguments."""
 
     text = sys.modules[__name__].__doc__
-    parser = ArgParse.ArgsParser(description=text, prog=OWN_NAME, ver=VERSION)
+    parser = ArgParse.ArgsParser(description=text, prog=TOOLNAME, ver=VERSION)
 
     text = "The IP address or host name of the BMC."
     parser.add_argument("--host", metavar="HOST", help=text)
@@ -121,8 +123,8 @@ def main():
                 retries += 1
                 continue
             else:
-                LOG.info("timestamp | %s", time.time())
-                LOG.info(output)
+                _LOG.info("timestamp | %s", time.time())
+                _LOG.info(output)
                 retries = 0
                 delta = time.time() - start
             finally:
@@ -139,6 +141,6 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        LOG.error_out("interrupted, exiting")
+        _LOG.error_out("interrupted, exiting")
     except Error as err:
-        LOG.error_out(err, print_tb=True)
+        _LOG.error_out(err, print_tb=True)

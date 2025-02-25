@@ -15,8 +15,8 @@ such as "dmesg" contents, and more.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import logging
 from pathlib import Path
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.rawresultlibs import RORawResult
 from statscollectlibs.htmlreport.tabs import _Tabs
@@ -24,7 +24,7 @@ from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqDTabBuilder, _CPUI
     _DMIDecodeDTabBuilder, _DmesgDTabBuilder, _EPPDTabBuilder, _LspciDTabBuilder, _MiscDTabBuilder,
     _PepcDTabBuilder, _ThermalThrottleDTabBuilder, _TurbostatDTabBuilder)
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class SysInfoTabBuilder:
     """

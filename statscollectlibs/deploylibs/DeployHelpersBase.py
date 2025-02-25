@@ -8,17 +8,16 @@
 
 """This module provides a base class for deploying helpers."""
 
-import logging
 import os
 from pathlib import Path
+from pepclibs.helperlibs import Logging, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs import ProjectFiles
 from statscollectlibs.deploylibs import DeployInstallableBase
 
 HELPERS_DEPLOY_SUBDIR = Path(".local")
 HELPERS_SRC_SUBDIR = Path("helpers")
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
     """This base class can be inherited from to provide the API for deploying helpers."""

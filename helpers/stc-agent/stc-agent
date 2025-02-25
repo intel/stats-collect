@@ -24,7 +24,6 @@ import sys
 import time
 import socket
 import signal
-import logging
 import tempfile
 import argparse
 import contextlib
@@ -45,7 +44,7 @@ except ImportError:
     from statscollecttools import ToolInfo
 
 VERSION = ToolInfo.VERSION
-OWN_NAME = "stc-agent"
+TOOLNAME = "stc-agent"
 
 # The values for statistics collector properties which mean that the property was not initialized.
 # If the property is required to be initialize, the key name starts with "required-".
@@ -65,8 +64,11 @@ DELIMITER = "--"
 # Names of the supported statistics.
 SUPPORTED_STATS = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband", "acpower")
 
-LOG = logging.getLogger()
-Logging.setup_logger(prefix=OWN_NAME)
+# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
+# projcect. This way logging from "pepc" modules will use consistent style and prefix.
+Logging.getLogger("pepc").configure(prefix=TOOLNAME)
+_LOG = Logging.getLogger("stats-collect")
+_LOG.configure(prefix=TOOLNAME)
 
 # Our own process ID.
 PID = Trivial.get_pid()
@@ -81,10 +83,10 @@ def parse_arguments():
     """A helper function which parses the input arguments."""
 
     text = sys.modules[__name__].__doc__
-    parser = ArgParse.ArgsParser(description=text, prog=OWN_NAME, ver=VERSION)
+    parser = ArgParse.ArgsParser(description=text, prog=TOOLNAME, ver=VERSION)
 
     text = f"""The local unix socket path to wait for incoming clients connections on. By default,
-               '{OWN_NAME}' creates a socket node with a random name in the temporary directory and
+               '{TOOLNAME}' creates a socket node with a random name in the temporary directory and
                prints its path to the stanadard output. The socket file name, however, will include
                SUT name, if it was specified with '--sut-name'. E.g., '--sut-name=myhost' would
                result in socket file name like 'stc-agent-myhost-abracadabra', where 'abracadabra'
@@ -92,7 +94,7 @@ def parse_arguments():
     parser.add_argument("-u", "--unix", help=text)
 
     text = f"""TCP port number to listen for incoming client connections on. If port value is 0,
-               '{OWN_NAME} allocates an available port and prints its value to the standard output.
+               '{TOOLNAME} allocates an available port and prints its value to the standard output.
                WARNING! Using the a TCP port may be dangerous because there is not authentication.
                It is more secure to use a unix socket and let the remote client authenticate and
                donnect via a secure protocol like SSH."""
@@ -128,7 +130,7 @@ def sighandler(sig, _):
     not set up, and we use this one to exit on 'SIGTERM' and 'SIGINT' signals.
     """
 
-    LOG.debug("received signal '%d', exiting", sig)
+    _LOG.debug("received signal '%d', exiting", sig)
     raise SystemExit(sig)
 
 class _BaseCollector:
@@ -174,7 +176,7 @@ class _BaseCollector:
         else:
             msg = str(msgformat)
 
-        LOG.debug("'%s': %s", self.name, msg)
+        _LOG.debug("'%s': %s", self.name, msg)
 
     def _sync(self):
         """Synchronize all the collector files."""
@@ -381,8 +383,8 @@ class TurbostatCollector(_BaseCollector):
         try:
             self._pman.run_verify("modprobe intel_uncore_frequency")
         except Error as err:
-            LOG.debug("unable to load 'intel_uncore_frequency' module which is required "
-                      "to collect turbostat uncore frequency measurements: %s", {str(err)})
+            _LOG.debug("unable to load 'intel_uncore_frequency' module which is required "
+                       "to collect turbostat uncore frequency measurements: %s", {str(err)})
 
     def __init__(self):
         """Initialize a class instance."""
@@ -531,11 +533,11 @@ class STCAgent:
         for method in methods:
             for collector in self._collectors.values():
                 if collector.name in self.failed_collectors:
-                    LOG.debug("skip running the '%s' method of failed '%s' collector",
-                              method, collector.name)
+                    _LOG.debug("skip running the '%s' method of failed '%s' collector",
+                               method, collector.name)
                     continue
 
-                LOG.debug("running the '%s' method of the %s collector", method, collector.name)
+                _LOG.debug("running the '%s' method of the %s collector", method, collector.name)
 
                 try:
                     getattr(collector, method)()
@@ -544,11 +546,11 @@ class STCAgent:
                     msg = f"the '{method}' method of the {collector.name} collector failed:\n" \
                           f"{err.indent(2)}"
                     if collector.props["fallible"]:
-                        LOG.debug(msg)
+                        _LOG.debug(msg)
                     else:
                         raise Error(msg) from err
                 else:
-                    LOG.debug("'%s' method of the %s collector succeeded", method, collector.name)
+                    _LOG.debug("'%s' method of the %s collector succeeded", method, collector.name)
 
     def create(self, stnames):
         """
@@ -560,7 +562,7 @@ class STCAgent:
         if self._started:
             raise Error("statistics collection has been started, create collectors")
 
-        LOG.debug("creating the following collectors: %s", ",".join(stnames))
+        _LOG.debug("creating the following collectors: %s", ",".join(stnames))
 
         # First close the previously initialized collectors.
         for name in list(self._collectors):
@@ -573,7 +575,7 @@ class STCAgent:
 
         for name in stnames:
             try:
-                LOG.debug("creating the %s collector", name)
+                _LOG.debug("creating the %s collector", name)
                 if name == "turbostat":
                     collector = TurbostatCollector()
                 elif name == "interrupts":
@@ -591,7 +593,7 @@ class STCAgent:
             except Error as err:
                 raise Error(f"failed to create the {name} collector:\n{err.indent(2)}") from err
 
-        LOG.debug("created the collectors")
+        _LOG.debug("created the collectors")
 
     @staticmethod
     def _set_obj_property(obj, name, value):
@@ -642,8 +644,8 @@ class STCAgent:
 
         self._set_obj_property(collector, args[1], args[2])
 
-        LOG.debug("set collector '%s' property '%s' to value '%s'",
-                  collector.name, args[1], args[2])
+        _LOG.debug("set collector '%s' property '%s' to value '%s'",
+                   collector.name, args[1], args[2])
 
     @staticmethod
     def _set_outdir(path):
@@ -656,7 +658,7 @@ class STCAgent:
                 raise Error(f"stc-agent output directory path '{path}' already exists and it is "
                             f"not a directory")
         else:
-            LOG.debug("creating sts-agent output directory '%s'", path)
+            _LOG.debug("creating sts-agent output directory '%s'", path)
             try:
                 os.mkdir(path)
             except OSError as err:
@@ -679,7 +681,7 @@ class STCAgent:
         if pname == "outdir":
             self._set_outdir(pval)
 
-        LOG.debug("set stc-agent property '%s' to value '%s'", pname, pval)
+        _LOG.debug("set stc-agent property '%s' to value '%s'", pname, pval)
 
     def configure(self):
         """Configure the statistic collectors."""
@@ -691,7 +693,7 @@ class STCAgent:
             raise Error("statistics collection has been started, cannot configure")
 
         self._execute_collectors_methods(("configure", "kill_stale"))
-        LOG.debug("configured the collectors")
+        _LOG.debug("configured the collectors")
 
     def add_label(self, args):
         """
@@ -705,7 +707,7 @@ class STCAgent:
         if self.props["outdir"] == UNINITIALIZED["str"]:
             raise Error("cannot add stc-agent label: the output directory was not set")
 
-        LOG.debug("adding label '%s'", args)
+        _LOG.debug("adding label '%s'", args)
 
         import json # pylint: disable=import-outside-toplevel
 
@@ -761,7 +763,7 @@ class STCAgent:
         self._execute_collectors_methods(("start",))
         self._started = True
 
-        LOG.debug("started the collectors")
+        _LOG.debug("started the collectors")
 
     def stop(self):
         """Stop collecting the statistics."""
@@ -774,7 +776,7 @@ class STCAgent:
         finally:
             self._started = False
 
-        LOG.debug("stopped the collectors")
+        _LOG.debug("stopped the collectors")
 
         if self._lfobj:
             try:
@@ -808,7 +810,7 @@ class Client(ClassHelpers.SimpleCloseContext):
     def get_command(self):
         """Receive and return client command."""
 
-        LOG.debug("waiting for a command from client '%s", self.clientid)
+        _LOG.debug("waiting for a command from client '%s", self.clientid)
         bufs = []
         cmd = None
         msg = bytes()
@@ -839,13 +841,13 @@ class Client(ClassHelpers.SimpleCloseContext):
             raise ClientDisconnected(f"failed to decode the command from UTF-8 from client "
                                      f"'{self.clientid}:\n{msg}") from err
 
-        LOG.debug("received command from client '%s':\n%s", self.clientid, cmd)
+        _LOG.debug("received command from client '%s':\n%s", self.clientid, cmd)
         return cmd
 
     def respond(self, msg):
         """Respond to the client by sending it a message."""
 
-        LOG.debug("sending the following response to client '%s': %s", self.clientid, msg)
+        _LOG.debug("sending the following response to client '%s': %s", self.clientid, msg)
 
         buf = (msg + DELIMITER + "\n").encode("utf-8")
         total = 0
@@ -891,7 +893,7 @@ class Server(ClassHelpers.SimpleCloseContext):
         else:
             client_host, client_port = client_sock.getpeername()
             clientid = f"{client_host}:{client_port}"
-        LOG.debug("client connected: %s", clientid)
+        _LOG.debug("client connected: %s", clientid)
 
         return Client(client_sock, clientid)
 
@@ -921,8 +923,8 @@ class Server(ClassHelpers.SimpleCloseContext):
 
             msg = f"Listening on TCP port {self._port}"
 
-        LOG.debug(msg)
-        LOG.info(msg)
+        _LOG.debug(msg)
+        _LOG.info(msg)
 
     def _unix_socket_prepare(self):
         """Prepare the SUT for using Unix sockets."""
@@ -930,7 +932,7 @@ class Server(ClassHelpers.SimpleCloseContext):
         if self._uspath is None:
             # Select random name for the unix socket file.
             try:
-                pfx = f"{OWN_NAME}-"
+                pfx = f"{TOOLNAME}-"
                 if self._sutname:
                     pfx = f"{pfx}{self._sutname}-"
                 with tempfile.NamedTemporaryFile("wb+", prefix=pfx, delete=True) as fobj:
@@ -1057,18 +1059,18 @@ def main():
 
     with Server(unix=args.unix, port=args.port, sutname=args.sutname) as server:
         server.start_listening()
-        LOG.debug("commands delimiter is '\\n%s'", DELIMITER)
+        _LOG.debug("commands delimiter is '\\n%s'", DELIMITER)
 
         while True:
             with server.wait_for_client() as client:
                 try:
                     handle_client(client, stc_agent)
                 except ClientDisconnected as err:
-                    LOG.debug(err)
+                    _LOG.debug(err)
                 except ExitCommand:
                     break
 
-    LOG.debug("exiting")
+    _LOG.debug("exiting")
     return 0
 
 # The very first script entry point.
@@ -1076,6 +1078,6 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        LOG.error_out("interrupted, exiting")
+        _LOG.error_out("interrupted, exiting")
     except Error as error:
-        LOG.error_out(error, print_tb=True)
+        _LOG.error_out(error, print_tb=True)

@@ -8,14 +8,14 @@
 
 """This module provides the API to generate a 'Stats' container tab."""
 
-import logging
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import (_TurbostatTabBuilder, _InterruptsTabBuilder,
                                                     _ACPowerTabBuilder, _IPMITabBuilder)
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class StatsTabBuilder:
     """This class provides the API to generate a 'Stats' container tab."""

@@ -15,23 +15,25 @@ Collect interrupts statistics by making a periodic snapshot of the '/proc/interr
 import re
 import sys
 import time
-import logging
 import argparse
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 
 VERSION = ToolInfo.VERSION
-OWN_NAME = "proc-interrupts-helper"
+TOOLNAME = "proc-interrupts-helper"
 
-LOG = logging.getLogger()
-Logging.setup_logger(prefix=OWN_NAME)
+# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
+# projcect. This way logging from "pepc" modules will use consistent style and prefix.
+Logging.getLogger("pepc").configure(prefix=TOOLNAME)
+_LOG = Logging.getLogger("stats-collect")
+_LOG.configure(prefix=TOOLNAME)
 
 def parse_arguments():
     """Parse the input arguments."""
 
     text = sys.modules[__name__].__doc__
-    parser = ArgParse.ArgsParser(description=text, prog=OWN_NAME, ver=VERSION)
+    parser = ArgParse.ArgsParser(description=text, prog=TOOLNAME, ver=VERSION)
 
     text = "The interval between snapshots in seconds, default is 5."
     parser.add_argument("--interval", help=text, type=float, default=5)
@@ -97,8 +99,8 @@ def main():
             # by removing the extra white-spaces.
             new_contents = re.sub(regex, " ", contents)
 
-            LOG.info("timestamp: %s", time.time())
-            LOG.info(new_contents)
+            _LOG.info("timestamp: %s", time.time())
+            _LOG.info(new_contents)
 
             time.sleep(args.interval - (time.time() - start_time))
     finally:
@@ -109,6 +111,6 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        LOG.error_out("interrupted, exiting")
+        _LOG.error_out("interrupted, exiting")
     except Error as err:
-        LOG.error_out(err, print_tb=True)
+        _LOG.error_out(err, print_tb=True)

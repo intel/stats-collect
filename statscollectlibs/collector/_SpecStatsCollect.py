@@ -11,13 +11,12 @@ This module provides the 'SpecStatsCollect' class, which implements specific (no
 statistics collection.
 """
 
-import logging
-from pepclibs.helperlibs import ClassHelpers, ProjectFiles
+from pepclibs.helperlibs import Logging, ClassHelpers, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import _StatsConfig
 from statscollectlibs.collector import _STCAgent
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # The statistics description dictionary.
 STINFO = _STCAgent.STINFO
@@ -117,9 +116,9 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         """Enable or disable infomrational logging messages printed with the "INFO" log level."""
 
         if enable:
-            self._infolvl = logging.INFO
+            self._infolvl = Logging.INFO
         else:
-            self._infolvl = logging.DEBUG
+            self._infolvl = Logging.DEBUG
 
         self._inbagent.infolvl = self._infolvl
         if self._oobagent:
@@ -441,7 +440,7 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         self._oobagent = None
 
         # Log level for some of the high-level messages.
-        self._infolvl = logging.DEBUG
+        self._infolvl = Logging.DEBUG
 
         # Mapping between in-/out-of-band and local/remote.
         #

@@ -11,18 +11,17 @@
 """This module provides the functionality for producing plotly scatter plots."""
 
 import itertools
-import logging
 import numpy
 import pandas
 import plotly
 from pandas.core.dtypes.common import is_datetime64_any_dtype
-from pepclibs.helperlibs import Human
+from pepclibs.helperlibs import Logging, Human
 from statscollectlibs.htmlreport import _Plot
 
 # List of diagram markers that we use in scatter plots.
 _SCATTERPLOT_MARKERS = ["circle", "square", "diamond", "cross", "triangle-up", "pentagon"]
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class ScatterPlot(_Plot.Plot):
     """This class provides the functionality to generate plotly scatter plots."""

@@ -10,16 +10,15 @@
 Provide the tab builder for the SPECjbb2015 workload.
 """
 
-import logging
 import pandas
-from pepclibs.helperlibs import Human
+from pepclibs.helperlibs import Logging, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # SPECjbb2015 metrics definition dictionary.
 _SPECJBB_DEFS = {

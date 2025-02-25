@@ -10,20 +10,23 @@
 Provide the capability of populating the IPMI statistics tab.
 """
 
-import logging
 import pandas
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+
 
 class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the IPMI statistics tab."""
 
     name = "IPMI"
-    stnames = ("ipmi-inband", "ipmi-oob",)
+    stnames = (
+        "ipmi-inband",
+        "ipmi-oob",
+    )
 
     def get_default_tab_cfg(self):
         """
@@ -50,8 +53,9 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, self._time_metric, self._hover_defs,
-                                                title=metric)
+                dtab = self._build_def_dtab_cfg(
+                    metric, self._time_metric, self._hover_defs, title=metric
+                )
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)

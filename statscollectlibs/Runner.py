@@ -14,17 +14,16 @@ simultaneous collection of statistics.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import logging
 import time
+from pepclibs.helperlibs import Logging, ClassHelpers, Human
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs import ClassHelpers, Human
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
 from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.rawresultlibs.WORawResult import WORawResult
 from statscollectlibs.collector.StatsCollect import StatsCollect
 from statscollecttools import ToolInfo
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class Runner(ClassHelpers.SimpleCloseContext):
     """

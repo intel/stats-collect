@@ -8,13 +8,13 @@
 
 """API for generating 'stats-collect' HTML reports."""
 
-import logging
+from pepclibs.helperlibs import Logging 
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
 from statscollectlibs.rawresultlibs import RORawResult
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class StatsCollectHTMLReport:
     """

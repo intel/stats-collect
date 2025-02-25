@@ -8,12 +8,11 @@
 
 """This module provides the API for deploying the 'stats-collect' tool."""
 
-import logging
-from pepclibs.helperlibs import ArgParse, ProjectFiles
+from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploylibs import DeployBase, _DeployPyHelpers, DeployHelpersBase
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 def add_deploy_cmdline_args(toolname, subparsers, func, argcomplete=None):
     """

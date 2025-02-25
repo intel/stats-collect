@@ -10,14 +10,14 @@
 This module provides the capability of populating a data tab.
 """
 
-import logging
 from pathlib import Path
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import _Tabs, FilePreviewBuilder
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 def get_fsname(metric):
     """

@@ -9,16 +9,15 @@
 """This module provides the API for creating raw stats-collect test results."""
 
 import contextlib
-import logging
 import os
 import shutil
 import time
-from pepclibs.helperlibs import YAML, ClassHelpers
+from pepclibs.helperlibs import Logging, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext):
     """This class represents a write-only raw test result."""

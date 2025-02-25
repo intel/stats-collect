@@ -11,10 +11,9 @@ This module provides a base class for deploying installables. Refer to the 'Depl
 docstring for more information.
 """
 
-import logging
 from pepclibs.helperlibs import Logging, ClassHelpers, ToolChecker
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
     """This base class can be inherited from to provide the API for deploying installables."""

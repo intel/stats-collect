@@ -11,12 +11,11 @@ This module provides API for collecting SUT statistics.
 """
 
 import copy
-import logging
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.collector import _STCAgent, _SpecStatsCollect
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # An "aggregate statistic" is a statistic which can be used when a system-specific configuration is
 # unknown. For example, the aggregate statistic name "ipmi" will try to resolve to "ipmi-oob" and

@@ -13,15 +13,14 @@ This module provides two statistic collector classes: 'InBandCollector' and 'Out
 import copy
 import time
 import socket
-import logging
 import contextlib
 from pathlib import Path
-from pepclibs.helperlibs import LocalProcessManager, Trivial, ClassHelpers, KernelVersion
+from pepclibs.helperlibs import Logging, LocalProcessManager, Trivial, ClassHelpers, KernelVersion
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.collector import SysInfo
 from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # The message delimiter used by 'stc-agent'.
 _DELIMITER = "--\n".encode("utf-8")
@@ -630,7 +629,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         # Format the command for executing 'stc-agent'.
         self._cmd = f"{self._stca_path} --sut-name {self.sutname}"
-        if _LOG.getEffectiveLevel() == logging.DEBUG:
+        if _LOG.getEffectiveLevel() == Logging.DEBUG:
             self._cmd = f"{self._cmd} -d"
 
         self._logpath = self._logsdir / f"stc-agent-{self._pman.hostname}.log.txt"
@@ -813,7 +812,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
         self.statsdir = None
 
         # Log level for some of the high-level messages.
-        self.infolvl = logging.DEBUG
+        self.infolvl = Logging.DEBUG
 
         # Whether the 'self._pman' object should be closed.
         self._close_pman = False

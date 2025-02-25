@@ -10,10 +10,9 @@
 
 """This module provides the common defaults and logic for producing plotly diagrams."""
 
-import logging
 import plotly
 from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
-from pepclibs.helperlibs import Human, Trivial
+from pepclibs.helperlibs import Logging, Human, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 
 # Default plotly diagram layout configuration.
@@ -46,7 +45,7 @@ _LEGEND = {"font"    : {"size" : 14},
            "x": 1,
            "y": 1}
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class Plot:
     """This class provides the common defaults and logic for producing plotly diagrams."""

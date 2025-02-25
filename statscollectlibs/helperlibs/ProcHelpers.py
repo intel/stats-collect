@@ -15,12 +15,11 @@ This module contains misc. helper functions related to processes (tasks).
 import os
 import re
 import time
-import logging
 import contextlib
+from pepclibs.helperlibs import Logging, ProcessManager, Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs import ProcessManager, Trivial
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 def _is_sigterm(sig: str):
     """Return 'True' if sig' is the 'SIGTERM' signal."""

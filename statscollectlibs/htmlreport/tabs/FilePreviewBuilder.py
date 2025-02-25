@@ -16,14 +16,13 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import difflib
 import filecmp
-import logging
 from pathlib import Path
-from pepclibs.helperlibs import Human
+from pepclibs.helperlibs import Logging, Human
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport.tabs import _Tabs
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 _RESONABLE_FILE_SIZE = 2 * 1024 * 1024
 

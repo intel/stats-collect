@@ -12,13 +12,12 @@ This module provides the API for deploying Python helpers. Refer to the 'DeployB
 docstring for more information.
 """
 
-import logging
 from pathlib import Path
-from pepclibs.helperlibs import ClassHelpers, LocalProcessManager, ProjectFiles
+from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.deploylibs import DeployHelpersBase
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
     """This class provides the API for deploying Python helpers."""

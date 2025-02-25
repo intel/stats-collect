@@ -15,18 +15,18 @@ Terminology.
 """
 
 import dataclasses
-import logging
 import json
 from pathlib import Path
 import plotly
 from packaging import version
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 from statscollecttools import ToolInfo
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 def reportids_dedup(rsts):
     """

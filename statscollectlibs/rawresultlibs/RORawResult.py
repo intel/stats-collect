@@ -8,16 +8,15 @@
 
 """API for reading raw 'stats-collect' test results."""
 
-import logging
 from pathlib import Path
-from pepclibs.helperlibs import YAML
+from pepclibs.helperlibs import Logging, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import ReportID, FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 # Supported workload types.
 SUPPORTED_WORKLOADS = {

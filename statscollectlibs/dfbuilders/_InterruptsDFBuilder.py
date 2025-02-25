@@ -12,16 +12,15 @@ Parse raw interrupt statistics file and build a dataframe.
 
 from __future__ import annotations  # Remove when switching to Python 3.10+.
 
-import logging
 from pathlib import Path
 from pandas import DataFrame
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import InterruptsParser
 from statscollectlibs.parsers.InterruptsParser import DataSetTypedDict
 
-_LOG = logging.getLogger()
+_LOG = Logging.getLogger(f"stats-collect.{__name__}")
 
 class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
