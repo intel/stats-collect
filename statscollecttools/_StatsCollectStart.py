@@ -92,7 +92,7 @@ def start_command(args):
             if stcoll:
                 stack.enter_context(stcoll)
 
-        Logging.setup_stdout_logging(args.toolname, res.logs_path)
+        _Common.configure_log_file(res.logs_path, args.toolname)
 
         if not args.cmd_local:
             cmd_pman = pman

@@ -11,12 +11,12 @@ This module includes the "report" 'stats-collect' command implementation.
 """
 
 from pathlib import Path
-from pepclibs.helperlibs import Logging, Trivial
+from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
-from statscollecttools import ToolInfo
+from statscollecttools import ToolInfo, _Common
 
 def open_raw_results(respaths, reportids=None):
     """
@@ -62,7 +62,7 @@ def report_command(args):
     if not args.outdir:
         args.outdir = args.respaths[0] / "html-report"
 
-    logpath = Logging.setup_stdout_logging(ToolInfo.TOOLNAME, args.outdir)
+    logpath = _Common.configure_log_file(args.outdir, ToolInfo.TOOLNAME)
     logpath = Path(logpath).relative_to(args.outdir)
 
     rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, logpath=logpath)

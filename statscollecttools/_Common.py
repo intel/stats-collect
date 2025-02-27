@@ -9,7 +9,12 @@
 
 """This module contains miscellaneous functions used by various 'statscollecttools' modules."""
 
-from pepclibs.helperlibs import ProcessManager
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+import sys
+from pathlib import Path
+from pepclibs.helperlibs import Logging, ProcessManager
+from pepclibs.helperlibs.Exceptions import Error
 
 def get_pman(args):
     """
@@ -26,3 +31,28 @@ def get_pman(args):
 
     return ProcessManager.get_pman(args.hostname, username=username, privkeypath=privkeypath,
                                    timeout=timeout)
+
+def configure_log_file(outdir: Path, toolname: str) -> Path:
+    """
+    Configure the logger to mirror all the standard output and standard error a log file.
+
+    Args:
+        outdir: the log file directory.
+        toolname: name of the tool to use in the log file name.
+
+    Returns:
+        Path: the path to the log file.
+    """
+
+    try:
+        outdir.mkdir(parents=True, exist_ok=True)
+    except OSError as err:
+        msg = Error(err).indent(2)
+        raise Error(f"Cannot create log directory '{outdir}':\n{msg}") from None
+
+    logpath = Path(outdir) / f"{toolname}.log.txt"
+    contents = f"Command line: {' '.join(sys.argv)}\n"
+    logger = Logging.getLogger(Logging.MAIN_LOGGER_NAME)
+    logger.configure_log_file(logpath, contents=contents)
+
+    return logpath
