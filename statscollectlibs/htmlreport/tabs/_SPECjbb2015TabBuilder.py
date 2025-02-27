@@ -18,7 +18,7 @@ from statscollectlibs.mdc import MDCBase
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # SPECjbb2015 metrics definition dictionary.
 _SPECJBB_DEFS = {

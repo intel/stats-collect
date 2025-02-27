@@ -16,7 +16,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import _StatsConfig
 from statscollectlibs.collector import _STCAgent
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The statistics description dictionary.
 STINFO = _STCAgent.STINFO

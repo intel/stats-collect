@@ -33,11 +33,7 @@ _STC_DEPLOY_INFO = {
     },
 }
 
-# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
-# projcect. This way logging from "pepc" modules will use consistent style and prefix.
-Logging.getLogger("pepc").configure(prefix=ToolInfo.TOOLNAME)
-_LOG = Logging.getLogger("stats-collect")
-_LOG.configure(prefix=ToolInfo.TOOLNAME)
+_LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=ToolInfo.TOOLNAME)
 
 def build_arguments_parser():
     """Build and return the arguments parser object."""

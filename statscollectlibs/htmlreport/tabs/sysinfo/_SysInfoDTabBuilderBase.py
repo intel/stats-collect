@@ -20,7 +20,7 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class FilePreviewInfoTypedDict(TypedDict):
     """

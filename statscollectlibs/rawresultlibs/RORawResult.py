@@ -16,7 +16,7 @@ from statscollectlibs.helperlibs import ReportID, FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # Supported workload types.
 SUPPORTED_WORKLOADS = {

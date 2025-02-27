@@ -19,7 +19,7 @@ import contextlib
 from pepclibs.helperlibs import Logging, ProcessManager, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 def _is_sigterm(sig: str):
     """Return 'True' if sig' is the 'SIGTERM' signal."""

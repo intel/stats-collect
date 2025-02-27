@@ -17,7 +17,7 @@ from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, Proj
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.deploylibs import DeployHelpersBase
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
     """This class provides the API for deploying Python helpers."""

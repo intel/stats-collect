@@ -23,11 +23,7 @@ from statscollecttools import ToolInfo
 VERSION = ToolInfo.VERSION
 TOOLNAME = "proc-interrupts-helper"
 
-# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
-# projcect. This way logging from "pepc" modules will use consistent style and prefix.
-Logging.getLogger("pepc").configure(prefix=TOOLNAME)
-_LOG = Logging.getLogger("stats-collect")
-_LOG.configure(prefix=TOOLNAME)
+_LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
 def parse_arguments():
     """Parse the input arguments."""

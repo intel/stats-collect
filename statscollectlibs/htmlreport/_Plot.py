@@ -45,7 +45,7 @@ _LEGEND = {"font"    : {"size" : 14},
            "x": 1,
            "y": 1}
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class Plot:
     """This class provides the common defaults and logic for producing plotly diagrams."""

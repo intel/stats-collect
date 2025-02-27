@@ -17,7 +17,7 @@ from statscollectlibs.deploylibs import DeployInstallableBase
 HELPERS_DEPLOY_SUBDIR = Path(".local")
 HELPERS_SRC_SUBDIR = Path("helpers")
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
     """This base class can be inherited from to provide the API for deploying helpers."""

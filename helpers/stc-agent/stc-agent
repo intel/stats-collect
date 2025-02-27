@@ -64,11 +64,7 @@ DELIMITER = "--"
 # Names of the supported statistics.
 SUPPORTED_STATS = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband", "acpower")
 
-# Configure the top-level logger for the "stats-collcect" project, as well as for the "pepc"
-# projcect. This way logging from "pepc" modules will use consistent style and prefix.
-Logging.getLogger("pepc").configure(prefix=TOOLNAME)
-_LOG = Logging.getLogger("stats-collect")
-_LOG.configure(prefix=TOOLNAME)
+_LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
 # Our own process ID.
 PID = Trivial.get_pid()

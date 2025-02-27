@@ -15,7 +15,7 @@ from statscollectlibs.htmlreport.tabs.stats import (_TurbostatTabBuilder, _Inter
                                                     _ACPowerTabBuilder, _IPMITabBuilder)
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class StatsTabBuilder:
     """This class provides the API to generate a 'Stats' container tab."""

@@ -16,7 +16,7 @@ from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 
 class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):

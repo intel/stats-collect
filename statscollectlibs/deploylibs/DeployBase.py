@@ -42,7 +42,7 @@ from pepclibs.helperlibs import Logging, ClassHelpers, ProcessManager, LocalProc
 from pepclibs.helperlibs import ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The supported installable categories.
 CATEGORIES = {"drivers"    : "kernel driver",

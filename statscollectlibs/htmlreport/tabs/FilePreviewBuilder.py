@@ -22,7 +22,7 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport.tabs import _Tabs
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 _RESONABLE_FILE_SIZE = 2 * 1024 * 1024
 

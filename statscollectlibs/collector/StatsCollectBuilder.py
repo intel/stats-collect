@@ -15,7 +15,7 @@ from statscollectlibs.collector import StatsCollect
 from statscollectlibs.deploylibs import DeployBase
 from statscollectlibs.rawresultlibs import WORawResult
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 DEFAULT_STNAMES = ("turbostat", "sysinfo")
 

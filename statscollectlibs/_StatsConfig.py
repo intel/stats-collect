@@ -18,7 +18,7 @@ from statscollectlibs.collector import _STCAgent
 _SYSTEM_CFG_FILE = "/etc/stats-collect.conf"
 _USER_CFG_FILE_NAME = ".stats-collect.conf"
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class StatsConfig:
     """

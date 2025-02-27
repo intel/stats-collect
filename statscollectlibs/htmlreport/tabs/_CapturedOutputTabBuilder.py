@@ -15,7 +15,7 @@ from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _Tabs, _DTabBuilder
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The number of lines at the start and end of captured output files to preserve. Lines outside of
 # those limits will be trimmed and will not be copied to the report directory.

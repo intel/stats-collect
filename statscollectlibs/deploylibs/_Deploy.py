@@ -12,7 +12,7 @@ from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploylibs import DeployBase, _DeployPyHelpers, DeployHelpersBase
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 def add_deploy_cmdline_args(toolname, subparsers, func, argcomplete=None):
     """

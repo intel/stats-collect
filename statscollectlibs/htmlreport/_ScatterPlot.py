@@ -21,7 +21,7 @@ from statscollectlibs.htmlreport import _Plot
 # List of diagram markers that we use in scatter plots.
 _SCATTERPLOT_MARKERS = ["circle", "square", "diamond", "cross", "triangle-up", "pentagon"]
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class ScatterPlot(_Plot.Plot):
     """This class provides the functionality to generate plotly scatter plots."""

@@ -20,7 +20,7 @@ from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 from statscollectlibs.rawresultlibs import RORawResult
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class MDTypedDict(MDCBase.MDTypedDict, total=False):
     """

@@ -20,7 +20,7 @@ from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import InterruptsParser
 from statscollectlibs.parsers.InterruptsParser import DataSetTypedDict
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
     """

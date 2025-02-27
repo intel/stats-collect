@@ -20,7 +20,7 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.collector import SysInfo
 from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The message delimiter used by 'stc-agent'.
 _DELIMITER = "--\n".encode("utf-8")

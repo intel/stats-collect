@@ -15,7 +15,7 @@ from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.collector import _STCAgent, _SpecStatsCollect
 
-_LOG = Logging.getLogger(f"stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # An "aggregate statistic" is a statistic which can be used when a system-specific configuration is
 # unknown. For example, the aggregate statistic name "ipmi" will try to resolve to "ipmi-oob" and
