@@ -1,3 +1,10 @@
+stats-collect (1.0.46) unstable; urgency=low
+
+  * Fix alignment in SPECjbb2015 diagrams.
+  * Add 'stats-collect start --cmd-local' option.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Thu, 27 Feb 2025 00:00:00 +0200
+
 stats-collect (1.0.45) unstable; urgency=low
 
   * Fix a regression since 1.0.44: pbe reports generation crashes.

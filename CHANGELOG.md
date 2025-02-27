@@ -9,6 +9,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.46] - 2025-02-27
+### Fixed
+ - Fix alignment in SPECjbb2015 diagrams.
+### Added
+ - Add 'stats-collect start --cmd-local' option.
+
 ## [1.0.45] - 2025-01-27
 ### Fixed
   - Fix a regression since 1.0.44: pbe reports generation crashes.
