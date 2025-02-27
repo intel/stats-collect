@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix crash introduced in realeas 1.0.46.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.47] - 2025-02-27
+### Fixed
+ - Fix crash introduced in realeas 1.0.46.
 
 ## [1.0.46] - 2025-02-27
 ### Fixed
