@@ -27,18 +27,18 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
     Parse raw interrupt statistics file and build a dataframe.
     """
 
-    def __init__(self, colnames: list[str] | None = None, cpunum: int | None = None):
+    def __init__(self, colnames: list[str] | None = None, cpu: int | None = None):
         """
         Initialize the class instance.
 
         Args:
             colnames: List of column names to include in the dataframe. If 'None', column names are
                       automatically determined based on the most frequent interrupts.
-            cpunum: CPU number to include in the dataframe. If 'None', do not include any individual
-                    CPU columns in the dataframe.
+            cpu: CPU number to include in the dataframe. If 'None', do not include any individual
+                 CPU columns in the dataframe.
         """
 
-        self._cpunum = cpunum
+        self._cpu = cpu
         self.colnames = colnames
 
         # Number of "numerical" interrupts per scope to include. There are many interrupts, but the
@@ -82,22 +82,22 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         Returns:
             dict[str, int]: A dictionary containing the total counts:
-                "Total": The sum of all interrupts.
-                "Total_IRQ": The sum of "IRQ*" interrupts.
-                "Total_XYZ": The sum of non-"IRQ*" interrupts.
+              * "Total": The sum of all interrupts.
+              * "Total_IRQ": The sum of "IRQ*" interrupts.
+              * "Total_XYZ": The sum of non-"IRQ*" interrupts.
         """
 
-        cpunum = None
+        irq_cpu = None
         if scope.startswith("IRQ"):
-            cpunum = int(scope[3:])
+            irq_cpu = int(scope[3:])
         elif scope != "System":
             raise Error(f"BUG: unsupported scope '{scope}'") from None
 
         total_irqs = 0
         total_xyz = 0
 
-        for cpu, irqs_info in dataset["cpus"].items():
-            if cpunum is not None and cpunum != cpu:
+        for cpu, irqs_info in dataset["cpu2irqs"].items():
+            if irq_cpu is not None and irq_cpu != cpu:
                 continue
 
             for irqname, cnt in irqs_info.items():
@@ -148,11 +148,11 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
             if scope == "System":
                 sum_all_cpus = 0
-                for irqs_info in dataset["cpus"].values():
+                for irqs_info in dataset["cpu2irqs"].values():
                     sum_all_cpus += irqs_info.get(irqname, 0)
                 data.append(sum_all_cpus)
             elif scope.startswith("CPU"):
-                data.append(dataset["cpus"][int(scope[3:])][irqname])
+                data.append(dataset["cpu2irqs"][int(scope[3:])][irqname])
             else:
                 raise Error(f"BUG: unsupported scope '{scope}' in column name "
                             f"'{colname}'") from None
@@ -208,14 +208,14 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Calculate how many interrupts of each type occurred for the System scope.
         irqs = {}
-        for cpu, irqs_info in first_ds["cpus"].items():
+        for cpu, irqs_info in first_ds["cpu2irqs"].items():
             for irqname, cnt in irqs_info.items():
-                if cpu not in last_ds["cpus"]:
+                if cpu not in last_ds["cpu2irqs"]:
                     _LOG.warning("CPU '%d' is present in the first '/proc/interrupts' snapshot, "
                                  "but missing in the last one in file '%s'. Skipping CPU%d.",
                                  cpu, self._path, cpu)
                     continue
-                if irqname not in last_ds["cpus"][cpu]:
+                if irqname not in last_ds["cpu2irqs"][cpu]:
                     _LOG.warning("Interrupt '%s' is present in the first "
                                  "'/proc/interrupts' snapshot, but missing in the last one in "
                                  "file '%s'. Skipping %s.", irqname, self._path, irqname)
@@ -223,26 +223,26 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
                 if irqname not in irqs:
                     irqs[irqname] = 0
 
-                irqs[irqname] += last_ds["cpus"][cpu][irqname] - cnt
+                irqs[irqname] += last_ds["cpu2irqs"][cpu][irqname] - cnt
 
         colnames += [f"System-{self._total_metric}", f"System-{self._total_irq_metric}",
                      f"System-{self._total_xyz_metric}"]
         colnames += self._fetch_hottest_irqs(irqs, "System")
 
-        if self._cpunum is not None:
-            if self._cpunum not in first_ds["cpus"] or self._cpunum not in last_ds["cpus"]:
-                raise Error(f"No data for CPU '{self._cpunum}' found in interrupts statistics file "
+        if self._cpu is not None:
+            if self._cpu not in first_ds["cpu2irqs"] or self._cpu not in last_ds["cpu2irqs"]:
+                raise Error(f"No data for CPU '{self._cpu}' found in interrupts statistics file "
                             f"'{self._path}") from None
 
             # Calculate how many interrupts of each type occurred.
             irqs = {}
-            for irqname, cnt in first_ds["cpus"][self._cpunum].items():
-                irqs[irqname] = last_ds["cpus"][self._cpunum][irqname] - cnt
+            for irqname, cnt in first_ds["cpu2irqs"][self._cpu].items():
+                irqs[irqname] = last_ds["cpu2irqs"][self._cpu][irqname] - cnt
 
-            colnames += [f"CPU{self._cpunum}-{self._total_metric}",
-                         f"CPU{self._cpunum}-{self._total_irq_metric}",
-                         f"CPU{self._cpunum}-{self._total_xyz_metric}"]
-            colnames += self._fetch_hottest_irqs(irqs, f"CPU{self._cpunum}")
+            colnames += [f"CPU{self._cpu}-{self._total_metric}",
+                         f"CPU{self._cpu}-{self._total_irq_metric}",
+                         f"CPU{self._cpu}-{self._total_xyz_metric}"]
+            colnames += self._fetch_hottest_irqs(irqs, f"CPU{self._cpu}")
 
         return colnames
 

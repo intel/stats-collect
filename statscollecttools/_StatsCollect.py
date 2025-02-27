@@ -76,7 +76,7 @@ def build_arguments_parser():
                option so that the number is saved in the test result and later the
                '{ToolInfo.TOOLNAME} report' command will take this into account while generating the
                test report."""
-    subpars.add_argument("--cpunum", help=text, type=int)
+    subpars.add_argument("--cpu", help=text, type=int)
 
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""

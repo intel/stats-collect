@@ -70,7 +70,7 @@ class TabBuilderBase:
     name: str | None = None
     stname: str | None = None
 
-    def _get_and_check_cpunum(self, rsts: list[RORawResult.RORawResult]) -> int | None:
+    def _get_and_check_cpu(self, rsts: list[RORawResult.RORawResult]) -> int | None:
         """
         Get the measured CPU number from the raw results and check that all of them have the same
         measured CPU number.
@@ -85,11 +85,11 @@ class TabBuilderBase:
         infos: dict[int, list[Path]] = {}
 
         for res in rsts:
-            cpunum = res.info.get("cpunum")
-            if cpunum not in infos:
-                infos[cpunum] = []
+            cpu = res.info.get("cpu")
+            if cpu not in infos:
+                infos[cpu] = []
 
-            infos[cpunum].append(res.dirpath)
+            infos[cpu].append(res.dirpath)
 
         if len(infos) == 1:
             return next(iter(infos))
@@ -98,27 +98,27 @@ class TabBuilderBase:
             raise Error("BUG: no raw results")
 
         msg = ""
-        some_cpunum = None
+        some_cpu = None
 
-        for cpunum, paths in infos.items():
-            if cpunum is None:
+        for cpu, paths in infos.items():
+            if cpu is None:
                 cpustr = "no measured CPU"
             else:
-                cpustr = f"CPU{cpunum}:"
-                some_cpunum = cpunum
+                cpustr = f"CPU{cpu}:"
+                some_cpu = cpu
 
             msg += f"\n  * {cpustr}"
             for path in paths:
                 msg += f"\n    * {path}"
 
-        if some_cpunum is not None:
-            cpunum = some_cpunum
-            cpustr = f"CPU{cpunum}:"
+        if some_cpu is not None:
+            cpu = some_cpu
+            cpustr = f"CPU{cpu}:"
 
         _LOG.notice("A mix of measured CPU numbers in %s statistics detected:%s", self.stname, msg)
         _LOG.notice("Will use the following for all results: %s", cpustr)
 
-        return cpunum
+        return cpu
 
     def _get_smry_funcs(self, colname: str) -> list[str]:
         """

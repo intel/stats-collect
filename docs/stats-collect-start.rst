@@ -13,7 +13,7 @@ Command *'start'*
 =================
 
 usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
-[-K PRIVKEY] [-T TIMEOUT] [--cpunum CPUNUM] [--time-limit LIMIT]
+[-K PRIVKEY] [-T TIMEOUT] [--cpu CPU] [--time-limit LIMIT]
 [-o OUTDIR] [--reportid REPORTID] [--stats STATS]
 [--stats-intervals STATS_INTERVALS] [--list-stats] [--report] command
 
@@ -46,7 +46,7 @@ General options
 **-T** *TIMEOUT*, **--timeout** *TIMEOUT*
    SSH connect timeout in seconds, default is 8.
 
-**--cpunum** *CPUNUM*
+**--cpu** *CPU*
    If the executed command stresses a particular CPU number, you can
    specify it via this option so that the number is saved in the test
    result and later the 'stats-collect report' command will take this

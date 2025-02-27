@@ -61,7 +61,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
                 if scope == "System":
                     prefix = "System"
                 elif scope == "CPU":
-                    prefix = f"CPU{self._cpunum}"
+                    prefix = f"CPU{self._cpu}"
                 else:
                     raise Error("BUG: unsupported scope '{scope}'")
                 colname = f"{prefix}-{metric}"
@@ -75,19 +75,19 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """Extract turbostat data for the measured CPU."""
 
         try:
-            cpu_tstat = parsed_dp["cpus"][self._cpunum]
+            cpu_tstat = parsed_dp["cpus"][self._cpu]
         except KeyError:
-            raise Error(f"no data for CPU '{self._cpunum}' found in turbostat statistics file "
+            raise Error(f"no data for CPU '{self._cpu}' found in turbostat statistics file "
                         f"'{self._path}") from None
 
         # Add core level values for the metrics absent at the CPU level, but present at the core
         # level.
         try:
-            for metric, value in parsed_dp["cpu2coreinfo"][self._cpunum]["totals"].items():
+            for metric, value in parsed_dp["cpu2coreinfo"][self._cpu]["totals"].items():
                 if metric not in cpu_tstat:
                     cpu_tstat[metric] = value
         except KeyError:
-            raise Error(f"no data for CPU '{self._cpunum}' found in turbostat statistics file "
+            raise Error(f"no data for CPU '{self._cpu}' found in turbostat statistics file "
                         f"'{self._path}") from None
 
         return cpu_tstat
@@ -102,7 +102,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Prepare the "columns dictionary", which has the '{colname: [value]}' format. This format
         # is required by 'pandas.DataFrame.from_dict()'. Start with the system-wide scope metrics.
         cols_dict = self._build_cols_dict(parsed_dp["totals"], "System")
-        if self._cpunum is not None:
+        if self._cpu is not None:
             cpu_tstat = self._extract_cpu_data(parsed_dp)
             cols_dict.update(self._build_cols_dict(cpu_tstat, "CPU"))
 
@@ -140,13 +140,13 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return df
 
-    def __init__(self, cpunum=None):
+    def __init__(self, cpu=None):
         """
         The class constructor. The arguments are as follows.
-          * cpunum - the measured CPU number.
+          * cpu - the measured CPU number.
         """
 
-        self._cpunum = cpunum
+        self._cpu = cpu
 
         # A dictionary mapping dataframe column names to the corresponding turbostat metric name.
         # E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.

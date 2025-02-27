@@ -34,10 +34,10 @@ def test_cut_files():
                f"{pfx}: Expected increasing timestamps, but got '{first_snapshot['timestamp']}'" \
                f" followed by '{last_snapshot['timestamp']}'"
 
-        assert "cpus" in first_snapshot, f"{pfx}: Missing 'cpus' in first snapshot"
-        assert "cpus" in last_snapshot, f"{pfx}: Missing 'cpus' in last snapshot"
+        assert "cpu2irqs" in first_snapshot, f"{pfx}: Missing 'cpus' in first snapshot"
+        assert "cpu2irqs" in last_snapshot, f"{pfx}: Missing 'cpus' in last snapshot"
 
-        assert len(first_snapshot["cpus"]) == len(last_snapshot["cpus"]), \
+        assert len(first_snapshot["cpu2irqs"]) == len(last_snapshot["cpu2irqs"]), \
                f"{pfx}: Expected the same number of CPUs, but got " \
                f"{Human.rangify(first_snapshot['cpus'])} and {Human.rangify(last_snapshot['cpus'])}"
 
@@ -80,14 +80,14 @@ def test_complete_files():
         parser = InterruptsParser.InterruptsParser(path=test_file)
         for data_set in parser.next():
             assert "timestamp" in data_set
-            assert "cpus" in data_set
+            assert "cpu2irqs" in data_set
             assert "irq_info" in data_set
 
             assert data_set["timestamp"] > 0
-            assert data_set["cpus"]
+            assert data_set["cpu2irqs"]
             assert data_set["irq_info"]
 
-            for cpu, cpu_irqs in data_set["cpus"].items():
+            for cpu, cpu_irqs in data_set["cpu2irqs"].items():
                 assert cpu >= 0, f"Negative CPU number '{cpu}'"
                 for irqname, cnt in cpu_irqs.items():
                     assert cnt >= 0, \

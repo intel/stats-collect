@@ -60,16 +60,16 @@ def start_command(args):
         if not args.outdir:
             args.outdir = Path(f"./{args.reportid}")
 
-        if args.cpunum is not None:
+        if args.cpu is not None:
             cpuinfo = CPUInfo.CPUInfo(pman=pman)
             stack.enter_context(cpuinfo)
-            args.cpunum = cpuinfo.normalize_cpu(args.cpunum)
+            args.cpu = cpuinfo.normalize_cpu(args.cpu)
 
         with _Deploy.DeployCheck("stats-collect", args.toolname, args.deploy_info,
                                  pman=pman) as depl:
             depl.check_deployment()
 
-        res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpunum=args.cpunum)
+        res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpu=args.cpu)
         stack.enter_context(res)
 
         if not args.stats or args.stats == "none":

@@ -48,14 +48,14 @@ class DataSetTypedDict(TypedDict, total=False):
 
     Attributes:
         timestamp: Time since epoch when the '/proc/interrupts' snapshot was taken.
-        cpus: A dictionary indexed by CPU numbers, where the values are dictionaries indexed by IRQ
-              names with the interrupt counts as values.
+        cpu2irqs: A dictionary indexed by CPU numbers, where the values are dictionaries indexed by
+                  IRQ names with the interrupt counts as values.
         irq_info: A dictionary indexed by IRQ names, where the values are dictionaries of type
                   'IRQInfoTypedDict'.
     """
 
     timestamp: float
-    cpus: dict[int, dict[str, int]]
+    cpu2irqs: dict[int, dict[str, int]]
     irq_info: dict[str, IRQInfoTypedDict]
 
 class InterruptsParser:
@@ -93,9 +93,9 @@ class InterruptsParser:
         self._timestamp: float
         self._dataset: DataSetTypedDict
         self._last_yielded_dataset: DataSetTypedDict
-        self._cpus: dict[int, dict[str, int]]
+        self._cpu2irqs: dict[int, dict[str, int]]
         self._irq_info: dict[str, IRQInfoTypedDict]
-        self._cpunums: list[int]
+        self._cpus: list[int]
         self._first_lines: list[str]
         self._yielded_cnt: int
 
@@ -179,7 +179,7 @@ class InterruptsParser:
         self._timestamp = timestamp
 
         # The second line must be the header.
-        self._cpunums = self._parse_header(line2)
+        self._cpus = self._parse_header(line2)
 
         self._first_lines = [line1, line2]
         return True
@@ -189,12 +189,12 @@ class InterruptsParser:
         Compose the final dataset from the parsed data in 'self._datadict'.
         """
 
-        if not self._cpus:
+        if not self._cpu2irqs:
             raise Error("BUG: No CPUs found in the interrupts statistics")
         if not self._irq_info:
             raise Error("BUG: No IRQs found in the interrupts statistics")
 
-        self._dataset["cpus"] = self._cpus
+        self._dataset["cpu2irqs"] = self._cpu2irqs
         self._dataset["irq_info"] = self._irq_info
 
     def _parse_line(self, line: str) -> Generator[DataSetTypedDict, None, None]:
@@ -226,7 +226,7 @@ class InterruptsParser:
             self._yielded_cnt += 1
 
             self._dataset = DataSetTypedDict(timestamp=self._timestamp)
-            self._cpus = {}
+            self._cpu2irqs = {}
             self._irq_info = {}
         else:
             if line.startswith("CPU"):
@@ -234,12 +234,12 @@ class InterruptsParser:
                 # adds/removes CPUs in '/proc/interrupt' snapshots. For this reason, it is necessary
                 # to parse all header lines. Otherwise, it would be enough to parse only the first
                 # one.
-                self._cpunums = self._parse_header(line)
+                self._cpus = self._parse_header(line)
                 return
 
             # The last "Actions" column may contain spaces. Limiting the splits to the number of
             # columns ensures the "Actions" column is not split.
-            elts = line.split(maxsplit=len(self._cpunums) + 3 - 1)
+            elts = line.split(maxsplit=len(self._cpus) + 3 - 1)
 
             # Drop the trailing ":" symbol.
             irq_name = elts[0][:-1]
@@ -248,26 +248,26 @@ class InterruptsParser:
                 irq_name = f"IRQ{irq_name}"
 
             irq_counts = []
-            for cpu, irq_cnt in zip(self._cpunums, elts[1:]):
+            for cpu, irq_cnt in zip(self._cpus, elts[1:]):
                 cnt = Trivial.str_to_int(irq_cnt, what=f"{irq_name} count for CPU{cpu}")
                 irq_counts.append(cnt)
 
-            if len(irq_counts) != len(self._cpunums):
+            if len(irq_counts) != len(self._cpus):
                 # There are special lines like "MIS" and "ERR", which count various sorts of
                 # errors, and they do not have per-CPU counters. Extend the list with the same
                 # counter value.
                 cnt = irq_counts[-1]
-                missing_cnt = len(self._cpunums) + 1 - len(irq_counts)
+                missing_cnt = len(self._cpus) + 1 - len(irq_counts)
                 irq_counts.extend([cnt] * missing_cnt)
 
-            for cpu, irqcnt in zip(self._cpunums, irq_counts):
-                if cpu not in self._cpus:
-                    self._cpus[cpu] = {}
-                self._cpus[cpu][irq_name] = irqcnt
+            for cpu, irqcnt in zip(self._cpus, irq_counts):
+                if cpu not in self._cpu2irqs:
+                    self._cpu2irqs[cpu] = {}
+                self._cpu2irqs[cpu][irq_name] = irqcnt
 
             irq_num = elts[0][:-1]
             irq_infos: list[str | None] = [irq_num]
-            for val in elts[len(self._cpunums) + 1:]:
+            for val in elts[len(self._cpus) + 1:]:
                 irq_infos.append(val)
 
             # Sometimes one or more of the last 3 columns are missing. Pad the list with 'None's.
@@ -302,16 +302,16 @@ class InterruptsParser:
         self._probe_exception_msg = None
         self._timestamp = 0.0
         self._dataset = {}
-        self._cpus = {}
+        self._cpu2irqs = {}
         self._irq_info = {}
-        self._cpunums = []
+        self._cpus = []
         self._first_lines = []
         self._last_yielded_dataset = {}
         self._yielded_cnt = 0
 
         self.probe(lines)
 
-        if len(self._cpunums) == 0:
+        if len(self._cpus) == 0:
             raise ErrorBadFormat("No CPUs found in the '/proc/interrupts' header")
 
         for line in itertools.chain(self._first_lines, lines):
@@ -337,10 +337,10 @@ class InterruptsParser:
         if self._yielded_cnt == 0:
             if not self._dataset.get("timestamp"):
                 raise ErrorBadFormat("No 'timestamp:' lines found")
-            if not self._cpus:
+            if not self._cpu2irqs:
                 raise ErrorBadFormat("No '/proc/interrupts' snapshots found")
 
-        if self._cpus:
+        if self._cpu2irqs:
             self._finalise_dataset()
             # If the last dataset is incomplete, do not yield it.
             if self._yielded_cnt == 0:

@@ -41,7 +41,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "TimeElapsed"
 
-        self._cpunum: int | None = None
+        self._cpu: int | None = None
         self._mdo: TurbostatMDC.TurbostatMDC = {}
         self._snames: list[str] = []
         self._hover_defs: dict[str, dict[str, _TabBuilderBase.MDTypedDict]] = {}
@@ -50,7 +50,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self._col2metric: dict[str, dict] = {}
 
-        self._cpunum = self._get_and_check_cpunum(rsts)
+        self._cpu = self._get_and_check_cpu(rsts)
         dfs = self._load_dfs(rsts)
 
         # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
@@ -300,7 +300,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             dataframes.
         """
 
-        dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpunum=self._cpunum)
+        dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpu=self._cpu)
 
         dfs = {}
         for res in rsts:

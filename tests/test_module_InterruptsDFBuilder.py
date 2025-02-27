@@ -44,8 +44,8 @@ def test_good_results():
     for dirpath in _TEST_RESULTS_DIR.iterdir():
         res = RORawResult(dirpath)
 
-        cpunum = res.info.get("cpunum")
-        dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpunum=cpunum)
+        cpu = res.info.get("cpu")
+        dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpu=cpu)
 
         pfx = f"DataFrame for '{dirpath}'"
         df = res.load_stat("interrupts", dfbldr)
@@ -60,8 +60,8 @@ def test_good_results():
         # The test results in '_TEST_RESULTS_DIR' are crafted to have many "LOC" interrupts, check
         # the corresponding column names.
         scopes = ["System"]
-        if cpunum is not None:
-            scopes.append(f"CPU{cpunum}")
+        if cpu is not None:
+            scopes.append(f"CPU{cpu}")
 
         for scope in scopes:
             colname = f"{scope}-LOC"

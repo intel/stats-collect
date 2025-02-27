@@ -55,20 +55,20 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         except OSError as err:
             raise Error(f"failed to create file '{self.info_path}':\n{err}") from None
 
-    def __init__(self, reportid, outdir, cmd=None, cpunum=None):
+    def __init__(self, reportid, outdir, cmd=None, cpu=None):
         """
         The class constructor. The arguments are as follows.
           * reportid - reportid of the raw test result.
           * outdir - the output directory to store the raw results at.
           * toolver - version of the tool creating the report.
           * cmd - the command executed during statistics collection.
-          * cpunum - CPU number associated with this test result (e.g., measured CPU number).
+          * cpu - CPU number associated with this test result (e.g., measured CPU number).
         """
 
         super().__init__(outdir)
 
         self.reportid = reportid
-        self.cpunum = cpunum
+        self.cpu = cpu
 
         self._created_paths = []
         self._data_collected = False
@@ -79,8 +79,8 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         self.info["reportid"] = reportid
         self.info["toolname"] = ToolInfo.TOOLNAME
         self.info["toolver"] = ToolInfo.VERSION
-        if cpunum is not None:
-            self.info["cpunum"] = self.cpunum
+        if cpu is not None:
+            self.info["cpu"] = self.cpu
         if cmd is not None:
             self.info["cmd"] = cmd
         self.info["date"] = time.strftime("%d %b %Y")

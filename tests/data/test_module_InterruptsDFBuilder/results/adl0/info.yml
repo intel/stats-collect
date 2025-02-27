@@ -17,4 +17,4 @@ stinfo:
     fallible: false
     props: {}
 duration: 2m
-cpunum: 1
+cpu: 1
