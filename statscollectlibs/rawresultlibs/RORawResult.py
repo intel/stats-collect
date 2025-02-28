@@ -358,8 +358,8 @@ class RORawResult(_RawResultBase.RawResultBase):
             self.reportid = reportid
 
         # TODO: Compatibility code. Remove in 2026. In version 1.0.47 the "cpunum" key was renamed
-        # to "cpu".
+        # to "cpus".
         if "cpunum" in self.info:
-            self.info["cpu"] = self.info.pop("cpunum")
+            self.info["cpus"] = self.info.pop("cpunum")
 
         self._detect_wltype()

@@ -72,11 +72,12 @@ def build_arguments_parser():
 
     ArgParse.add_ssh_options(subpars, ssh_options=ssh_options)
 
-    text = f"""If the executed command stresses a particular CPU number, you can specify it via this
-               option so that the number is saved in the test result and later the
-               '{ToolInfo.TOOLNAME} report' command will take this into account while generating the
-               test report."""
-    subpars.add_argument("--cpu", help=text, type=int)
+    text = f"""If the executed command stresses particular CPU numbers, specify them via this option
+               so that the numbers are saved in the test result and later the '{ToolInfo.TOOLNAME}
+               report' command will take this into account while generating the test report. CPU
+               numers should be specified as a comma-separated list of integers or integer ranges.
+               For For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
+    subpars.add_argument("--cpus", help=text, type=int)
 
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""

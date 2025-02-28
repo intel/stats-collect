@@ -19,7 +19,7 @@
 .SH Command \f[I]\[aq]start\[aq]\f[R]
 .PP
 usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
-[-K PRIVKEY] [-T TIMEOUT] [--cpu CPU] [--time-limit LIMIT] [-o
+[-K PRIVKEY] [-T TIMEOUT] [--cpus CPUS] [--time-limit LIMIT] [-o
 OUTDIR] [--reportid REPORTID] [--stats STATS] [--stats-intervals
 STATS_INTERVALS] [--list-stats] [--report] command
 .PP
@@ -51,11 +51,14 @@ By default the key is automatically found from standard paths like
 \f[B]-T\f[R] \f[I]TIMEOUT\f[R], \f[B]--timeout\f[R] \f[I]TIMEOUT\f[R]
 SSH connect timeout in seconds, default is 8.
 .TP
-\f[B]--cpu\f[R] \f[I]CPU\f[R]
-If the executed command stresses a particular CPU number, you can
-specify it via this option so that the number is saved in the test
+\f[B]--cpus\f[R] \f[I]CPUS\f[R]
+If the executed command stresses particular CPU numbers,
+specify them via this option so that the numbers are saved in the test
 result and later the \[aq]stats-collect report\[aq] command will take
-this into account while generating the test report.
+this into account while generating the test report. CPU numers should
+be specified as a comma-separated list of integers or integer ranges.
+For For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8,
+and 10 to 12.
 .TP
 \f[B]--time-limit\f[R] \f[I]LIMIT\f[R]
 The time limit for statistics collection, after which the collection
