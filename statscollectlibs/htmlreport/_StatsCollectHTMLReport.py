@@ -1,35 +1,69 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Authors: Adam Hawley <adam.james.hawley@intel.com>
+# Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+#          Adam Hawley <adam.james.hawley@intel.com>
 
-"""API for generating 'stats-collect' HTML reports."""
+"""Provide a capability of generating 'stats-collect' HTML reports."""
 
-from pepclibs.helperlibs import Logging 
+from pathlib import Path
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
+from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.rawresultlibs import RORawResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class StatsCollectHTMLReport:
     """
-    API for generating 'stats-collect' HTML reports.
+    A class for for generating 'stats-collect' HTML reports.
 
-    'stats-collect' HTML reports consist of the statistics tabs and the "results" tab, which may
-    be workload-specific. The former tabs are implemented and rendered by the 'HTMLReport' class,
-    the latter are implemented by and rendered by this class.
+    The reports consist of the statistics tabs and the "results" tab, which may be
+    workload-specific. The former tabs are implemented and rendered by the 'HTMLReport' class, the
+    latter are implemented by and rendered by this class.
     """
 
-    def _add_intro_tbl_links(self, label, paths):
+    def __init__(self,
+                 rsts: list[RORawResult.RORawResult],
+                 outdir: Path,
+                 logpath: Path | None = None):
         """
-        Add links in 'paths' to the 'self._intro_tbl' dictionary. The arguments are as follows.
-          * label - the label that will be shown in the intro table for these links.
-          * paths - dictionary in the format {Report ID: Path to Link to.
+        Initialize a class instance.
+
+        Args:
+            rsts: List of of test results objects ('RORawResult') to generate the HTML report for.
+            outdir: The output directory to place the HTML report in.
+            logpath: The HTML report generation log file path.
+        """
+
+        self.rsts = rsts
+        self.outdir = outdir
+        self.logpath = logpath
+
+        # Users can change this to 'True' to copy all the raw test results into the output
+        # directory.
+        self.copy_raw = False
+
+        self._intro_tbl: _IntroTable.IntroTable
+
+        # Paths to (copied) raw test result directories in the output directory, and logs/workload
+        # data sub-directories in the output directory. The dictionary is indexed by report ID.
+        self._raw_paths: dict[str, Path] = {}
+        self._raw_logs_paths: dict[str, Path] = {}
+        self._raw_wldata_paths: dict[str, Path] = {}
+
+    def _add_intro_tbl_links(self, label: str, paths: dict[str, Path]):
+        """
+        Add links to the intro table.
+
+        Args:
+            label: The label that will be shown in the intro table for these links.
+            paths: A dictionary in the format {Report ID: Path to Link to}.
         """
 
         valid_paths = {}
@@ -52,8 +86,13 @@ class StatsCollectHTMLReport:
         for reportid, path in valid_paths.items():
             row.add_cell(reportid, label, link=path)
 
-    def _generate_intro_table(self, rsts):
-        """Generate an intro table based on results in 'rsts'."""
+    def _generate_intro_table(self, rsts: list[RORawResult.RORawResult]):
+        """
+        Generate an intro table for test results in 'rsts'.
+
+        Args:
+            rsts: A list of raw result objects.
+        """
 
         self._intro_tbl = _IntroTable.IntroTable()
         descr = "The command run during statistics collection."
@@ -87,8 +126,16 @@ class StatsCollectHTMLReport:
         # Add links to the logs directories.
         self._add_intro_tbl_links("Logs", self._raw_logs_paths)
 
-    def _get_results_tab(self, tabs_dir):
-        """Create and return the results tab object."""
+    def _get_results_tab(self, tabs_dir: Path) -> _Tabs.CTabDC:
+        """
+        Create and return the results tab object.
+
+        Args:
+            tabs_dir: Path to the directory where the tabs will be stored.
+
+        Returns:
+            _Tabs.CTabDC: The resulting container tab object.
+        """
 
         wltypes = {}
         wltypes_set = set()
@@ -104,20 +151,19 @@ class StatsCollectHTMLReport:
                             f"({RORawResult.SUPPORTED_WORKLOADS[res.wltype]})")
             msg = " * " + "\n * ".join(msgs)
             wltype = "generic"
-            _LOG.warning("multiple workload types detected, assuming a generic workload:\n%s", msg)
+            _LOG.warning("Multiple workload types detected, assuming a generic workload:\n%s", msg)
         else:
             wltype = next(iter(wltypes_set))
 
         _LOG.info("Workload type: %s (%s)",
                   wltypes[res.reportid], RORawResult.SUPPORTED_WORKLOADS[res.wltype])
+
         if wltype == "generic":
-            tbldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, tabs_dir,
-                                                                       basedir=self.outdir)
-            return tbldr.get_tab()
+            return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, tabs_dir,
+                                                                      basedir=self.outdir).get_tab()
         if wltype == "specjbb2015":
-            tbldr = _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self.rsts, tabs_dir,
-                                                                 basedir=self.outdir)
-            return tbldr.get_tab()
+            return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self.rsts, tabs_dir,
+                                                                basedir=self.outdir).get_tab()
 
         raise Error(f"BUG: unsupported workload type '{wltype}'")
 
@@ -159,27 +205,3 @@ class StatsCollectHTMLReport:
         self._generate_intro_table(self.rsts)
         rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=self._intro_tbl,
                             title="stats-collect report")
-
-    def __init__(self, rsts, outdir, logpath=None):
-        """
-        Class constructor. The arguments are as follows.
-          * rsts - an iterable collection of test results objects ('RORawResult') to generate the
-                   HTML report for.
-          * outdir - the output directory to place the HTML report to.
-          * logpath - the HTML report generation log file path.
-        """
-
-        self.rsts = rsts
-        self.outdir = outdir
-        self.logpath = logpath
-
-        # Users can change this to 'True' to copy all the raw test results into the output
-        # directory.
-        self.copy_raw = False
-
-        self._intro_tbl = None
-        # Paths to (copied) raw test result directories in the output directory, and logs/workload
-        # data sub-directories in the output directory. The dictionary is indexed by report ID.
-        self._raw_paths = {}
-        self._raw_logs_paths = {}
-        self._raw_wldata_paths = {}
