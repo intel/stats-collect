@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Authors: Adam Hawley <adam.james.hawley@intel.com>
+# Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+#          Adam Hawley <adam.james.hawley@intel.com>
 
 """
 API for generating 'stats-collect' statistics tab in HTML report.
@@ -14,26 +15,33 @@ Terminology.
              HTML report output directory). Example: javascript libraries, license files.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import dataclasses
 import json
 from pathlib import Path
+from typing import Any
 import plotly
 from packaging import version
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
+from statscollectlibs.htmlreport import _IntroTable
+from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
+from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
+from statscollectlibs.rawresultlibs import RORawResult
 from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-def reportids_dedup(rsts):
+def reportids_dedup(rsts: list[RORawResult.RORawResult]):
     """
-    Deduplicate report IDs by appending '-X' to the duplicates, where 'X' is an integer. The
-    arguments are as follows.
-      * rsts - an iterable collection of test results objects ('RORawResult') to de-duplicate the
-               report IDs for.
+    Deduplicate report IDs by appending '-X' to the duplicates, where 'X' is an integer.
+
+    Args:
+        rsts: A list of test results objects ('RORawResult') to de-duplicate the report IDs for.
     """
 
     reportids = set()
@@ -44,17 +52,22 @@ def reportids_dedup(rsts):
             for idx in range(1, 20):
                 new_reportid = f"{reportid}-{idx:02}"
                 if new_reportid not in reportids:
-                    _LOG.warning("duplicate reportid '%s', using '%s' instead",
+                    _LOG.warning("Duplicate reportid '%s', using '%s' instead",
                                  reportid, new_reportid)
                     res.reportid = new_reportid
                     break
             else:
-                raise Error(f"too many duplicate report IDs, e.g., '{reportid}' is problematic")
+                raise Error(f"Too many duplicate report IDs, e.g., '{reportid}' is problematic")
 
         reportids.add(res.reportid)
 
-def _copy_assets(outdir):
-    """Copy assets to 'outdir'."""
+def _copy_assets(outdir: Path):
+    """
+    Copy necessary assets to the specified output directory.
+
+    Args:
+        outdir: The output directory where the assets will be copied.
+    """
 
     # This list defines the assets which should be copied into the output directory. Items in the
     # list are tuples in the format: (asset_description, path_to_asset, path_of_copied_asset).
@@ -81,12 +94,14 @@ def _copy_assets(outdir):
         asset_path = ProjectFiles.find_project_data("stats-collect", asset[1], what=asset[0])
         FSHelpers.copy(asset_path, asset[2], exist_ok=True)
 
-def _dump_json(obj, path, descr):
+def _dump_json(obj: Any, path: Path, descr: str):
     """
-    Dump an object to a file in JSON format.
-      * obj - Python object to dump to JSON.
-      * path - path to create JSON file at.
-      * descr - description of the object being dumped.
+    Dump a dictionary to a file in JSON format.
+
+    Args:
+        obj: An object to dump to JSON.
+        path: Path to create JSON file at.
+        descr: Description of the object being dumped.
     """
 
     try:
@@ -94,23 +109,37 @@ def _dump_json(obj, path, descr):
             json.dump(obj, fobj, default=str)
     except Exception as err:
         msg = Error(err).indent(2)
-        raise Error(f"could not generate report: failed to JSON dump '{descr}' to '{path}':\n"
+        raise Error(f"Could not generate report: failed to JSON dump '{descr}' to '{path}':\n"
                     f"{msg}") from None
 
-def validate_outdir(outdir):
+def _check_plotly_ver():
+    """Warn if plotly version is too old."""
+
+    plotly_ver = plotly.__version__
+    preferred_ver = "5.18.0"
+    if version.parse(plotly_ver) < version.parse(preferred_ver):
+        _LOG.warning("Generating a report with 'plotly v%s' can cause time stamps in plots to "
+                     "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
+                     "to resolve this issue", plotly_ver, preferred_ver)
+
+def validate_outdir(outdir: Path):
     """
-    Check that 'outdir' is suitable to be used as the HTML report output directory. The arguments
-    are as follows.
-      * outdir - the output directory path to check.
+    Validate that 'outdir' is suitable to be used as the HTML report output directory.
+
+    Args:
+        outdir: The output directory path to check.
+
+    Raises:
+        ErrorExists: If 'outdir' contains an HTML report.
     """
 
     if outdir.exists():
         if not outdir.is_dir():
-            raise Error(f"path '{outdir}' already exists and it is not a directory")
+            raise Error(f"Path '{outdir}' already exists and it is not a directory")
 
         index_path = outdir / "index.html"
         if index_path.exists():
-            raise ErrorExists(f"cannot use path '{outdir}' as the output directory, it already "
+            raise ErrorExists(f"Cannot use path '{outdir}' as the output directory, it already "
                               f"contains '{index_path.name}'")
 
 class HTMLReport:
@@ -122,8 +151,35 @@ class HTMLReport:
     tab.
     """
 
-    def _init_tab_builders(self, rsts):
-        """Initialise tab builders for all raw results in 'rsts'."""
+    def __init__(self, outdir: Path, logpath: Path | None = None):
+        """
+        Initialize a class instatnce.
+
+        Args:
+            outdir: The directory which will contain the report.
+            logpath: The path to the report generation log file.
+        """
+
+        self._outdir = Path(outdir)
+        self._data_dir = self._outdir / "report-data"
+        self.tabs_dir = self._data_dir / "tabs"
+
+        self.logpath = logpath
+
+        self._stats_tbldr: _StatsTabBuilder.StatsTabBuilder | None = None
+        self._sysinfo_tbldr: _SysInfoTabBuilder.SysInfoTabBuilder | None = None
+
+        _check_plotly_ver()
+        validate_outdir(outdir)
+
+    def _init_tab_builders(self, rsts: list[RORawResult.RORawResult]):
+        """
+        Initialize tab builders for all raw results in 'rsts'.
+
+        Args:
+            rsts: List of raw result objects to initialize the tab builders for.
+
+        """
 
         # Only try and generate the statistics tab if statistics were collected.
         collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
@@ -140,10 +196,24 @@ class HTMLReport:
                                                                      basedir=self._outdir)
             except Error as err:
                 _LOG.debug_print_stacktrace()
-                _LOG.warning("failed to generate statistics tabs: %s", err)
+                _LOG.warning("Failed to generate statistics tabs: %s", err)
 
-    def _generate_tabs(self, rsts, tab_cfgs):
-        """Generate statistics and sysinfo tabs."""
+    def _generate_tabs(self,
+                       rsts: list[RORawResult.RORawResult],
+                       tab_cfgs: dict[str, CTabConfig] | None) -> list[_Tabs.CTabDC]:
+        """
+        Generate statistics and system information tabs.
+
+        Args:
+            rsts: List of raw result objects to generate the tabs for.
+            tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
+                      configuration customizes the contents of the 'stname' statistics tab. If an
+                      'stname' is not provided in 'tab_cfgs', the default tab configuration will be
+                      used.
+
+        Returns:
+            list: A list of generated tabs.
+        """
 
         tabs = []
 
@@ -159,19 +229,20 @@ class HTMLReport:
             tabs.append(sysinfo_tab)
         except Error as err:
             _LOG.debug_print_stacktrace()
-            _LOG.warning("failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
+            _LOG.warning("Failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
 
         return tabs
 
-    def get_default_tab_cfgs(self, rsts):
+    def get_default_tab_cfgs(self, rsts: list[RORawResult.RORawResult]) -> dict[str, CTabConfig]:
         """
-        Get the default tab configuration for all statistics collected in results 'rsts'. The
-        arguments are as follows.
-          * rsts - an iterable collection of test results objects ('RORawResult') to get default tab
-                   configuration for.
+        Get the default tab configuration for all statistics collected in results 'rsts'.
 
-        Return all default tab configurations as a dictionary in the format of
-        '{stname: 'TabConfig.CTabConfig'}' with an entry for each 'stname' (statistics name).
+        Args:get_default_tab_cfgs
+            rsts: List of raw test results objects to get the default tabs configurations for.
+
+        Returns:
+            A dictionary containing default tab configurations in the format
+            '{stname: CTabConfig}' with an entry for each 'stname' (statistics name).
         """
 
         self._init_tab_builders(rsts)
@@ -181,38 +252,42 @@ class HTMLReport:
 
         return self._stats_tbldr.get_default_tab_cfgs()
 
-    def generate_report(self, tabs=None, rsts=None, intro_tbl=None, title=None, descr=None,
-                        toolname=None, toolver=None, tab_cfgs=None):
+    def generate_report(self,
+                        tabs: list[_Tabs.CTabDC] | None = None,
+                        rsts: list[RORawResult.RORawResult] | None = None,
+                        intro_tbl: _IntroTable.IntroTable | None = None,
+                        title: str | None = None,
+                        descr: str | None = None,
+                        toolname: str | None = None,
+                        toolver: str | None = None,
+                        tab_cfgs: dict[str, CTabConfig] | None = None):
         """
-        Generate a 'stats-collect' statistics file in the HTML report directory. The arguments are
-        as follows.
-          * tabs - a list of additional container tabs which should be included in the report. If,
-                   omitted, 'rsts' is required to generate statistics tabs.
-          * rsts - a list of 'RORawResult' instances for different results with statistics which
-                   should be included in the report.
-          * intro_tbl - an '_IntroTable.IntroTable' instance which represents the table which will
-                        be included in the report. If one is not provided, it will be omitted from
-                        the report.
-          * title - the title of the report. If one is not provided, omits the title.
-          * descr - a description of the report. If one is not provided, omits the description.
-          * toolname - override the name of the tool used to generate the report. Defaults to
-                       'stats-collect'. Should be used in conjunction with the 'toolver' parameter.
-          * toolver - override the version of the tool used to generate the report. Defaults to the
-                      current version of 'stats-collect'. Should be used in conjunction with the
-                      'toolname' parameter.
-          * tab_cfgs - a dictionary in the format '{stname: TabConfig.TabConfig}', where each tab
-                       configuration is used to customize the contents of the 'stname' statistics
-                       tab. By default, if an 'stname' is not provided in 'tab_cfgs', then a default
-                       tab configuration will be used.
+        Generate a 'stats-collect' statistics file in the HTML report directory.
+
+        Args:
+            tabs: A list of additional container tabs to include in the report.
+            rsts: A List of raw test results objects to generate the report for.
+            intro_tbl: An instance representing the table to include in the report. If not provided,
+                       it will be omitted from the report.
+            title: The title of the report. If not provided, the title is omitted.
+            descr: A description of the report. If not provided, the description is omitted.
+            toolname: Override the name of the tool used to generate the report. Defaults to
+                     'stats-collect'. Should be used with the 'toolver' parameter.
+            toolver: Override the version of the tool used to generate the report. Defaults to the
+                     current version of 'stats-collect'.
+            tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
+                      configuration customizes the contents of the 'stname' statistics tab.
+                      If an 'stname' is not provided in 'tab_cfgs', the default tab configuration
+                      will be used.
         """
 
         if not tabs and not rsts:
-            raise Error("both 'tabs' and 'rsts' can't be 'None'. One of the two parameters should "
-                        "be provided.")
+            raise Error("BUG: Both 'tabs' and 'rsts' can't be 'None'. One of the two parameters "
+                        "should be provided.")
 
         if (toolname and not toolver) or (not toolname and toolver):
-            raise Error("one of 'toolname' and 'toolver' was provided. Either both 'toolname' and "
-                        "'toolver' should be provided or neither of the options.")
+            raise Error("BUG: One of 'toolname' and 'toolver' was provided. Either both 'toolname' "
+                        "and 'toolver' should be provided or neither of the options.")
 
         if not toolname:
             toolname = ToolInfo.TOOLNAME
@@ -228,12 +303,15 @@ class HTMLReport:
             self._data_dir.mkdir(parents=True, exist_ok=True)
         except OSError as err:
             msg = Error(err).indent(2)
-            raise Error(f"failed to create directory '{self._data_dir}':\n{msg}") from None
+            raise Error(f"Failed to create directory '{self._data_dir}':\n{msg}") from None
 
         # 'report_info' stores data used by the Javascript to generate the main report page
         # including the intro table, the file path of the tabs JSON dump plus the report title and
         # description.
-        report_info = {"title": title, "descr": descr, "toolname": toolname, "toolver": toolver}
+        report_info: dict[str, str | Path | None] = {"title": title,
+                                                     "descr": descr,
+                                                     "toolname": toolname,
+                                                     "toolver": toolver}
 
         if self.logpath is not None:
             report_info["logpath"] = self.logpath
@@ -259,32 +337,3 @@ class HTMLReport:
         _copy_assets(self._outdir)
 
         _LOG.info("Generated report in '%s'.", self._outdir)
-
-    def _check_plotly_ver(self):
-        """Warn if plotly version is too old."""
-
-        plotly_ver = plotly.__version__
-        preferred_ver = "5.18.0"
-        if version.parse(plotly_ver) < version.parse(preferred_ver):
-            _LOG.warning("generating a report with 'plotly v%s' can cause time stamps in plots to "
-                         "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
-                         "to resolve this issue", plotly_ver, preferred_ver)
-
-    def __init__(self, outdir, logpath=None):
-        """
-        The class constructor. The arguments are as follows.
-          * outdir - the directory which will contain the report.
-          * logpath - the path to the report generation log file.
-        """
-
-        self._outdir = Path(outdir)
-        self._data_dir = self._outdir / "report-data"
-        self.tabs_dir = self._data_dir / "tabs"
-
-        self.logpath = logpath
-
-        self._stats_tbldr = None
-        self._sysinfo_tbldr = None
-
-        self._check_plotly_ver()
-        validate_outdir(outdir)
