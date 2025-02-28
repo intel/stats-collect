@@ -1,47 +1,79 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023-2024 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Authors: Adam Hawley <adam.james.hawley@intel.com>
+# Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+#          Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides the API to generate a 'Stats' container tab."""
+"""Provide the API to generate a 'Stats' container tab."""
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from pathlib import Path
+from typing import Union
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.stats import (_TurbostatTabBuilder, _InterruptsTabBuilder,
-                                                    _ACPowerTabBuilder, _IPMITabBuilder)
+from statscollectlibs.htmlreport.tabs.stats import _TurbostatTabBuilder, _InterruptsTabBuilder
+from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
+from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
+from statscollectlibs.rawresultlibs import RORawResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
+_TabBuilderTypes = Union[_TurbostatTabBuilder.TurbostatTabBuilder,
+                         _InterruptsTabBuilder.InterruptsTabBuilder,
+                         _ACPowerTabBuilder.ACPowerTabBuilder]
 class StatsTabBuilder:
-    """This class provides the API to generate a 'Stats' container tab."""
+    """Provide the API to generate a 'Stats' container tab."""
 
     name = "Stats"
 
-    def get_default_tab_cfgs(self, stname=None):
+    def __init__(self,
+                 rsts: list[RORawResult.RORawResult],
+                 outdir: Path,
+                 basedir: Path | None = None):
         """
-        Get the default tab configuration for statistic 'stname'. If 'stname' is not provided,
-        returns all default tab configurations as a dictionary in the format
-        '{stname: 'TabConfig.CTabConfig'}' with an entry for each 'stname'.
+        Initialize a class instance.
+
+        Args:
+            rsts: list of raw result objects to generate the statistics tabs for.
+            outdir: The output directory path to store that tabs data in.
+            basedir: The base directory path (the 'outdir' should be a sub-path of 'basedir').
         """
 
-        if stname is None:
-            return {stname: tbldr.get_default_tab_cfg() for stname, tbldr in self._tbldrs.items()}
+        self._rsts = rsts
+        self._outdir = outdir
+        self._basedir = basedir if basedir else outdir
+        self._tbldrs: dict[str, _TabBuilderTypes] = {}
 
-        try:
-            return self._tbldrs[stname].get_default_tab_cfg()
-        except KeyError:
-            raise Error(f"unsupported statistic name '{stname}'") from None
+        self._init_tab_bldrs()
 
-    def get_tab(self, tab_cfgs=None):
+    def get_default_tab_cfgs(self) -> dict[str, CTabConfig]:
         """
-        Generate and return the Stats container tab (as an instance of '_Tabs.CTab'). The statistics
-        tab includes metrics from the statistics collectors, such as 'turbostat'. Arguments are the
-        same as in 'HTMLReport.generate_report()'.
+        Get the default statistics tabs configuration.
+
+        Returns:
+            A dictionary containing the default tab configurations for all statistics in the format
+            '{stname: CTabConfig}'.
+        """
+
+        return {stname: tbldr.get_default_tab_cfg() for stname, tbldr in self._tbldrs.items()}
+
+    def get_tab(self, tab_cfgs: dict[str, CTabConfig] | None = None) -> _Tabs.CTabDC:
+        """
+        Generate and return the the statistics container tab (the top-level "Stats" tab in the HTML
+        report).
+
+        Args:
+            tab_cfgs: A dictionary of tab configurations, where the key is the statistics collector
+                      name and the value is the configuration for that tab.
+
+        Returns:
+            _Tabs.CTabDC: The generated statistics container tab.
         """
 
         if tab_cfgs is None:
@@ -55,16 +87,16 @@ class StatsTabBuilder:
                 tabs.append(tbldr.get_tab(tab_cfg=tab_cfg))
             except Error as err:
                 _LOG.debug_print_stacktrace()
-                _LOG.warning("failed to generate '%s' tab: %s", tbldr.name, err)
+                _LOG.warning("Failed to generate '%s' tab: %s", tbldr.name, err)
                 continue
 
         if not tabs:
-            _LOG.warning("all statistics tabs were skipped")
+            _LOG.warning("All statistics tabs were skipped")
 
         return _Tabs.CTabDC(self.name, tabs)
 
     def _init_tab_bldrs(self):
-        """Initialise tab builder classes."""
+        """Initialise tab builder objects."""
 
         tab_bldr_classes = (_TurbostatTabBuilder.TurbostatTabBuilder,
                             _InterruptsTabBuilder.InterruptsTabBuilder,
@@ -86,11 +118,11 @@ class StatsTabBuilder:
         sysinfo_stname = _SysInfoTabBuilder.SysInfoTabBuilder.stname
         missing_tab_builders = collected_stnames - supported_stnames - {sysinfo_stname}
         if missing_tab_builders:
-            _LOG.warning("the following statistics are not supported for HTML reports: %s",
+            _LOG.warning("The following statistics are not supported for HTML reports: %s",
                          ", ".join(missing_tab_builders))
 
         if not supported_stnames:
-            raise Error("no results contain any statistics data")
+            raise Error("No results contain any statistics data")
 
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(supported_stnames))
 
@@ -112,13 +144,3 @@ class StatsTabBuilder:
                 _LOG.warning("Skipping '%s' tab as '%s' statistics has bad format:\n%s",
                              tab_builder.name, tab_builder.name, err.indent(2))
                 continue
-
-    def __init__(self, rsts, outdir, basedir=None):
-        """Class constructor. Arguments are the same as in '_TabBuilderBase.TabBuilderBase()'."""
-
-        self._rsts = rsts
-        self._outdir = outdir
-        self._basedir = basedir if basedir else outdir
-        self._tbldrs = {}
-
-        self._init_tab_bldrs()
