@@ -54,3 +54,10 @@ General options
 **--copy-raw**
    Copy raw test results to the output directory (unless the output
    direcory is already part of the raw result sub-directory).
+
+**--cpus** *CPUS*
+   The CPU numbers to visualize. By default, the CPU numbers that were
+   speicified at data collection time are included in the report, and
+   this option overrides them. CPU numers should be specified as a
+   comma-separated list of integers or integer ranges. For example,
+   '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12.

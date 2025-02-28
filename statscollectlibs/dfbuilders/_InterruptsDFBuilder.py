@@ -27,18 +27,18 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
     Parse raw interrupt statistics file and build a dataframe.
     """
 
-    def __init__(self, colnames: list[str] | None = None, cpu: int | None = None):
+    def __init__(self, colnames: list[str] | None = None, cpus: list[int] | None = None):
         """
         Initialize the class instance.
 
         Args:
             colnames: List of column names to include in the dataframe. If 'None', column names are
                       automatically determined based on the most frequent interrupts.
-            cpu: CPU number to include in the dataframe. If 'None', do not include any individual
-                 CPU columns in the dataframe.
+            cpus: CPU numbers to include in the dataframe. If 'None', do not include any individual
+                  CPU columns in the dataframe.
         """
 
-        self._cpu = cpu
+        self._cpus = cpus
         self.colnames = colnames
 
         # Number of "numerical" interrupts per scope to include. There are many interrupts, but the
@@ -229,20 +229,23 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
                      f"System-{self._total_xyz_metric}"]
         colnames += self._fetch_hottest_irqs(irqs, "System")
 
-        if self._cpu is not None:
-            if self._cpu not in first_ds["cpu2irqs"] or self._cpu not in last_ds["cpu2irqs"]:
-                raise Error(f"No data for CPU '{self._cpu}' found in interrupts statistics file "
+        if self._cpus is None:
+            return colnames
+
+        for cpu in self._cpus:
+            if cpu not in first_ds["cpu2irqs"] or cpu not in last_ds["cpu2irqs"]:
+                raise Error(f"No data for CPU '{cpu}' found in interrupts statistics file "
                             f"'{self._path}") from None
 
             # Calculate how many interrupts of each type occurred.
             irqs = {}
-            for irqname, cnt in first_ds["cpu2irqs"][self._cpu].items():
-                irqs[irqname] = last_ds["cpu2irqs"][self._cpu][irqname] - cnt
+            for irqname, cnt in first_ds["cpu2irqs"][cpu].items():
+                irqs[irqname] = last_ds["cpu2irqs"][cpu][irqname] - cnt
 
-            colnames += [f"CPU{self._cpu}-{self._total_metric}",
-                         f"CPU{self._cpu}-{self._total_irq_metric}",
-                         f"CPU{self._cpu}-{self._total_xyz_metric}"]
-            colnames += self._fetch_hottest_irqs(irqs, f"CPU{self._cpu}")
+            colnames += [f"CPU{cpu}-{self._total_metric}",
+                         f"CPU{cpu}-{self._total_irq_metric}",
+                         f"CPU{cpu}-{self._total_xyz_metric}"]
+            colnames += self._fetch_hottest_irqs(irqs, f"CPU{cpu}")
 
         return colnames
 

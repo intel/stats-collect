@@ -45,7 +45,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         # The column names to include in the interrupts statistics tab.
         self._tab_colnames: list[str] = []
 
-        self._cpu = self._get_and_check_cpu(rsts)
+        self._cpus = self._get_and_check_cpus(rsts)
 
         dfs = self._load_dfs(rsts)
 
@@ -172,7 +172,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             dataframes.
         """
 
-        dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpu=self._cpu)
+        dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self._cpus)
 
         dfs = {}
         for res in rsts:

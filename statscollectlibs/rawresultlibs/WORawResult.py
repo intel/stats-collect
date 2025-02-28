@@ -12,7 +12,7 @@ import contextlib
 import os
 import shutil
 import time
-from pepclibs.helperlibs import Logging, YAML, ClassHelpers
+from pepclibs.helperlibs import Logging, Human, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.rawresultlibs import _RawResultBase
 from statscollecttools import ToolInfo
@@ -80,7 +80,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         self.info["toolname"] = ToolInfo.TOOLNAME
         self.info["toolver"] = ToolInfo.VERSION
         if cpus is not None:
-            self.info["cpus"] = self.cpus
+            self.info["cpus"] = Human.rangify(self.cpus)
         if cmd is not None:
             self.info["cmd"] = cmd
         self.info["date"] = time.strftime("%d %b %Y")

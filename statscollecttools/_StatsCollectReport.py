@@ -18,11 +18,12 @@ from statscollectlibs.rawresultlibs import RORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 from statscollecttools import ToolInfo, _Common
 
-def open_raw_results(respaths, reportids=None):
+def open_raw_results(respaths, reportids=None, cpus=None):
     """
     Opens the input raw test results, and returns the list of 'RORawResult' objects.
       * respaths - list of paths to raw results.
       * reportids - list of reportids to override report IDs in raw results.
+      * cpus - comma separated list of CPU numbers to include in the report.
     """
 
     if reportids:
@@ -33,6 +34,9 @@ def open_raw_results(respaths, reportids=None):
     if len(reportids) > len(respaths):
         raise Error(f"there are {len(reportids)} report IDs to assign to {len(respaths)} input "
                     f"test results. Please, provide {len(respaths)} or fewer report IDs.")
+
+    if cpus:
+        cpus = Trivial.split_csv_line_int(cpus, what="--cpus argument")
 
     # Append the required amount of 'None's to make the 'reportids' list be of the same length as
     # the 'respaths' list.
@@ -47,6 +51,8 @@ def open_raw_results(respaths, reportids=None):
         if ToolInfo.TOOLNAME != res.info["toolname"]:
             raise Error(f"cannot generate '{ToolInfo.TOOLNAME}' report, results are collected with "
                         f"'{res.info['toolname']}':\n{respath}")
+        if cpus:
+            res.info["cpus"] = cpus
         rsts.append(res)
 
     return rsts
@@ -57,7 +63,7 @@ def report_command(args):
       * args - the command-line arguments.
     """
 
-    rsts = open_raw_results(args.respaths, args.reportids)
+    rsts = open_raw_results(args.respaths, reportids=args.reportids, cpus=args.cpus)
 
     if not args.outdir:
         args.outdir = args.respaths[0] / "html-report"

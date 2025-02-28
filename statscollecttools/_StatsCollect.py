@@ -77,7 +77,7 @@ def build_arguments_parser():
                report' command will take this into account while generating the test report. CPU
                numers should be specified as a comma-separated list of integers or integer ranges.
                For For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
-    subpars.add_argument("--cpus", help=text, type=int)
+    subpars.add_argument("--cpus", help=text)
 
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""
@@ -141,6 +141,12 @@ def build_arguments_parser():
 
     text = f"""One or multiple {ToolInfo.TOOLNAME} test result paths."""
     subpars.add_argument("respaths", nargs="+", type=Path, help=text)
+
+    text = """The CPU numbers to visualize. By default, the CPU numbers that were speicified at
+              data collection time are included in the report, and this option overrides them. CPU
+              numers should be specified as a comma-separated list of integers or integer ranges.
+              For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
+    subpars.add_argument("--cpus", help=text)
 
     if argcomplete:
         argcomplete.autocomplete(parser)

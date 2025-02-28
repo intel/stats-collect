@@ -9,7 +9,7 @@
 """API for reading raw 'stats-collect' test results."""
 
 from pathlib import Path
-from pepclibs.helperlibs import Logging, YAML
+from pepclibs.helperlibs import Logging, Trivial, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import ReportID, FSHelpers
@@ -361,5 +361,9 @@ class RORawResult(_RawResultBase.RawResultBase):
         # to "cpus".
         if "cpunum" in self.info:
             self.info["cpus"] = self.info.pop("cpunum")
+
+        if self.info.get("cpus"):
+            self.info["cpus"] = Trivial.split_csv_line_int(self.info["cpus"],
+                                                           what=f"'cpus' key in '{self.info_path}'")
 
         self._detect_wltype()

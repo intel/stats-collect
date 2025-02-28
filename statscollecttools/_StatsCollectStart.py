@@ -63,7 +63,7 @@ def start_command(args):
         if args.cpus is not None:
             cpuinfo = CPUInfo.CPUInfo(pman=pman)
             stack.enter_context(cpuinfo)
-            cpus = Trivial.split_csv_line_int(args.cpus)
+            cpus = Trivial.split_csv_line_int(args.cpus, what="--cpus argument")
             args.cpus = cpuinfo.normalize_cpus(cpus)
 
         with _Deploy.DeployCheck("stats-collect", args.toolname, args.deploy_info,

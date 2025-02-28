@@ -6,12 +6,16 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
+ - Add 'stats-collect report --cpus' option to specify CPU numbers to include
+   in the report.
 ### Removed
 ### Changed
+ - Rename 'stats-collect start --cpunum' option to '--cpus' and allow for
+   providing multiple CPU numbers, not just one CPU number.
 
 ## [1.0.47] - 2025-02-27
 ### Fixed
- - Fix crash introduced in realeas 1.0.46.
+ - Fix crash introduced in release 1.0.46.
 
 ## [1.0.46] - 2025-02-27
 ### Fixed

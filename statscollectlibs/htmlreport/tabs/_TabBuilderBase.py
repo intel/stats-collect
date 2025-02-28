@@ -14,7 +14,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 from typing import cast
-from pepclibs.helperlibs import Logging
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
@@ -70,55 +70,63 @@ class TabBuilderBase:
     name: str | None = None
     stname: str | None = None
 
-    def _get_and_check_cpu(self, rsts: list[RORawResult.RORawResult]) -> int | None:
+    def _get_and_check_cpus(self, rsts: list[RORawResult.RORawResult]) -> list[int] | None:
         """
-        Get the measured CPU number from the raw results and check that all of them have the same
-        measured CPU number.
+        Get the measured CPU numbers from the raw results and check that all of them have the same
+        measured CPU numbers.
 
         Args:
-            rsts: list of raw result objects to get the measured CPU number from.
+            rsts: list of raw result objects to get the measured CPU numbers from.
 
         Returns:
-            The measured CPU number or 'None' if there is no measured CPU number.
+            The measured CPU numbers or 'None' if there are no measured CPU numbers.
         """
 
-        infos: dict[int, list[Path]] = {}
+        infos: dict[str, list[Path]] = {}
 
         for res in rsts:
-            cpu = res.info.get("cpu")
-            if cpu not in infos:
-                infos[cpu] = []
+            cpus = res.info.get("cpus")
+            if cpus:
+                cpus_str = ",".join([str(cpu) for cpu in cpus])
+            else:
+                cpus_str = ""
+            if cpus_str not in infos:
+                infos[cpus_str] = []
 
-            infos[cpu].append(res.dirpath)
+            infos[cpus_str].append(res.dirpath)
 
         if len(infos) == 1:
-            return next(iter(infos))
+            cpus_str = next(iter(infos))
+            if cpus_str is not None:
+                return Trivial.split_csv_line_int(cpus_str)
+            return None
 
         if len(infos) < 2:
             raise Error("BUG: no raw results")
 
         msg = ""
-        some_cpu = None
+        some_cpus_str = ""
 
-        for cpu, paths in infos.items():
-            if cpu is None:
-                cpustr = "no measured CPU"
+        for cpus_str, paths in infos.items():
+            if not cpus_str:
+                cpus_str = "no measured CPUs"
             else:
-                cpustr = f"CPU{cpu}:"
-                some_cpu = cpu
+                some_cpus_str = cpus_str
+                cpus_str = f"CPU numbers {cpus_str}:"
 
-            msg += f"\n  * {cpustr}"
+            msg += f"\n  * {cpus_str}"
             for path in paths:
                 msg += f"\n    * {path}"
 
-        if some_cpu is not None:
-            cpu = some_cpu
-            cpustr = f"CPU{cpu}:"
+        if some_cpus_str:
+            cpus_str = f"CPU numbers {some_cpus_str}:"
 
         _LOG.notice("A mix of measured CPU numbers in %s statistics detected:%s", self.stname, msg)
-        _LOG.notice("Will use the following for all results: %s", cpustr)
+        _LOG.notice("Will use the following for all results: %s", cpus_str)
 
-        return cpu
+        if some_cpus_str is not None:
+            return Trivial.split_csv_line_int(some_cpus_str)
+        return None
 
     def _get_smry_funcs(self, colname: str) -> list[str]:
         """
