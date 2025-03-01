@@ -48,7 +48,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
-        self._col2metric: dict[str, dict] = {}
+        self._col2metric: dict[str, str] = {}
 
         self._cpus = self._get_and_check_cpus(rsts)
         dfs = self._load_dfs(rsts)
