@@ -53,7 +53,7 @@ def start_command(args):
         if args.tlimit:
             if Trivial.is_num(args.tlimit):
                 args.tlimit = f"{args.tlimit}m"
-            args.tlimit = Human.parse_human(args.tlimit, unit="s", integer=True, name="time limit")
+            args.tlimit = Human.parse_human(args.tlimit, unit="s", integer=True, what="time limit")
 
         args.reportid = generate_reportid(args, pman)
 
