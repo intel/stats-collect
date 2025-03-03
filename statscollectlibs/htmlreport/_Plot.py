@@ -24,7 +24,6 @@ _FONTFMT = {"family" : "Arial, sans-serif",
 _AXIS = {"hoverformat" : ".3s",
          "showline"  : True,
          "showgrid"  : True,
-         "titlefont" : _FONTFMT,
          "ticks"     : "outside",
          "tickwidth" : 1,
          "tickformat" : ".3s",
@@ -159,7 +158,7 @@ class Plot:
 
         xaxis = {**_AXIS,
                  "ticksuffix": self.xaxis_baseunit if self.xaxis_baseunit else self.xaxis_unit,
-                 "title": self.xaxis_label}
+                 "title": {"text": self.xaxis_label, "font": _FONTFMT}}
 
         # The default axis configuration uses an SI prefix for units (e.g. ms, ks, etc.).  For units
         # which do not support SI prefixes (such as '%'), just round the value to 3 significant
@@ -171,7 +170,7 @@ class Plot:
 
         yaxis = {**_AXIS,
                  "ticksuffix": self.yaxis_baseunit if self.yaxis_baseunit else self.yaxis_unit,
-                 "title": self.yaxis_label}
+                 "title": {"text": self.yaxis_label, "font": _FONTFMT}}
 
         # See comment above regarding SI prefixes. Here we do the same but for the Y-axis.
         if not self.yaxis_baseunit:
