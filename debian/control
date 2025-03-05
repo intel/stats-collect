@@ -14,7 +14,7 @@ Build-Depends: debhelper (>= 12),
                python3-plotly,
                python3-pluggy,
                python3-yaml,
-               pepc (>= 1.5.27)
+               pepc (>= 1.5.28)
 Standards-Version: 3.9.8
 Homepage: https://github.com/intel/stats-collect
 X-Python3-Version: >= 3.7
@@ -23,7 +23,7 @@ Package: stats-collect
 Architecture: all
 Multi-Arch: foreign
 Depends: python3:any (>= 3.7~),
-         pepc (>= 1.5.27),
+         pepc (>= 1.5.28),
          python3-stats-collect,
          ${misc:Depends},
          ${python3:Depends},
@@ -38,7 +38,7 @@ Package: python3-stats-collect
 Architecture: all
 Multi-Arch: foreign
 Depends: python3:any (>= 3.7~),
-         pepc (>= 1.5.27),
+         pepc (>= 1.5.28),
          python3-paramiko,
          ${misc:Depends},
          ${python3:Depends}
