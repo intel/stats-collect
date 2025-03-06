@@ -290,9 +290,6 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         dataset = next(generator)
 
-        colnames: list[str] # All column names to include in the dataframe.
-        irq_colnames: list[str] # All non-time column names to include in the dataframe.
-
         if not self.colnames:
             self._irqcnt_colnames = self._construct_irq_colnames()
             irq_colnames = self._irqcnt_colnames
