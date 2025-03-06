@@ -34,9 +34,13 @@ Helpers types.
        python helpers is trickier because all python modules should also be deployed.
 """
 
+# TODO: finish adding type hints to this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import os
 import time
 import copy
+from typing import TypedDict, Literal
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ProcessManager, LocalProcessManager
 from pepclibs.helperlibs import ProjectFiles
@@ -45,10 +49,38 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The supported installable categories.
-CATEGORIES = {"drivers"    : "kernel driver",
-              "shelpers"   : "simple helper program",
-              "pyhelpers"  : "python helper program",
-              "bpfhelpers" : "eBPF helper program"}
+InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers", "bpfhelpers"]
+
+class InstallableInfoType(TypedDict, total=False):
+    """
+    The type of the dictionary that describes an installable.
+
+    Attributes:
+        category: Category name of the installable ("drivers", "shelpers", etc).
+        minkver: Minimum SUT kernel version required for the installable.
+        deployables: List of deployables this installable provides.
+    """
+
+    category: InstallableCategoriesType
+    minkver: str
+    deployables: tuple[str, ...]
+
+# The tool deploy information type.
+class DeployInfoType(TypedDict):
+    """
+    The tool deployment description dictionary type.
+
+    Attributes:
+        installables: Dictionary of installables. The key is the installable name, and the value is
+                      the installable information dictionary.
+    """
+    installables: dict[str, InstallableInfoType]
+
+# The supported installable categories.
+CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers"    : "kernel driver",
+                                                    "shelpers"   : "simple helper program",
+                                                    "pyhelpers"  : "python helper program",
+                                                    "bpfhelpers" : "eBPF helper program"}
 
 def get_deploy_cmd(pman, toolname):
     """

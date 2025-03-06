@@ -9,6 +9,9 @@
 
 """stats-collect - a tool for collecting and visualizing system statistics and telemetry."""
 
+# TODO: finish adding type hints to this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import sys
 from pathlib import Path
 
@@ -22,10 +25,11 @@ except ImportError:
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploylibs import _Deploy
+from statscollectlibs.deploylibs.DeployBase import DeployInfoType
 from statscollectlibs.collector import StatsCollectBuilder
 from statscollecttools import ToolInfo
 
-_STC_DEPLOY_INFO = {
+_STC_DEPLOY_INFO: DeployInfoType = {
     "installables" : {
         "stc-agent" : {
             "category" : "pyhelpers",
@@ -158,30 +162,27 @@ def parse_arguments():
     """Parse input arguments."""
 
     parser = build_arguments_parser()
-
-    args = parser.parse_args()
-    args.toolname = ToolInfo.TOOLNAME
-    args.toolver = ToolInfo.VERSION
-    args.deploy_info = _STC_DEPLOY_INFO
-
-    if hasattr(args, "cmd"):
-        args.cmd = " ".join(args.cmd)
-
-    return args
+    return parser.parse_args()
 
 def _deploy_command(args):
     """Implements the 'stats-collect deploy' command."""
 
     from statscollecttools import _StatsCollectDeploy # pylint: disable=import-outside-toplevel
 
-    _StatsCollectDeploy.deploy_command(args)
+    _StatsCollectDeploy.deploy_command(args, _STC_DEPLOY_INFO)
 
 def _start_command(args):
     """Implements the 'stats-collect start' command."""
 
     from statscollecttools import _StatsCollectStart # pylint: disable=import-outside-toplevel
 
-    _StatsCollectStart.start_command(args)
+    if args.list_stats:
+        from statscollectlibs.collector import StatsCollect # pylint: disable=import-outside-toplevel
+
+        StatsCollect.list_stats()
+        return
+
+    _StatsCollectStart.start_command(args, _STC_DEPLOY_INFO)
 
 def _report_command(args):
     """Implements the 'stats-collect report' command."""

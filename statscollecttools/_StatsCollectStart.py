@@ -9,74 +9,141 @@
 
 """This module includes the "start" 'stats-collect' command implementation."""
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import contextlib
+import argparse
 from pathlib import Path
+from typing import NamedTuple
 from pepclibs import CPUInfo
 from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
-from statscollecttools import _Common
+from statscollecttools import _Common, ToolInfo
 from statscollectlibs import Runner
 from statscollectlibs.collector import StatsCollectBuilder
 from statscollectlibs.deploylibs import _Deploy
+from statscollectlibs.deploylibs.DeployBase import DeployInfoType
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult, WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-def generate_reportid(args, pman):
+class _StartCommandArgsType(NamedTuple):
+    """The "stats-collect start" command-line arguments named tuple type."""
+
+    username: str
+    hostname: str
+    privkey: Path | None
+    timeout: int
+    cpus: str | None
+    tlimit: int | None
+    outdir: Path
+    reportid: str
+    stats: str | None
+    list_stats: bool
+    stats_intervals: str | None
+    report: bool
+    cmd_local: bool
+    cmd: str
+
+def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
     """
-    If user provided report ID for the 'start' command, this function validates it and returns.
-    Otherwise, it generates the default report ID and returns it.
+    Validate and format the 'stats-collect start' tool input command-line arguments, then build and
+    return the arguments named tuple object.
+
+    Args:
+        arguments: The input arguments parsed from the command line.
+
+    Returns:
+        _StartCommandArgsType: A named tuple containing the formatted arguments.
+
+    Notes:
+        - If the 'tlimit' argument does not have the unit, assum milliseconds.
+        - The 'outdir' argument defaults to a directory named after the 'reportid' if not provided.
     """
 
-    if not args.reportid and pman.is_remote:
-        prefix = pman.hostname
+    # Format the 'tlimit' argument.
+    tlimit = arguments.tlimit
+    if tlimit:
+        if Trivial.is_num(tlimit):
+            tlimit = f"{tlimit}m"
+        tlimit = Human.parse_human(tlimit, unit="s", integer=True, what="time limit")
+    else:
+        tlimit = None
+
+    hostname = arguments.hostname
+
+    if arguments.privkey:
+        privkey = Path(arguments.privkey)
+    else:
+        privkey = None
+
+    reportid = arguments.reportid
+
+    if not reportid and hostname != "localhost":
+        prefix = hostname
     else:
         prefix = None
+    reportid = ReportID.format_reportid(prefix=prefix, reportid=reportid,
+                                        strftime=f"{ToolInfo.TOOLNAME}-%Y%m%d")
 
-    return ReportID.format_reportid(prefix=prefix, reportid=args.reportid,
-                                    strftime=f"{args.toolname}-%Y%m%d")
+    if arguments.outdir:
+        outdir = Path(arguments.outdir)
+    else:
+        outdir = Path(f"./{reportid}")
 
-def start_command(args):
-    """Implements the 'start' command."""
+    return _StartCommandArgsType(
+        username = arguments.username,
+        hostname = hostname,
+        privkey = privkey,
+        timeout = arguments.timeout,
+        cpus = arguments.cpus,
+        tlimit = tlimit,
+        outdir = outdir,
+        reportid = reportid,
+        stats = arguments.stats,
+        list_stats = arguments.list_stats,
+        stats_intervals = arguments.stats_intervals,
+        report = arguments.report,
+        cmd_local = arguments.cmd_local,
+        cmd = " ".join(arguments.cmd)
+    )
 
-    if args.list_stats:
-        from statscollectlibs.collector import StatsCollect #pylint: disable=import-outside-toplevel
-        StatsCollect.list_stats()
-        return
+def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
+    """
+    Implement the 'stats-collect start' command.
+
+    Args:
+        arguments: The command-line arguments passed to the 'start' command.
+        deploy_info: The 'stats-collect' tool deployment information, used for checking the
+                     deployment status.
+    """
+
+    args = _format_args(arguments)
 
     with contextlib.ExitStack() as stack:
         pman = _Common.get_pman(args)
         stack.enter_context(pman)
 
-        if args.tlimit:
-            if Trivial.is_num(args.tlimit):
-                args.tlimit = f"{args.tlimit}m"
-            args.tlimit = Human.parse_human(args.tlimit, unit="s", integer=True, what="time limit")
-
-        args.reportid = generate_reportid(args, pman)
-
-        if not args.outdir:
-            args.outdir = Path(f"./{args.reportid}")
-
         if args.cpus is not None:
             cpuinfo = CPUInfo.CPUInfo(pman=pman)
             stack.enter_context(cpuinfo)
             cpus = Trivial.split_csv_line_int(args.cpus, what="--cpus argument")
-            args.cpus = cpuinfo.normalize_cpus(cpus)
+            cpus = cpuinfo.normalize_cpus(cpus)
+        else:
+            cpus = None
 
-        with _Deploy.DeployCheck("stats-collect", args.toolname, args.deploy_info,
+        with _Deploy.DeployCheck("stats-collect", ToolInfo.TOOLNAME, deploy_info,
                                  pman=pman) as depl:
             depl.check_deployment()
 
-        res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpus=args.cpus)
+        res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpus=cpus)
         stack.enter_context(res)
 
         if not args.stats or args.stats == "none":
-            args.stats = None
             stcoll = None
-            _LOG.warning("no statistics will be collected")
+            _LOG.warning("No statistics will be collected")
         else:
             stcoll_builder = StatsCollectBuilder.StatsCollectBuilder()
             stack.enter_context(stcoll_builder)
@@ -87,13 +154,13 @@ def start_command(args):
 
             stcoll = stcoll_builder.build_stcoll(pman, res, local_outdir=args.outdir)
             if not stcoll:
-                raise Error("no statistics discovered. Use '--stats=none' to explicitly "
+                raise Error("No statistics discovered. Use '--stats=none' to explicitly "
                             "run the tool without statistics collection.")
 
             if stcoll:
                 stack.enter_context(stcoll)
 
-        _Common.configure_log_file(res.logs_path, args.toolname)
+        _Common.configure_log_file(res.logs_path, ToolInfo.TOOLNAME)
 
         if not args.cmd_local:
             cmd_pman = pman
