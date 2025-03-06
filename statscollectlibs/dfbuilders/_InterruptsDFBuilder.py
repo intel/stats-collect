@@ -77,8 +77,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         Args:
             dataset: The dataset containing the interrupt counters.
-            scope: The scope to filter the interrupts. If it starts with "IRQ", it will filter by
-                   CPU number.
+            scope: The scope to calculate the total number of interrupts for.
 
         Returns:
             dict[str, int]: A dictionary containing the total counts:
@@ -88,7 +87,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         irq_cpu = None
-        if scope.startswith("IRQ"):
+        if scope.startswith("CPU"):
             irq_cpu = int(scope[3:])
         elif scope != "System":
             raise Error(f"BUG: unsupported scope '{scope}'") from None
@@ -114,12 +113,12 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
         Add a dataset to 'self._data', a temporary dictionary storing all data before building the
         dataframe. The dictionary structure is: "{ index: dataline }", where 'index' is the
-        dataframe row index, and 'dataline' is a list containing values for timestamps, totals, and
-        each column name in 'irq_colnames'. Here is a list structure example:
+        dataframe row index, and 'dataline' is a list containing values for the timestamps and every
+        column name in 'irq_colnames'. Here is a list structure example:
 
-            [ TimeElapsed, Timestamp,
-              System-IRQa, System-IRQb, ...,
-              CPUx-IRQc, CPUx-IRQc, ...
+            [ TimeElapsed value, Timestamp value,
+              System-IRQa value, System-IRQb value, ...,
+              CPUx-IRQc value, CPUx-IRQc value, ...
               System-Total, System-Total_IRQ, System-Total_XYZ ]
 
         Args:
@@ -133,7 +132,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         if self._first_ts is None:
             self._first_ts = dataset["timestamp"]
 
-        totals: dict[str, int] | None = None
+        totals: dict[str, dict[str, int]] = {}
         data: list[int | float] = [dataset["timestamp"] - self._first_ts, dataset["timestamp"]]
 
         # Calculate and add the interrupts for every column in 'irq_colnames'.
@@ -141,9 +140,9 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
             scope, irqname = colname.split("-")
 
             if irqname.startswith("Total"):
-                if totals is None:
-                    totals = self._get_totals(dataset, scope)
-                data.append(totals[irqname])
+                if scope not in totals:
+                    totals[scope] = self._get_totals(dataset, scope)
+                data.append(totals[scope][irqname])
                 continue
 
             if scope == "System":
