@@ -14,9 +14,10 @@ from pathlib import Path
 
 try:
     import argcomplete
+    argcomplete_imported = True
 except ImportError:
     # We can live without argcomplete, we only lose tab completions.
-    argcomplete = None
+    argcomplete_imported = False
 
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
@@ -83,7 +84,7 @@ def build_arguments_parser():
               command 'cmd' (given as a positional argument) has not finished executing."""
     subpars.add_argument("--time-limit", help=text, dest="tlimit", metavar="LIMIT", default=None)
     arg = subpars.add_argument("-o", "--outdir", type=Path)
-    if argcomplete:
+    if argcomplete_imported:
         arg.completer = argcomplete.completers.DirectoriesCompleter()
 
     text = """Report ID which will serve as an identifier for this run. By default report ID is
@@ -148,7 +149,7 @@ def build_arguments_parser():
               For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
     subpars.add_argument("--cpus", help=text)
 
-    if argcomplete:
+    if argcomplete_imported:
         argcomplete.autocomplete(parser)
 
     return parser
