@@ -48,7 +48,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         self._stcoll = stcoll
 
         # Class attributes representing the command and process run by 'run()'.
-        self._cmd: str | None = None
+        self._cmd = ""
         self._proc: ProcessType | None = None
 
     def close(self):
