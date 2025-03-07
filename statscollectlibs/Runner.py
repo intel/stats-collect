@@ -54,7 +54,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Close the runner."""
 
-        if self._proc.poll() is None:
+        if self._proc and self._proc.poll() is None:
             _LOG.info("The command is still running%s: attempting to kill it",
                       self._cmd_pman.hostmsg)
             ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
