@@ -112,6 +112,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
         """
 
         self._cmd = cmd
+        # Do not remove the output directory in case of an error, in order to preserve log files.
+        self.res.remove_outdir_on_close = False
 
         if self._stcoll:
             self._stcoll.start()

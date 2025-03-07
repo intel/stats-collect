@@ -43,7 +43,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         """Write the 'self.info' dictionary to the 'info.yml' file."""
 
         YAML.dump(self.info, self.info_path)
-        self._data_collected = True
+        self.remove_outdir_on_close = False
 
     def _init_outdir(self):
         """Initialize the output directory for writing or appending test results."""
@@ -99,8 +99,9 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         self.reportid = reportid
         self.cpus = cpus
 
+        self.remove_outdir_on_close = True
+
         self._created_paths = []
-        self._data_collected = False
 
         self._init_outdir()
 
@@ -117,14 +118,14 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         """Stop the experiment."""
 
         # Only remove result directory if no data were collected.
-        if self._data_collected:
+        if not self.remove_outdir_on_close:
             return
 
         paths = getattr(self, "_created_paths", [])
         if paths:
             _LOG.debug("no statistics were collected, so the following paths which were created "
                        "will be deleted:\n  - %s",
-                       "\n  -".join(str(p) for p in self._created_paths))
+                       "\n  - ".join(str(p) for p in self._created_paths))
 
         for path in paths:
             if not path.exists():
