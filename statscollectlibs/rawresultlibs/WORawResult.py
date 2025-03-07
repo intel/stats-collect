@@ -64,13 +64,26 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
                 self._created_paths.append(self.dirpath)
                 _LOG.info("Created statistics result directory '%s'", self.dirpath)
             except OSError as err:
-                raise Error(f"failed to create directory '{self.dirpath}':\n{err}") from None
+                msg = Error(str(err)).indent(2)
+                raise Error(f"failed to create directory '{self.dirpath}':\n{msg}") from None
+
+        # Create empty log and statistics directories in advance.
+        paths = (self.logs_path, self.stats_path)
+        for path in paths:
+            try:
+                path.mkdir()
+                self._created_paths.append(path)
+            except OSError as err:
+                msg = Error(str(err)).indent(2)
+                raise Error(f"failed to create directory '{path}':\n{msg}") from None
 
         # Create an empty info file in advance.
         try:
             self.info_path.open("tw+", encoding="utf-8").close()
+            self._created_paths.append(self.info_path)
         except OSError as err:
-            raise Error(f"failed to create file '{self.info_path}':\n{err}") from None
+            msg = Error(str(err)).indent(2)
+            raise Error(f"failed to create file '{self.info_path}':\n{msg}") from None
 
     def __init__(self, reportid, outdir, cpus=None):
         """
