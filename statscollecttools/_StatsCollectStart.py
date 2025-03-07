@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import NamedTuple
 from pepclibs import CPUInfo
 from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
 from statscollectlibs import Runner
@@ -45,6 +46,8 @@ class _StartCommandArgsType(NamedTuple):
     stats_intervals: str | None
     report: bool
     cmd_local: bool
+    pipe_path: Path | None
+    pipe_timeout: int | float
     cmd: str
 
 def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
@@ -93,6 +96,13 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
     else:
         outdir = Path(f"./{reportid}")
 
+    if arguments.pipe_path:
+        pipe_path = Path(arguments.pipe_path)
+    else:
+        pipe_path = None
+
+    pipe_timeout = Human.parse_human(arguments.pipe_timeout, unit="s", what="pipe timeout")
+
     return _StartCommandArgsType(
         username = arguments.username,
         hostname = hostname,
@@ -107,12 +117,15 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
         stats_intervals = arguments.stats_intervals,
         report = arguments.report,
         cmd_local = arguments.cmd_local,
+        pipe_path = pipe_path,
+        pipe_timeout = pipe_timeout,
         cmd = " ".join(arguments.cmd)
     )
 
 def _substitute_cmd_placeholders(args: _StartCommandArgsType,
                                  cpus: list[int] | None,
-                                 stcoll: StatsCollect.StatsCollect | None) -> str:
+                                 stcoll: StatsCollect.StatsCollect | None,
+                                 pipe_path: Path | None) -> str:
     """
     Substitute placeholders in 'args.cmd' with the actual values and return the result.
 
@@ -127,9 +140,9 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
     """
 
     if args.privkey:
-        privkey = str(args.privkey)
+        privkey_str = str(args.privkey)
     else:
-        privkey = "none"
+        privkey_str = "none"
 
     if not cpus:
         cpus_str = "none"
@@ -137,21 +150,73 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
         cpus_str = ",".join(str(cpu) for cpu in cpus)
 
     if not stcoll:
-        stnames = "none"
+        stnames_str = "none"
     else:
-        stnames = stcoll.get_enabled_stats()
+        stnames_str = stcoll.get_enabled_stats()
+
+    if pipe_path:
+        pipe_path_str = str(pipe_path)
+    else:
+        pipe_path_str = "none"
 
     cmd = args.cmd
     cmd = cmd.replace("{HOSTNAME}", args.hostname)
     cmd = cmd.replace("{USERNAME}", args.username)
-    cmd = cmd.replace("{PRIVKEY}", privkey)
+    cmd = cmd.replace("{PRIVKEY}", privkey_str)
     cmd = cmd.replace("{TIMEOUT}", str(args.timeout))
     cmd = cmd.replace("{CPUS}", cpus_str)
     cmd = cmd.replace("{OUTDIR}", str(args.outdir))
     cmd = cmd.replace("{REPORTID}", args.reportid)
-    cmd = cmd.replace("{STATS}", ",".join(stnames))
+    cmd = cmd.replace("{STATS}", ",".join(stnames_str))
+    cmd = cmd.replace("{PIPE_PATH}", pipe_path_str)
 
     return cmd
+
+class _NamedPipe:
+    """
+    A class representing a named pipe. Enacpsulates the named pipe creation and removal, depending
+    on the user input.
+
+    Use the user-provided named pipe path or create a unique temporary named pipe if necessary. In
+    the latter case, delete the temporary named pipe when exiting the context.
+    """
+
+    def __init__(self, pipe_path: Path, pman: ProcessManagerType):
+        """
+        Initialize the class instance.
+
+        Args:
+            pipe_path: The path to the named pipe file.
+            pman: The process manager instance.
+        """
+
+        self.pipe_path = pipe_path
+        self._pman = pman
+
+        self._tmpdir: Path | None = None
+        self._ran_mkfifo = False
+
+    def __enter__(self):
+        """Create a uniqu named pipe if necessary."""
+
+        if self.pipe_path == Path("auto"):
+            self._tmpdir = self._pman.mkdtemp(prefix="stats-collect-pipe-dir")
+
+            self.pipe_path = self._tmpdir / "pipe"
+            self._pman.mkfifo(self.pipe_path)
+        elif not self._pman.exists(self.pipe_path):
+            self._pman.mkfifo(self.pipe_path)
+            self._ran_mkfifo = True
+
+        return self
+
+    def __exit__(self, *_):
+        """Delete the named pipe if it was created when entering the context."""
+
+        if self._tmpdir:
+            self._pman.rmtree(self._tmpdir)
+        elif self._ran_mkfifo:
+            self._pman.unlink(self.pipe_path)
 
 def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
     """
@@ -211,10 +276,17 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
             cmd_pman = LocalProcessManager.LocalProcessManager()
             stack.enter_context(cmd_pman)
 
-        runner = Runner.Runner(res, cmd_pman, stcoll)
+        pipe_path: Path | None = None
+        if args.pipe_path:
+            pipe = _NamedPipe(args.pipe_path, cmd_pman)
+            stack.enter_context(pipe)
+            pipe_path = pipe.pipe_path
+
+        runner = Runner.Runner(res, cmd_pman, stcoll, pipe_path=pipe_path,
+                               pipe_timeout=args.pipe_timeout)
         stack.enter_context(runner)
 
-        cmd = _substitute_cmd_placeholders(args, cpus, stcoll)
+        cmd = _substitute_cmd_placeholders(args, cpus, stcoll, pipe_path)
 
         runner.run(cmd, args.tlimit)
 
