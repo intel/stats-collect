@@ -8,6 +8,9 @@
 
 """This module provides the API for creating raw stats-collect test results."""
 
+# TODO: finish adding type hints to this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import contextlib
 import os
 import shutil
@@ -21,6 +24,20 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext):
     """This class represents a write-only raw test result."""
+
+    def add_info(self, key: str, value: str, override: bool = False):
+        """
+        Add a key-value pair to the 'info' dictionary, so that it gets saved in the 'info.yml' file.
+
+        Args:
+            key: The key to add to the dictionary.
+            value: The value associated with the key.
+            override: If True, override the existing value if the key already exists.
+        """
+
+        if not override and key in self.info:
+            raise Error(f"BUG: Key '{key}' already exists in the 'info' dictionary")
+        self.info[key] = value
 
     def write_info(self):
         """Write the 'self.info' dictionary to the 'info.yml' file."""
@@ -55,13 +72,12 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         except OSError as err:
             raise Error(f"failed to create file '{self.info_path}':\n{err}") from None
 
-    def __init__(self, reportid, outdir, cmd=None, cpus=None):
+    def __init__(self, reportid, outdir, cpus=None):
         """
         The class constructor. The arguments are as follows.
           * reportid - reportid of the raw test result.
           * outdir - the output directory to store the raw results at.
           * toolver - version of the tool creating the report.
-          * cmd - the command executed during statistics collection.
           * cpus - lsit of CPU number associated with this test resuls.
         """
 
@@ -81,8 +97,6 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         self.info["toolver"] = ToolInfo.VERSION
         if cpus is not None:
             self.info["cpus"] = Human.rangify(self.cpus)
-        if cmd is not None:
-            self.info["cmd"] = cmd
         self.info["date"] = time.strftime("%d %b %Y")
         self.info["stinfo"] = {}
 

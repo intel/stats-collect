@@ -138,8 +138,9 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
                                  pman=pman) as depl:
             depl.check_deployment()
 
-        res = WORawResult.WORawResult(args.reportid, args.outdir, cmd=args.cmd, cpus=cpus)
+        res = WORawResult.WORawResult(args.reportid, args.outdir, cpus=cpus)
         stack.enter_context(res)
+        res.add_info("cmd", args.cmd)
 
         if not args.stats or args.stats == "none":
             stcoll = None
