@@ -138,7 +138,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
             fpath = self.res.logs_path / f"cmd-{ftype}.log.txt"
             with open(fpath, "w", encoding="utf-8") as f:
                 f.write(txt)
-            self.res.info[ftype] = fpath.relative_to(self.res.dirpath)
+            self.res.add_info(ftype, fpath.relative_to(self.res.dirpath))
 
-        self.res.info["duration"] = Human.duration(duration)
+        self.res.add_info("duration", Human.duration(duration))
         self.res.write_info()
