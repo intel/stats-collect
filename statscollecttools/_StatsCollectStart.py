@@ -20,7 +20,7 @@ from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
 from statscollectlibs import Runner
-from statscollectlibs.collector import StatsCollectBuilder
+from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
 from statscollectlibs.deploylibs import _Deploy
 from statscollectlibs.deploylibs.DeployBase import DeployInfoType
 from statscollectlibs.helperlibs import ReportID
@@ -110,6 +110,49 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
         cmd = " ".join(arguments.cmd)
     )
 
+def _substitute_cmd_placeholders(args: _StartCommandArgsType,
+                                 cpus: list[int] | None,
+                                 stcoll: StatsCollect.StatsCollect | None) -> str:
+    """
+    Substitute placeholders in 'args.cmd' with the actual values and return the result.
+
+    Args:
+        args: The command-line arguments.
+        cpus: A list of CPU IDs to be included in the command.
+        stcoll: A 'StatsCollect' that is going to be used for collecting the statistics (to get the
+                list of statistics names).
+
+    Returns:
+        str: The command string with placeholders replaced by actual values.
+    """
+
+    if args.privkey:
+        privkey = str(args.privkey)
+    else:
+        privkey = "none"
+
+    if not cpus:
+        cpus_str = "none"
+    else:
+        cpus_str = ",".join(str(cpu) for cpu in cpus)
+
+    if not stcoll:
+        stnames = "none"
+    else:
+        stnames = stcoll.get_enabled_stats()
+
+    cmd = args.cmd
+    cmd = cmd.replace("{HOSTNAME}", args.hostname)
+    cmd = cmd.replace("{USERNAME}", args.username)
+    cmd = cmd.replace("{PRIVKEY}", privkey)
+    cmd = cmd.replace("{TIMEOUT}", str(args.timeout))
+    cmd = cmd.replace("{CPUS}", cpus_str)
+    cmd = cmd.replace("{OUTDIR}", str(args.outdir))
+    cmd = cmd.replace("{REPORTID}", args.reportid)
+    cmd = cmd.replace("{STATS}", ",".join(stnames))
+
+    return cmd
+
 def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
     """
     Implement the 'stats-collect start' command.
@@ -140,7 +183,6 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
 
         res = WORawResult.WORawResult(args.reportid, args.outdir, cpus=cpus)
         stack.enter_context(res)
-        res.add_info("cmd", args.cmd)
 
         if not args.stats or args.stats == "none":
             stcoll = None
@@ -172,7 +214,9 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
         runner = Runner.Runner(res, cmd_pman, stcoll)
         stack.enter_context(runner)
 
-        runner.run(args.cmd, args.tlimit)
+        cmd = _substitute_cmd_placeholders(args, cpus, stcoll)
+
+        runner.run(cmd, args.tlimit)
 
     if args.report:
         ro_res = RORawResult.RORawResult(res.dirpath, res.reportid)

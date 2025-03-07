@@ -118,7 +118,12 @@ def build_arguments_parser():
 
     text = """Command to run on the during statistics collection. If 'HOSTNAME' is provided,
               the tool will run the command on that host (unless '--cmd-local' was specified).
-              Otherwise the tool will run the command on 'localhost'."""
+              Otherwise the tool will run the command on 'localhost'. The command may include
+              placeholders in "{}" braces, which will be replaced with actual values. The supported
+              placeholders are "{HOSTNAME}", "{USERNAME}", "{PRIVKEY}", "{TIMEOUT}", "{CPUS}",
+              "{OUTDIR}", "{REPORTID}", "{STATS}". They will be substituted with the actual values
+              of the corresponding options."""
+
     subpars.add_argument("cmd", type=str, nargs="+", help=text)
 
     #

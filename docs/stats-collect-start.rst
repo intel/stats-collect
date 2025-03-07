@@ -15,9 +15,20 @@ Command *'start'*
 usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
 [-K PRIVKEY] [-T TIMEOUT] [--cpus CPUS] [--time-limit LIMIT]
 [-o OUTDIR] [--reportid REPORTID] [--stats STATS]
-[--stats-intervals STATS_INTERVALS] [--list-stats] [--report] command
+[--stats-intervals STATS_INTERVALS] [--list-stats] [--report] COMMAND
 
-Run a command and collecting statistics.
+Run a command and collecting statistics. The COMMAND string may include
+placeholders in "{}" braces, which will be replaced with actual values. The
+following placeholders are supported:
+ * {HOSTNAME}: The name of the host to run the command on.
+ * {USERNAME}: The name of the user to use for logging into the remote host over SSH.
+ * {PRIVKEY}: Path to the private SSH key that should be used for logging into the remote host.
+              Defaults to "none".
+ * {TIMEOUT}: SSH connect timeout in seconds.
+ * {CPUS}: The list of CPUs to measure. Defaults to "none".
+ * {OUTDIR}: The output directory where the result will be stored.
+ * {REPORTID}: The Report ID of the result.
+ * {STATS}: Comma-separated list of statistics names that will be collected.
 
 General options
 ===============

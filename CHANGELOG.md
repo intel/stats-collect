@@ -7,6 +7,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
  - Fix ValueError raised by plotly version 6.0.0
 ### Added
+ - Add placeholders support in 'stats-collect start'. For example, one can run
+   the "stats-collect start my_workload --reportid {REPORTID}", and
+   "{REPORTID}" will be substituted with the report ID of the result.
 ### Removed
 ### Changed
 
