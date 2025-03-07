@@ -9,14 +9,16 @@
 
 """This module contains miscellaneous functions used by various 'statscollecttools' modules."""
 
+# TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import sys
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ProcessManager
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import Error
 
-def get_pman(args):
+def get_pman(args) -> ProcessManagerType:
     """
     Returns the process manager object for host 'hostname'. The returned object should either be
     used with a 'with' statement, or closed with the 'close()' method.
