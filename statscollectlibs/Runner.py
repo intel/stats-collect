@@ -72,36 +72,27 @@ class Runner(ClassHelpers.SimpleCloseContext):
                     will run indefinitely with a default time limit of 4 hours.
 
         Returns:
-            tuple: A tuple containing the standard output and standard error of the command.
+            tuple: A tuple containing the standard output, standard error, and exit code of the
+            command. If the command is still running, but the time limit has been reached, the
+            exit code will be None.
         """
 
         _LOG.info("Running the following command%s:\n  %s", self._cmd_pman.hostmsg, self._cmd)
 
         if not tlimit:
-            run_forever = True
+            no_tlimit = True
             tlimit = 4 * 60 * 60
         else:
-            run_forever = False
+            no_tlimit = False
 
         self._proc = self._cmd_pman.run_async(self._cmd)
         while True:
             stdout, stderr, exitcode = self._proc.wait(timeout=tlimit)
-            if exitcode is not None:
-                break
-
-            if run_forever:
+            if exitcode is None and no_tlimit:
                 continue
-
-            _LOG.notice("Statistics collection stopped because the time limit was reached "
-                        "before the command finished executing.")
-            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
-                                  pman=self._cmd_pman)
             break
 
-        if exitcode:
-            raise Error(f"There was an error running command '{self._cmd}':\n{stderr}")
-
-        return stdout, stderr
+        return stdout, stderr, exitcode
 
     def run(self, cmd: str, tlimit: int | None = None):
         """
@@ -120,17 +111,29 @@ class Runner(ClassHelpers.SimpleCloseContext):
             self._stcoll.start()
 
         start_time = time.time()
-        stdout, stderr = self._run_command(tlimit)
+        stdout, stderr, exitcode = self._run_command(tlimit)
         duration = time.time() - start_time
+
+        # The measurements are finished, stop the statistics collection.
+        if self._stcoll:
+            self._stcoll.stop()
+
+        assert self._proc is not None
+
+        if exitcode is None:
+            _LOG.notice("Statistics collection stopped because the time limit was reached "
+                        "before the command finished executing.")
+            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
+                                    pman=self._cmd_pman)
+        elif exitcode:
+            raise Error(f"There was an error running command '{self._cmd}':\n{stderr}")
 
         if self._stcoll:
             min_duration = 2 * self._stcoll.get_max_interval()
             if duration < min_duration:
                 raise Error(f"Command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' "
-                            f"collected the mininum amount of statistics. Command should run for "
+                            f"collected the minimum statistics. Command should run for "
                             f"at least {Human.duration(min_duration)}")
-
-            self._stcoll.stop()
             self._stcoll.finalize()
 
         for ftype, txt in [("stdout", stdout,), ("stderr", stderr,)]:
