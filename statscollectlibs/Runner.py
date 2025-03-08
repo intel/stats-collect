@@ -75,7 +75,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
             tuple: A tuple containing the standard output and standard error of the command.
         """
 
-        _LOG.info("Running the following command%s: %s", self._cmd_pman.hostmsg, self._cmd)
+        _LOG.info("Running the following command%s:\n  %s", self._cmd_pman.hostmsg, self._cmd)
 
         if not tlimit:
             run_forever = True
