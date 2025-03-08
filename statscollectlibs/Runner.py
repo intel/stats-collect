@@ -21,7 +21,6 @@ from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
 from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.rawresultlibs.WORawResult import WORawResult
 from statscollectlibs.collector.StatsCollect import StatsCollect
-from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -126,14 +125,20 @@ class Runner(ClassHelpers.SimpleCloseContext):
             ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
                                     pman=self._cmd_pman)
         elif exitcode:
-            raise Error(f"There was an error running command '{self._cmd}':\n{stderr}")
+            # The command existed with a non-zero exit code. This may mean it failed, but may also
+            # mean something else. So do not error out.
+            errmsg = self._cmd_pman.get_cmd_failure_msg(self._cmd, stdout, stderr, exitcode,
+                                                        failed=False)
+            _LOG.warning(errmsg)
 
         if self._stcoll:
             min_duration = 2 * self._stcoll.get_max_interval()
             if duration < min_duration:
-                raise Error(f"Command '{self._cmd}' finished before '{ToolInfo.TOOLNAME}' "
-                            f"collected the minimum statistics. Command should run for "
-                            f"at least {Human.duration(min_duration)}")
+                ran = Human.duration(duration)
+                expected = Human.duration(min_duration)
+                raise Error(f"The command has finished before the minimum amount of statistics "
+                            f"were collected.\nThe command ran for {ran}, but should run for at "
+                            f"least {expected}.")
             self._stcoll.finalize()
 
         for ftype, txt in [("stdout", stdout,), ("stderr", stderr,)]:
