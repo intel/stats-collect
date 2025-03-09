@@ -14,6 +14,7 @@ simultaneous collection of statistics.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import sys
 import time
 from pepclibs.helperlibs import Logging, ClassHelpers, Human
 from pepclibs.helperlibs.Exceptions import Error
@@ -90,7 +91,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
         start_time = time.time()
         self._proc = self._cmd_pman.run_async(self._cmd)
         while True:
-            stdout, stderr, exitcode = self._proc.wait(timeout=tlimit)
+            stdout, stderr, exitcode = self._proc.wait(timeout=tlimit,
+                                                       output_fobjs=(sys.stdout, sys.stderr))
             self._duration = time.time() - start_time
 
             if exitcode is None and no_tlimit:
