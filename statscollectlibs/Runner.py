@@ -51,6 +51,9 @@ class Runner(ClassHelpers.SimpleCloseContext):
         # The process object of the running command.
         self._proc: ProcessType | None = None
 
+        # For how long the command has been running (seconds).
+        self._duration = 0.0
+
     def close(self):
         """Close the runner."""
 
@@ -84,9 +87,12 @@ class Runner(ClassHelpers.SimpleCloseContext):
         else:
             no_tlimit = False
 
+        start_time = time.time()
         self._proc = self._cmd_pman.run_async(self._cmd)
         while True:
             stdout, stderr, exitcode = self._proc.wait(timeout=tlimit)
+            self._duration = time.time() - start_time
+
             if exitcode is None and no_tlimit:
                 continue
             break
@@ -109,9 +115,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         if self._stcoll:
             self._stcoll.start()
 
-        start_time = time.time()
         stdout, stderr, exitcode = self._run_command(tlimit)
-        duration = time.time() - start_time
 
         # The measurements are finished, stop the statistics collection.
         if self._stcoll:
@@ -133,8 +137,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
 
         if self._stcoll:
             min_duration = 2 * self._stcoll.get_max_interval()
-            if duration < min_duration:
-                ran = Human.duration(duration)
+            if self._duration < min_duration:
+                ran = Human.duration(self._duration)
                 expected = Human.duration(min_duration)
                 raise Error(f"The command has finished before the minimum amount of statistics "
                             f"were collected.\nThe command ran for {ran}, but should run for at "
@@ -149,5 +153,5 @@ class Runner(ClassHelpers.SimpleCloseContext):
                 f.write(txt)
             self.res.add_info(ftype, fpath.relative_to(self.res.dirpath))
 
-        self.res.add_info("duration", Human.duration(duration))
+        self.res.add_info("duration", Human.duration(self._duration))
         self.res.write_info()
