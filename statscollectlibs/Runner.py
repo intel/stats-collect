@@ -50,7 +50,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         # The run command.
         self._cmd = ""
         # The process object of the running command.
-        self._proc: ProcessType | None = None
+        self._cmd_proc: ProcessType | None = None
 
         # For how long the command has been running (seconds).
         self._duration = 0.0
@@ -58,13 +58,13 @@ class Runner(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Close the runner."""
 
-        if self._proc and self._proc.poll() is None:
+        if self._cmd_proc and self._cmd_proc.poll() is None:
             _LOG.info("The command is still running%s: attempting to kill it",
                       self._cmd_pman.hostmsg)
-            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
+            ProcHelpers.kill_pids(self._cmd_proc.pid, kill_children=True, must_die=True,
                                   pman=self._cmd_pman)
 
-        ClassHelpers.close(self, close_attrs=("_proc",), unref_attrs=("_cmd_pman",))
+        ClassHelpers.close(self, close_attrs=("_cmd_proc",), unref_attrs=("_cmd_pman",))
 
     def _run_command(self, tlimit: int | None):
         """
@@ -92,9 +92,9 @@ class Runner(ClassHelpers.SimpleCloseContext):
         cmd_proc_wait_time = float(tlimit)
 
         start_time = time.time()
-        self._proc = self._cmd_pman.run_async(self._cmd)
+        self._cmd_proc = self._cmd_pman.run_async(self._cmd)
         while True:
-            stdout, stderr, exitcode = self._proc.wait(timeout=cmd_proc_wait_time,
+            stdout, stderr, exitcode = self._cmd_proc.wait(timeout=cmd_proc_wait_time,
                                                        output_fobjs=(sys.stdout, sys.stderr))
             self._duration = time.time() - start_time
 
@@ -134,12 +134,12 @@ class Runner(ClassHelpers.SimpleCloseContext):
         if self._stcoll:
             self._stcoll.stop()
 
-        assert self._proc is not None
+        assert self._cmd_proc is not None
 
         if exitcode is None:
             _LOG.notice("Statistics collection stopped because the time limit was reached "
                         "before the command finished executing.")
-            ProcHelpers.kill_pids(self._proc.pid, kill_children=True, must_die=True,
+            ProcHelpers.kill_pids(self._cmd_proc.pid, kill_children=True, must_die=True,
                                     pman=self._cmd_pman)
         elif exitcode:
             # The command existed with a non-zero exit code. This may mean it failed, but may also
