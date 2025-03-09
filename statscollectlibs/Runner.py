@@ -77,7 +77,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         Returns:
             tuple: A tuple containing the standard output, standard error, and exit code of the
             command. If the command is still running, but the time limit has been reached, the
-            exit code will be None.
+                     exit code will be None.
         """
 
         _LOG.info("Running the following command%s:\n  %s", self._cmd_pman.hostmsg, self._cmd)
@@ -95,7 +95,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         self._cmd_proc = self._cmd_pman.run_async(self._cmd)
         while True:
             stdout, stderr, exitcode = self._cmd_proc.wait(timeout=cmd_proc_wait_time,
-                                                       output_fobjs=(sys.stdout, sys.stderr))
+                                                           output_fobjs=(sys.stdout, sys.stderr))
             self._duration = time.time() - start_time
 
             if exitcode is None:
