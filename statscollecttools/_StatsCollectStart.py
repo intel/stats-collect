@@ -37,7 +37,7 @@ class _StartCommandArgsType(NamedTuple):
     privkey: Path | None
     timeout: int
     cpus: str | None
-    tlimit: int | None
+    tlimit: float | None
     outdir: Path
     reportid: str
     stats: str | None
@@ -64,11 +64,11 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
     """
 
     # Format the 'tlimit' argument.
-    tlimit = arguments.tlimit
-    if tlimit:
-        if Trivial.is_num(tlimit):
-            tlimit = f"{tlimit}m"
-        tlimit = Human.parse_human(tlimit, unit="s", integer=True, what="time limit")
+    if arguments.tlimit:
+        tlimit_str = str(arguments.tlimit)
+        if Trivial.is_num(tlimit_str):
+            tlimit_str = f"{tlimit_str}m"
+        tlimit = Human.parse_human(tlimit_str, unit="s", integer=False, what="time limit")
     else:
         tlimit = None
 

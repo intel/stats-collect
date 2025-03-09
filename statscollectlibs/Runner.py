@@ -66,7 +66,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
 
         ClassHelpers.close(self, close_attrs=("_cmd_proc",), unref_attrs=("_cmd_pman",))
 
-    def _run_command(self, tlimit: int | None):
+    def _run_command(self, tlimit: float | None):
         """
         Run the specified command with an optional time limit.
 
@@ -112,7 +112,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
 
         return stdout, stderr, exitcode
 
-    def run(self, cmd: str, tlimit: int | None = None):
+    def run(self, cmd: str, tlimit: float | None = None):
         """
         Run command 'cmd' and collect statistics about the SUT during command execution.
 
