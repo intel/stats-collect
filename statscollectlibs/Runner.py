@@ -16,6 +16,8 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import sys
 import time
+from collections import deque
+from typing import Deque
 from pepclibs.helperlibs import Logging, ClassHelpers, Human
 from pepclibs.helperlibs.Exceptions import Error
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
@@ -66,18 +68,22 @@ class Runner(ClassHelpers.SimpleCloseContext):
 
         ClassHelpers.close(self, close_attrs=("_cmd_proc",), unref_attrs=("_cmd_pman",))
 
-    def _run_command(self, tlimit: float | None):
+    def _run_command(self,
+                     tlimit: float | None,
+                     maxlines: int |None = None) -> tuple[str, str, int | None]:
         """
         Run the specified command with an optional time limit.
 
         Args:
             tlimit: The time limit in seconds for the command to run. If None, the command
                     will run indefinitely with a default time limit of 4 hours.
+            maxlines: The maximum number of lines to preserve and return in the standard output and
+                      standard error. If None, all lines are preserved.
 
         Returns:
             tuple: A tuple containing the standard output, standard error, and exit code of the
-            command. If the command is still running, but the time limit has been reached, the
-                     exit code will be None.
+                   commandIf the command is still running, but the time limit has been reached,
+                   the exit code will be None.
         """
 
         _LOG.info("Running the following command%s:\n  %s", self._cmd_pman.hostmsg, self._cmd)
@@ -91,12 +97,19 @@ class Runner(ClassHelpers.SimpleCloseContext):
         # For how long to wait for the command to finish per iteration.
         cmd_proc_wait_time = float(tlimit)
 
+        stdout_lines: Deque = deque(maxlen=maxlines)
+        stderr_lines: Deque = deque(maxlen=maxlines)
+
         start_time = time.time()
         self._cmd_proc = self._cmd_pman.run_async(self._cmd)
         while True:
             stdout, stderr, exitcode = self._cmd_proc.wait(timeout=cmd_proc_wait_time,
-                                                           output_fobjs=(sys.stdout, sys.stderr))
+                                                           output_fobjs=(sys.stdout, sys.stderr),
+                                                           join=False)
             self._duration = time.time() - start_time
+
+            stdout_lines.extend(stdout)
+            stderr_lines.extend(stderr)
 
             if exitcode is None:
                 # The command is still running.
@@ -110,7 +123,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
                     continue
             break
 
-        return stdout, stderr, exitcode
+        return "".join(stdout_lines), "".join(stderr_lines), exitcode
 
     def run(self, cmd: str, tlimit: float | None = None):
         """
@@ -128,7 +141,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
         if self._stcoll:
             self._stcoll.start()
 
-        stdout, stderr, exitcode = self._run_command(tlimit)
+        # The standard output and error are only needed for error case, limit them by 16 last lines.
+        stdout, stderr, exitcode = self._run_command(tlimit, maxlines=16)
 
         # The measurements are finished, stop the statistics collection.
         if self._stcoll:
