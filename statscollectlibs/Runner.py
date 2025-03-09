@@ -88,15 +88,26 @@ class Runner(ClassHelpers.SimpleCloseContext):
         else:
             no_tlimit = False
 
+        # For how long to wait for the command to finish per iteration.
+        cmd_proc_wait_time = float(tlimit)
+
         start_time = time.time()
         self._proc = self._cmd_pman.run_async(self._cmd)
         while True:
-            stdout, stderr, exitcode = self._proc.wait(timeout=tlimit,
+            stdout, stderr, exitcode = self._proc.wait(timeout=cmd_proc_wait_time,
                                                        output_fobjs=(sys.stdout, sys.stderr))
             self._duration = time.time() - start_time
 
-            if exitcode is None and no_tlimit:
-                continue
+            if exitcode is None:
+                # The command is still running.
+                if no_tlimit:
+                    # There is no time limit, wait for the command to finish.
+                    continue
+                if self._duration < tlimit:
+                    # There is a time limit, but it has not been reached yet.
+                    if cmd_proc_wait_time > tlimit - self._duration:
+                        cmd_proc_wait_time = tlimit - self._duration
+                    continue
             break
 
         return stdout, stderr, exitcode
