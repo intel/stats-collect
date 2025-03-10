@@ -47,7 +47,7 @@ stinfo:
     interval: 5
     inband: false
     fallible: true
-    toolpath: ipmi-helper
+    toolpath: stc-agent-ipmi-helper
     description: Periodically run 'ipmitool' to collect platform IPMI data, such as
       fans speed, CPU temperature, etc. The data are collected by running 'ipmitool'
       outside of the SUT (out of band), so that 'ipmitool' talks to SUT's BMC module

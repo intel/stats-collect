@@ -404,7 +404,7 @@ class InterruptsCollector(_BaseCollector):
 
         super().__init__("interrupts")
 
-        self.props["toolpath"] = "proc-interrupts-helper"
+        self.props["toolpath"] = "stc-agent-proc-interrupts-helper"
         self._signal = signal.SIGINT
 
 class _IPMICollector(_BaseCollector):
@@ -427,7 +427,7 @@ class _IPMICollector(_BaseCollector):
         """Initialize a class instance."""
 
         super().__init__(name)
-        self.props["toolpath"] = "ipmi-helper"
+        self.props["toolpath"] = "stc-agent-ipmi-helper"
         self.props["retries"] = UNINITIALIZED["int"]
         self.props["count"] = UNINITIALIZED["int"]
         self._valid_start = b"timestamp | "

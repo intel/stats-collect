@@ -106,7 +106,7 @@ _BAD_INPUT = {
 
     "Too short input #3": """timestamp: 1234567890.1
 CPU1 CPU2
-proc-interrupts-helper: error: interrupted, exiting""",
+stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
 
     "Too short input #4": "",
 
@@ -172,7 +172,7 @@ CPU1 CPU2
 1: 1 3
 timestamp: 1234567890.2
 CPU1 CPU2
-proc-interrupts-helper: error: interrupted, exiting""",
+stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
     },
 
     "Good input #5": {
@@ -183,7 +183,7 @@ CPU1
 timestamp: 1234567890.2
 CPU1
 1: 2
-proc-interrupts-helper: error: interrupted, exiting""",
+stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
     },
 }
 

@@ -1,17 +1,17 @@
 --- Debug trace starts here ---
 [0m[2mAn error occurred, here is the traceback:
 Traceback (most recent call last):
-  File "/opt/powerlab/bin/ipmi-helper", line 140, in <module>
+  File "/opt/powerlab/bin/stc-agent-ipmi-helper", line 140, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/opt/powerlab/bin/ipmi-helper", line 116, in main
+  File "/opt/powerlab/bin/stc-agent-ipmi-helper", line 116, in main
     output, _ = pman.run_verify(cmd)
                 ^^^^^^^^^^^^^^^^^^^^
   File "/opt/powerlab/lib/python3.12/site-packages/pepclibs/helperlibs/LocalProcessManager.py", line 262, in run_verify
     raise Error(self.get_cmd_failure_msg(command, *tuple(result), timeout=timeout))[0m
 --- Debug trace ends here ---
 
-ipmi-helper: error: the following command failed with exit code 1:
+stc-agent-ipmi-helper: error: the following command failed with exit code 1:
 ipmitool -I 'lanplus' -H 'genoa0-bmc' -U 'root' -f '/opt/powerlab/secrets/sut_ipmi_statspass' sdr list full
 
 Error: Unable to establish IPMI v2 / RMCP+ session

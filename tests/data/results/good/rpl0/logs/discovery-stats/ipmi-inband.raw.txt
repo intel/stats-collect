@@ -1,17 +1,17 @@
 --- Debug trace starts here ---
 [0m[2mAn error occurred, here is the traceback:
 Traceback (most recent call last):
-  File "/opt/powerlab/bin/ipmi-helper/__main__.py", line 140, in <module>
+  File "/opt/powerlab/bin/stc-agent-ipmi-helper/__main__.py", line 140, in <module>
     sys.exit(main())
              ~~~~^^
-  File "/opt/powerlab/bin/ipmi-helper/__main__.py", line 108, in main
+  File "/opt/powerlab/bin/stc-agent-ipmi-helper/__main__.py", line 108, in main
     pman.run_verify("modprobe ipmi_si")
     ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
-  File "/opt/powerlab/bin/ipmi-helper/pepclibs/helperlibs/LocalProcessManager.py", line 262, in run_verify
+  File "/opt/powerlab/bin/stc-agent-ipmi-helper/pepclibs/helperlibs/LocalProcessManager.py", line 262, in run_verify
     raise Error(self.get_cmd_failure_msg(command, *tuple(result), timeout=timeout))[0m
 --- Debug trace ends here ---
 
-ipmi-helper: error: the following command failed with exit code 1:
+stc-agent-ipmi-helper: error: the following command failed with exit code 1:
 modprobe ipmi_si
 
 modprobe: ERROR: could not insert 'ipmi_si': No such device

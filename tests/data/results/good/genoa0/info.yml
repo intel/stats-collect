@@ -35,7 +35,7 @@ stinfo:
   interrupts:
     interval: 5
     inband: true
-    toolpath: proc-interrupts-helper
+    toolpath: stc-agent-proc-interrupts-helper
     description: Collect snapshots of the '/proc/interrupts' file, which includes
       interrupts count for every interrupt type on every CPU.
     paths:
@@ -47,7 +47,7 @@ stinfo:
     interval: 5
     inband: true
     fallible: true
-    toolpath: ipmi-helper
+    toolpath: stc-agent-ipmi-helper
     description: Same as the 'ipmi-oob' statistics, but the data are collected by
       running 'ipmitool' on the SUT (in-band).
     paths:

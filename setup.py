@@ -50,8 +50,8 @@ def get_data_files(installdir, subdir, exclude=None):
 
 # Python helpers get installed as scripts. We exclude these scripts from being installed as data.
 _PYTHON_HELPERS = ["helpers/stc-agent/stc-agent",
-                   "helpers/stc-agent/ipmi-helper",
-                   "helpers/stc-agent/proc-interrupts-helper"]
+                   "helpers/stc-agent/stc-agent-ipmi-helper",
+                   "helpers/stc-agent/stc-agent-proc-interrupts-helper"]
 
 setup(
     name="stats-collect",

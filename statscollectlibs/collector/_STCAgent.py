@@ -92,7 +92,7 @@ STINFO = {
     "interrupts" : {
         "interval" : 10,
         "inband" : True,
-        "toolpath" : "proc-interrupts-helper",
+        "toolpath" : "stc-agent-proc-interrupts-helper",
         "description" : "Collect snapshots of the '/proc/interrupts' file, which includes "
                         "interrupts count for every interrupt type on every CPU.",
         "paths": {"stats": "interrupts.raw.txt"},
@@ -101,7 +101,7 @@ STINFO = {
         "interval" : 5,
         "inband" : False,
         "fallible" : True,
-        "toolpath" : "ipmi-helper",
+        "toolpath" : "stc-agent-ipmi-helper",
         "description" : "Periodically run 'ipmitool' to collect platform IPMI data, such as fans "
                         "speed, CPU temperature, etc. The data are collected by running 'ipmitool' "
                         "outside of the SUT (out of band), so that 'ipmitool' talks to SUT's BMC "
@@ -119,7 +119,7 @@ STINFO = {
         "interval" : 5,
         "inband" : True,
         "fallible" : True,
-        "toolpath" : "ipmi-helper",
+        "toolpath" : "stc-agent-ipmi-helper",
         "description" : "Same as the 'ipmi-oob' statistics, but the data are collected by running "
                         "'ipmitool' on the SUT (in-band).",
         "paths" : {"stats": "ipmi-inband.raw.txt"},

@@ -23,7 +23,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 
 VERSION = ToolInfo.VERSION
-TOOLNAME = "ipmi-helper"
+TOOLNAME = "stc-agent-ipmi-helper"
 
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
@@ -54,7 +54,7 @@ def parse_arguments():
     text = "IPMI interface (will be passed to 'ipmitool -I'). Default is 'lanplus'."
     parser.add_argument("-I", "--interface", help=text, default="lanplus")
 
-    # This is a hidden option which makes 'ipmi-helper' print paths to its dependencies and exit.
+    # This is a hidden option which makes 'stc-agent-ipmi-helper' print paths to its dependencies and exit.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
 

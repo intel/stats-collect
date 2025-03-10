@@ -47,7 +47,7 @@ stinfo:
     interval: 5
     inband: true
     fallible: true
-    toolpath: ipmi-helper
+    toolpath: stc-agent-ipmi-helper
     description: Same as the 'ipmi-oob' statistics, but the data are collected by
       running 'ipmitool' on the SUT (in-band).
     paths:

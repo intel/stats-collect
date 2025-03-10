@@ -21,7 +21,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 
 VERSION = ToolInfo.VERSION
-TOOLNAME = "proc-interrupts-helper"
+TOOLNAME = "stc-agent-proc-interrupts-helper"
 
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 

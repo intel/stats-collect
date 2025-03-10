@@ -1,6 +1,6 @@
 PREFIX ?= /tmp/stc-agent
 BINDIR := $(PREFIX)/bin
-TOOLNAMES = stc-agent ipmi-helper proc-interrupts-helper
+TOOLNAMES = stc-agent stc-agent-ipmi-helper stc-agent-proc-interrupts-helper
 
 all:
 	
@@ -11,9 +11,9 @@ clean:
 install:
 	mkdir -p $(BINDIR)
 	cp stc-agent.standalone $(BINDIR)/stc-agent
-	cp ipmi-helper.standalone $(BINDIR)/ipmi-helper
-	cp proc-interrupts-helper.standalone $(BINDIR)/proc-interrupts-helper
+	cp stc-agent-ipmi-helper.standalone $(BINDIR)/stc-agent-ipmi-helper
+	cp stc-agent-proc-interrupts-helper.standalone $(BINDIR)/stc-agent-proc-interrupts-helper
 
 uninstall:
-	rm -f $(BINDIR)/stc-agent $(BINDIR)/ipmi-helper $(BINDIR)/proc-interrupts-helper
+	rm -f $(BINDIR)/stc-agent $(BINDIR)/stc-agent-ipmi-helper $(BINDIR)/stc-agent-proc-interrupts-helper
 	rmdir --ignore-fail-on-non-empty $(BINDIR)

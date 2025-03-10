@@ -35,7 +35,7 @@ stinfo:
   interrupts:
     interval: 5
     inband: true
-    toolpath: proc-interrupts-helper
+    toolpath: stc-agent-proc-interrupts-helper
     description: Collect snapshots of the '/proc/interrupts' file, which includes
       interrupts count for every interrupt type on every CPU.
     paths:

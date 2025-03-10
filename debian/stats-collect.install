@@ -1,6 +1,6 @@
 usr/bin/stats-collect
-usr/bin/ipmi-helper
-usr/bin/proc-interrupts-helper
+usr/bin/stc-agent-ipmi-helper
+usr/bin/stc-agent-proc-interrupts-helper
 usr/bin/stc-agent
 README.md usr/share/doc/stats-collect/
 LICENSE.md usr/share/licenses/stats-collect/
