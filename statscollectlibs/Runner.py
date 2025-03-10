@@ -95,15 +95,18 @@ class Runner(ClassHelpers.SimpleCloseContext):
             no_tlimit = False
 
         # For how long to wait for the command to finish per iteration.
-        cmd_proc_wait_time = float(tlimit)
+        wait_time = float(tlimit)
 
         stdout_lines: Deque = deque(maxlen=maxlines)
         stderr_lines: Deque = deque(maxlen=maxlines)
 
         start_time = time.time()
         self._cmd_proc = self._cmd_pman.run_async(self._cmd)
+
         while True:
-            cmd_res = self._cmd_proc.wait(timeout=cmd_proc_wait_time,
+            wait_time = min(wait_time, tlimit - self._duration)
+
+            cmd_res = self._cmd_proc.wait(timeout=wait_time,
                                           output_fobjs=(sys.stdout, sys.stderr), join=False)
             self._duration = time.time() - start_time
 
@@ -117,8 +120,6 @@ class Runner(ClassHelpers.SimpleCloseContext):
                     continue
                 if self._duration < tlimit:
                     # There is a time limit, but it has not been reached yet.
-                    if cmd_proc_wait_time > tlimit - self._duration:
-                        cmd_proc_wait_time = tlimit - self._duration
                     continue
             break
 
