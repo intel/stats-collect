@@ -29,11 +29,16 @@ from statscollectlibs.collector import StatsCollectBuilder
 from statscollecttools import ToolInfo
 
 _STC_DEPLOY_INFO: DeployInfoTypedDict = {
-    "installables" : {
-        "stc-agent" : {
-            "category" : "pyhelpers",
-            "deployables" : ("stc-agent", "stc-agent-ipmi-helper",
-                             "stc-agent-proc-interrupts-helper"),
+    "installables": {
+        "stc-agent": {
+            "category": "pyhelpers",
+            "deployables": ("stc-agent",
+                            "stc-agent-ipmi-helper",
+                            "stc-agent-proc-interrupts-helper"),
+        },
+        "stc-wl-cpu-wake-walk": {
+            "category": "pyhelpers",
+            "deployables": ("stc-wl-cpu-wake-walk",),
         },
     },
 }

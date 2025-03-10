@@ -51,7 +51,8 @@ def get_data_files(installdir, subdir, exclude=None):
 # Python helpers get installed as scripts. We exclude these scripts from being installed as data.
 _PYTHON_HELPERS = ["helpers/stc-agent/stc-agent",
                    "helpers/stc-agent/stc-agent-ipmi-helper",
-                   "helpers/stc-agent/stc-agent-proc-interrupts-helper"]
+                   "helpers/stc-agent/stc-agent-proc-interrupts-helper",
+                   "helpers/stc-wl-cpu-wake-walk/stc-wl-cpu-wake-walk",]
 
 setup(
     name="stats-collect",
@@ -61,12 +62,14 @@ setup(
     python_requires=">=3.8",
     version=get_version("statscollecttools/ToolInfo.py"),
     data_files=get_data_files("share/man/man1", "docs/man1") + \
-               get_data_files("share/stats-collect/helpers/stc-agent", "helpers/stc-agent",
-                              exclude=_PYTHON_HELPERS) + \
                get_data_files("share/stats-collect/defs/statscollect", "defs/statscollect") + \
                get_data_files("share/javascript/stats-collect/js/dist", "js/dist") + \
                get_data_files("share/stats-collect/misc/servedir", "misc/servedir") + \
-               [("share/stats-collect/js", ["js/index.html"])],
+               [("share/stats-collect/js", ["js/index.html"])] + \
+               get_data_files("share/stats-collect/helpers/stc-agent", "helpers/stc-agent",
+                              exclude=_PYTHON_HELPERS) + \
+               get_data_files("share/stats-collect/helpers/stc-wl-cpu-wake-walk",
+                              "helpers/stc-wl-cpu-wake-walk", exclude=_PYTHON_HELPERS),
     scripts=_TOOLNAMES + _PYTHON_HELPERS,
     packages=find_packages(),
     # Desired 'plotly' version is '>=5.18.0' as earlier versions contain a non-critical bug.

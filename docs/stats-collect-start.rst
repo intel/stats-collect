@@ -109,3 +109,25 @@ General options
 **--report**
    Generate an HTML report for collected results (same as calling
    'report' command with default arguments).
+
+**--cmd-local**
+   Run the command on the local host instead of the SUT ('HOSTNAME').
+   This is useful for client/server workloads where the SUT runs the
+   server and the local host runs the client.
+
+**-P** *PIPE_PATH*, **--pipe-path** *PIPE_PATH**
+    Path to the named pipe where the executed command is going to
+    write the lables to. The named pipe is created on the SUT ('HOSTNAME').
+    The labels are used for the X-axix in the HTML reports. Use the special
+   keyword "auto" to instruce 'stats-collect' to automatically create a
+   named pipe in the temporary directory (use the "{PIPE_PATH}"
+   placeholder in workload's command line to get the path in this case).
+   No named pipe is created by default.
+
+**--pipe-timeout** *PIPE_TIMEOUT*
+   The longest allowed time interval between named pipe input lines.
+   The 'stats-collect' tool exits with an error if the interval exceeds
+   PIPE_TIMEOUT. The default timeout is 5 minutes. Specify time value
+   in minutes, or use one of the following specifiers: d - days,
+   h - hours, m - minutes, s - seconds. For example,
+   '--pipe-timeout=1m 20s' would mean mean 1 minute and 20 seconds.
