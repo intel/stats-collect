@@ -142,6 +142,13 @@ class Runner(ClassHelpers.SimpleCloseContext):
             self._stcoll.start()
 
         # The standard output and error are only needed for error case, limit them by 16 last lines.
+        #
+        # Notes:
+        #   * All error conditions are handled in '_run_command()' and cause an exception. The clean
+        #     up happens in the 'close()' method.
+        #   * Non-error conditionas are handled in the 'run()' method.
+        #   * The idea is to stop collecting statistics as soon as the command finishes, and only
+        #     then handle the results of the command.
         stdout, stderr, exitcode = self._run_command(tlimit, maxlines=16)
 
         # The measurements are finished, stop the statistics collection.
