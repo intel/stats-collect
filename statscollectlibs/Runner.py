@@ -95,7 +95,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
             no_tlimit = False
 
         # For how long to wait for the command to finish per iteration.
-        wait_time = float(tlimit)
+        wait_time = tlimit
 
         stdout_lines: Deque = deque(maxlen=maxlines)
         stderr_lines: Deque = deque(maxlen=maxlines)
