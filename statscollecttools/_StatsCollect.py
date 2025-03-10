@@ -40,7 +40,7 @@ _STC_DEPLOY_INFO: DeployInfoType = {
 
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=ToolInfo.TOOLNAME)
 
-def build_arguments_parser():
+def _build_arguments_parser():
     """Build and return the arguments parser object."""
 
     text = "stats-collect - a tool for collecting and visualizing system statistics and telemetry."
@@ -163,10 +163,10 @@ def build_arguments_parser():
 
     return parser
 
-def parse_arguments():
+def _parse_arguments():
     """Parse input arguments."""
 
-    parser = build_arguments_parser()
+    parser = _build_arguments_parser()
     return parser.parse_args()
 
 def _deploy_command(args):
@@ -200,7 +200,7 @@ def main():
     """Script entry point."""
 
     try:
-        args = parse_arguments()
+        args = _parse_arguments()
 
         if not getattr(args, "func", None):
             _LOG.error("please, run '%s -h' for help", ToolInfo.TOOLNAME)
