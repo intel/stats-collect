@@ -20,7 +20,7 @@ from collections import deque
 from typing import Deque
 from pepclibs.helperlibs import Logging, ClassHelpers, Human
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType, ProcWaitResultType
 from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.rawresultlibs.WORawResult import WORawResult
 from statscollectlibs.collector.StatsCollect import StatsCollect
@@ -103,15 +103,14 @@ class Runner(ClassHelpers.SimpleCloseContext):
         start_time = time.time()
         self._cmd_proc = self._cmd_pman.run_async(self._cmd)
         while True:
-            stdout, stderr, exitcode = self._cmd_proc.wait(timeout=cmd_proc_wait_time,
-                                                           output_fobjs=(sys.stdout, sys.stderr),
-                                                           join=False)
+            cmd_res = self._cmd_proc.wait(timeout=cmd_proc_wait_time,
+                                          output_fobjs=(sys.stdout, sys.stderr), join=False)
             self._duration = time.time() - start_time
 
-            stdout_lines.extend(stdout)
-            stderr_lines.extend(stderr)
+            stdout_lines.extend(cmd_res.stdout)
+            stderr_lines.extend(cmd_res.stderr)
 
-            if exitcode is None:
+            if cmd_res.exitcode is None:
                 # The command is still running.
                 if no_tlimit:
                     # There is no time limit, wait for the command to finish.
@@ -123,7 +122,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
                     continue
             break
 
-        return "".join(stdout_lines), "".join(stderr_lines), exitcode
+        return "".join(stdout_lines), "".join(stderr_lines), cmd_res.exitcode
 
     def run(self, cmd: str, tlimit: float | None = None):
         """
