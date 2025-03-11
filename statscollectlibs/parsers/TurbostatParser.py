@@ -174,11 +174,15 @@ class TurbostatParser(_ParserBase.ParserBase):
         for pkginfo in tdict["packages"].values():
             pkginfo["totals"] = {}
             for metric in self._metrics["package"]:
+                if metric in self._dropped_metrics:
+                    continue
                 pkginfo["totals"][metric] = self._summarize_metric(pkginfo, metric, "package")
 
             for pkginfo in pkginfo["cores"].values():
                 pkginfo["totals"] = {}
                 for metric in self._metrics["core"]:
+                    if metric in self._dropped_metrics:
+                        continue
                     pkginfo["totals"][metric] = self._summarize_metric(pkginfo, metric, "core")
 
         # Turbostat adds package level metrics to the first CPU data line of a package.
@@ -186,6 +190,8 @@ class TurbostatParser(_ParserBase.ParserBase):
         for pkginfo in tdict["packages"].values():
             cpuinfo = pkginfo["cpus"][pkginfo["first_cpu"]]
             for metric in self._ts_totals["package"]:
+                if metric in self._dropped_metrics:
+                    continue
                 del cpuinfo[metric]
 
         # Turbostat adds core level metrics to the first CPU data line of a core.
@@ -194,6 +200,8 @@ class TurbostatParser(_ParserBase.ParserBase):
             for coreinfo in pkginfo["cores"].values():
                 for cpuinfo in coreinfo["cpus"].values():
                     for metric in self._ts_totals["core"]:
+                        if metric in self._dropped_metrics:
+                            continue
                         del cpuinfo[metric]
                     break
 
@@ -609,6 +617,7 @@ class TurbostatParser(_ParserBase.ParserBase):
             # Turbostat adds "(neg)" values when it expects a positive value but reads a negative
             # one. In this case the data point should be considered invalid, so skip it.
             if value in (None, "-", "(neg)"):
+                self._dropped_metrics.add(key)
                 continue
             line_data[key] = self._heading2type[key](value)
 
@@ -663,6 +672,8 @@ class TurbostatParser(_ParserBase.ParserBase):
 
         return True
 
+    # TODO: why is the entire table dropped when only PkgWatt is invalid? How about dropping only
+    # PkgWatt and keep the tdict. Yield it without PkgWatt.
     def _validate_tdict(self, tdict):
         """Validate the final turbostat table dictionary."""
 
@@ -724,6 +735,7 @@ class TurbostatParser(_ParserBase.ParserBase):
                         yield tdict
                         self._prev_tdict = tdict
                         self._tables_cnt += 1
+                        self._dropped_metrics = set()
                     tlines = {}
                 elif self._tables_cnt:
                     # This is not the first table, but nothing to yield from the previous table.
@@ -767,6 +779,7 @@ class TurbostatParser(_ParserBase.ParserBase):
             yield tdict
             self._prev_tdict = tdict
             self._tables_cnt += 1
+            self._dropped_metrics = set()
 
     def __init__(self, path=None, lines=None, derivatives=False):
         """
@@ -822,5 +835,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         self._sys_totals = None
         # The previously yielded turbostat dictionary (tdict).
         self._prev_tdict = {}
+        # Names of metrics that were dropped during table parsing, because of a bad value.
+        self._dropped_metrics = set()
 
         super().__init__(path, lines)

@@ -5,13 +5,18 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix ValueError raised by plotly version 6.0.0
+### Added
+### Removed
+### Changed
+
+## [1.0.49] - 2025-03-11
+### Fixed
+ - Fix crash with plotly version >= 6.0.0.
+ - Fix crash when parsing turbostat files with "(neg)" values.
 ### Added
  - Add placeholders support in 'stats-collect start'. For example, one can run
    the "stats-collect start my_workload --reportid {REPORTID}", and
    "{REPORTID}" will be substituted with the report ID of the result.
-### Removed
-### Changed
 
 ## [1.0.48] - 2025-03-05
 ### Added
