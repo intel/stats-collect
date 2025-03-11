@@ -1,59 +1,55 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module provides a base class for deploying installables. Refer to the 'DeployBase' module
-docstring for more information.
+Provide base class for deploying installables. Refer to the 'DeployBase' module docstring for
+terminology reference.
 """
 
+from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ToolChecker
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
-    """This base class can be inherited from to provide the API for deploying installables."""
+    """
+    Base class for deploying installables.
+    """
 
-    def _log_cmd_output(self, stdout, stderr):
-        """Print output of a command in case debugging is enabled."""
-
-        if self._debug:
-            if stdout:
-                _LOG.log(Logging.ERRINFO, stdout)
-            if stderr:
-                _LOG.log(Logging.ERRINFO, stderr)
-
-    def _get_btchk(self):
-        """Return a 'ToolChecker' instance."""
-
-        if self._btchk:
-            return self._btchk
-
-        self._btchk = ToolChecker.ToolChecker(self._bpman)
-        return self._btchk
-
-    def __init__(self, prjname, toolname, spman, bpman, stmpdir, btmpdir, cpman=None, ctmpdir=None,
-                 btchk=None, debug=False):
+    def __init__(self,
+                 prjname: str,
+                 toolname: str,
+                 spman: ProcessManagerType,
+                 bpman: ProcessManagerType,
+                 stmpdir: Path,
+                 btmpdir: Path,
+                 cpman: ProcessManagerType | None = None,
+                 ctmpdir: Path | None = None,
+                 btchk: ToolChecker.ToolChecker | None = None,
+                 debug: bool = False):
         """
-        Class constructor. Arguments are as follows:
-         * prjname - name of the project the installables and 'toolname' belong to.
-         * toolname - name of the tool the installables belong to.
-         * spman - a process manager object associated with the SUT (System Under Test, the system
-                   where the installables will be deployed).
-         * bpman - a process manager object associated with the build host (the host where the
-                   installable should be built). Same as 'spman' by default.
-         * stmpdir - a temporary directory on the SUT.
-         * btmpdir - path to temporary directory on the build host (same as 'stmpdir' by default).
-         * cpman - a process manager object associated with the controller (local host). Same as
-                  'spman' by default.
-         * ctmpdir - path to temporary directory on the controller (same as 'stmpdir' by default).
-         * btchk - an instance of 'ToolChecker' that can be used for checking availability of
-                   various tools on the build host (will be created if not provided).
-         * debug - a boolean variable for enabling additional debugging messages.
+        Initialize a class instance.
+
+        Args:
+            prjname: Name of the project the installables and 'toolname' belong to.
+            toolname: Name of the tool the installables belong to.
+            spman: A process manager object associated with the SUT (System Under Test).
+            bpman: A process manager object associated with the build host (the host where the
+                   installable should be built).
+            stmpdir: A temporary directory on the SUT.
+            btmpdir: Path to a temporary directory on the build host.
+            cpman: A process manager object associated with the controller (local host). Defaults to
+                   'spman'.
+            ctmpdir: Path to a temporary directory on the controller. Defaults to 'stmpdir'.
+            btchk: An instance of 'ToolChecker' that can be used for checking the availability of
+                   various tools on the build host. Will be created if not provided.
+            debug: A boolean variable for enabling additional debugging messages.
         """
 
         if not cpman:
@@ -80,3 +76,27 @@ class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
         close_attrs=("_btchk", )
         unref_attrs=("_spman", "_bpman", "_cpman")
         ClassHelpers.close(self, close_attrs=close_attrs, unref_attrs=unref_attrs)
+
+    def _log_cmd_output(self, stdout: str, stderr: str):
+        """
+        Print the output of a command if debugging is enabled.
+
+        Args:
+            stdout: Standard output from the command.
+            stderr: Standard error output from the command.
+        """
+
+        if self._debug:
+            if stdout:
+                _LOG.log(Logging.ERRINFO, stdout)
+            if stderr:
+                _LOG.log(Logging.ERRINFO, stderr)
+
+    def _get_btchk(self):
+        """Return a 'ToolChecker' instance."""
+
+        if self._btchk:
+            return self._btchk
+
+        self._btchk = ToolChecker.ToolChecker(self._bpman)
+        return self._btchk
