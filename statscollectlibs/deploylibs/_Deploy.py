@@ -92,8 +92,9 @@ class Deploy(DeployBase.DeployBase):
         ctmpdir = self._get_ctmpdir()
 
         with _DeployPyHelpers.DeployPyHelpers("stats-collect", self._toolname, deployables,
-                                              self._spman, self._bpman, self._cpman, stmpdir,
-                                              btmpdir, ctmpdir, debug=self._debug) as depl:
+                                              self._spman, self._bpman, stmpdir,
+                                              btmpdir, cpman=self._cpman, ctmpdir=ctmpdir,
+                                              debug=self._debug) as depl:
             pyhelpers = list(self._cats.get("pyhelpers"))
             depl.deploy(pyhelpers)
 

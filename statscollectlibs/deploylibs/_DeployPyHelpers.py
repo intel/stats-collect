@@ -2,40 +2,83 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module provides the API for deploying Python helpers. Refer to the 'DeployBase' module
-docstring for more information.
+Provide API for deploying Python helpers (non-driver installables and deployables). Refer to the
+'DeployBase' module docstring for more information.
 """
 
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, ProjectFiles
+from pepclibs.helperlibs import ToolChecker
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from statscollectlibs.deploylibs import DeployHelpersBase
+from statscollectlibs.deploylibs.DeployBase import InstallableInfoType
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
-    """This class provides the API for deploying Python helpers."""
+    """Provides API for deploying Python helpers (non-driver installables and deployables)."""
 
-    def _find_deployable(self, pyhelper, deployable):
+    def __init__(self,
+                 prjname: str,
+                 toolname: str,
+                 spman: ProcessManagerType,
+                 bpman: ProcessManagerType,
+                 stmpdir: Path,
+                 btmpdir: Path,
+                 cpman: ProcessManagerType | None = None,
+                 ctmpdir: Path | None = None,
+                 btchk: ToolChecker.ToolChecker | None = None,
+                 debug: bool = False):
         """
-        Find and return path to program 'deployable' belonging to python helper 'pyhelper' (on
-        the local host).
+        Initialize a class instance.
+
+        Args:
+            prjname: Name of the project the Python helpers and 'toolname' belong to.
+            toolname: Name of the tool the Python helpers belong to.
+            spman: A process manager object associated with the SUT (System Under Test).
+            bpman: A process manager object associated with the "build" host (the host which should
+                   be used for creating the standalone versions of the Python helpers).
+            stmpdir: A temporary directory on the SUT.
+            btmpdir: Path to a temporary directory on the "build" host.
+            cpman: A process manager object associated with the controller (local host). Defaults to
+                   'spman'.
+            ctmpdir: Path to a temporary directory on the controller. Defaults to 'stmpdir'.
+            btchk: An instance of 'ToolChecker' that can be used for checking the availability of
+                   various tools on the "build" host. Will be created if not provided.
+            debug: A boolean variable for enabling additional debugging messages.
+        """
+
+        what = f"{toolname} Python helpers"
+        super().__init__(prjname, toolname, what, spman, bpman, stmpdir, btmpdir, cpman=cpman,
+                         ctmpdir=ctmpdir, btchk=btchk, debug=debug)
+
+    def _find_deployable_src(self, installable: str, deployable: str) -> Path:
+        """
+        Find and return the path to a Python helper deployable on the local host.
+
+        Args:
+            installable: The name of the Python helpers installable the deoployable belongs to.
+            deployable: The name of the Python helper deployable to find.
+
+        Returns:
+            The absolute path to the Python helper deployable.
         """
 
         with LocalProcessManager.LocalProcessManager() as lpman:
             try:
-                subpath = DeployHelpersBase.HELPERS_SRC_SUBDIR / pyhelper / deployable
+                subpath = DeployHelpersBase.HELPERS_SRC_SUBDIR / installable / deployable
                 what = f"the '{deployable}' python program"
-                deployable_path = ProjectFiles.find_project_data(self._prjname, subpath,
-                                                                 what=what, pman=lpman)
+                deployable_path = ProjectFiles.find_project_data(self._prjname, subpath, what=what,
+                                                                 pman=lpman)
             except ErrorNotFound as err1:
-                _LOG.debug(err1)
+                _LOG.debug(str(err1))
 
                 try:
                     deployable_path = ProjectFiles.find_project_helper(self._prjname, deployable,
@@ -47,35 +90,45 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             deployable_path = lpman.abspath(deployable_path)
 
             if not lpman.is_exe(deployable_path):
-                raise Error(f"path '{deployable_path}' exists, but it is not an executable file")
+                raise Error(f"Path '{deployable_path}' exists, but it is not an executable file")
 
         return deployable_path
 
     @staticmethod
-    def _get_deployable_dependencies(deployable_path):
+    def _get_deployable_dependencies(deployable_path: Path) -> list[Path]:
         """
-        Find and return dependencies of a python program 'deployable'. An example of such a
-        dependency would be:
-            /usr/lib/python3.9/site-packages/pepclibs/helperlibs/Trivial.py
+        Find and return the dependencies of a Python helper deployable script. Execute the given
+        Python helper script with the '--print-module-paths' option to retrieve its dependencies.
+
+        Args:
+            pyhelper_path: The path to the Python helper deployable script.
+
+        Returns:
+            list[Path]: A list of paths to the dependencies of the Python helper script.
         """
 
-        # All the deployables must implement the '--print-module-paths' option, which prints the
-        # dependencies.
+        # All Python helper deployables must implement the '--print-module-paths' option, which
+        # prints the dependencies.
         cmd = f"{deployable_path} --print-module-paths"
         with LocalProcessManager.LocalProcessManager() as lpman:
             stdout, _ = lpman.run_verify(cmd)
         return [Path(path) for path in stdout.splitlines()]
 
-    def _create_standalone_deployable(self, deployable_path, outdir):
+    def _create_standalone_deployable(self, deployable_path: Path, outdir: Path):
         """
-        Create a standalone version of a python program. The arguments are as follows.
-          * deployable_path - path to the python program on the local system. This method will
-                              execute it on with the '--print-module-paths' option, which this it is
-                              supposed to support. This option will provide the list of modules the
-                              deployable python program depends on.
-          * outdir - path to the output directory. The standalone version of the 'deployable' python
-                     program will be saved in this directory under the "'deployable'.standalone"
-                     name.
+        Create a standalone version of a Python helper deployable.
+
+        Package the Python helper program along with its dependencies into a single file. Use the
+        standard technique:
+            * Create a zip archive of the Python helper and all its dependencies.
+            * Append the zip archive to an executable file with a Python shebang.
+
+        Args:
+            deployable_path: Path to the Python helper deployable script on the local system
+                             (controller).
+            outdir: Path to the output directory. The standalone version of the Python helper
+                    deployable script will be saved in this directory under the
+                    "{deployable_path.name}.standalone" name.
         """
 
         import zipfile # pylint: disable=import-outside-toplevel
@@ -91,8 +144,8 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             with init_path.open("w+"):
                 pass
         except OSError as err:
-            msg = Error(err).indent(2)
-            raise Error(f"failed to create file '{init_path}:\n{msg}'") from None
+            msg = Error(str(err)).indent(2)
+            raise Error(f"Failed to create file '{init_path}:\n{msg}'") from None
 
         try:
             # pylint: disable=consider-using-with
@@ -105,8 +158,8 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
                 fobj = standalone_path.open("bw+")
                 fobj.write("#!/usr/bin/python3\n".encode("utf-8"))
             except OSError as err:
-                msg = Error(err).indent(2)
-                raise Error(f"failed to create and initialize file '{standalone_path}:\n"
+                msg = Error(str(err)).indent(2)
+                raise Error(f"Failed to create and initialize file '{standalone_path}:\n"
                             f"{msg}") from err
 
             # Create a zip archive in the 'standalone_path' file. The idea is that this file will
@@ -115,8 +168,8 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             try:
                 zipobj = zipfile.ZipFile(fobj, "w", compression=zipfile.ZIP_DEFLATED)
             except Exception as err:
-                msg = Error(err).indent(2)
-                raise Error(f"failed to initialize a zip archive from file "
+                msg = Error(str(err)).indent(2)
+                raise Error(f"Failed to initialize a zip archive from file "
                             f"'{standalone_path}':\n{msg}") from err
 
             # Make 'zipobj' raises exceptions of type 'Error', so that we do not have to wrap every
@@ -137,7 +190,7 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
                     try:
                         idx = src.parts.index("pepclibs")
                     except ValueError:
-                        raise Error(f"python program '{deployable}' has bad dependency '{src}' - "
+                        raise Error(f"Python program '{deployable}' has bad dependency '{src}' - "
                                     f"the path does not have the 'statscollectlibs' or "
                                     f"'pepclibs' component in it.") from None
 
@@ -168,49 +221,39 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             mode = standalone_path.stat().st_mode | 0o777
             standalone_path.chmod(mode)
         except OSError as err:
-            msg = Error(err).indent(2)
+            msg = Error(str(err)).indent(2)
             raise Error(f"cannot change '{standalone_path}' file mode to {oct(mode)}:\n"
                         f"{msg}") from err
 
-    def _prepare(self, helpersrc, helpers):
+    def _prepare(self, insts_info: dict[str, InstallableInfoType], installables_basedir: Path):
         """
-        Build and prepare python helpers for deployment. The arguments are as follows:
-          * helpersrc - path to the helpers base directory on the controller.
-          * helpers - the names of Python helpers to deploy.
+        Build and prepare installables for deployment.
+
+        Args:
+            insts_info: The installables information dictionary.
+            installables_basedir: Path to the base directory that contains the installables on the
+                                  controller.
         """
 
-        # Copy python helpers to the temporary directory on the controller.
-        for pyhelper in helpers:
-            srcdir = helpersrc / pyhelper
-            _LOG.debug("copying python helper %s:\n  '%s' -> '%s'", pyhelper, srcdir, self._ctmpdir)
+        # Copy Python helpers to the temporary directory on the controller.
+        for installable in insts_info:
+            srcdir = installables_basedir / installable
+            _LOG.debug("Copying Python helpers installable %s:\n  '%s' -> '%s'",
+                       installable, srcdir, self._ctmpdir)
             self._cpman.rsync(srcdir, self._ctmpdir, remotesrc=False, remotedst=False)
 
-        # Build stand-alone version of every python helper.
-        for pyhelper in helpers:
-            _LOG.info("Building a stand-alone version of '%s'", pyhelper)
-            basedir = self._ctmpdir / pyhelper
-            for deployable in self._deployables:
-                deployable_path = self._find_deployable(pyhelper, deployable)
+        # Build stand-alone version of every Python helper.
+        for installable, inst_info in insts_info.items():
+            _LOG.info("Building a stand-alone version of the '%s' installable", installable)
+            basedir = self._ctmpdir / installable
+            for deployable in inst_info["deployables"]:
+                deployable_path = self._find_deployable_src(installable, deployable)
                 self._create_standalone_deployable(deployable_path, basedir)
 
-        # And copy the "standalone-ized" version of python helpers to the SUT.
+        # And copy the "standalone-ized" version of Python helpers to the SUT.
         if self._spman.is_remote:
-            for pyhelper in helpers:
-                srcdir = self._ctmpdir / pyhelper
-                _LOG.debug("copying python helper '%s' to %s:\n  '%s' -> '%s'",
-                           pyhelper, self._spman.hostname, srcdir, self._stmpdir)
+            for installable in insts_info:
+                srcdir = self._ctmpdir / installable
+                _LOG.debug("Copying Python helpers installable '%s' to %s:\n  '%s' -> '%s'",
+                           installable, self._spman.hostname, srcdir, self._stmpdir)
                 self._spman.rsync(srcdir, self._stmpdir, remotesrc=False, remotedst=True)
-
-    def __init__(self, prjname, toolname, deployables, spman, bpman, cpman, stmpdir, btmpdir,
-                 ctmpdir, debug=False):
-        """
-        Class constructor. Arguments are the same as in 'DeployHelpersBase.DeployHelpersBase()'
-        except for:
-         * deployables - the names of deployables to deploy.
-        """
-
-        self._deployables = deployables
-
-        what = f"{toolname} python helpers"
-        super().__init__(prjname, toolname, what, spman, bpman, stmpdir, btmpdir, cpman=cpman,
-                         ctmpdir=ctmpdir, debug=debug)
