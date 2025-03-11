@@ -613,12 +613,13 @@ class TurbostatParser(_ParserBase.ParserBase):
         """Parse a single turbostat line."""
 
         line_data = {}
-        for key, value in zip_longest(self._heading2type.keys(), line):
+        for key, value in zip(self._heading2type.keys(), line):
             # Turbostat adds "(neg)" values when it expects a positive value but reads a negative
             # one. In this case the data point should be considered invalid, so skip it.
-            if value in (None, "-", "(neg)"):
+            if value in ("-", "(neg)"):
                 self._dropped_metrics.add(key)
                 continue
+
             line_data[key] = self._heading2type[key](value)
 
         return line_data

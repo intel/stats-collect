@@ -12,13 +12,15 @@ Provide the base class for software deployment sub-classes.
 Terminology:
     * category - type of an installable. Currently, there are 4 categories: drivers, simple helpers
                  shelpers), python helpers (pyhelpers), and eBPF helpers (bpfhelpers).
-    * installable - a sub-project to install on the SUT (System Under Test).
-    * deployable - each installable provides one or multiple deployables. For example, one or
-                   multiple drivers.
-    * helper - a special type of deployable. Helpers are stand-alone programs that are not part of
-               the main tool but are used by the tool. Examples of deployables that are not helpers:
-               kernel drivers. Examples of deployables that are also helpers: a C program which
-               comes in form of source code, a Python script.
+    * installable - a sub-project to install on the SUT (System Under Test). An installable may
+                    include one or more deployable. For example, a driver installable may include
+                    multiple drivers. A python helper installable may include multiple python helper
+                    scripts.
+    * deployable - each installable provides one or multiple deployables of the same category as the
+                   installable.
+    * helper - somewhat poorly defined term. In the context of this module, a helper may refer to a
+               non-driver installable. For example, a python helper installable. But also a helper
+               may refer to a single non-driver deployable. For example, a python helper script.
 
 Installable vs Deployable:
     * Installables come in the form of source code. Deployables are individual executable programs
@@ -28,7 +30,7 @@ Installable vs Deployable:
       installable directory may be deployables.
     * Deployables are ultimately copied to the SUT and executed on the SUT.
 
-Helpers Types:
+Helper deployable types:
     1. Simple helpers (shelpers) are stand-alone independent programs, which come in the form of a
        single executable file.
     2. eBPF helpers (bpfhelpers) consist of 2 components: the user-space component and the eBPF
@@ -49,7 +51,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ProcessManager, LocalProcessManager
 from pepclibs.helperlibs import ProjectFiles
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
-from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
+from pepclibs.helperlibs.Exceptions import ErrorExists, ErrorNotFound
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -61,12 +63,16 @@ class InstallableInfoType(TypedDict, total=False):
     The type of the dictionary that describes an installable.
 
     Attributes:
+        name: The name of the installable.
         category: Category name of the installable ("drivers", "shelpers", etc).
+        category_descr: The description of the installable category.
         minkver: Minimum SUT kernel version required for the installable.
         deployables: List of deployables this installable provides.
     """
 
+    name: str
     category: InstallableCategoriesType
+    category_descr: str
     minkver: str
     deployables: tuple[str, ...]
 
@@ -86,18 +92,6 @@ CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers"    : "kernel drive
                                                     "shelpers"   : "simple helper program",
                                                     "pyhelpers"  : "python helper program",
                                                     "bpfhelpers" : "eBPF helper program"}
-
-class _ExtInstInfoType(InstallableInfoType, total=False):
-    """
-    The extended installable information dictionary type.
-
-    Attributes:
-        name: The name of the installable.
-        category_descr: The description of the installable category.
-    """
-
-    name: str
-    category_descr: str
 
 def _get_deploy_cmd(pman: ProcessManagerType, toolname: str) -> str:
     """""
@@ -120,7 +114,7 @@ def _get_deploy_suggestion(pman: ProcessManagerType,
                            prjname: str,
                            toolname: str,
                            what: str,
-                           is_helper: bool) -> str:
+                           is_helper: bool = False) -> str:
     """
     Generate and return a suggestion message for deployment errors.
 
@@ -129,7 +123,7 @@ def _get_deploy_suggestion(pman: ProcessManagerType,
         prjname: The name of the project the deployable belongs to.
         toolname: The name of the tool the deployable belongs to.
         what: A human-readable name of the deployable.
-        is_helper: If 'True', the deployable is a helper program.
+        is_helper: If 'True', the deployable is a helper (not a driver).
 
     Returns:
         str: A suggestion message with steps to resolve the deployment issue.
@@ -145,38 +139,38 @@ def _get_deploy_suggestion(pman: ProcessManagerType,
           f" * Set the '{envvar}' environment variable to the path of {what}{pman.hostmsg}."
     return msg
 
-def get_installed_helper_path(prjname: str,
-                              toolname: str,
-                              helper: str,
-                              pman: ProcessManagerType | None = None) -> Path:
+def get_installed_deployable_path(prjname: str,
+                                  toolname: str,
+                                  deployable: str,
+                                  pman: ProcessManagerType | None = None) -> Path:
     """
-    Search for a helper program named 'helper' that belongs to the 'prjname' project.
+    Search for a deployable that belongs to the 'prjname' project.
 
     Args:
-        prjname: The name of the project the helper program belongs to.
-        toolname: The name of the tool the helper program belongs to.
-        helper: The name of the helper program to find.
-        pman: The process manager object for the host to find the helper on (the local host by
+        prjname: The name of the project the deployable belongs to.
+        toolname: The name of the tool the deployable belongs to.
+        deployable: The name of the deployable to find.
+        pman: The process manager object for the host to find the deployable on (the local host by
               default).
 
     Returns:
-        Path: The path to the helper program if found.
+        Path: The path to the deployable if found.
 
     Raises:
-        ErrorNotFound: If the helper program cannot be found.
+        ErrorNotFound: If the deployable cannot be found.
     """
 
     with ProcessManager.pman_or_local(pman) as wpman:
         try:
-            return ProjectFiles.find_project_helper(prjname, helper, pman=wpman)
+            return ProjectFiles.find_project_helper(prjname, deployable, pman=wpman)
         except ErrorNotFound as err:
-            what = f"the '{helper}' helper program"
+            what = f"the '{deployable}' helper program"
             errmsg = f"{err}\n"
             errmsg += _get_deploy_suggestion(wpman, prjname, toolname, what, is_helper=True)
             raise ErrorNotFound(errmsg) from None
 
-def _get_insts_cats(deploy_info: DeployInfoType) -> tuple[dict[str, _ExtInstInfoType],
-                                                          dict[str, dict[str, _ExtInstInfoType]]]:
+def _get_insts_cats(deploy_info: DeployInfoType) -> \
+                tuple[dict[str, InstallableInfoType], dict[str, dict[str, InstallableInfoType]]]:
     """
     Build and return dictionaries for installables and categories based on 'deploy_info'.
 
@@ -193,11 +187,11 @@ def _get_insts_cats(deploy_info: DeployInfoType) -> tuple[dict[str, _ExtInstInfo
                     dictionaries for all the installables in the category.
     """
 
-    insts: dict[str, _ExtInstInfoType] = {}
-    cats: dict[str, dict[str, _ExtInstInfoType]] = {cat: {} for cat in CATEGORIES}
+    insts: dict[str, InstallableInfoType] = {}
+    cats: dict[str, dict[str, InstallableInfoType]] = {cat: {} for cat in CATEGORIES}
 
     for name, info in deploy_info["installables"].items():
-        info = cast(_ExtInstInfoType, copy.deepcopy(info))
+        info = cast(InstallableInfoType, copy.deepcopy(info))
         info["name"] = name
 
         # Add category description to the installable information dictionary.
@@ -211,15 +205,70 @@ def _get_insts_cats(deploy_info: DeployInfoType) -> tuple[dict[str, _ExtInstInfo
 
 class DeployCheckBase(ClassHelpers.SimpleCloseContext):
     """
-    This is a base class for verifying whether all the required installables have been deployed and
-    up-to-date.
+    Provide API for verifying that all the required deployables are in place and up-to-date.
     """
 
-    @staticmethod
-    def _get_newest_mtime(path):
-        """Find and return the most recent modification time of files of 'path'."""
+    def __init__(self,
+                 prjname: str,
+                 toolname: str,
+                 deploy_info: DeployInfoType,
+                 pman: ProcessManagerType | None = None):
+        """
+        Initialize a class instance.
 
-        newest = 0
+        Args:
+            prjname: Name of the project 'toolname' belongs to.
+            toolname: Name of the tool to check the deployment for.
+            deploy_info: A dictionary containing deployment information (installables, categories,
+                         etc).
+            pman: The process manager object that defines the SUT to check the deployment at (local
+                  host by default).
+        """
+
+        self._prjname = prjname
+        self._toolname = toolname
+
+        # Installables information.
+        self._insts: dict[str, InstallableInfoType] = {}
+        # Lists of installables in every category.
+        self._cats: dict[str, dict[str, InstallableInfoType]] = {}
+
+        self._time_delta: float | None = None
+
+        if pman:
+            self._spman = pman
+            self._close_spman = False
+        else:
+            self._spman = LocalProcessManager.LocalProcessManager()
+            self._close_spman = True
+
+        self._insts, self._cats = _get_insts_cats(deploy_info)
+
+    def close(self):
+        """Uninitialize the object."""
+
+        ClassHelpers.close(self, close_attrs=("_spman",))
+
+    @staticmethod
+    def _get_newest_mtime(path: Path) -> float:
+        """
+        Find and return the most recent modification time of files in the given path.
+
+        If the path is a directory, it recursively check all files within the directory
+        and its subdirectories to find the most recent modification time. If the path is
+        a file, it return the modification time of that file.
+
+        Args:
+            path: The path to a file or directory to check.
+
+        Returns:
+            The most recent modification time.
+
+        Raises:
+            ErrorNotFound: If no files are found in the given path.
+        """
+
+        newest = 0.0
         if not path.is_dir():
             mtime = path.stat().st_mtime
             if mtime > newest:
@@ -232,66 +281,107 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
                         newest = mtime
 
         if not newest:
-            raise Error(f"no files found in the '{path}'")
+            raise ErrorNotFound(f"No files found in the '{path}'")
+
         return newest
 
-    def _get_deployables(self, category):
-        """Yield all deployable names for category 'category' (e.g., "drivers")."""
+    def _get_deployables(self, category) -> Iterator[str]:
+        """
+        Yield all deployable items for a given category.
+
+        Args:
+            category: The category for which to retrieve deployable items.
+
+        Yields:
+            Names of all deployables for the specified category.
+        """
 
         for inst_info in self._cats[category].values():
-            for deployable in inst_info["deployables"]:
-                yield deployable
+            yield from inst_info["deployables"]
 
-    def _get_installed_deployable_path(self, deployable):
-        """Same as 'DeployBase.get_installed_helper_path()'."""
-        return get_installed_helper_path(self._prjname, self._toolname, deployable,
-                                         pman=self._spman)
+    def _get_installed_deployable_path(self, deployable: str) -> Path:
+        """
+        Return the path of an installed helper deployable (a non-driver ) on the SUT.
 
-    def _get_installable_by_deployable(self, deployable):
-        """Returns installable name and information dictionary for a deployable."""
+        Args:
+            deployable: The name of the deployable.
 
-        for installable, inst_info in self._insts.items():
-            if deployable in inst_info["deployables"]:
-                break
-        else:
-            raise Error(f"bad deployable name '{deployable}'")
+        Returns:
+            The path to the installed deployable on the SUT.
+        """
 
-        return installable # pylint: disable=undefined-loop-variable
+        return get_installed_deployable_path(self._prjname, self._toolname, deployable,
+                                             pman=self._spman)
 
-    def _get_deployable_print_name(self, installable, deployable):
-        """Returns a nice, printable human-readable name of a deployable."""
+    def _get_deployable_print_name(self, installable: str, deployable: str) -> str:
+        """
+        Returns a human-readable name for a deployable.
+
+        Args:
+            installable: The name of the installable.
+            deployable: The name of the deployable.
+
+        Returns:
+            A string representing a human-readable name for the deployable.
+        """
 
         cat_descr = self._insts[installable]["category_descr"]
         if deployable != installable:
-            return f"the '{deployable}' component of the '{installable}' {cat_descr}"
-        return f"the '{deployable}' {cat_descr}"
+            return f"The '{deployable}' component of the '{installable}' {cat_descr}"
+        return f"The '{deployable}' {cat_descr}"
 
-    def _deployable_not_found(self, deployable):
+    def _deployable_not_found(self, installable: str, deployable: str):
         """
-        Called in a situation when 'deployable' was not found. Formats an error message and
-        raises 'ErrorNotFound'.
+        Handle the case when a deployable is not found: format an appropriate error message and
+        raise an 'ErrorNotFound' exception.
+
+        Args:
+            installable: The name of the installable the deployable belongs to.
+            deployable: The name of the deployable item that was not found.
+
+        Raises:
+            ErrorNotFound: this exception is raised with a formatted error message suggesting
+                           possible solutions.
         """
 
-        installable = self._get_installable_by_deployable(deployable)
         what = self._get_deployable_print_name(installable, deployable)
         is_helper = self._insts[installable]["category"] != "drivers"
 
-        err = _get_deploy_suggestion(self._spman, self._prjname, self._toolname, what, is_helper)
+        err = _get_deploy_suggestion(self._spman, self._prjname, self._toolname, what,
+                                     is_helper=is_helper)
         raise ErrorNotFound(err) from None
 
-    def _warn_deployable_out_of_date(self, deployable):
-        """Print a warning about the 'what' deployable not being up-to-date."""
+    def _warn_deployable_out_of_date(self, installable: str, deployable: str):
+        """
+        Print a warning about the specified deployable not being up-to-date.
 
-        installable = self._get_installable_by_deployable(deployable)
+        Args:
+            installable: The name of the installable the deployable belongs to.
+            deployable: The name of the deployable to check.
+        """
+
         what = self._get_deployable_print_name(installable, deployable)
 
         _LOG.warning("%s may be out of date%s, consider running '%s'",
                      what, self._spman.hostmsg, _get_deploy_cmd(self._spman, self._toolname))
 
-    def _check_deployable_up_to_date(self, deployable, srcpath, dstpath):
+    def _check_deployable_up_to_date(self,
+                                     installable: str,
+                                     deployable: str,
+                                     srcpath: Path,
+                                     dstpath: Path):
         """
-        Check that a deployable at 'dstpath' on SUT is up-to-date by comparing its 'mtime' to the
-        source (code) of the deployable at 'srcpath' on the controller.
+        Check if a deployable at 'dstpath' on the System Under Test (SUT) is up-to-date by comparing
+        its modification time ('mtime') to 'mtime' of the source code of the deployable at 'srcpath'
+        on the controller.
+
+        Print a if the deployable is out-of-date.
+
+        Args:
+            installable: The name of the installable the deployable belongs to.
+            deployable: The name of the deployable to check.
+            srcpath: The path to the source code of the deployable on the controller.
+            dstpath: The path to the deployable on the SUT.
         """
 
         if self._time_delta is None:
@@ -308,52 +398,28 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
         if src_mtime > self._time_delta + dst_mtime:
             _LOG.debug("src mtime %d > %d + dst mtime %d, src: %s, dst %s",
                        src_mtime, self._time_delta, dst_mtime, srcpath, dstpath)
-            self._warn_deployable_out_of_date(deployable)
+            self._warn_deployable_out_of_date(installable, deployable)
 
     def _check_deployment(self):
         """
-        Check if all the required installables have been deployed and up-to-date. Has to be
-        implemented by the sub-class.
+        Checks if all the required installables have been deployed and are up-to-date.
+
+        Raises:
+            NotImplementedError: The method is not implemented by the subclass.
         """
 
         raise NotImplementedError()
 
     def check_deployment(self):
-        """Check if all the required installables have been deployed and up-to-date."""
+        """
+        Check if all the required installables have been deployed and are up-to-date.
+
+        Raises:
+            DeploymentError: If any required installable is not deployed or outdated.
+        """
 
         self._time_delta = None
         self._check_deployment()
-
-    def __init__(self, prjname, toolname, deploy_info, pman=None):
-        """
-        The class constructor. The arguments are as follows.
-          * prjname - name of the project 'toolname' belongs to.
-          * toolname - name of the tool to check the deployment for.
-          * deploy_info - a dictionary describing the tool to deploy. Check 'DeployBase.__init__()'
-                          for more information.
-          * pman - the process manager object that defines the SUT to check the deployment at (local
-            host by default).
-        """
-
-        self._prjname = prjname
-        self._toolname = toolname
-
-        self._insts = None # Installables information.
-        self._cats = None  # Lists of installables in every category.
-        self._time_delta = None
-
-        if pman:
-            self._spman = pman
-            self._close_spman = False
-        else:
-            self._spman = LocalProcessManager.LocalProcessManager()
-            self._close_spman = True
-
-        self._insts, self._cats = _get_insts_cats(deploy_info)
-
-    def close(self):
-        """Uninitialize the object."""
-        ClassHelpers.close(self, close_attrs=("_spman",))
 
 class DeployBase(ClassHelpers.SimpleCloseContext):
     """The base class for software deployment sub-classes."""
@@ -381,7 +447,7 @@ class DeployBase(ClassHelpers.SimpleCloseContext):
                          created by default).
             keep_tmpdir: If 'False', remove the temporary directory when finished. If 'True', do not
                          remove it.
-            debug: If 'True', be more verbose. Defaults to False.
+            debug: If 'True', be more verbose.
 
         The 'deploy_info' dictionary describes the tool to deploy and its dependencies. It should
         have the following structure:
@@ -417,9 +483,9 @@ class DeployBase(ClassHelpers.SimpleCloseContext):
         self._close_cpman = False
 
         # Installables information.
-        self._insts: dict[str, _ExtInstInfoType] = {}
+        self._insts: dict[str, InstallableInfoType] = {}
         # Lists of installables in every category.
-        self._cats: dict[str, dict[str, _ExtInstInfoType]] = {}
+        self._cats: dict[str, dict[str, InstallableInfoType]] = {}
 
         # Temporary directory on the SUT.
         self._stmpdir: Path | None = None
