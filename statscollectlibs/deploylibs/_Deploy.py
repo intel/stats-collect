@@ -1,26 +1,38 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""This module provides the API for deploying the 'stats-collect' tool."""
+"""Provide the API for deploying the installables of tools in the 'stats-collect' project."""
 
+from pathlib import Path
+from typing import Callable, Any
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
+from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploylibs import DeployBase, _DeployPyHelpers, DeployHelpersBase
+from statscollectlibs.deploylibs.DeployBase import DeployInfoType
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-def add_deploy_cmdline_args(toolname, subparsers, func, argcomplete=None):
+def add_deploy_cmdline_args(toolname: str,
+                            subparsers: ArgParse.SubParsersType,
+                            func: Callable,
+                            argcomplete: Any = None) -> ArgParse.ArgsParser:
     """
-    Add the the 'deploy' command to 'argparse' data. The input arguments are as follows.
-      * toolname - name of the tool to add the 'deploy' command for.
-      * subparsers - the 'argparse' subparsers to add the 'deploy' command to.
-      * func - the 'deploy' command handling function.
-      * argcomplete - optional 'argcomplete' command-line arguments completer object.
+    Adds the 'deploy' command to the a "subparsers" object of 'argparse'.
+
+    Args:
+        toolname: Name of the tool to add the 'deploy' command for.
+        subparsers: The argparse "subparsers" object to add the 'deploy' command to.
+        func: The 'deploy' command handling function.
+        argcomplete: Optional 'argcomplete' command-line arguments completer object.
+
+    Returns:
+        The argparse parser for the 'deploy' command.
     """
 
     text = f"Deploy {toolname} helpers."
@@ -45,12 +57,35 @@ def add_deploy_cmdline_args(toolname, subparsers, func, argcomplete=None):
 
 class DeployCheck(DeployBase.DeployCheckBase):
     """
-    This class provides the 'check_deployment()' method which can be used for verifying whether all
-    the required installables are available on the SUT.
+    Provide API for verifying that all the required deployables are in place and up-to-date.
     """
 
+    def __init__(self,
+                 prjname: str,
+                 toolname: str,
+                 deploy_info: DeployInfoType,
+                 pman: ProcessManagerType | None = None):
+        """
+        Initialize a class instance.
+
+        Args:
+            prjname: Name of the project 'toolname' belongs to.
+            toolname: Name of the tool to check the deployment for.
+            deploy_info: A dictionary containing deployment information (installables, categories,
+                         etc).
+            pman: The process manager object that defines the SUT to check the deployment at (local
+                  host by default).
+        """
+
+        super().__init__(prjname, toolname, deploy_info, pman=pman)
+
     def _check_deployment(self):
-        """Check if python helpers are deployed and up-to-date."""
+        """
+        Checks if all the required installables have been deployed and are up-to-date.
+
+        Raises:
+            ErrorNotFound: If the source path or deployable path is not found.
+        """
 
         for pyhelper in self._cats["pyhelpers"]:
             try:
@@ -60,60 +95,44 @@ class DeployCheck(DeployBase.DeployCheckBase):
             except ErrorNotFound:
                 continue
 
-            for deployable in self._get_deployables("pyhelpers"):
-                try:
-                    deployable_path = self._get_installed_deployable_path(deployable)
-                except ErrorNotFound:
-                    self._deployable_not_found(deployable)
-                    break
+            for installable, inst_info in self._cats["pyhelpers"].items():
+                for deployable in inst_info["deployables"]:
+                    try:
+                        deployable_path = self._get_installed_deployable_path(deployable)
+                    except ErrorNotFound:
+                        self._deployable_not_found(installable, deployable)
+                        break
 
-                if srcpath:
-                    self._check_deployable_up_to_date(deployable, srcpath, deployable_path)
-
-    def __init__(self, prjname, toolname, deploy_info, pman=None):
-        """
-        The class constructor. The arguments are the same as in 'DeployCheckBase.__init__()'.
-        """
-        super().__init__(prjname, toolname, deploy_info, pman=pman)
-
+                    if srcpath:
+                        self._check_deployable_up_to_date(installable, deployable, srcpath,
+                                                          deployable_path)
 
 class Deploy(DeployBase.DeployBase):
-    """
-    This class provides the 'deploy()' method which can be used for deploying the dependencies of
-    the "stats-collect" tool.
-    """
+    """Provide the API for deploying the installables of tools in the 'stats-collect' project."""
 
-    def _deploy(self):
-        """Deploy python helpers to the SUT."""
-
-        deployables = self._get_deployables("pyhelpers")
-        stmpdir = self._get_stmpdir()
-        btmpdir = self._get_btmpdir()
-        ctmpdir = self._get_ctmpdir()
-
-        with _DeployPyHelpers.DeployPyHelpers("stats-collect", self._toolname, deployables,
-                                              self._spman, self._bpman, stmpdir,
-                                              btmpdir, cpman=self._cpman, ctmpdir=ctmpdir,
-                                              debug=self._debug) as depl:
-            pyhelpers = list(self._cats.get("pyhelpers"))
-            depl.deploy(pyhelpers)
-
-    def deploy(self):
-        """Deploy all the installables to the SUT."""
-
-        if not self._cats.get("pyhelpers"):
-            _LOG.info("Nothing to deploy to the local host.")
-            return
-
-        try:
-            self._deploy()
-        finally:
-            self._remove_tmpdirs()
-
-    def __init__(self, toolname, deploy_info, pman=None, tmpdir_path=None,
-                 keep_tmpdir=False, debug=False):
+    def __init__(self,
+                 toolname: str,
+                 deploy_info: DeployInfoType,
+                 pman: ProcessManagerType | None = None,
+                 tmpdir_path: Path | None = None,
+                 keep_tmpdir: bool = False,
+                 debug: bool = False):
         """
-        The class constructor. The arguments are the same as in 'DeployBase.__init()'.
+        Initialize class instance.
+
+        Args:
+            toolname: Name of the tool to deploy.
+            deploy_info: A dictionary describing what should be deployed.
+            pman: The process manager object that defines the SUT to deploy to (local host by
+                  default).
+            lbuild: If 'True', build everything on the local host.
+            tmpdir_path: Path to use as a temporary directory (a random temporary directory is
+                         created by default).
+            keep_tmpdir: If 'False', remove the temporary directory when finished. If 'True', do not
+                         remove it.
+            debug: If 'True', be more verbose.
+
+        Refer to 'DeployBase' class constructor docstring for more information.
         """
 
         super().__init__("stats-collect", toolname, deploy_info, pman=pman, tmpdir_path=tmpdir_path,
@@ -127,3 +146,28 @@ class Deploy(DeployBase.DeployBase):
             for installable in self._cats["pyhelpers"]:
                 del self._insts[installable]
             self._cats["pyhelpers"] = {}
+
+    def _deploy(self):
+        """Deploy python helpers to the SUT."""
+
+        stmpdir = self._get_stmpdir()
+        btmpdir = self._get_btmpdir()
+        ctmpdir = self._get_ctmpdir()
+
+        with _DeployPyHelpers.DeployPyHelpers("stats-collect", self._toolname,
+                                              self._spman, self._bpman, stmpdir,
+                                              btmpdir, cpman=self._cpman, ctmpdir=ctmpdir,
+                                              debug=self._debug) as depl:
+            depl.deploy(self._cats["pyhelpers"])
+
+    def deploy(self):
+        """Deploy all the installables to the SUT."""
+
+        if not self._cats["pyhelpers"]:
+            _LOG.info("Nothing to deploy to %s.", self._spman.hostname)
+            return
+
+        try:
+            self._deploy()
+        finally:
+            self._remove_tmpdirs()

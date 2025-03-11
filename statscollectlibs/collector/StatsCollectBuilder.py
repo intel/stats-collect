@@ -119,10 +119,10 @@ class StatsCollectBuilder(ClassHelpers.SimpleCloseContext):
         # Configure the 'stc-agent' program path.
         local_needed, remote_needed = stcoll.is_stcagent_needed()
         if local_needed and not local_path:
-            local_path = DeployBase.get_installed_helper_path("stats-collect", "stats-collect",
+            local_path = DeployBase.get_installed_deployable_path("stats-collect", "stats-collect",
                                                               "stc-agent")
         if remote_needed and not remote_path:
-            remote_path = DeployBase.get_installed_helper_path("stats-collect", "stats-collect",
+            remote_path = DeployBase.get_installed_deployable_path("stats-collect", "stats-collect",
                                                                "stc-agent", pman=pman)
 
         stcoll.set_stcagent_path(local_path=local_path, remote_path=remote_path)
