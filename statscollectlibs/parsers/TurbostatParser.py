@@ -21,7 +21,6 @@ Terminology.
 """
 
 import re
-from itertools import zip_longest
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.parsers import _ParserBase
