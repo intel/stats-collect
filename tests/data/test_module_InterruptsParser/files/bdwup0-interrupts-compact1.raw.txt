@@ -550,4 +550,4 @@ PIN: 0 0 0 0 0 0 0 0 Posted-interrupt notification event
 NPI: 0 0 0 0 0 0 0 0 Nested posted-interrupt event
 PIW: 0 0 0 0 0 0 0 0 Posted-interrupt wakeup event
 
-proc-interrupts-helper: error: interrupted, exiting
+stc-agent-proc-interrupts-helper: error: interrupted, exiting

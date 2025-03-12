@@ -151,4 +151,4 @@ timestamp: 1737461861.8668025
  27:          0          0          0          0          0          1          0          0 IR-PCI-MSI-0000:00:1c.1   0-edge      PCIe bwctrl
  28:          0          0          0          0          0          0          1          0 IR-PCI-MSI-0000:00:1c.2   0-edge      PCIe bwctrl
  29:          0          0          0          0          0          0          0       6374 IR-PCI-MSI-0000:00:1f.2   0-edge      ahci[0000:00:1f.2]
-proc-interrupts-helper: error: interrupted, exiting
+stc-agent-proc-interrupts-helper: error: interrupted, exiting

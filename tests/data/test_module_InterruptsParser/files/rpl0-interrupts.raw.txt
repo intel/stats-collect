@@ -1606,4 +1606,4 @@ timestamp: 1737461888.1717432
  PIW:          0          0          0          0          0          0          0          0          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
  PMN:          0          0          0          0          0          0          0          0          0          0          0          0          0          0          0          0   Posted MSI notification event
 
-proc-interrupts-helper: error: interrupted, exiting
+stc-agent-proc-interrupts-helper: error: interrupted, exiting
