@@ -332,6 +332,10 @@ class InterruptsParser:
                     # This is the message from 'proc-interrupts-handler' when it is interrupted, and
                     # this indicates the end of the interrupts statistics.
                     break
+                # TODO: compatibility code, remove in 2026. The helper was called
+                # 'proc-interrupts-helper' in the past.
+                if line == "proc-interrupts-helper: error: interrupted, exiting":
+                    break
                 raise
 
         if self._yielded_cnt == 0:
