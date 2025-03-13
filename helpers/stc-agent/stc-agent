@@ -1059,10 +1059,10 @@ def main():
 # The script entry point.
 if __name__ == "__main__":
     try:
-        exitcode = main()
+        _exitcode = main()
     except KeyboardInterrupt:
         _LOG.error_out("interrupted, exiting")
     except Error as error:
         _LOG.error_out(error, print_tb=True)
 
-    sys.exit(exitcode)
+    sys.exit(_exitcode)
