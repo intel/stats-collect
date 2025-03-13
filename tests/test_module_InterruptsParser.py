@@ -10,7 +10,7 @@
 
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import ErrorBadFormat
-from pepclibs.helperlibs import Human
+from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import InterruptsParser
 
 _TEST_FILES_DIR = Path("tests/data/test_module_InterruptsParser/files")
@@ -39,7 +39,7 @@ def test_cut_files():
 
         assert len(first_snapshot["cpu2irqs"]) == len(last_snapshot["cpu2irqs"]), \
                f"{pfx}: Expected the same number of CPUs, but got " \
-               f"{Human.rangify(first_snapshot['cpus'])} and {Human.rangify(last_snapshot['cpus'])}"
+               f"{Trivial.rangify(first_snapshot['cpus'])} and {Trivial.rangify(last_snapshot['cpus'])}"
 
         assert len(first_snapshot["irq_info"]) == len(last_snapshot["irq_info"]), \
                f"{pfx}: Expected the same number of IRQs, but got " \

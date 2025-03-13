@@ -11,7 +11,7 @@ Provide the tab builder for the SPECjbb2015 workload.
 """
 
 import pandas
-from pepclibs.helperlibs import Logging, Human
+from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import ToolInfo
 from statscollectlibs.mdc import MDCBase
@@ -119,8 +119,8 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
             log_levels_cnt = len(log_info["rt_curve"]["levels"])
             out_levels_cnt = len(out_info["rt_curve"]["levels"])
             if log_levels_cnt != out_levels_cnt:
-                log_range = Human.rangify(list(log_info["rt_curve"]["levels"]))
-                out_range = Human.rangify(list(out_info["rt_curve"]["levels"]))
+                log_range = Trivial.rangify(list(log_info["rt_curve"]["levels"]))
+                out_range = Trivial.rangify(list(out_info["rt_curve"]["levels"]))
                 raise Error(f"SPECjbb2015 load levels count mismatch:\n"
                             f"  * controller log: {log_levels_cnt} levels ({log_range})\n"
                             f"  * controller out: {out_levels_cnt} levels ({out_range})")
