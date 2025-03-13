@@ -8,6 +8,10 @@
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
+"""
+Common code for stats-collect helper programs (intallables).
+"""
+
 import sys
 
 def print_module_paths():
