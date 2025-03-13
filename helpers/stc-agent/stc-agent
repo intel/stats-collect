@@ -30,6 +30,7 @@ import contextlib
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ArgParse, LocalProcessManager, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
+from statscollecttools import _HelpersCommon
 
 try:
     # pylint: disable=ungrouped-imports
@@ -100,25 +101,10 @@ def parse_arguments():
               automatically created Unix socket file name."""
     parser.add_argument("--sut-name", dest="sutname", help=text)
 
-    # This is a hidden option which makes 'stc-agent' print paths to its dependencies and exit.
+    # This is a hidden option for printing paths to dependencies. Required for building a standalone
+    # version of this script.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
-
-def print_module_paths():
-    """
-    Print paths to all modules other than standard.
-    """
-
-    for mobj in sys.modules.values():
-        path = getattr(mobj, "__file__", None)
-        if not path:
-            continue
-
-        if not path.endswith(".py"):
-            continue
-
-        if "pepclibs/" in path or "statscollectlibs/" in path:
-            print(path)
 
 def sighandler(sig, _):
     """
@@ -1044,12 +1030,13 @@ def main():
         signal.signal(signal.SIGTERM, sighandler)
 
     args = parse_arguments()
-    if args.port is not None and args.unix is not None:
-        raise Error("'--port' and '--unix' options are mutually exclusive")
 
     if args.print_module_paths:
-        print_module_paths()
+        _HelpersCommon.print_module_paths()
         return 0
+
+    if args.port is not None and args.unix is not None:
+        raise Error("'--port' and '--unix' options are mutually exclusive")
 
     stc_agent = STCAgent()
 
@@ -1069,11 +1056,13 @@ def main():
     _LOG.debug("exiting")
     return 0
 
-# The very first script entry point.
+# The script entry point.
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        exitcode = main()
     except KeyboardInterrupt:
         _LOG.error_out("interrupted, exiting")
     except Error as error:
         _LOG.error_out(error, print_tb=True)
+
+    sys.exit(exitcode)
