@@ -1,3 +1,9 @@
+stats-collect (1.0.50) unstable; urgency=low
+
+  * Fix python 3.9 compatibility breakage.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 14 Mar 2025 00:00:00 +0200
+
 stats-collect (1.0.49) unstable; urgency=low
 
   * Fix crash with plotly version >= 6.0.0.

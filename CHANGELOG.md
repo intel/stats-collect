@@ -9,6 +9,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.50] - 2025-03-14
+### Fixed
+ - Fix python 3.9 compatibility breakage.
+
 ## [1.0.49] - 2025-03-11
 ### Fixed
  - Fix crash with plotly version >= 6.0.0.
