@@ -11,6 +11,8 @@ Provide base class for deploying installables. Refer to the 'DeployBase' module 
 terminology reference.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ToolChecker
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
