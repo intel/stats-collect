@@ -12,6 +12,8 @@ Provide API for deploying Python helpers (non-driver installables and deployable
 'DeployBase' module docstring for more information.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, ProjectFiles
 from pepclibs.helperlibs import ToolChecker
