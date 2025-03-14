@@ -9,7 +9,6 @@
 
 """stats-collect - a tool for collecting and visualizing system statistics and telemetry."""
 
-# TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import sys
@@ -87,9 +86,11 @@ def _build_arguments_parser():
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""
     subpars.add_argument("--time-limit", help=text, dest="tlimit", metavar="LIMIT", default=None)
-    arg = subpars.add_argument("-o", "--outdir", type=Path)
     if argcomplete_imported:
-        arg.completer = argcomplete.completers.DirectoriesCompleter()
+        completer = argcomplete.completers.DirectoriesCompleter()
+    else:
+        completer = None
+    subpars.add_argument("-o", "--outdir", type=Path, completer=completer)
 
     text = """Report ID which will serve as an identifier for this run. By default report ID is
               the current date, prefixed with the remote host name in case the '-H' option was 
