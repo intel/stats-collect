@@ -8,8 +8,17 @@
 
 """Provide the API for deploying the installables of tools in the 'stats-collect' project."""
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+try:
+    import argcomplete
+    argcomplete_imported = True
+except ImportError:
+    # We can live without argcomplete, we only lose tab completions.
+    argcomplete_imported = False
+
 from pathlib import Path
-from typing import Callable, Any
+from typing import Callable
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
@@ -20,8 +29,7 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 def add_deploy_cmdline_args(toolname: str,
                             subparsers: ArgParse.SubParsersType,
-                            func: Callable,
-                            argcomplete: Any = None) -> ArgParse.ArgsParser:
+                            func: Callable) -> ArgParse.ArgsParser:
     """
     Adds the 'deploy' command to the a "subparsers" object of 'argparse'.
 
@@ -29,11 +37,15 @@ def add_deploy_cmdline_args(toolname: str,
         toolname: Name of the tool to add the 'deploy' command for.
         subparsers: The argparse "subparsers" object to add the 'deploy' command to.
         func: The 'deploy' command handling function.
-        argcomplete: Optional 'argcomplete' command-line arguments completer object.
 
     Returns:
         The argparse parser for the 'deploy' command.
     """
+
+    if argcomplete_imported:
+        completer = argcomplete.completers.DirectoriesCompleter()
+    else:
+        completer = None
 
     text = f"Deploy {toolname} helpers."
     descr = f"""Deploy {toolname} helpers to a remote SUT (System Under Test)."""
@@ -42,9 +54,8 @@ def add_deploy_cmdline_args(toolname: str,
     text = f"""When '{toolname}' is deployed, a random temporary directory is used. Use this option
                provide a custom path instead. It will be used as a temporary directory on both
                local and remote hosts. This option is meant for debugging purposes."""
-    arg = parser.add_argument("--tmpdir-path", help=text)
-    if argcomplete:
-        arg.completer = argcomplete.completers.DirectoriesCompleter()
+    parser.add_argument("--tmpdir-path",
+                        help=text).completer = completer # type: ignore[attr-defined]
 
     text = f"""Do not remove the temporary directories created while deploying '{toolname}'. This
                option is meant for debugging purposes."""

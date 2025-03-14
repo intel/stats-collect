@@ -42,6 +42,11 @@ _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=ToolInfo.TOO
 def _build_arguments_parser():
     """Build and return the arguments parser object."""
 
+    if argcomplete_imported:
+        completer = argcomplete.completers.DirectoriesCompleter()
+    else:
+        completer = None
+
     text = "stats-collect - a tool for collecting and visualizing system statistics and telemetry."
     parser = ArgParse.SSHOptsAwareArgsParser(description=text, prog=ToolInfo.TOOLNAME,
                                              ver=ToolInfo.VERSION)
@@ -54,8 +59,7 @@ def _build_arguments_parser():
     #
     # Create parsers for the "deploy" command.
     #
-    subpars = _Deploy.add_deploy_cmdline_args(ToolInfo.TOOLNAME, subparsers, _deploy_command,
-                                              argcomplete=argcomplete)
+    subpars = _Deploy.add_deploy_cmdline_args(ToolInfo.TOOLNAME, subparsers, _deploy_command)
 
     #
     # Create parsers for the "start" command.
@@ -86,11 +90,8 @@ def _build_arguments_parser():
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""
     subpars.add_argument("--time-limit", help=text, dest="tlimit", metavar="LIMIT", default=None)
-    if argcomplete_imported:
-        completer = argcomplete.completers.DirectoriesCompleter()
-    else:
-        completer = None
-    subpars.add_argument("-o", "--outdir", type=Path, completer=completer)
+    subpars.add_argument("-o", "--outdir",
+                         type=Path).completer = completer # type: ignore[attr-defined]
 
     text = """Report ID which will serve as an identifier for this run. By default report ID is
               the current date, prefixed with the remote host name in case the '-H' option was 
