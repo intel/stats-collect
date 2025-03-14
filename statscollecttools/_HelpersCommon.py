@@ -13,22 +13,24 @@ Common code for stats-collect helper programs (intallables).
 """
 
 import sys
+from pathlib import Path
 
 def print_module_paths():
     """
     Print paths to all modules other than standard.
     """
 
-    subpaths = ("pepclibs/", "statscollectlibs/", "statscollecttools/")
+    components = ("statscollectlibs", "statscollecttools", "pepclibs")
 
     for mobj in sys.modules.values():
-        path = getattr(mobj, "__file__", None)
-        if not path:
+        file = getattr(mobj, "__file__", None)
+        if not file:
             continue
 
-        if not path.endswith(".py"):
+        path = Path(file)
+        if not path.parts[-1].endswith(".py"):
             continue
 
-        for subpath in subpaths:
-            if subpath in path:
+        for component in components:
+            if component in path.parts:
                 print(path)
