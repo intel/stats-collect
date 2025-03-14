@@ -184,15 +184,17 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             for src in deps:
                 # Form the destination path. It is just part of the source path staring from the
                 # 'statscollectlibs' of 'pepclibs' components.
-                try:
-                    idx = src.parts.index("statscollectlibs")
-                except ValueError:
+                components = ("statscollectlibs", "statscollecttools", "pepclibs")
+                for component in components:
                     try:
-                        idx = src.parts.index("pepclibs")
+                        idx = src.parts.index(component)
+                        break
                     except ValueError:
-                        raise Error(f"Python program '{deployable}' has bad dependency '{src}' - "
-                                    f"the path does not have the 'statscollectlibs' or "
-                                    f"'pepclibs' component in it.") from None
+                        continue
+                else:
+                    raise Error(f"Python program '{deployable}' has bad dependency '{src}' - "
+                                f"the path does not have any of the components: "
+                                f"{', '.join(components)}.")
 
                 dst = Path(*src.parts[idx:])
                 zipobj.write(src, arcname=dst)
