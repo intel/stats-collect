@@ -11,6 +11,8 @@ Provide base class for deploying non-driver installables (helpers). Refer to the
 docstring for terminology reference.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import os
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ProjectFiles, ToolChecker
