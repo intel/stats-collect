@@ -103,17 +103,14 @@ def _build_arguments_parser():
                statistics are collected. """ + man_msg
     subpars.add_argument("--stats", default="default", help=text)
 
+    text = f"""Print information about the statistics '{ToolInfo.TOOLNAME}' can collect and exit."""
+    subpars.add_argument("--list-stats", action="store_true", help=text)
+
     text = """The intervals for statistics collection as a comma-separated list, e.g.
               'acpower:5,turbostat:10' to collect SUT power consumption every 5 seconds and
               turbostat data every 10 seconds. Use the '--list-stats' to get the default interval
               values. """ + man_msg
     subpars.add_argument("--stats-intervals", help=text)
-
-    text = f"""Print information about the statistics '{ToolInfo.TOOLNAME}' can collect and exit."""
-    subpars.add_argument("--list-stats", action="store_true", help=text)
-
-    text = """Generate an HTML report for collected results (same as calling 'report' command with
-              default arguments)."""
     subpars.add_argument("--report", action="store_true")
 
     text = """Run the command on the local host instead of the SUT ('HOSTNAME'). This is useful for
@@ -121,28 +118,13 @@ def _build_arguments_parser():
               client."""
     subpars.add_argument("--cmd-local", action="store_true", help=text)
 
-    text = """Path to the named pipe where the executed command is going to write the lables to (on
-              'HOSTNAME'). Use the special keyword "auto" to instruce 'stats-collect' to
-              automatically create a named pipe in the temporary directory (use the "{PIPE_PATH}"
-              placeholder on workload's command line to get the path in this case). No named pipe is
-              created by default."""
-    subpars.add_argument("-P", "--pipe-path", help=text, type=Path)
-
-    duration_descr = "d - days, h - hours, m - minutes, s - seconds"
-    text = f"""The longest allowed interval between named pipe input lines. The
-               '{ToolInfo.TOOLNAME}' tool exits with an error if the interval exceeds
-               'PIPE_TIMEOUT'. The default is 5 minutes. Specify time value in minutes, or use one
-               of the following specifiers: {duration_descr}. For example, '--pipe-timeout=1m 20s'
-               would mean mean 1 minute and 20 seconds."""
-    subpars.add_argument("--pipe-timeout", help=text, type=Path, default="5m")
-
     text = """Command to run on the during statistics collection. If 'HOSTNAME' is provided,
               the tool will run the command on that host (unless '--cmd-local' was specified).
               Otherwise the tool will run the command on 'localhost'. The command may include
               placeholders in "{}" braces, which will be replaced with actual values. The supported
               placeholders are "{HOSTNAME}", "{USERNAME}", "{PRIVKEY}", "{TIMEOUT}", "{CPUS}",
-              "{OUTDIR}", "{REPORTID}", "{STATS}", "{PIPE_PATH}". They will be substituted with the
-              actual values of the corresponding options."""
+              "{OUTDIR}", "{REPORTID}", "{STATS}". They will be substituted with the actual values
+              of the corresponding options."""
 
     subpars.add_argument("cmd", type=str, nargs="+", help=text)
 
