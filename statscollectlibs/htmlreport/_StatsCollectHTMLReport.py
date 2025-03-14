@@ -9,6 +9,8 @@
 
 """Provide a capability of generating 'stats-collect' HTML reports."""
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
