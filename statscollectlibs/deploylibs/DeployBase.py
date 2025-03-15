@@ -58,7 +58,7 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 # The supported installable categories.
 InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers", "bpfhelpers"]
 
-class InstallableInfoType(TypedDict, total=False):
+class InstallableInfoTypedDict(TypedDict, total=False):
     """
     The type of the dictionary that describes an installable.
 
@@ -77,7 +77,7 @@ class InstallableInfoType(TypedDict, total=False):
     deployables: tuple[str, ...]
 
 # The tool deploy information type.
-class DeployInfoType(TypedDict):
+class DeployInfoTypedDict(TypedDict):
     """
     The deployment description dictionary type.
 
@@ -85,7 +85,7 @@ class DeployInfoType(TypedDict):
         installables: Dictionary of installables. The key is the installable name, and the value is
                       the installable information dictionary.
     """
-    installables: dict[str, InstallableInfoType]
+    installables: dict[str, InstallableInfoTypedDict]
 
 # The supported installable categories.
 CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers"    : "kernel driver",
@@ -169,8 +169,9 @@ def get_installed_deployable_path(prjname: str,
             errmsg += _get_deploy_suggestion(wpman, prjname, toolname, what, is_helper=True)
             raise ErrorNotFound(errmsg) from None
 
-def _get_insts_cats(deploy_info: DeployInfoType) -> \
-                tuple[dict[str, InstallableInfoType], dict[str, dict[str, InstallableInfoType]]]:
+def _get_insts_cats(deploy_info: DeployInfoTypedDict) -> \
+                tuple[dict[str, InstallableInfoTypedDict],
+                      dict[str, dict[str, InstallableInfoTypedDict]]]:
     """
     Build and return dictionaries for installables and categories based on 'deploy_info'.
 
@@ -187,11 +188,11 @@ def _get_insts_cats(deploy_info: DeployInfoType) -> \
                     dictionaries for all the installables in the category.
     """
 
-    insts: dict[str, InstallableInfoType] = {}
-    cats: dict[str, dict[str, InstallableInfoType]] = {cat: {} for cat in CATEGORIES}
+    insts: dict[str, InstallableInfoTypedDict] = {}
+    cats: dict[str, dict[str, InstallableInfoTypedDict]] = {cat: {} for cat in CATEGORIES}
 
     for name, info in deploy_info["installables"].items():
-        info = cast(InstallableInfoType, copy.deepcopy(info))
+        info = cast(InstallableInfoTypedDict, copy.deepcopy(info))
         info["name"] = name
 
         # Add category description to the installable information dictionary.
@@ -211,7 +212,7 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
     def __init__(self,
                  prjname: str,
                  toolname: str,
-                 deploy_info: DeployInfoType,
+                 deploy_info: DeployInfoTypedDict,
                  pman: ProcessManagerType | None = None):
         """
         Initialize a class instance.
@@ -229,9 +230,9 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
         self._toolname = toolname
 
         # Installables information.
-        self._insts: dict[str, InstallableInfoType] = {}
+        self._insts: dict[str, InstallableInfoTypedDict] = {}
         # Lists of installables in every category.
-        self._cats: dict[str, dict[str, InstallableInfoType]] = {}
+        self._cats: dict[str, dict[str, InstallableInfoTypedDict]] = {}
 
         self._time_delta: float | None = None
 
@@ -427,7 +428,7 @@ class DeployBase(ClassHelpers.SimpleCloseContext):
     def __init__(self,
                  prjname: str,
                  toolname: str,
-                 deploy_info: DeployInfoType,
+                 deploy_info: DeployInfoTypedDict,
                  pman: ProcessManagerType | None = None,
                  lbuild: bool = False,
                  tmpdir_path: Path | None = None,
@@ -483,9 +484,9 @@ class DeployBase(ClassHelpers.SimpleCloseContext):
         self._close_cpman = False
 
         # Installables information.
-        self._insts: dict[str, InstallableInfoType] = {}
+        self._insts: dict[str, InstallableInfoTypedDict] = {}
         # Lists of installables in every category.
-        self._cats: dict[str, dict[str, InstallableInfoType]] = {}
+        self._cats: dict[str, dict[str, InstallableInfoTypedDict]] = {}
 
         # Temporary directory on the SUT.
         self._stmpdir: Path | None = None

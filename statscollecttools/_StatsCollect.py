@@ -24,15 +24,16 @@ except ImportError:
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploylibs import _Deploy
-from statscollectlibs.deploylibs.DeployBase import DeployInfoType
+from statscollectlibs.deploylibs.DeployBase import DeployInfoTypedDict
 from statscollectlibs.collector import StatsCollectBuilder
 from statscollecttools import ToolInfo
 
-_STC_DEPLOY_INFO: DeployInfoType = {
+_STC_DEPLOY_INFO: DeployInfoTypedDict = {
     "installables" : {
         "stc-agent" : {
             "category" : "pyhelpers",
-            "deployables" : ("stc-agent", "stc-agent-ipmi-helper", "stc-agent-proc-interrupts-helper"),
+            "deployables" : ("stc-agent", "stc-agent-ipmi-helper",
+                             "stc-agent-proc-interrupts-helper"),
         },
     },
 }

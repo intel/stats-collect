@@ -19,7 +19,7 @@ from pepclibs.helperlibs import Logging, ProjectFiles, ToolChecker
 from pepclibs.helperlibs.Exceptions import Error
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from statscollectlibs.deploylibs import DeployInstallableBase
-from statscollectlibs.deploylibs.DeployBase import InstallableInfoType
+from statscollectlibs.deploylibs.DeployBase import InstallableInfoTypedDict
 
 HELPERS_DEPLOY_SUBDIR = Path(".local")
 HELPERS_SRC_SUBDIR = Path("helpers")
@@ -64,7 +64,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
         super().__init__(prjname, toolname, spman, bpman, stmpdir, btmpdir, cpman=cpman,
                          ctmpdir=ctmpdir, btchk=btchk, debug=debug)
 
-    def _prepare(self, insts_info: dict[str, InstallableInfoType], installables_basedir: Path):
+    def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], installables_basedir: Path):
         """
         Build and prepare installables for deployment.
 
@@ -96,7 +96,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
             helpers_path = self._spman.get_homedir() / HELPERS_DEPLOY_SUBDIR / "bin"
         return Path(helpers_path)
 
-    def deploy(self, insts_info: dict[str, InstallableInfoType]):
+    def deploy(self, insts_info: dict[str, InstallableInfoTypedDict]):
         """
         Deploy installables to the System Under Test (SUT).
 

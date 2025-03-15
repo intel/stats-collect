@@ -20,7 +20,7 @@ from pepclibs.helperlibs import ToolChecker
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from statscollectlibs.deploylibs import DeployHelpersBase
-from statscollectlibs.deploylibs.DeployBase import InstallableInfoType
+from statscollectlibs.deploylibs.DeployBase import InstallableInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -229,7 +229,7 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             raise Error(f"cannot change '{standalone_path}' file mode to {oct(mode)}:\n"
                         f"{msg}") from err
 
-    def _prepare(self, insts_info: dict[str, InstallableInfoType], installables_basedir: Path):
+    def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], installables_basedir: Path):
         """
         Build and prepare installables for deployment.
 

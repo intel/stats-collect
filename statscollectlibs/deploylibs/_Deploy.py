@@ -23,7 +23,7 @@ from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploylibs import DeployBase, _DeployPyHelpers, DeployHelpersBase
-from statscollectlibs.deploylibs.DeployBase import DeployInfoType
+from statscollectlibs.deploylibs.DeployBase import DeployInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -74,7 +74,7 @@ class DeployCheck(DeployBase.DeployCheckBase):
     def __init__(self,
                  prjname: str,
                  toolname: str,
-                 deploy_info: DeployInfoType,
+                 deploy_info: DeployInfoTypedDict,
                  pman: ProcessManagerType | None = None):
         """
         Initialize a class instance.
@@ -123,7 +123,7 @@ class Deploy(DeployBase.DeployBase):
 
     def __init__(self,
                  toolname: str,
-                 deploy_info: DeployInfoType,
+                 deploy_info: DeployInfoTypedDict,
                  pman: ProcessManagerType | None = None,
                  tmpdir_path: Path | None = None,
                  keep_tmpdir: bool = False,

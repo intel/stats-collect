@@ -22,7 +22,7 @@ from statscollecttools import _Common, ToolInfo
 from statscollectlibs import Runner
 from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
 from statscollectlibs.deploylibs import _Deploy
-from statscollectlibs.deploylibs.DeployBase import DeployInfoType
+from statscollectlibs.deploylibs.DeployBase import DeployInfoTypedDict
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult, WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
@@ -153,7 +153,7 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
 
     return cmd
 
-def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoType):
+def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDict):
     """
     Implement the 'stats-collect start' command.
 
