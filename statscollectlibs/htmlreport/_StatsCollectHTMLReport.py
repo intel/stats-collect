@@ -70,18 +70,18 @@ class StatsCollectHTMLReport:
 
         valid_paths = {}
         for res in self.rsts:
-            reportid = res.reportid
-            path = paths.get(reportid)
-
             # Do not add links for 'label' if 'paths' does not contain a link for every result or
             # if a path points to somewhere outside of the report directory.
+            if res.reportid not in paths:
+                return
+            path = paths[res.reportid]
             if path is None or self.outdir not in path.parents:
                 return
 
             # If the path points to inside the report directory then make it relative to the output
             # directory so that the output directory is relocatable. That is, the whole directory
             # can be moved or copied without breaking the link.
-            valid_paths[reportid] = path.relative_to(self.outdir)
+            valid_paths[res.reportid] = path.relative_to(self.outdir)
 
         row = self._intro_tbl.create_row(label)
 
