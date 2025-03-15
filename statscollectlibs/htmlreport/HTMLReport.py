@@ -21,7 +21,7 @@ import dataclasses
 import json
 from pathlib import Path
 from typing import Any
-import plotly
+import plotly # type: ignore[import-untyped]
 from packaging import version
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
@@ -108,9 +108,9 @@ def _dump_json(obj: Any, path: Path, descr: str):
         with open(path, "w", encoding="utf-8") as fobj:
             json.dump(obj, fobj, default=str)
     except Exception as err:
-        msg = Error(err).indent(2)
+        errmsg = Error(str(err)).indent(2)
         raise Error(f"Could not generate report: failed to JSON dump '{descr}' to '{path}':\n"
-                    f"{msg}") from None
+                    f"{errmsg}") from None
 
 def _check_plotly_ver():
     """Warn if plotly version is too old."""
@@ -302,8 +302,8 @@ class HTMLReport:
         try:
             self._data_dir.mkdir(parents=True, exist_ok=True)
         except OSError as err:
-            msg = Error(err).indent(2)
-            raise Error(f"Failed to create directory '{self._data_dir}':\n{msg}") from None
+            errmsg = Error(str(err)).indent(2)
+            raise Error(f"Failed to create directory '{self._data_dir}':\n{errmsg}") from None
 
         # 'report_info' stores data used by the Javascript to generate the main report page
         # including the intro table, the file path of the tabs JSON dump plus the report title and
