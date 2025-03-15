@@ -12,7 +12,7 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
-from typing import Union
+from typing import Union, Type
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.htmlreport.tabs import _Tabs
@@ -24,9 +24,15 @@ from statscollectlibs.rawresultlibs import RORawResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
+_TabBuilderClassTypes = Union[Type[_TurbostatTabBuilder.TurbostatTabBuilder],
+                              Type[_InterruptsTabBuilder.InterruptsTabBuilder],
+                              Type[_ACPowerTabBuilder.ACPowerTabBuilder],
+                              Type[_IPMITabBuilder.IPMITabBuilder]]
+
 _TabBuilderTypes = Union[_TurbostatTabBuilder.TurbostatTabBuilder,
                          _InterruptsTabBuilder.InterruptsTabBuilder,
-                         _ACPowerTabBuilder.ACPowerTabBuilder]
+                         _ACPowerTabBuilder.ACPowerTabBuilder,
+                         _IPMITabBuilder.IPMITabBuilder]
 class StatsTabBuilder:
     """Provide the API to generate a 'Stats' container tab."""
 
@@ -101,6 +107,7 @@ class StatsTabBuilder:
         tab_bldr_classes = (_TurbostatTabBuilder.TurbostatTabBuilder,
                             _InterruptsTabBuilder.InterruptsTabBuilder,
                             _ACPowerTabBuilder.ACPowerTabBuilder)
+        tab_builders: dict[str, _TabBuilderClassTypes] = {}
         tab_builders = {tab_bldr.stname: tab_bldr for tab_bldr in tab_bldr_classes}
 
         collected_stnames = set.union(*[set(res.info["stinfo"]) for res in self._rsts])
