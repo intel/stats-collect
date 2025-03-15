@@ -15,6 +15,7 @@ import contextlib
 import os
 import shutil
 import time
+from typing import Any
 from pepclibs.helperlibs import Logging, Trivial, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.rawresultlibs import _RawResultBase
@@ -25,7 +26,7 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext):
     """This class represents a write-only raw test result."""
 
-    def add_info(self, key: str, value: str, override: bool = False):
+    def add_info(self, key: str, value: Any, override: bool = False):
         """
         Add a key-value pair to the 'info' dictionary, so that it gets saved in the 'info.yml' file.
 
