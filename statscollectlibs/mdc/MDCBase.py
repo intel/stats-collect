@@ -252,7 +252,10 @@ class MDCBase:
         new_mdd = {}
         for orig_metric, orig_md in self.mdd.items():
             if orig_metric not in replacements:
-                new_mdd[orig_metric] = orig_md
+                # Skip MDs that have patterns but nothing to replace them with, to avoid pattern
+                # metrics in the final MDD, because they are presumably useless.
+                if "patterns" not in orig_md:
+                    new_mdd[orig_metric] = orig_md
                 continue
             for new_metric, new_md in replacements[orig_metric].items():
                 new_mdd[new_metric] = new_md
