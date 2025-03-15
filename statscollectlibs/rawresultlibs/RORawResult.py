@@ -178,7 +178,7 @@ class RORawResult(_RawResultBase.RawResultBase):
             if self._is_specjbb2015():
                 self.wltype = "specjbb2015"
         except (Error, OSError) as err:
-            _LOG.warning("workload type detection failed:\n%s", err.indent(2))
+            _LOG.warning("workload type detection failed:\n%s", Error(str(err)).indent(2))
 
         _LOG.debug("%s: workload type is '%s (%s)'",
                    self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
@@ -192,8 +192,8 @@ class RORawResult(_RawResultBase.RawResultBase):
         try:
             exists = path.exists()
         except OSError as err:
-            msg = Error(err).indent(2)
-            raise Error(f"failed to check if '{path}' exists:\n{msg}") from None
+            errmsg = Error(str(err)).indent(2)
+            raise Error(f"failed to check if '{path}' exists:\n{errmsg}") from None
 
         if not exists:
             return
