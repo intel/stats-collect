@@ -27,7 +27,8 @@ class RawResultBase:
     def __init__(self, dirpath):
         """The class constructor. The 'dirpath' argument is path raw test result directory."""
 
-        self.reportid = None
+        self.reportid = ""
+
         # This dictionary represents the info file.
         self.info = {}
 
