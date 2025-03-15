@@ -23,9 +23,14 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import re
 from pathlib import Path
-from typing import TypedDict, Literal, Sequence
+from typing import TypedDict, Literal, Sequence, NoReturn
 from pepclibs.helperlibs import YAML, ProjectFiles
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
+
+# The maximum MDD keys lenght.
+MAX_KEY_LEN = 64
+# The maximum string MDD values length.
+MAX_VAL_LEN = 2048
 
 class MDTypedDict(TypedDict, total=False):
     """
@@ -35,9 +40,10 @@ class MDTypedDict(TypedDict, total=False):
         name: Metric name.
         title: Capitalized metric title, short and human-readable.
         descr: A longer metric description.
+        type: the type of the key (e.g., "int", "float").
         unit: The unit of the metric (full name, singular, like "second"). This key is optional.
         short_unit: A short form of the unit of measurement (e.g., "s" instead of "second"). This
-                   key is optional.
+                    key is optional.
         scope: The scope of the metric (e.g., "package"). This key is optional.
         categories: A list of categories that the metric belongs to. This key is optional.
     """
@@ -45,11 +51,92 @@ class MDTypedDict(TypedDict, total=False):
     name: str
     title: str
     descr: str
+    type: str
     unit: str
     short_unit: str
     scope: str
     categories: list[str]
 
+def validate_mdd(mdd: dict[str, MDTypedDict], mdd_src: str | None = None):
+    """
+        Validate a Metric Definition Dictionary (MDD).
+
+        Args:
+            mdd: The Metric Definition Dictionary to validate.
+            mdd_src: A string identifying the source of the MDD, used only in exception messages in
+                     case of an error.
+
+        Raises:
+            ErrorBadFOrmat: If MDD has bad format.
+    """
+
+    def _raise(msg: str) -> NoReturn:
+        """
+        Raise an exception with a formatted message.
+
+        Args:
+            msg: The error message to be included in the exception.
+
+        Raises:
+            ErrorBadFormat: Always.
+        """
+
+        errmsg = f"Invalid MDD: {msg}"
+        if mdd_src:
+            errmsg += f"\nMDD source is: {mdd_src}"
+        raise ErrorBadFormat(errmsg)
+
+    def _check_key_len(key: str, metric: str, what: str | None = None):
+        """
+        Check if the length of the key exceeds the maximum allowed length.
+
+        Args:
+            key: The key to be checked.
+            metric: The metric associated with the key.
+            what: The name of the key to be used in the error message. If 'None', the default name
+                  is "key".
+
+        Raises:
+            ErrorBadFormat: If the length of the key exceeds the maximum allowed length.
+        """
+
+        if not what:
+            what = "Key"
+        else:
+            what = what.capitalize()
+
+        if len(key) > MAX_KEY_LEN:
+            _raise(f"{what} '{key}' in '{metric}' is too long ({len(key)}, while max. is "
+                   f"{MAX_KEY_LEN} characters)")
+
+    def _check_val_len(key: str, val: str, metric: str):
+        """TODO"""
+
+        if len(val) > MAX_VAL_LEN:
+            _raise(f"Value of key '{key}' in '{metric}' is too long ({len(val)}, while max. is "
+                   f"{MAX_VAL_LEN} characters)")
+
+    list_keys = ("categories",)
+    for metric, md in mdd.items():
+        allowed_keys = MDTypedDict.__annotations__
+        for key, val in md.items():
+            if key not in allowed_keys:
+                _raise(f"Unknown key '{key}' for metric '{metric}'")
+
+            if key not in list_keys:
+                if not isinstance(val, str):
+                    _raise(f"Key '{key}' in '{metric}' is not a string")
+                _check_key_len(key, metric)
+                _check_val_len(key, val, metric)
+                continue
+
+            # The value is a list of strings.
+            if not isinstance(val, list):
+                _raise(f"Key '{key}' in '{metric}' is not a list")
+            for elt in val:
+                if not isinstance(elt, str):
+                    _raise(f"{key.capitalize()} '{elt}' in '{metric}' is not a string")
+                _check_key_len(elt, metric, what=key)
 class MDCBase:
     """Provide the base class for metrics definition classes."""
 
@@ -84,7 +171,8 @@ class MDCBase:
 
         # The YAML files may not have the "name" key, add it.
         for key, md in self.mdd.items():
-            md["name"] = key
+            if "name" not in md:
+                md["name"] = key
 
     def _handle_pattern(self, metric: str, md: MDTypedDict) -> MDTypedDict:
         """
@@ -205,3 +293,5 @@ class MDCBase:
         self._handle_patterns(metrics)
         if drop_missing:
             self._drop_missing_metrics(metrics)
+
+        validate_mdd(self.mdd, mdd_src=f"YAML file at '{self.path}'")
