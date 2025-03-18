@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023-2024 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""API for reading raw 'stats-collect' test results."""
+"""Provide the read-only 'stats-collect' raw result class."""
 
+ # TODO: finish adding type hints to this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from typing import TypedDict
 from pathlib import Path
 from pepclibs.helperlibs import Logging, Trivial, YAML
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported, ErrorNotFound, ErrorBadFormat
+from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
-from statscollectlibs.helperlibs import ReportID, FSHelpers
+from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.rawresultlibs import _RawResultBase
-from statscollecttools import ToolInfo
+from statscollectlibs.rawresultlibs._RawResultBase import RawResultWLInfoTypedDict
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -24,25 +29,86 @@ SUPPORTED_WORKLOADS = {
     "specjbb2015": "SPECjbb2015 benchmark"
 }
 
-class RORawResult(_RawResultBase.RawResultBase):
+class _TimeStampRangeTypedDict(TypedDict, total=False):
     """
-    A read-only raw test result class. Class API works with the following concepts:
-      * labels - labels are created during statistics collection and provide extra information about
-                 datapoints.
-      * label definitions - dictionaries defining the metrics which label data measure. For example,
-                            if a label contains data about power consumption, the label definition
-                            might explain that the data is measured in 'Watts'.
+    Type for a dictionary for storing the time-stamp range for valid or interesting measurement
+    data.
 
-    Public methods overview.
-      * set_label_defs() - set label definitions for a specific statistic.
-      * get_label_defs() - get label definitions for a specific statistic.
-      * set_timestamp_limits() - limit time-stamp range for statistics.
-      * load_stat() - load and return a 'pandas.DataFrame' containing statistics data for this
-                      result.
-      * link_wldata() - create a symlink pointing to the workload data.
-      * copy_logs() - copy 'stats-collect' tool logs.
-      * copy() - copy the test result.
+    Attributes:
+        begin: The start time-stamp for measurements. Data collected before this time are not valid
+               or interesting, and should be discarded.
+        end: The end time-stamp for measurements. Data collected after this time are not valid or
+             interesting and should be discarded.
+        absolute: Whether 'begin' and 'end' are absolute or relative time-stamp values. If True, the
+                  values are absolute time since the epoch. If False, the values are relative to the
+                  start of the measurements in seconds. For example, if 'begin' is 5, it means data
+                  collected during the first 5 seconds from the start of the measurements are not
+                  valid or interesting and should be discarded.
     """
+
+    begin: int
+    end: int
+    absolute: bool
+
+class RORawResult(_RawResultBase.RawResultBase):
+    """The read-only 'stats-collect' raw result class."""
+
+    def __init__(self, dirpath: Path, reportid: str | None = None):
+        """
+        Initialize a class instance.
+
+        Args:
+            dirpath: Path to the directory containing the raw test result to initalize a class
+                     instance for.
+            reportid: Override the report ID of the raw test result. If provided, it will be used
+                      instead of the report ID stored in "dirpath/info.yml". The provided report ID
+                      is not validated, so the caller must ensure it has format.
+        """
+
+        super().__init__(dirpath)
+
+        # Basic 'info.yml' file check.
+        if not self.info_path.exists():
+            raise ErrorNotFound(f"No 'info.yml' file found in '{self.dirpath}'")
+        if not self.info_path.is_file():
+            raise ErrorBadFormat(f"Path '{self.info_path}' exists, but it is not a regular file")
+        if not self.info_path.stat().st_size:
+           raise ErrorBadFormat(f"File '{self.info_path}' is empty")
+
+        # Basic 'logs' and 'stats' sub-directories check (they do not have to exist).
+        if self.logs_path and self.logs_path.exists():
+            if not self.logs_path.is_dir():
+                raise ErrorBadFormat(f"The '{self.logs_path}' logs path has to be a directory")
+        else:
+            self.logs_path = None
+
+        if self.stats_path and self.stats_path.exists():
+            if not self.stats_path.is_dir():
+                raise ErrorBadFormat(f"The '{self.stats_path}' statistics path has to be a "
+                                     f"directory")
+        else:
+            self.stats_path = None
+
+        # Path to the workload data.
+        self.wldata_path: Path | None = None
+        # Type of the workload that was running while statistics were collected.
+        self.wltype = ""
+
+        # Label definitions.
+        self._labels_defs: dict[str, MDTypedDict] = {}
+
+        # The time-stamp range dictionary.
+        self._ts_range: _TimeStampRangeTypedDict = {}
+
+        self._load_info_yml()
+
+        if reportid:
+            self.info["reportid"] = reportid
+
+        self.reportid = self.info["reportid"]
+
+        if not self.wltype:
+            self._detect_wltype()
 
     def set_label_defs(self, stname, defs):
         """
@@ -87,9 +153,9 @@ class RORawResult(_RawResultBase.RawResultBase):
             raise Error(f"bad raw statistics time-stamp limits: begin time-stamp ({begin_ts}) must "
                         f"be smaller than the end time-stamp ({end_ts})")
 
-        self._ts_limits["begin"] = begin_ts
-        self._ts_limits["end"] = end_ts
-        self._ts_limits["absolute"] = absolute
+        self._ts_range["begin"] = begin_ts
+        self._ts_range["end"] = end_ts
+        self._ts_range["absolute"] = absolute
 
         _LOG.debug("set time-stamp limits for report ID '%s': begin %s, end %s, absolute %s",
                    self.reportid, begin_ts, end_ts, absolute)
@@ -140,10 +206,15 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         path = self.get_stats_path(stname)
         labels_path = self._get_labels_path(stname)
-        return dfbldr.load_df(path, labels_path=labels_path, ts_limits=self._ts_limits)
+        return dfbldr.load_df(path, labels_path=labels_path, ts_limits=self._ts_range)
 
-    def _is_specjbb2015(self):
-        """Return 'True' if the workload is SPECjbb2015."""
+    def _is_specjbb2015(self) -> bool:
+        """
+        Determine if the workload is SPECjbb2015.
+
+        Returns:
+            bool: True if the workload is identified as SPECjbb2015, False otherwise.
+        """
 
         if not self.wldata_path:
             return False
@@ -169,10 +240,21 @@ class RORawResult(_RawResultBase.RawResultBase):
 
     def _detect_wltype(self):
         """
-        Detect the workload that was running while the statistics in this raw result were collected.
+        Detect the type of workload that was running during the collection of statistics in this raw
+        result.
         """
 
         self.wltype = "generic"
+
+        # Check the default workload data path.
+        path = self.dirpath.joinpath("wldata")
+        if not path.exists():
+            return
+
+        if not path.is_dir():
+            raise ErrorBadFormat(f"Bad workload data path in '{path}' - not a directory")
+
+        self.wldata_path = path
 
         try:
             if self._is_specjbb2015():
@@ -183,9 +265,41 @@ class RORawResult(_RawResultBase.RawResultBase):
         _LOG.debug("%s: workload type is '%s (%s)'",
                    self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
 
+    def link_wldata(self, dstpath: Path):
+        """
+        Create a symbolic link to the workload data directory.
+
+        Args:
+            dstpath: The destination directory where the symbolic link will be created.
+        """
+
+        if self.wldata_path:
+            FSHelpers.symlink(dstpath / self.wldata_path.name, self.wldata_path, relative=True)
+
+    def copy_logs(self, dstpath: Path):
+        """
+        Copy the raw test result logs associated with this class instance to the specified
+        directory.
+
+        Args:
+            dstpath: The destination directory where the logs will be copied.
+        """
+
+        srcpaths = []
+        if self.logs_path:
+            srcpaths.append(self.logs_path)
+
+        for path in srcpaths:
+            FSHelpers.copy(path, dstpath / path.name, is_dir=True)
+
     @staticmethod
-    def _check_info_yml(dirpath):
-        """Raise an exception if an 'info.yml' file exists in 'dirpath'."""
+    def _check_info_yml(dirpath: Path):
+        """
+        Ensure that the specified directory does not contain an 'info.yml' file.
+
+        Args:
+            dirpath: The path to the directory to check.
+        """
 
         path = dirpath / "info.yml"
 
@@ -201,39 +315,14 @@ class RORawResult(_RawResultBase.RawResultBase):
         raise Error(f"the destination directory '{dirpath}' already contains 'info.yml', refusing "
                     f"to overwrite an existing test result")
 
-    def link_wldata(self, dstpath):
+    def copy(self, dstpath: Path):
         """
-        Create a symbolic link pointing to the workload data directory.
-          * dstpath - path to the directory to create the symbolic link in.
-        """
+        Copy the raw test result to the specified destination directory.
 
-        dstpath = Path(dstpath)
-
-        if self.wldata_path:
-            FSHelpers.symlink(dstpath / self.wldata_path.name, self.wldata_path, relative=True)
-
-    def copy_logs(self, dstpath):
-        """
-        Copy (own) raw test result logs to path 'dirpath'. The arguments are as follows.
-          * dstpath - path to the directory to copy the logs to.
+        Args:
+            dstpath: The destination directory where the raw test result will be copied.
         """
 
-        dstpath = Path(dstpath)
-
-        srcpaths = []
-        if self.logs_path:
-            srcpaths.append(self.logs_path)
-
-        for path in srcpaths:
-            FSHelpers.copy(path, dstpath / path.name, is_dir=True)
-
-    def copy(self, dstpath):
-        """
-        Copy the raw test result (self) to path 'dirpath'. The arguments are as follows.
-          * dstpath - path to the directory to copy the result to.
-        """
-
-        dstpath = Path(dstpath)
         self._check_info_yml(dstpath)
 
         srcpaths = [self.info_path]
@@ -247,123 +336,66 @@ class RORawResult(_RawResultBase.RawResultBase):
         for path in srcpaths:
             FSHelpers.copy(path, dstpath / path.name)
 
-    def _load_info_yml(self):
-        """Load and validate the 'info.yml' file contents."""
+    def _validate_wlinfo(self, wlinfo: RawResultWLInfoTypedDict):
+        """
+        Validate the workload information provided in the 'info.yml' file.
 
-        # Check that the 'info.yml' file exists, readable, and not empty.
-        for name in ("info_path",):
-            path = getattr(self, name)
-            try:
-                if not path.is_file():
-                    raise ErrorNotFound(f"'{path}' does not exist or it is not a regular file")
-                if not path.stat().st_size:
-                    raise Error(f"file '{path}' is empty")
-            except OSError as err:
-                msg = Error(err).indent(2)
-                raise Error(f"failed to access '{path}':\n{msg}") from err
+        Args:
+            wlinfo: A dictionary containing workload information from 'info.yml'.
+        """
 
-        self.info = YAML.load(self.info_path)
-        if "reportid" not in self.info:
-            raise ErrorNotSupported(f"no 'reportid' key found in {self.info_path}")
+        if "wldata_path" not in wlinfo:
+            raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wldata_path' key "
+                                 f"is missing")
 
-        toolname = self.info.get("toolname")
-        if not toolname:
-            raise Error(f"bad '{self.info_path}' format - the 'toolname' key is missing")
-
-        self.reportid = self.info["reportid"]
-        if toolname == ToolInfo.TOOLNAME:
-            # Validate report ID only if the tool is 'stats-collect'. Make no assumptions about
-            # reportID format in case of other tools.
-            try:
-                ReportID.validate_reportid(self.reportid)
-            except Error as err:
-                raise Error(f"bad report ID in '{self.info_path}':\n{err.indent(2)}") from err
-
-        toolver = self.info.get("toolver")
-        if not toolver:
-            raise Error(f"bad '{self.info_path}' format - the 'toolver' key is missing")
-
-        wlinfo = self.info.get("workload")
-        if wlinfo:
-            path = Path(wlinfo.get("wldata_path"))
-            if path:
-                if not path.is_absolute():
-                    # Assume that the path is relative to the raw results directory path.
-                    path = self.dirpath / path
-                if not path.is_dir():
-                    raise ErrorNotFound(f"bad workload data path in '{self.info_path}':\n"
-                                        f" '{path}' does not exist or it is not a directory")
-                self.wldata_path = path
-
-            wltype = wlinfo.get("wltype")
-            if wltype:
-                if wltype not in SUPPORTED_WORKLOADS:
-                    _LOG.warning("unsupported workload type '%s' in '%s', assuming generic "
-                                 "workload", wltype, self.info_path)
-                else:
-                    self.wltype = wltype
+        self.wldata_path = Path(wlinfo["wldata_path"])
 
         if not self.wldata_path:
-            # Check the default workload data path.
-            path = self.dirpath.joinpath("wldata")
-            if path.is_dir():
-                self.wldata_path = path
+            raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}' - "
+                                 f"'workload.wldata_path' is empty")
 
-        if self.wltype and not self.wldata_path:
-            _LOG.warning("workload type is '%s', but workload data was not found, assuming generic "
-                         "workload", SUPPORTED_WORKLOADS[self.wltype])
+        if not self.wldata_path.is_absolute():
+            # Assume that the path is relative to the raw results directory path.
+            self.wldata_path = self.dirpath / self.wldata_path
 
-    def __init__(self, dirpath, reportid=None):
-        """
-        The class constructor. The arguments are as follows.
-          * dirpath - path to the directory containing the raw test result to open.
-          * reportid - override the report ID of the raw test result: the 'reportid' string will be
-                       used instead of the report ID stored in 'dirpath/info.yml'. Note, the
-                       provided report ID is not verified, so the caller has to make sure is a sane
-                       string.
+        if not self.wldata_path.is_dir():
+            raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}':\n"
+                                 f"  '{self.wldata_path}' does not exist or it is not a directory")
 
-        Note, the constructor does not load the potentially huge test result data into the memory.
-        It only loads the 'info.yml' file and figures out which metrics have been measured. The data
-        are loaded "on-demand" by 'load_stat()' and other methods.
-        """
+        wlinfo["wldata_path"] = self.wldata_path
 
-        super().__init__(dirpath)
+        if "wltype" not in wlinfo:
+            raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wltype' key is "
+                                 f"missing")
 
-        if self.info_path.exists() and not self.info_path.is_file():
-            raise Error(f"path '{self.info_path}' exists, but it is not a regular file")
+        self.wltype = wlinfo["wltype"]
+        if not self.wltype:
+            raise ErrorBadFormat(f"Bad workload type in '{self.info_path}':\n"
+                                 f"  'workload.wltype' is empty")
 
-        for name in ("logs_path", "stats_path"):
-            path = getattr(self, name)
-            if path.exists():
-                if not path.is_dir():
-                    raise Error(f"path '{path}' exists, but it is not a directory")
-            else:
-                setattr(self, f"{name}", None)
+        if self.wltype not in SUPPORTED_WORKLOADS:
+            raise ErrorBadFormat(f"Unsupported workload type '{self.wltype}' in '{self.info_path}'")
 
-        # Path to the workload data.
-        self.wldata_path = None
-        # Type of the workload that was running while statistics were collected.
-        self.wltype = None
+    def _load_info_yml(self):
+        """Load and validate the contents of the 'info.yml' file."""
 
-        # Label definitions.
-        self._labels_defs = {}
+        info = YAML.load(self.info_path)
 
-        # The time-stamp limits dictionary.
-        self._ts_limits = {}
-
-        self._load_info_yml()
-        if reportid:
-            # Note, we do not validate it here, the caller is supposed to do that.
-            self.info["reportid"] = reportid
-            self.reportid = reportid
+        for key in ("toolname", "toolver", "reportid"):
+            if key not in info:
+                raise ErrorBadFormat(f"Bad '{self.info_path}' format - the '{key}' key is missing")
+            if not info[key]:
+                raise ErrorBadFormat(f"Bad '{self.info_path}' format - the '{key}' key is empty")
 
         # TODO: Compatibility code. Remove in 2026. In version 1.0.47 the "cpunum" key was renamed
         # to "cpus".
-        if "cpunum" in self.info:
-            self.info["cpus"] = self.info.pop("cpunum")
+        if "cpunum" in info:
+            info["cpus"] = info.pop("cpunum")
+        if info.get("cpus"):
+            what=f"'cpus' key in '{self.info_path}'"
+            info["cpus"] = Trivial.split_csv_line_int(info["cpus"], what=what)
 
-        if self.info.get("cpus"):
-            self.info["cpus"] = Trivial.split_csv_line_int(self.info["cpus"],
-                                                           what=f"'cpus' key in '{self.info_path}'")
+        if "wlinfo" in info:
+            self._validate_wlinfo(info["wlinfo"])
 
-        self._detect_wltype()
+        self.info = info
