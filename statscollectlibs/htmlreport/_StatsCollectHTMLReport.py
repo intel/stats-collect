@@ -17,7 +17,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.result import RORawResult
+from statscollectlibs.result import RORawResult, LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -51,6 +51,9 @@ class StatsCollectHTMLReport:
         # directory.
         self.copy_raw = False
 
+        # The loaded test results for the raw test results.
+        self._lrsts: list[LoadedResult.LoadedResult] = []
+
         self._intro_tbl: _IntroTable.IntroTable
 
         # Paths to (copied) raw test result directories in the output directory, and logs/workload
@@ -58,6 +61,10 @@ class StatsCollectHTMLReport:
         self._raw_paths: dict[str, Path] = {}
         self._raw_logs_paths: dict[str, Path] = {}
         self._raw_wldata_paths: dict[str, Path] = {}
+
+        # Build the loaded test result objects, but do not load them yet.
+        for res in self.rsts:
+            self._lrsts.append(LoadedResult.LoadedResult(res))
 
     def _add_intro_tbl_links(self, label: str, paths: dict[str, Path]):
         """
