@@ -18,7 +18,7 @@ import time
 from typing import Any
 from pepclibs.helperlibs import Logging, Trivial, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
-from statscollectlibs.rawresultlibs import _RawResultBase
+from statscollectlibs.result import _RawResultBase
 from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")

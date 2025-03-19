@@ -25,7 +25,7 @@ from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
 from statscollectlibs.deploy import _Deploy
 from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 from statscollectlibs.helperlibs import ReportID
-from statscollectlibs.rawresultlibs import RORawResult, WORawResult
+from statscollectlibs.result import RORawResult, WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")

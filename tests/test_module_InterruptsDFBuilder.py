@@ -11,7 +11,7 @@
 from pathlib import Path
 
 from statscollectlibs.dfbuilders import _InterruptsDFBuilder
-from statscollectlibs.rawresultlibs.RORawResult import RORawResult
+from statscollectlibs.result.RORawResult import RORawResult
 
 _TEST_RESULTS_DIR = Path("tests/data/test_module_InterruptsDFBuilder/results/")
 

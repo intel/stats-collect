@@ -17,8 +17,8 @@ from pepclibs.helperlibs import Logging, Trivial, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import FSHelpers
-from statscollectlibs.rawresultlibs import _RawResultBase
-from statscollectlibs.rawresultlibs._RawResultBase import RawResultWLInfoTypedDict
+from statscollectlibs.result import _RawResultBase
+from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")

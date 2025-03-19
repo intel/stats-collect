@@ -31,7 +31,7 @@ from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
-from statscollectlibs.rawresultlibs import RORawResult
+from statscollectlibs.result import RORawResult
 from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")

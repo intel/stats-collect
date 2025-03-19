@@ -20,7 +20,7 @@ from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import MDCBase, TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.rawresultlibs.RORawResult import RORawResult
+from statscollectlibs.result.RORawResult import RORawResult
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""

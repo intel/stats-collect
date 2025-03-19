@@ -17,7 +17,7 @@ from pathlib import Path
 import pandas
 from statscollectlibs.mdc import MDCBase, InterruptsMDC
 from statscollectlibs.dfbuilders import _InterruptsDFBuilder
-from statscollectlibs.rawresultlibs.RORawResult import RORawResult
+from statscollectlibs.result.RORawResult import RORawResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
 class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):

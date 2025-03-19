@@ -19,7 +19,7 @@ from typing import NamedTuple
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import ReportID
-from statscollectlibs.rawresultlibs import RORawResult
+from statscollectlibs.result import RORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 from statscollecttools import ToolInfo, _Common
 
