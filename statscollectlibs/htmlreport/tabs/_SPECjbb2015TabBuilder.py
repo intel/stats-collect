@@ -10,18 +10,21 @@
 Provide the tab builder for the SPECjbb2015 workload.
 """
 
+# TODO: finish adding type hints to this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollecttools import ToolInfo
-from statscollectlibs.mdc import MDCBase
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.result.LoadedResult import LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # SPECjbb2015 metrics definition dictionary.
-_SPECJBB_DEFS = {
+_SPECJBB_MDD = {
     "max-jOPS": {"name": "max-jOPS",
                  "title": "max-jOPS",
                  "descr": "max-jOPS is the SPECjbb2015 metric characterizing the throughput and "
@@ -144,8 +147,8 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         """Construct and return a SPECjbb2014 'Pandas.dataframe' objects."""
 
         dfs = {}
-        for res in self._rsts:
-            info = self._get_specjbb_info(res)
+        for lres in self._lrsts:
+            info = self._get_specjbb_info(lres.res)
 
             data = {"max-jOPS": [info["max_jops"]],
                     "critical-jOPS": [info["crit_jops"]],
@@ -153,25 +156,24 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
 
             # Limit the statistics data to the RT-curve, everything else is usually uninteresting
             # and only clutters the HTML report diagrams.
-            res.set_timestamp_limits(info["first_level_ts"], info["last_level_ts"], absolute=True)
+            lres.res.set_timestamp_limits(info["first_level_ts"], info["last_level_ts"],
+                                          absolute=True)
 
-            dfs[res.reportid] = pandas.DataFrame(data)
+            dfs[lres.reportid] = pandas.DataFrame(data)
 
         return dfs
 
-    def __init__(self, rsts, outdir, basedir=None):
+    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
         The class constructor. The arguments are as follows.
-         * rsts - a list of 'RORawResult' instances for which data should be included in the built
-                  tab.
+         * lrsts - a list of loaded test result objects for which data should be included in the
+                   tab.
          * outdir - the output directory in which to create the sub-directory for the container tab.
          * basedir - base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
         """
 
-        self._rsts = rsts
+        self._lrsts = lrsts
 
         dfs = self._construct_dfs()
-        mdo = MDCBase.MDCBase("stats-collect", ToolInfo.TOOLNAME, mdd=_SPECJBB_DEFS)
-
-        super().__init__(dfs, mdo.mdd, outdir, basedir=basedir)
+        super().__init__(dfs, _SPECJBB_MDD, outdir, basedir=basedir)

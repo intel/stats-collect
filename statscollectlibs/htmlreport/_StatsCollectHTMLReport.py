@@ -171,7 +171,7 @@ class StatsCollectHTMLReport:
             return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabs_dir,
                                                                       basedir=self.outdir).get_tab()
         if wltype == "specjbb2015":
-            return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self.rsts, tabs_dir,
+            return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabs_dir,
                                                                 basedir=self.outdir).get_tab()
 
         raise Error(f"BUG: unsupported workload type '{wltype}'")
