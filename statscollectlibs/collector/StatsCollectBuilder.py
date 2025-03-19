@@ -13,7 +13,7 @@ from pepclibs.helperlibs import Logging, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.collector import StatsCollect
 from statscollectlibs.deploy import DeployBase
-from statscollectlibs.result import WORawResult
+from statscollectlibs.result import _WORawResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -159,12 +159,12 @@ class StatsCollectBuilder(ClassHelpers.SimpleCloseContext):
     def build_stcoll_nores(self, pman, reportid, cpus=None, local_outdir=None, remote_outdir=None,
                            local_path=None, remote_path=None):
         """
-        Same as 'build_stcoll()', but does not require the caller creating a 'WORawResult' object.
+        Same as 'build_stcoll()', but does not require the caller creating a '_WORawResult' object.
         The arguments are the same as in 'build_stcoll()', except for 'reportid' and 'cpus', which
         are the same as in 'StatsCollect.StatsCollect.__init__()'.
         """
 
-        self._res = WORawResult.WORawResult(reportid, local_outdir, cpus=cpus)
+        self._res = _WORawResult.WORawResult(reportid, local_outdir, cpus=cpus)
         return self.build_stcoll(pman, self._res, local_outdir=local_outdir,
                                  remote_outdir=remote_outdir, local_path=local_path,
                                  remote_path=remote_path)

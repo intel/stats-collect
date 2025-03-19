@@ -25,7 +25,7 @@ from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
 from statscollectlibs.deploy import _Deploy
 from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 from statscollectlibs.helperlibs import ReportID
-from statscollectlibs.result import RORawResult, WORawResult
+from statscollectlibs.result import RORawResult, _WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -246,7 +246,7 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDic
                                  pman=pman) as depl:
             depl.check_deployment()
 
-        res = WORawResult.WORawResult(args.reportid, args.outdir, cpus=cpus)
+        res = _WORawResult.WORawResult(args.reportid, args.outdir, cpus=cpus)
         stack.enter_context(res)
 
         if not args.stats or args.stats == "none":

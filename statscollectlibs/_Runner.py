@@ -26,7 +26,7 @@ from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
 from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.result.WORawResult import WORawResult
+from statscollectlibs.result._WORawResult import WORawResult
 from statscollectlibs.collector.StatsCollect import StatsCollect
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
