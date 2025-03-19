@@ -18,6 +18,7 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.result import _RawResultBase
+from statscollectlibs.result._RawResultBase import RawResultSTInfoTypedDict
 from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
@@ -361,23 +362,70 @@ class RORawResult(_RawResultBase.RawResultBase):
         for path in srcpaths:
             FSHelpers.copy(path, dstpath / path.name)
 
-    def _validate_wlinfo(self, wlinfo: RawResultWLInfoTypedDict):
+    def _validate_stinfo(self, stinfo: dict[str, RawResultSTInfoTypedDict]) -> \
+                                                        dict[str, RawResultSTInfoTypedDict]:
         """
-        Validate the workload information provided in the 'info.yml' file.
+        Validate the statistics information dictionary from the 'info.yml' file.
+
+        Args:
+            stinfo: A dictionary containing statistics information from 'info.yml'.
+
+        Returns:
+            dict[str, RawResultSTInfoTypedDict]: The validated statistics information dictionary.
+        """
+
+        new_stinfo: dict[str, RawResultSTInfoTypedDict] = {}
+
+        for stname, info in stinfo.items():
+            new_info = new_stinfo[stname] = {}
+
+            if "paths" not in info:
+                raise ErrorBadFormat(f"Bad '{self.info_path}' format - the "
+                                     f"'statistics.{stname}.paths' key is missing")
+
+            new_info["paths"] = {}
+
+            if "stats" not in info["paths"]:
+                raise ErrorBadFormat(f"Bad '{self.info_path}' format - the "
+                                     f"'statistics.{stname}.paths.stats' key is missing")
+
+            if not info["paths"]["stats"]:
+                raise ErrorBadFormat(f"Bad statistics path in '{self.info_path}' - "
+                                     f"'statistics.{stname}.paths.stats' is empty")
+
+            new_info["paths"]["stats"] = Path(info["paths"]["stats"])
+
+            if "labels" in info["paths"]:
+                if not info["paths"]["labels"]:
+                    raise ErrorBadFormat(f"Bad labels path in '{self.info_path}' - "
+                                         f"'statistics.{stname}.paths.labels' is empty")
+
+                new_info["paths"]["labels"] = Path(info["paths"]["labels"])
+
+        return new_stinfo
+
+    def _validate_wlinfo(self, wlinfo: RawResultWLInfoTypedDict) -> RawResultWLInfoTypedDict:
+        """
+        Validate the workload information dictionary from the 'info.yml' file.
 
         Args:
             wlinfo: A dictionary containing workload information from 'info.yml'.
+
+        Returns:
+            RawResultWLInfoTypedDict: The validated workload information dictionary.
         """
+
+        new_wlinfo: RawResultWLInfoTypedDict = {}
 
         if "wldata_path" not in wlinfo:
             raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wldata_path' key "
                                  f"is missing")
 
-        self.wldata_path = Path(wlinfo["wldata_path"])
-
-        if not self.wldata_path:
+        if not wlinfo["wldata_path"]:
             raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}' - "
                                  f"'workload.wldata_path' is empty")
+
+        self.wldata_path = Path(wlinfo["wldata_path"])
 
         if not self.wldata_path.is_absolute():
             # Assume that the path is relative to the raw results directory path.
@@ -387,7 +435,7 @@ class RORawResult(_RawResultBase.RawResultBase):
             raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}':\n"
                                  f"  '{self.wldata_path}' does not exist or it is not a directory")
 
-        wlinfo["wldata_path"] = self.wldata_path
+        new_wlinfo["wldata_path"] =  self.wldata_path
 
         if "wltype" not in wlinfo:
             raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wltype' key is "
@@ -401,6 +449,10 @@ class RORawResult(_RawResultBase.RawResultBase):
         if self.wltype not in SUPPORTED_WORKLOADS:
             raise ErrorBadFormat(f"Unsupported workload type '{self.wltype}' in '{self.info_path}'")
 
+        new_wlinfo["wltype"] = self.wltype
+
+        return new_wlinfo
+
     def _load_info_yml(self):
         """Load and validate the contents of the 'info.yml' file."""
 
@@ -412,6 +464,8 @@ class RORawResult(_RawResultBase.RawResultBase):
             if not info[key]:
                 raise ErrorBadFormat(f"Bad '{self.info_path}' format - the '{key}' key is empty")
 
+            self.info[key] = info[key]
+
         # TODO: Compatibility code. Remove in 2026. In version 1.0.47 the "cpunum" key was renamed
         # to "cpus".
         if "cpunum" in info:
@@ -420,7 +474,14 @@ class RORawResult(_RawResultBase.RawResultBase):
             what=f"'cpus' key in '{self.info_path}'"
             info["cpus"] = Trivial.split_csv_line_int(info["cpus"], what=what)
 
-        if "wlinfo" in info:
-            self._validate_wlinfo(info["wlinfo"])
+        self.info["cpus"] = info["cpus"]
 
-        self.info = info
+        if "stinfo" in info:
+            self.info["stinfo"] = self._validate_stinfo(info["stinfo"])
+        else:
+            self.info["stinfo"] = {}
+
+        if "wlinfo" in info:
+            self.info["wlinfo"] = self._validate_wlinfo(info["wlinfo"])
+        else:
+            self.info["wlinfo"] = {}
