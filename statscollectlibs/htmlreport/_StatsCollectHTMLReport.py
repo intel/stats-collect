@@ -168,7 +168,7 @@ class StatsCollectHTMLReport:
                   wltypes[res.reportid], RORawResult.SUPPORTED_WORKLOADS[res.wltype])
 
         if wltype == "generic":
-            return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self.rsts, tabs_dir,
+            return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabs_dir,
                                                                       basedir=self.outdir).get_tab()
         if wltype == "specjbb2015":
             return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self.rsts, tabs_dir,

@@ -11,9 +11,14 @@ Provide the tab builder for the "Captured Output" tab, which just shows and comp
 stderr of the workload(s).
 """
 
+# TODO: finish adding type hints to this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _Tabs, _DTabBuilder
+from statscollectlibs.result.LoadedResult import LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -75,16 +80,16 @@ class CapturedOutputTabBuilder():
 
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir, basedir=self._basedir)
         fpreviews = []
-        trimmed_rsts = set()
+        trimmed_lrsts = set()
         for ftype in ("stdout", "stderr"):
             files = {}
-            for res in self._rsts:
-                resdir = self._outdir / res.reportid
-                fp = res.info.get(ftype)
+            for lres in self._lrsts:
+                resdir = self._outdir / lres.reportid
+                fp = lres.res.info.get(ftype)
                 if not fp:
                     continue
 
-                srcpath = res.dirpath / fp
+                srcpath = lres.res.dirpath / fp
                 if not srcpath.exists():
                     continue
 
@@ -93,19 +98,19 @@ class CapturedOutputTabBuilder():
                         lines = f.readlines()
                 except OSError as err:
                     raise Error(f"unable to open captured output file at '{srcpath}':\n"
-                                f"{Error(err).indent(2)}") from None
+                                f"{Error(str(err)).indent(2)}") from None
 
                 trimmed_lines = self._trim_lines(lines, _MAX_FILE_START, _MAX_FILE_END)
 
                 if len(trimmed_lines) < len(lines):
-                    trimmed_rsts.add(res.reportid)
+                    trimmed_lrsts.add(lres.reportid)
                     dstpath = resdir / f"trimmed-{srcpath.name}"
                 else:
                     dstpath = resdir / srcpath.name
 
                 self._write_lines(trimmed_lines, dstpath)
 
-                files[res.reportid] = dstpath
+                files[lres.reportid] = dstpath
 
             if files:
                 fpreviews.append(fpbuilder.build_fpreview(ftype, files))
@@ -113,29 +118,29 @@ class CapturedOutputTabBuilder():
         if not fpreviews:
             return None
 
-        if trimmed_rsts:
+        if trimmed_lrsts:
             # Convert the set of report IDs into a list which maintains the order of reports used
             # elsewhere.
-            trimmed_rsts = [res.reportid for res in self._rsts if res.reportid in trimmed_rsts]
+            trimmed = [lres.reportid for lres in self._lrsts if lres.reportid in trimmed_lrsts]
             msg = f"Note - the outputs of the following results have been trimmed to save time " \
-                  f"during report generation: {', '.join(trimmed_rsts)}"
-            alerts = (msg,)
+                  f"during report generation: {', '.join(trimmed)}"
+            alerts = [msg]
         else:
             alerts = []
 
         dtab = _Tabs.DTabDC(self.name, fpreviews=fpreviews, alerts=alerts)
         return _Tabs.CTabDC(self.name, tabs=[dtab])
 
-    def __init__(self, rsts, outdir, basedir=None):
+    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
         The class constructor. The arguments are as follows.
-         * rsts - a list of 'RORawResult' instances for which data should be included in the built
-                  tab.
+         * lrsts - a list of loaded test result objects for which data should be included in the
+                   tab.
          * outdir - the output directory in which to create the sub-directory for the container tab.
          * basedir - base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
         """
 
-        self._rsts = rsts
+        self._lrsts = lrsts
         self._basedir = basedir if basedir else outdir
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
