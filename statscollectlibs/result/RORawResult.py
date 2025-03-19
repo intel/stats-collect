@@ -73,7 +73,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         if not self.info_path.is_file():
             raise ErrorBadFormat(f"Path '{self.info_path}' exists, but it is not a regular file")
         if not self.info_path.stat().st_size:
-           raise ErrorBadFormat(f"File '{self.info_path}' is empty")
+            raise ErrorBadFormat(f"File '{self.info_path}' is empty")
 
         # Basic 'logs' and 'stats' sub-directories check (they do not have to exist).
         if self.logs_path and self.logs_path.exists():
