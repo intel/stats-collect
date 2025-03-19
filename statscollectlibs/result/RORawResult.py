@@ -50,6 +50,31 @@ class _TimeStampRangeTypedDict(TypedDict, total=False):
     end: int
     absolute: bool
 
+def reportids_dedup(rsts: list[RORawResult]):
+    """
+    Deduplicate report IDs by appending '-X' to the duplicates, where 'X' is an integer. Modify the
+    'reportid' attribut of the raw test results objects in-place.
+
+    Args:
+        rsts: A list of test results objects ('RORawResult') to de-duplicate the report IDs for.
+    """
+
+    reportids = set()
+    for res in rsts:
+        reportid = res.reportid
+        if reportid in reportids:
+            # Try to construct a unique report ID.
+            for idx in range(1, 20):
+                new_reportid = f"{reportid}-{idx:02}"
+                if new_reportid not in reportids:
+                    _LOG.warning("Duplicate reportid '%s', using '%s' instead",
+                                 reportid, new_reportid)
+                    res.reportid = new_reportid
+                    break
+            else:
+                raise Error(f"Too many duplicate report IDs, e.g., '{reportid}' is problematic")
+
+        reportids.add(res.reportid)
 class RORawResult(_RawResultBase.RawResultBase):
     """The read-only 'stats-collect' raw result class."""
 

@@ -63,6 +63,8 @@ def _open_raw_results(args: _ReportCommandArgsType) -> list[RORawResult.RORawRes
 
         rsts.append(res)
 
+    RORawResult.reportids_dedup(rsts)
+
     return rsts
 
 def _format_args(arguments: argparse.Namespace) -> _ReportCommandArgsType:

@@ -201,7 +201,6 @@ class StatsCollectHTMLReport:
     def generate(self):
         """Generate the HTML report."""
 
-        HTMLReport.reportids_dedup(self.rsts)
         rep = HTMLReport.HTMLReport(self.outdir, self.logpath)
 
         results_tab = self._get_results_tab(rep.tabs_dir)

@@ -36,31 +36,6 @@ from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-def reportids_dedup(rsts: list[RORawResult.RORawResult]):
-    """
-    Deduplicate report IDs by appending '-X' to the duplicates, where 'X' is an integer.
-
-    Args:
-        rsts: A list of test results objects ('RORawResult') to de-duplicate the report IDs for.
-    """
-
-    reportids = set()
-    for res in rsts:
-        reportid = res.reportid
-        if reportid in reportids:
-            # Try to construct a unique report ID.
-            for idx in range(1, 20):
-                new_reportid = f"{reportid}-{idx:02}"
-                if new_reportid not in reportids:
-                    _LOG.warning("Duplicate reportid '%s', using '%s' instead",
-                                 reportid, new_reportid)
-                    res.reportid = new_reportid
-                    break
-            else:
-                raise Error(f"Too many duplicate report IDs, e.g., '{reportid}' is problematic")
-
-        reportids.add(res.reportid)
-
 def _copy_assets(outdir: Path):
     """
     Copy necessary assets to the specified output directory.
@@ -322,7 +297,6 @@ class HTMLReport:
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
         if rsts:
-            reportids_dedup(rsts)
             tabs += self._generate_tabs(rsts, tab_cfgs)
 
         # Convert Dataclasses to dictionaries so that they are JSON serializable.
