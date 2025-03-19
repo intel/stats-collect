@@ -47,9 +47,9 @@ class CapturedOutputTabBuilder():
             with open(dstpath, "w", encoding="utf-8") as f:
                 f.writelines(lines)
         except OSError as err:
-            msg = Error(err).indent(2)
-            msg = f"unable to write trimmed captured output file at '{dstpath}':\n{msg}"
-            raise Error(msg) from None
+            errmsg = Error(str(err)).indent(2)
+            errmsg = f"unable to write trimmed captured output file at '{dstpath}':\n{errmsg}"
+            raise Error(errmsg) from None
 
     def _trim_lines(self, lines, top, bottom):
         """
