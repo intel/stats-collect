@@ -66,4 +66,4 @@ class CTabDC:
     """
 
     name: str
-    tabs: Union["CTabDC", List[DTabDC]]
+    tabs: Union[CTabDC, List[DTabDC]]
