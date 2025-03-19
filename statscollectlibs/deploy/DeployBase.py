@@ -272,14 +272,12 @@ class DeployCheckBase(ClassHelpers.SimpleCloseContext):
         newest = 0.0
         if not path.is_dir():
             mtime = path.stat().st_mtime
-            if mtime > newest:
-                newest = mtime
+            newest = max(mtime, newest)
         else:
             for root, _, files in os.walk(path):
                 for file in files:
                     mtime = Path(root, file).stat().st_mtime
-                    if mtime > newest:
-                        newest = mtime
+                    newest = max(mtime, newest)
 
         if not newest:
             raise ErrorNotFound(f"No files found in the '{path}'")
