@@ -37,7 +37,6 @@ class Runner(ClassHelpers.SimpleCloseContext):
     simultaneous collection of statistics.
     """
 
-    # pylint: disable-next=too-many-positional-arguments
     def __init__(self,
                  res: WORawResult,
                  cmd_pman: ProcessManagerType,

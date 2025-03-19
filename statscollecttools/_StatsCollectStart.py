@@ -20,7 +20,7 @@ from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
-from statscollectlibs import Runner
+from statscollectlibs import _Runner
 from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
 from statscollectlibs.deploy import _Deploy
 from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
@@ -282,8 +282,8 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDic
             stack.enter_context(pipe)
             pipe_path = pipe.pipe_path
 
-        runner = Runner.Runner(res, cmd_pman, stcoll, pipe_path=pipe_path,
-                               pipe_timeout=args.pipe_timeout)
+        runner = _Runner.Runner(res, cmd_pman, stcoll, pipe_path=pipe_path,
+                                pipe_timeout=args.pipe_timeout)
         stack.enter_context(runner)
 
         cmd = _substitute_cmd_placeholders(args, cpus, stcoll, pipe_path)
