@@ -19,12 +19,37 @@ A raw result class is a class representing a raw result directory and its conten
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import TypedDict
+from typing import TypedDict, Literal
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 
 # The latest supported raw results directory format version.
 FORMAT_VERSION = "1.3"
+
+# The supported keys in the 'stinfo.name.paths' dictionary of the 'info.yml' files. These are paths
+# to the raw statistics file and the labels file.
+RawResultSTInfoPathsType = Literal["stats", "labels"]
+class RawResultSTInfoTypedDict(TypedDict, total=False):
+    """
+    A typed dictionary representing the statistics information from of the 'info.yml' file.
+
+    Attributes:
+        interval: The interval between statistics snapshots, seconds.
+        inband: Whether the statistics were collected in-band (the collector tool was running on the
+                SUT, e.g., turbostat) or out-of-band (the collector tool was running on the
+                controlling machine, e.g., ipmi-oob statistics collected by 'ipmitool' running on
+                the controller and reading SUT data over the network from SUT's BMC).
+        toolpath: The file path to the tool used for data collection on the SUT in case of an
+                  in-band collector, and on the controller in case of an out-of-band collector.
+        description: A brief description of the statistics data.
+        paths: A dictionary containing paths to raw statistics data files.
+    """
+
+    interval: float
+    inband: bool
+    toolpath: Path
+    description: str
+    paths: dict[RawResultSTInfoPathsType, Path]
 
 class RawResultWLInfoTypedDict(TypedDict, total=False):
     """
@@ -58,6 +83,7 @@ class RawResultInfoTypedDict(TypedDict, total=False):
     toolver: str
     reportid: str
     cpus: list[int] | None
+    stinfo: dict[str, RawResultSTInfoTypedDict]
     wlinfo: RawResultWLInfoTypedDict | None
 
 class RawResultBase:
