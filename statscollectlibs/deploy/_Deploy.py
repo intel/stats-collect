@@ -22,8 +22,8 @@ from typing import Callable
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
-from statscollectlibs.deploylibs import DeployBase, _DeployPyHelpers, DeployHelpersBase
-from statscollectlibs.deploylibs.DeployBase import DeployInfoTypedDict
+from statscollectlibs.deploy import DeployBase, _DeployPyHelpers, DeployHelpersBase
+from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

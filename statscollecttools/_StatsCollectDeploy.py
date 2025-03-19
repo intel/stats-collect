@@ -11,7 +11,7 @@ This module includes the "deploy" 'stats-collect' command implementation.
 """
 
 from statscollecttools import _Common, ToolInfo
-from statscollectlibs.deploylibs import _Deploy
+from statscollectlibs.deploy import _Deploy
 
 def deploy_command(args, deploy_info):
     """Implements the 'deploy' command."""

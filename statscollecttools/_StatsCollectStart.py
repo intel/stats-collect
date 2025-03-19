@@ -22,8 +22,8 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
 from statscollectlibs import Runner
 from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
-from statscollectlibs.deploylibs import _Deploy
-from statscollectlibs.deploylibs.DeployBase import DeployInfoTypedDict
+from statscollectlibs.deploy import _Deploy
+from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.rawresultlibs import RORawResult, WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport

@@ -19,8 +19,8 @@ from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, Proj
 from pepclibs.helperlibs import ToolChecker
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
-from statscollectlibs.deploylibs import DeployHelpersBase
-from statscollectlibs.deploylibs.DeployBase import InstallableInfoTypedDict
+from statscollectlibs.deploy import DeployHelpersBase
+from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

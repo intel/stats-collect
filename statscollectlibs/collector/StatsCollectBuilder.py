@@ -12,7 +12,7 @@ import contextlib
 from pepclibs.helperlibs import Logging, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.collector import StatsCollect
-from statscollectlibs.deploylibs import DeployBase
+from statscollectlibs.deploy import DeployBase
 from statscollectlibs.rawresultlibs import WORawResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")

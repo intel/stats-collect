@@ -18,8 +18,8 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging, ProjectFiles, ToolChecker
 from pepclibs.helperlibs.Exceptions import Error
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
-from statscollectlibs.deploylibs import DeployInstallableBase
-from statscollectlibs.deploylibs.DeployBase import InstallableInfoTypedDict
+from statscollectlibs.deploy import DeployInstallableBase
+from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
 
 HELPERS_DEPLOY_SUBDIR = Path(".local")
 HELPERS_SRC_SUBDIR = Path("helpers")

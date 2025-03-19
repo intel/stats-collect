@@ -23,8 +23,8 @@ except ImportError:
 
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.deploylibs import _Deploy
-from statscollectlibs.deploylibs.DeployBase import DeployInfoTypedDict
+from statscollectlibs.deploy import _Deploy
+from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 from statscollectlibs.collector import StatsCollectBuilder
 from statscollecttools import ToolInfo
 
