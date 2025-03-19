@@ -211,5 +211,5 @@ class StatsCollectHTMLReport:
         self._raw_logs_paths, self._raw_wldata_paths = self._copy_raw_data()
 
         self._generate_intro_table(self.rsts)
-        rep.generate_report(tabs=tabs, rsts=self.rsts, intro_tbl=self._intro_tbl,
+        rep.generate_report(tabs=tabs, lrsts=self._lrsts, intro_tbl=self._intro_tbl,
                             title="stats-collect report")

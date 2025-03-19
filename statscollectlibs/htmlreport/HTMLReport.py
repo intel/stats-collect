@@ -31,7 +31,7 @@ from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
-from statscollectlibs.result import RORawResult
+from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -147,7 +147,7 @@ class HTMLReport:
         _check_plotly_ver()
         validate_outdir(outdir)
 
-    def _init_tab_builders(self, rsts: list[RORawResult.RORawResult]):
+    def _init_tab_builders(self, lrsts: list[LoadedResult]):
         """
         Initialize tab builders for all raw results in 'rsts'.
 
@@ -157,7 +157,7 @@ class HTMLReport:
         """
 
         # Only try and generate the statistics tab if statistics were collected.
-        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in rsts])
+        collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in lrsts])
 
         sysinfo_tbldr = _SysInfoTabBuilder.SysInfoTabBuilder
         if sysinfo_tbldr.stname in collected_stnames:
@@ -167,6 +167,7 @@ class HTMLReport:
 
         if collected_stnames:
             try:
+                rsts = [lres.res for lres in lrsts]
                 self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self.tabs_dir,
                                                                      basedir=self._outdir)
             except Error as err:
@@ -174,13 +175,13 @@ class HTMLReport:
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
 
     def _generate_tabs(self,
-                       rsts: list[RORawResult.RORawResult],
+                       lrsts: list[LoadedResult],
                        tab_cfgs: dict[str, CTabConfig] | None) -> list[_Tabs.CTabDC]:
         """
         Generate statistics and system information tabs.
 
         Args:
-            rsts: List of raw result objects to generate the tabs for.
+            rrsts: List of loaded test result objects to generate the tabs for.
             tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
                       configuration customizes the contents of the 'stname' statistics tab. If an
                       'stname' is not provided in 'tab_cfgs', the default tab configuration will be
@@ -192,7 +193,8 @@ class HTMLReport:
 
         tabs = []
 
-        self._init_tab_builders(rsts)
+        self._init_tab_builders(lrsts)
+
         if self._stats_tbldr:
             tabs.append(self._stats_tbldr.get_tab(tab_cfgs=tab_cfgs))
 
@@ -200,6 +202,7 @@ class HTMLReport:
             return tabs
 
         try:
+            rsts = [lres.res for lres in lrsts]
             sysinfo_tab = self._sysinfo_tbldr.get_tab(rsts)
             tabs.append(sysinfo_tab)
         except Error as err:
@@ -208,19 +211,19 @@ class HTMLReport:
 
         return tabs
 
-    def get_default_tab_cfgs(self, rsts: list[RORawResult.RORawResult]) -> dict[str, CTabConfig]:
+    def get_default_tab_cfgs(self, lrsts: list[LoadedResult]) -> dict[str, CTabConfig]:
         """
         Get the default tab configuration for all statistics collected in results 'rsts'.
 
         Args:get_default_tab_cfgs
-            rsts: List of raw test results objects to get the default tabs configurations for.
+            lrsts: List of loaded test result objects to get the default tabs configurations for.
 
         Returns:
             A dictionary containing default tab configurations in the format
             '{stname: CTabConfig}' with an entry for each 'stname' (statistics name).
         """
 
-        self._init_tab_builders(rsts)
+        self._init_tab_builders(lrsts)
 
         if not self._stats_tbldr:
             return {}
@@ -229,7 +232,7 @@ class HTMLReport:
 
     def generate_report(self,
                         tabs: list[_Tabs.CTabDC] | None = None,
-                        rsts: list[RORawResult.RORawResult] | None = None,
+                        lrsts: list[LoadedResult] | None = None,
                         intro_tbl: _IntroTable.IntroTable | None = None,
                         title: str | None = None,
                         descr: str | None = None,
@@ -241,7 +244,7 @@ class HTMLReport:
 
         Args:
             tabs: A list of additional container tabs to include in the report.
-            rsts: A List of raw test results objects to generate the report for.
+            lrsts: A list of loaded test result objects to generate the report for.
             intro_tbl: An instance representing the table to include in the report. If not provided,
                        it will be omitted from the report.
             title: The title of the report. If not provided, the title is omitted.
@@ -256,8 +259,8 @@ class HTMLReport:
                       will be used.
         """
 
-        if not tabs and not rsts:
-            raise Error("BUG: Both 'tabs' and 'rsts' can't be 'None'. One of the two parameters "
+        if not tabs and not lrsts:
+            raise Error("BUG: Both 'tabs' and 'lrsts' can't be 'None'. One of the two parameters "
                         "should be provided.")
 
         if (toolname and not toolver) or (not toolname and toolver):
@@ -296,8 +299,8 @@ class HTMLReport:
             intro_tbl.generate(intro_tbl_path)
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
-        if rsts:
-            tabs += self._generate_tabs(rsts, tab_cfgs)
+        if lrsts:
+            tabs += self._generate_tabs(lrsts, tab_cfgs)
 
         # Convert Dataclasses to dictionaries so that they are JSON serializable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]
