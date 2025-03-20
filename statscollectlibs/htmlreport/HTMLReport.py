@@ -153,7 +153,6 @@ class HTMLReport:
 
         Args:
             rsts: List of raw result objects to initialize the tab builders for.
-
         """
 
         # Only try and generate the statistics tab if statistics were collected.
@@ -202,8 +201,7 @@ class HTMLReport:
             return tabs
 
         try:
-            rsts = [lres.res for lres in lrsts]
-            sysinfo_tab = self._sysinfo_tbldr.get_tab(rsts)
+            sysinfo_tab = self._sysinfo_tbldr.get_tab(lrsts)
             tabs.append(sysinfo_tab)
         except Error as err:
             _LOG.debug_print_stacktrace()

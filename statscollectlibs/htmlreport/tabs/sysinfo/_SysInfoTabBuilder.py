@@ -18,7 +18,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.result import RORawResult
+from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqDTabBuilder, _CPUIdleDTabBuilder,
     _DMIDecodeDTabBuilder, _DmesgDTabBuilder, _EPPDTabBuilder, _LspciDTabBuilder, _MiscDTabBuilder,
@@ -35,22 +35,22 @@ class SysInfoTabBuilder:
     name = "SysInfo"
     stname = "sysinfo"
 
-    def get_tab(self, rsts: list[RORawResult.RORawResult]) -> _Tabs.CTabDC:
+    def get_tab(self, lrsts: list[LoadedResult]) -> _Tabs.CTabDC:
         """
         Generate and return the "SysInfo" container tab for the given raw results.
 
         Args:
-            rsts: A list of 'RORawResult' objects to generate the "SysInfo" tab for.
+            lrsts: A list of loaded raw result objects to generate the "SysInfo" tab for.
 
         Returns:
             The "SysInfo" container tab for the given raw results.
         """
 
-        stats_paths = {res.reportid: res.stats_path for res in rsts}
-
-        # Sanity check - ensure there are statistics in the raw results.
-        if not any(path for path in stats_paths.values()):
-            raise Error("No statistics in the raw results")
+        stats_paths = {lres.reportid: lres.res.stats_path for lres in lrsts if lres.res.stats_path}
+        if not stats_paths:
+            # If there are no statistics at all, the class instance should not have been even
+            # created.
+            raise Error("BUG: No statistics in the raw results")
 
         _LOG.info("Generating %s tabs.", self.name)
 
