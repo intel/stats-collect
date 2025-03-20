@@ -20,7 +20,7 @@ from statscollectlibs.htmlreport.tabs.stats import _TurbostatTabBuilder, _Interr
 from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
-from statscollectlibs.result import RORawResult
+from statscollectlibs.result.LoadedResult import LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -39,7 +39,7 @@ class StatsTabBuilder:
     name = "Stats"
 
     def __init__(self,
-                 rsts: list[RORawResult.RORawResult],
+                 lrsts: list[LoadedResult],
                  outdir: Path,
                  basedir: Path | None = None):
         """
@@ -51,7 +51,7 @@ class StatsTabBuilder:
             basedir: The base directory path (the 'outdir' should be a sub-path of 'basedir').
         """
 
-        self._rsts = rsts
+        self._lrsts = lrsts
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
         self._tbldrs: dict[str, _TabBuilderTypes] = {}
@@ -110,7 +110,7 @@ class StatsTabBuilder:
         tab_builders: dict[str, _TabBuilderClassTypes] = {}
         tab_builders = {tab_bldr.stname: tab_bldr for tab_bldr in tab_bldr_classes}
 
-        collected_stnames = set.union(*[set(res.info["stinfo"]) for res in self._rsts])
+        collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in self._lrsts])
 
         # 'IPMITabBuilder' is used for both inband and out-of-band statistics. But only one instance
         # is necessary.
@@ -129,7 +129,7 @@ class StatsTabBuilder:
                          ", ".join(missing_tab_builders))
 
         if not supported_stnames:
-            raise Error("No results contain any statistics data")
+            raise ErrorNotFound("No supported statistics found")
 
         _LOG.info("Generating tabs for the following statistics: %s", ", ".join(supported_stnames))
 
@@ -141,7 +141,8 @@ class StatsTabBuilder:
 
             tab_builder = tab_builders[stname]
             try:
-                self._tbldrs[stname] = tab_builder(self._rsts, stats_dir, basedir=self._basedir)
+                rsts = [lres.res for lres in self._lrsts]
+                self._tbldrs[stname] = tab_builder(rsts, stats_dir, basedir=self._basedir)
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder.name, tab_builder.name)

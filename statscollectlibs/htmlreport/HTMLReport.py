@@ -149,10 +149,10 @@ class HTMLReport:
 
     def _init_tab_builders(self, lrsts: list[LoadedResult]):
         """
-        Initialize tab builders for all raw results in 'rsts'.
+        Initialize tab builders for all results in 'lrsts'.
 
         Args:
-            rsts: List of raw result objects to initialize the tab builders for.
+            lrsts: List of loaded result objects to initialize the tab builders for.
         """
 
         # Only try and generate the statistics tab if statistics were collected.
@@ -166,8 +166,7 @@ class HTMLReport:
 
         if collected_stnames:
             try:
-                rsts = [lres.res for lres in lrsts]
-                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(rsts, self.tabs_dir,
+                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(lrsts, self.tabs_dir,
                                                                      basedir=self._outdir)
             except Error as err:
                 _LOG.debug_print_stacktrace()
@@ -211,7 +210,7 @@ class HTMLReport:
 
     def get_default_tab_cfgs(self, lrsts: list[LoadedResult]) -> dict[str, CTabConfig]:
         """
-        Get the default tab configuration for all statistics collected in results 'rsts'.
+        Get the default tab configuration for all statistics in 'lrsts'.
 
         Args:get_default_tab_cfgs
             lrsts: List of loaded test result objects to get the default tabs configurations for.
