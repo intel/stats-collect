@@ -17,8 +17,9 @@ from pathlib import Path
 import pandas
 from statscollectlibs.mdc import MDCBase, InterruptsMDC
 from statscollectlibs.dfbuilders import _InterruptsDFBuilder
-from statscollectlibs.result.RORawResult import RORawResult
+from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.htmlreport.tabs._TabBuilderBase import MDTypedDict
 
 class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
@@ -26,12 +27,12 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Interrupts"
     stname = "interrupts"
 
-    def __init__(self, rsts: list[RORawResult], outdir: Path, basedir: Path | None = None):
+    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
-        Class constructor.
+        Initialize a class instance.
 
         Args:
-            rsts: A list of raw results to include in the tab.
+            lrsts: A list of loaded test results to include in the tab.
             outdir: The output directory in which to create the sub-directory for the container tab.
             basedir: The base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
@@ -40,14 +41,15 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._time_metric = "TimeElapsed"
         self._ts_metric = "Timestamp"
 
-        self._hover_defs: dict[str, dict[str, _TabBuilderBase.MDTypedDict]] = {}
+        self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
 
         # The column names to include in the interrupts statistics tab.
         self._tab_colnames: list[str] = []
 
+        rsts = [lres.res for lres in lrsts]
         self._cpus = self._get_and_check_cpus(rsts)
 
-        dfs = self._load_dfs(rsts)
+        dfs = self._load_dfs(lrsts)
 
         # Compose the list of all column names and all metrics in all dataframes.
         colnames = []
@@ -160,12 +162,12 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 
-    def _load_dfs(self, rsts: list[RORawResult]) -> dict[str, pandas.DataFrame]:
+    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
         """
-        Load the interrupts statistics dataframes for raw results in 'rsts'.
+        Load the interrupts statistics dataframes for results in 'lrsts'.
 
         Args:
-            rsts: The raw results to process and load the dataframes for.
+            lrsts: The loaded test result objects to load the dataframes for.
 
         Returns:
             A dictionary with keys being report IDs and values being interrupts statistics
@@ -175,11 +177,11 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self._cpus)
 
         dfs = {}
-        for res in rsts:
-            if self.stname not in res.info["stinfo"]:
+        for lres in lrsts:
+            if self.stname not in lres.res.info["stinfo"]:
                 continue
 
-            dfs[res.reportid] = res.load_stat(self.stname, dfbldr)
-            self._hover_defs[res.reportid] = res.get_label_defs(self.stname)
+            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
+            self._hover_defs[lres.reportid] = lres.res.get_label_defs(self.stname)
 
         return dfs

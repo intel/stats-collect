@@ -46,7 +46,7 @@ class StatsTabBuilder:
         Initialize a class instance.
 
         Args:
-            rsts: list of raw result objects to generate the statistics tabs for.
+            lrsts: list of loaded test result objects to generate the statistics tabs for.
             outdir: The output directory path to store that tabs data in.
             basedir: The base directory path (the 'outdir' should be a sub-path of 'basedir').
         """
@@ -141,8 +141,7 @@ class StatsTabBuilder:
 
             tab_builder = tab_builders[stname]
             try:
-                rsts = [lres.res for lres in self._lrsts]
-                self._tbldrs[stname] = tab_builder(rsts, stats_dir, basedir=self._basedir)
+                self._tbldrs[stname] = tab_builder(self._lrsts, stats_dir, basedir=self._basedir)
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder.name, tab_builder.name)

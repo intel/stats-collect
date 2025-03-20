@@ -20,7 +20,8 @@ from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import MDCBase, TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.result.RORawResult import RORawResult
+from statscollectlibs.result.LoadedResult import LoadedResult
+from statscollectlibs.htmlreport.tabs._TabBuilderBase import MDTypedDict
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
@@ -28,12 +29,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stname = "turbostat"
 
-    def __init__(self, rsts: list[RORawResult], outdir: Path, basedir: Path | None = None):
+    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
-        Class constructor.
+        Initialize a class instance.
 
         Args:
-            rsts: A list of raw results to include in the tab.
+            lrsts: A list of loaded test result objects to include in the tab.
             outdir: The output directory in which to create the sub-directory for the container tab.
             basedir: The base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
@@ -44,14 +45,15 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._cpus: list[int] | None = None
         self._mdo: TurbostatMDC.TurbostatMDC
         self._snames: list[str] = []
-        self._hover_defs: dict[str, dict[str, _TabBuilderBase.MDTypedDict]] = {}
+        self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
 
         # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
         # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
         self._col2metric: dict[str, str] = {}
 
+        rsts = [lres.res for lres in lrsts]
         self._cpus = self._get_and_check_cpus(rsts)
-        dfs = self._load_dfs(rsts)
+        dfs = self._load_dfs(lrsts)
 
         # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
         # order.
@@ -288,12 +290,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         raise Error("no turbostat metrics found")
 
-    def _load_dfs(self, rsts: list[RORawResult]) -> dict[str, pandas.DataFrame]:
+    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
         """
-        Load the turbostat statistics dataframes for raw results in 'rsts'.
+        Load the turbostat statistics dataframes for results in 'lrsts'.
 
         Args:
-            rsts: The raw results to process and load the dataframes for.
+            lrsts: The loaded test result objects to load the dataframes for.
 
         Returns:
             A dictionary with keys being report IDs and values being turbostat statistics
@@ -303,12 +305,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self._cpus)
 
         dfs = {}
-        for res in rsts:
-            if "turbostat" not in res.info["stinfo"]:
+        for lres in lrsts:
+            if "turbostat" not in lres.res.info["stinfo"]:
                 continue
 
-            dfs[res.reportid] = res.load_stat("turbostat", dfbldr)
+            dfs[lres.reportid] = lres.res.load_stat("turbostat", dfbldr)
             self._col2metric.update(dfbldr.col2metric)
-            self._hover_defs[res.reportid] = res.get_label_defs("turbostat")
+            self._hover_defs[lres.reportid] = lres.res.get_label_defs("turbostat")
 
         return dfs
