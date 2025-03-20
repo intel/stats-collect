@@ -189,42 +189,16 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                     cs_l3_ctabs.append(l3_ctab)
 
             if "Requested" in self._mdo.categories["C-state"]:
-                # The level 3 "Requested" C-tab is going to have level 4 C-tabs for different
-                # sub-categories of metrics.
-                csres_metrics: list[str] = []
-                csrate_metrics: list[str] = []
-                cstime_metrics: list[str] = []
-                cscnt_metrics: list[str] = []
-
-                for metric in self._mdo.categories["C-state"]["Requested"]:
-                    unit = self._mdo.mdd[metric].get("unit")
-                    if unit:
-                        if unit == "%":
-                            csres_metrics.append(metric)
-                        elif "requests/sec" in unit:
-                            csrate_metrics.append(metric)
-                        elif "microsecond" in unit:
-                            cstime_metrics.append(metric)
-                    else:
-                        cscnt_metrics.append(metric)
+                # The requested C-states category and their sub-categories.
+                subcats = self._mdo.categories["C-state"]["Requested"]
 
                 l4_ctabs: list[TabConfig.CTabConfig] = []
 
-                l3_ctab = self._build_ctab_cfg("Residency", csres_metrics, sname)
-                if l3_ctab:
-                    l4_ctabs.append(l3_ctab)
-
-                l3_ctab = self._build_ctab_cfg("Request rate", csrate_metrics, sname)
-                if l3_ctab:
-                    l4_ctabs.append(l3_ctab)
-
-                l3_ctab = self._build_ctab_cfg("Time in C-state ", cstime_metrics, sname)
-                if l3_ctab:
-                    l4_ctabs.append(l3_ctab)
-
-                l3_ctab = self._build_ctab_cfg("Count", cscnt_metrics, sname)
-                if l3_ctab:
-                    l4_ctabs.append(l3_ctab)
+                for subcat in ("Residency", "Count", "Request Rate", "Average Time"):
+                    if subcat in subcats:
+                        l3_ctab = self._build_ctab_cfg(subcat, subcats[subcat], sname)
+                        if l3_ctab:
+                            l4_ctabs.append(l3_ctab)
 
                 if l4_ctabs:
                     cs_l3_ctabs.append(TabConfig.CTabConfig("Requested", ctabs=l4_ctabs))

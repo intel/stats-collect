@@ -25,8 +25,9 @@ def get_fsname(metric):
       * metric - name of the metric to return an FS and URL-safe name for.
     """
 
-    # If 'metric' contains "%", we maintain the meaning by replacing with "Percent".
     metric = metric.replace("%", "Percent")
+    metric = metric.replace("+", "Plus")
+    metric = metric.replace("-", "Minus")
 
     # Filter out any remaining non-alphanumeric characters.
     metric = "".join([c for c in metric if c.isalnum()])

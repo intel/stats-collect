@@ -189,7 +189,7 @@ class MDCBase:
         new_md: MDTypedDict = {}
 
         for pattern in md["patterns"]: # type: ignore[typeddict-item]
-            mobj = re.match(pattern, metric)
+            mobj = re.fullmatch(pattern, metric)
             if not mobj:
                 continue
 

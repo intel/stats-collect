@@ -110,49 +110,6 @@ Pkg%pcx:
     patterns:
         - 'Pkg%p(c\d+)'
         - 'Pk%p(c\d+)'
-Cx:
-    title: "{groups[0]} requests count"
-    descr: >-
-        The number of times Linux requested the {groups[0]} C-state during the measurement interval.
-        Turbostat retrieves these values from sysfs files located at
-        '/sys/devices/system/cpu/cpu*/cpuidle/state*/residency'.
-    type: "int"
-    scope: "CPU"
-    categories: ["C-state", "Requested"]
-    patterns:
-        - '(POLL)'
-        - '(C\d+[ESP]*)'
-        - '(C\d+ACPI)'
-Cx-:
-    title: "Too deep {groups[0]} requests count"
-    descr: >-
-        The number of times Linux requested the {groups[0]} C-state during the measurement interval,
-        but a shallower C-state should have been requested, because the actual idle time in
-        {groups[0]} was shorter or equivalent than the target residency of the pervious C-state.
-        Turbostat retrieves these values from sysfs files located at
-        '/sys/devices/system/cpu/cpu*/cpuidle/state*/above'.
-    type: "int"
-    scope: "CPU"
-    categories: ["C-state", "Requested"]
-    patterns:
-        - '(POLL)-'
-        - '(C\d+[ESP]*)-'
-        - '(C\d+ACPI)-'
-Cx+:
-    title: "Too shallow {groups[0]} requests count"
-    descr: >-
-        The number of times Linux requested the {groups[0]} C-state during the measurement interval,
-        but a deeper C-state should have been requested, because the actual idle time in {groups[0]}
-        was longer or equivalent than the target residency of the pervious C-state. Turbostat
-        retrieves these values from sysfs files located at
-        '/sys/devices/system/cpu/cpu*/cpuidle/state*/below'.
-    type: "int"
-    scope: "CPU"
-    categories: ["C-state", "Requested"]
-    patterns:
-        - '(POLL)\+'
-        - '(C\d+[ESP]*)\+'
-        - '(C\d+ACPI)\+'
 Cx%:
     title: "{groups[0]} residency"
     descr: >-
@@ -166,11 +123,54 @@ Cx%:
     unit: "%"
     short_unit: "%"
     scope: "CPU"
-    categories: ["C-state", "Requested"]
+    categories: ["C-state", "Requested", "Residency"]
     patterns:
         - '(POLL)%'
         - '(C\d+[ESP]*)%'
         - '(C\d+ACPI)%'
+Cx-:
+    title: "Too deep {groups[0]} requests count"
+    descr: >-
+        The number of times Linux requested the {groups[0]} C-state during the measurement interval,
+        but a shallower C-state should have been requested, because the actual idle time in
+        {groups[0]} was shorter or equivalent than the target residency of the pervious C-state.
+        Turbostat retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/above'.
+    type: "int"
+    scope: "CPU"
+    categories: ["C-state", "Requested", "Count"]
+    patterns:
+        - '(POLL)-'
+        - '(C\d+[ESP]*)-'
+        - '(C\d+ACPI)-'
+Cx:
+    title: "{groups[0]} requests count"
+    descr: >-
+        The number of times Linux requested the {groups[0]} C-state during the measurement interval.
+        Turbostat retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/residency'.
+    type: "int"
+    scope: "CPU"
+    categories: ["C-state", "Requested", "Count"]
+    patterns:
+        - '(POLL)'
+        - '(C\d+[ESP]*)'
+        - '(C\d+ACPI)'
+Cx+:
+    title: "Too shallow {groups[0]} requests count"
+    descr: >-
+        The number of times Linux requested the {groups[0]} C-state during the measurement interval,
+        but a deeper C-state should have been requested, because the actual idle time in {groups[0]}
+        was longer or equivalent than the target residency of the pervious C-state. Turbostat
+        retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/below'.
+    type: "int"
+    scope: "CPU"
+    categories: ["C-state", "Requested", "Count"]
+    patterns:
+        - '(POLL)\+'
+        - '(C\d+[ESP]*)\+'
+        - '(C\d+ACPI)\+'
 Cx_rate:
     title: "Average {groups[0]} requests rate"
     descr: >-
@@ -180,7 +180,7 @@ Cx_rate:
     unit: "requests/sec"
     short_unit: "req/s"
     scope: "CPU"
-    categories: ["C-state", "Requested"]
+    categories: ["C-state", "Requested", "Request Rate"]
     patterns:
         - '(POLL)_rate'
         - '(C\d+[ESP]*)_rate'
@@ -195,7 +195,7 @@ Cx_time:
     unit: "microsecond"
     short_unit: "us"
     scope: "CPU"
-    categories: ["C-state", "Requested"]
+    categories: ["C-state", "Requested", "Average Time"]
     patterns:
         - '(POLL)_time'
         - '(C\d+[ESP]*)_time'
