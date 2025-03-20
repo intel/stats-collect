@@ -87,16 +87,20 @@ class LoadedStatsitic:
 class LoadedResult:
     """The loaded version of a raw test result."""
 
-    def __init__(self, res: RORawResult.RORawResult):
+    def __init__(self, res: RORawResult.RORawResult, cpus: list[int] | None = None):
         """
         Initialize a class instance.
 
         Args:
             res: a read-only raw test result object that will be loaded and represented by this
                  object.
+            cpus: List of CPU numbers to include load the statistics for. Default is to load for all
+                  CPUs.
         """
 
         self.res = res
+        self.cpus = cpus
+
         self.reportid = self.res.reportid
 
         # Note. The lables files include data for multiple statsistics, and they are per-statistics

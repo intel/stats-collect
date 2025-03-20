@@ -15,7 +15,6 @@ import contextlib
 import argparse
 from pathlib import Path
 from typing import NamedTuple
-from pepclibs import CPUInfo
 from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
 from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import Error
@@ -37,7 +36,6 @@ class _StartCommandArgsType(NamedTuple):
     hostname: str
     privkey: Path | None
     timeout: int
-    cpus: str | None
     tlimit: float | None
     outdir: Path
     reportid: str
@@ -108,7 +106,6 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
         hostname = hostname,
         privkey = privkey,
         timeout = arguments.timeout,
-        cpus = arguments.cpus,
         tlimit = tlimit,
         outdir = outdir,
         reportid = reportid,
@@ -123,7 +120,6 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
     )
 
 def _substitute_cmd_placeholders(args: _StartCommandArgsType,
-                                 cpus: list[int] | None,
                                  stcoll: StatsCollect.StatsCollect | None,
                                  pipe_path: Path | None) -> str:
     """
@@ -131,7 +127,6 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
 
     Args:
         args: The command-line arguments.
-        cpus: A list of CPU IDs to be included in the command.
         stcoll: A 'StatsCollect' that is going to be used for collecting the statistics (to get the
                 list of statistics names).
 
@@ -143,11 +138,6 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
         privkey_str = str(args.privkey)
     else:
         privkey_str = "none"
-
-    if not cpus:
-        cpus_str = "none"
-    else:
-        cpus_str = ",".join(str(cpu) for cpu in cpus)
 
     if not stcoll:
         stnames_str = "none"
@@ -164,7 +154,6 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
     cmd = cmd.replace("{USERNAME}", args.username)
     cmd = cmd.replace("{PRIVKEY}", privkey_str)
     cmd = cmd.replace("{TIMEOUT}", str(args.timeout))
-    cmd = cmd.replace("{CPUS}", cpus_str)
     cmd = cmd.replace("{OUTDIR}", str(args.outdir))
     cmd = cmd.replace("{REPORTID}", args.reportid)
     cmd = cmd.replace("{STATS}", ",".join(stnames_str))
@@ -234,19 +223,11 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDic
         pman = _Common.get_pman(args)
         stack.enter_context(pman)
 
-        if args.cpus is not None:
-            cpuinfo = CPUInfo.CPUInfo(pman=pman)
-            stack.enter_context(cpuinfo)
-            cpus = Trivial.split_csv_line_int(args.cpus, what="--cpus argument")
-            cpus = cpuinfo.normalize_cpus(cpus)
-        else:
-            cpus = None
-
         with _Deploy.DeployCheck("stats-collect", ToolInfo.TOOLNAME, deploy_info,
                                  pman=pman) as depl:
             depl.check_deployment()
 
-        res = _WORawResult.WORawResult(args.reportid, args.outdir, cpus=cpus)
+        res = _WORawResult.WORawResult(args.reportid, args.outdir)
         stack.enter_context(res)
 
         if not args.stats or args.stats == "none":
@@ -286,7 +267,7 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDic
                                 pipe_timeout=args.pipe_timeout)
         stack.enter_context(runner)
 
-        cmd = _substitute_cmd_placeholders(args, cpus, stcoll, pipe_path)
+        cmd = _substitute_cmd_placeholders(args, stcoll, pipe_path)
 
         runner.run(cmd, args.tlimit)
 

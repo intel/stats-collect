@@ -15,6 +15,7 @@ import contextlib
 import os
 import shutil
 import time
+from pathlib import Path
 from typing import Any
 from pepclibs.helperlibs import Logging, Trivial, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
@@ -96,6 +97,9 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         """
 
         super().__init__(outdir)
+
+        # The base class allows for the following attributes to be 'None', but this class does not.
+        self.logs_path: Path
 
         self.reportid = reportid
         self.cpus = cpus

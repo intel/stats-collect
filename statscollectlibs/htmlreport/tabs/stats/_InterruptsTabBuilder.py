@@ -46,9 +46,6 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         # The column names to include in the interrupts statistics tab.
         self._tab_colnames: list[str] = []
 
-        rsts = [lres.res for lres in lrsts]
-        self._cpus = self._get_and_check_cpus(rsts)
-
         dfs = self._load_dfs(lrsts)
 
         # Compose the list of all column names and all metrics in all dataframes.
@@ -174,12 +171,12 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             dataframes.
         """
 
-        dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self._cpus)
-
         dfs = {}
         for lres in lrsts:
             if self.stname not in lres.res.info["stinfo"]:
                 continue
+
+            dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=lres.cpus)
 
             dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
             self._hover_defs[lres.reportid] = lres.res.get_label_defs(self.stname)

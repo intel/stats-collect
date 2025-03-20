@@ -33,6 +33,7 @@ class StatsCollectHTMLReport:
     def __init__(self,
                  rsts: list[RORawResult.RORawResult],
                  outdir: Path,
+                 cpus: list[int] | None = None,
                  logpath: Path | None = None):
         """
         Initialize a class instance.
@@ -40,11 +41,13 @@ class StatsCollectHTMLReport:
         Args:
             rsts: List of of test results objects ('RORawResult') to generate the HTML report for.
             outdir: The output directory to place the HTML report in.
+            cpus: List of CPU numbers to include in the report along with the system-wide statistics.
             logpath: The HTML report generation log file path.
         """
 
         self.rsts = rsts
         self.outdir = outdir
+        self.cpus = cpus
         self.logpath = logpath
 
         # Users can change this to 'True' to copy all the raw test results into the output
@@ -64,7 +67,8 @@ class StatsCollectHTMLReport:
 
         # Build the loaded test result objects, but do not load them yet.
         for res in self.rsts:
-            self._lrsts.append(LoadedResult.LoadedResult(res))
+            lres = LoadedResult.LoadedResult(res, cpus=cpus)
+            self._lrsts.append(lres)
 
     def _add_intro_tbl_links(self, label: str, paths: dict[str, Path]):
         """
@@ -201,7 +205,7 @@ class StatsCollectHTMLReport:
     def generate(self):
         """Generate the HTML report."""
 
-        rep = HTMLReport.HTMLReport(self.outdir, self.logpath)
+        rep = HTMLReport.HTMLReport(self.outdir, logpath=self.logpath)
 
         results_tab = self._get_results_tab(rep.tabs_dir)
         tabs = [results_tab] if results_tab else None

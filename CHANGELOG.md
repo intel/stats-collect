@@ -7,6 +7,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
 ### Added
 ### Removed
+ - Remove 'stats-collect start --cpus' option.
 ### Changed
 
 ## [1.0.50] - 2025-03-14

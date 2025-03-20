@@ -86,13 +86,6 @@ def _build_arguments_parser():
 
     ArgParse.add_ssh_options(subpars, ssh_options=ssh_options)
 
-    text = f"""If the executed command stresses particular CPU numbers, specify them via this option
-               so that the numbers are saved in the test result and later the '{ToolInfo.TOOLNAME}
-               report' command will take this into account while generating the test report. CPU
-               numers should be specified as a comma-separated list of integers or integer ranges.
-               For For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
-    subpars.add_argument("--cpus", help=text)
-
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""
     subpars.add_argument("--time-limit", help=text, dest="tlimit", metavar="LIMIT", default=None)
@@ -178,10 +171,10 @@ def _build_arguments_parser():
     text = f"""One or multiple {ToolInfo.TOOLNAME} test result paths."""
     subpars.add_argument("respaths", nargs="+", type=Path, help=text)
 
-    text = """The CPU numbers to visualize. By default, the CPU numbers that were speicified at
-              data collection time are included in the report, and this option overrides them. CPU
-              numers should be specified as a comma-separated list of integers or integer ranges.
-              For example, '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
+    text = """The CPU numbers to include in the report, along with the system-wide statistics. By
+              default, only the system-wide statistics are included. CPU numers should be specified
+              as a comma-separated list of integers or integer ranges. For example, '1-4,7,8,10-12'
+              would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
     subpars.add_argument("--cpus", help=text)
 
     if argcomplete_imported:

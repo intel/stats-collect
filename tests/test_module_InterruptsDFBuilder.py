@@ -44,7 +44,7 @@ def test_good_results():
     for dirpath in _TEST_RESULTS_DIR.iterdir():
         res = RORawResult(dirpath)
 
-        cpus = res.info.get("cpus")
+        cpus = [0,1]
         dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=cpus)
 
         pfx = f"DataFrame for '{dirpath}'"

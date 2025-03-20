@@ -13,7 +13,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from typing import TypedDict
 from pathlib import Path
-from pepclibs.helperlibs import Logging, Trivial, YAML
+from pepclibs.helperlibs import Logging, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import FSHelpers
@@ -76,6 +76,7 @@ def reportids_dedup(rsts: list[RORawResult]):
                 raise Error(f"Too many duplicate report IDs, e.g., '{reportid}' is problematic")
 
         reportids.add(res.reportid)
+
 class RORawResult(_RawResultBase.RawResultBase):
     """The read-only 'stats-collect' raw result class."""
 
@@ -465,16 +466,6 @@ class RORawResult(_RawResultBase.RawResultBase):
                 raise ErrorBadFormat(f"Bad '{self.info_path}' format - the '{key}' key is empty")
 
             self.info[key] = info[key]
-
-        # TODO: Compatibility code. Remove in 2026. In version 1.0.47 the "cpunum" key was renamed
-        # to "cpus".
-        if "cpunum" in info:
-            info["cpus"] = info.pop("cpunum")
-        if info.get("cpus"):
-            what=f"'cpus' key in '{self.info_path}'"
-            info["cpus"] = Trivial.split_csv_line_int(info["cpus"], what=what)
-
-        self.info["cpus"] = info["cpus"]
 
         if "stinfo" in info:
             self.info["stinfo"] = self._validate_stinfo(info["stinfo"])

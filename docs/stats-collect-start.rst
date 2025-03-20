@@ -13,9 +13,9 @@ Command *'start'*
 =================
 
 usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
-[-K PRIVKEY] [-T TIMEOUT] [--cpus CPUS] [--time-limit LIMIT]
-[-o OUTDIR] [--reportid REPORTID] [--stats STATS]
-[--stats-intervals STATS_INTERVALS] [--list-stats] [--report] COMMAND
+[-K PRIVKEY] [-T TIMEOUT] [--time-limit LIMIT] [-o OUTDIR]
+[--reportid REPORTID] [--stats STATS] [--stats-intervals STATS_INTERVALS]
+[--list-stats] [--report] COMMAND
 
 Run a command and collecting statistics. The COMMAND string may include
 placeholders in "{}" braces, which will be replaced with actual values. The
@@ -56,14 +56,6 @@ General options
 
 **-T** *TIMEOUT*, **--timeout** *TIMEOUT*
    SSH connect timeout in seconds, default is 8.
-
-**--cpus** *CPUS*
-   If the executed command stresses particular CPU numbers, specify them
-   via this option so that the numbers are saved in the test result and
-   later the 'stats-collect report' command will take this into account
-   while generating the test report. CPU numers should be specified as
-   a comma-separated list of integers or integer ranges. For For example,
-   '1-4,7,8,10-12' would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12.
 
 **--time-limit** *LIMIT*
    The time limit for statistics collection, after which the collection

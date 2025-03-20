@@ -58,8 +58,6 @@ def _open_raw_results(args: _ReportCommandArgsType) -> list[RORawResult.RORawRes
         if ToolInfo.TOOLNAME != res.info["toolname"]:
             raise Error(f"Cannot generate '{ToolInfo.TOOLNAME}' report, results are collected with "
                         f"'{res.info['toolname']}':\n{respath}")
-        if args.cpus:
-            res.info["cpus"] = args.cpus
 
         rsts.append(res)
 
@@ -127,6 +125,6 @@ def report_command(arguments):
     logpath = _Common.configure_log_file(args.outdir, ToolInfo.TOOLNAME)
     logpath = Path(logpath).relative_to(args.outdir)
 
-    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, logpath=logpath)
+    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, cpus=args.cpus, logpath=logpath)
     rep.copy_raw = args.copy_raw
     rep.generate()
