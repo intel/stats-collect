@@ -20,7 +20,6 @@ from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.result import _RawResultBase
 from statscollectlibs.result._RawResultBase import RawResultSTInfoTypedDict
 from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -121,9 +120,6 @@ class RORawResult(_RawResultBase.RawResultBase):
         # Type of the workload that was running while statistics were collected.
         self.wltype = ""
 
-        # Label definitions.
-        self._labels_defs: dict[str, MDTypedDict] = {}
-
         # The time-stamp range dictionary.
         self._ts_range: _TimeStampRangeTypedDict = {}
 
@@ -136,23 +132,6 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         if not self.wltype:
             self._detect_wltype()
-
-    def set_label_defs(self, stname, defs):
-        """
-        Set label definitions. The arguments are as follows.
-          * stname - name of the statistics to set label for.
-          * defs - the definitions to set for the label.
-        """
-
-        self._labels_defs[stname] = defs
-
-    def get_label_defs(self, stname):
-        """
-        Return label definitions. The arguments are as follows.
-          * stname - name of the statistics to return the label definitions for.
-        """
-
-        return self._labels_defs.get(stname, {})
 
     def set_timestamp_limits(self, begin_ts, end_ts, absolute=True):
         """

@@ -19,7 +19,7 @@ from statscollectlibs.mdc import MDCBase, InterruptsMDC
 from statscollectlibs.dfbuilders import _InterruptsDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.htmlreport.tabs._TabBuilderBase import MDTypedDict
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
@@ -179,6 +179,6 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=lres.cpus)
 
             dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
-            self._hover_defs[lres.reportid] = lres.res.get_label_defs(self.stname)
+            self._hover_defs[lres.reportid] = lres.lmdd
 
         return dfs

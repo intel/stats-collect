@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 # vim: ts=4 sw=4 tw=100 et ai si
 #
 # Copyright (C) 2025 Intel Corporation
@@ -17,6 +17,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.result import RORawResult
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -102,6 +103,9 @@ class LoadedResult:
         self.cpus = cpus
 
         self.reportid = self.res.reportid
+
+        # Tha labels metrics definition dictionary.
+        self.lmdd: dict[str, MDTypedDict] = {}
 
         # Note. The lables files include data for multiple statsistics, and they are per-statistics
         # collection agent (stc-agent), so there may be only one or 2 labels files (for local

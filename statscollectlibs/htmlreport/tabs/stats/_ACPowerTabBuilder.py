@@ -18,7 +18,7 @@ from statscollectlibs.mdc import ACPowerMDC
 from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.htmlreport.tabs._TabBuilderBase import MDTypedDict
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the AC Power statistics tab."""
@@ -48,7 +48,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
                 continue
 
             dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
-            self._hover_defs[lres.reportid] = lres.res.get_label_defs(self.stname)
+            self._hover_defs[lres.reportid] = lres.lmdd
 
         mdo = ACPowerMDC.ACPowerMDC()
 
@@ -70,7 +70,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         power_metric = "P"
 
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, None)
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, self._hover_defs)
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name

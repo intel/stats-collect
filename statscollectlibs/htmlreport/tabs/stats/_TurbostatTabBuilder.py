@@ -21,7 +21,7 @@ from statscollectlibs.mdc import MDCBase, TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.htmlreport.tabs._TabBuilderBase import MDTypedDict
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
@@ -308,6 +308,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dfs[lres.reportid] = lres.res.load_stat("turbostat", dfbldr)
             self._col2metric.update(dfbldr.col2metric)
-            self._hover_defs[lres.reportid] = lres.res.get_label_defs("turbostat")
+            self._hover_defs[lres.reportid] = lres.lmdd
 
         return dfs
