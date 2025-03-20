@@ -123,6 +123,36 @@ Cx:
         - '(POLL)'
         - '(C\d+[ESP]*)'
         - '(C\d+ACPI)'
+Cx-:
+    title: "Too deep {groups[0]} requests count"
+    descr: >-
+        The number of times Linux requested the {groups[0]} C-state during the measurement interval,
+        but a shallower C-state should have been requested, because the actual idle time in
+        {groups[0]} was shorter or equivalent than the target residency of the pervious C-state.
+        Turbostat retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/above'.
+    type: "int"
+    scope: "CPU"
+    categories: ["C-state", "Requested"]
+    patterns:
+        - '(POLL)-'
+        - '(C\d+[ESP]*)-'
+        - '(C\d+ACPI)-'
+Cx+:
+    title: "Too shallow {groups[0]} requests count"
+    descr: >-
+        The number of times Linux requested the {groups[0]} C-state during the measurement interval,
+        but a deeper C-state should have been requested, because the actual idle time in {groups[0]}
+        was longer or equivalent than the target residency of the pervious C-state. Turbostat
+        retrieves these values from sysfs files located at
+        '/sys/devices/system/cpu/cpu*/cpuidle/state*/below'.
+    type: "int"
+    scope: "CPU"
+    categories: ["C-state", "Requested"]
+    patterns:
+        - '(POLL)\+'
+        - '(C\d+[ESP]*)\+'
+        - '(C\d+ACPI)\+'
 Cx%:
     title: "{groups[0]} residency"
     descr: >-
