@@ -39,14 +39,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "TimeElapsed"
 
-        dfs = {}
-        dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
-        for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
-
-            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
-
+        dfs = self._load_dfs(lrsts)
         mdo = ACPowerMDC.ACPowerMDC()
 
         super().__init__(dfs, mdo.mdd, outdir, basedir=basedir)
@@ -72,3 +65,25 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name
         return dtab_cfg
+
+    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
+        """
+        Load the AC power statistics dataframes for results in 'lrsts'.
+
+        Args:
+            lrsts: The loaded test result objects to load the dataframes for.
+
+        Returns:
+            A dictionary with keys being report IDs and values being AC power statistics dataframes.
+        """
+
+        dfs = {}
+        for lres in lrsts:
+            if self.stname not in lres.res.info["stinfo"]:
+                continue
+
+            dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
+
+            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
+
+        return dfs
