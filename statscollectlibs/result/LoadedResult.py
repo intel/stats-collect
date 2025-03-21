@@ -97,7 +97,7 @@ class LoadedStatsitic:
         self.df = pandas.DataFrame()
 
         self.mdd: dict[str, MDTypedDict] = {}
-        self.categories: dict[str, Any]
+        self.categories: dict[str, Any] = {}
 
     def load(self):
         """TODO"""
@@ -112,8 +112,10 @@ class LoadedStatsitic:
         if self.stname == "turbostat":
             from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 
-            self.df = self.res.load_stat(self.stname,
-                                         _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus))
+            turbostat_dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus))
+            self.df = self.res.load_stat(self.stname, turbostat_dfbldr)
+            self.mdd = turbostat_dfbldr.mdo.mdd
+            self.categories = turbostat_dfbldr.mdo.categories
         elif self.stname == "interrupts":
             from statscollectlibs.dfbuilders import _InterruptsDFBuilder
 

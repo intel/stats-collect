@@ -19,6 +19,7 @@ import pandas
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
+from statscollectlibs.mdc import TurbostatMDC
 
 def split_colname(colname):
     """
@@ -56,6 +57,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         self._cpus = cpus
+        self.mdo: TurbostatMDC.TurbostatMDC | None = None
 
         super().__init__("Time_Of_Day_Seconds", "TimeElapsed")
 
@@ -173,6 +175,8 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Initialise 'df' with the first datapoint in the raw statistics file.
         df = self._turbostat_to_df(parsed_dp)
+
+        self.mdo = TurbostatMDC.TurbostatMDC(list(parsed_dp["totals"]))
 
         # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
         for parsed_dp in generator:
