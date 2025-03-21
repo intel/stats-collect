@@ -19,7 +19,6 @@ from statscollectlibs.mdc import MDCBase, InterruptsMDC
 from statscollectlibs.dfbuilders import _InterruptsDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
@@ -40,8 +39,6 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "TimeElapsed"
         self._ts_metric = "Timestamp"
-
-        self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
 
         # The column names to include in the interrupts statistics tab.
         self._tab_colnames: list[str] = []
@@ -143,8 +140,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             if scope not in dtabs:
                 dtabs[scope] = {"Interrupts Rate": [], "Interrupts Count": []}
 
-            dtab = self._build_def_dtab_cfg(colname, self._time_metric, self._hover_defs,
-                                            title=metric)
+            dtab = self._build_def_dtab_cfg(colname, self._time_metric, {}, title=metric)
             if metric.endswith("_rate"):
                 dtabs[scope]["Interrupts Rate"].append(dtab)
             else:
@@ -179,6 +175,5 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=lres.cpus)
 
             dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
-            self._hover_defs[lres.reportid] = lres.lmdd
 
         return dfs

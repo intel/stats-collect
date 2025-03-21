@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2024 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
 Provide the capability of populating the IPMI statistics tab.
@@ -19,7 +20,6 @@ from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -44,7 +44,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                      Defaults to 'outdir'.
         """
 
-        self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
         self._time_metric = "TimeElapsed"
 
         # Metric definition dictionary for all metrics in all raw results.
@@ -110,8 +109,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, self._time_metric, self._hover_defs,
-                                                title=metric)
+                dtab = self._build_def_dtab_cfg(metric, self._time_metric, {}, title=metric)
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)
@@ -154,7 +152,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                         self._categories[category] = []
                     self._categories[category] += cat_metrics
 
-                self._hover_defs[lres.reportid] = lres.lmdd
                 found_stnames.add(stname)
                 break
 

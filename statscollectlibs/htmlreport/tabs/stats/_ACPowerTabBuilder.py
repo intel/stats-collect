@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
 Provide the capability of populating the AC Power statistics tab.
@@ -18,7 +19,6 @@ from statscollectlibs.mdc import ACPowerMDC
 from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the AC Power statistics tab."""
@@ -39,8 +39,6 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "TimeElapsed"
 
-        self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
-
         dfs = {}
         dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
         for lres in lrsts:
@@ -48,7 +46,6 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
                 continue
 
             dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
-            self._hover_defs[lres.reportid] = lres.lmdd
 
         mdo = ACPowerMDC.ACPowerMDC()
 
@@ -70,7 +67,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         power_metric = "P"
 
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, self._hover_defs)
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, {})
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name

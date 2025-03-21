@@ -21,7 +21,6 @@ from statscollectlibs.mdc import MDCBase, TurbostatMDC
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
@@ -44,7 +43,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._mdo: TurbostatMDC.TurbostatMDC
         self._snames: list[str] = []
-        self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
 
         dfs = self._load_dfs(lrsts)
 
@@ -137,8 +135,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            dtab = self._build_def_dtab_cfg(colname, self._time_metric, self._hover_defs,
-                                            title=metric)
+            dtab = self._build_def_dtab_cfg(colname, self._time_metric, {}, title=metric)
             dtabs.append(dtab)
 
         if dtabs:
@@ -279,6 +276,5 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=lres.cpus)
 
             dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
-            self._hover_defs[lres.reportid] = lres.lmdd
 
         return dfs
