@@ -46,50 +46,48 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._snames: list[str] = []
         self._hover_defs: dict[str, dict[str, MDTypedDict]] = {}
 
-        # A dictionary mapping 'pandas.DataFrame' column names to the corresponding turbostat metric
-        # name. E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
-        self._col2metric: dict[str, str] = {}
-
         dfs = self._load_dfs(lrsts)
 
-        # Build a list of all the available turbostat metric names. Maintain the turbostat-defined
-        # order.
-        metrics = []
-        metrics_set = set()
-        for metric in self._col2metric.values():
-            if metric not in metrics_set:
-                metrics.append(metric)
-                metrics_set.add(metric)
+        metrics: list[str] = []
+        metrics_set: set[str] = set()
+        snames_set: set[str] = set()
+
+        # Build a the list metrics and scope names.
+        for df in dfs.values():
+            for colname in df.columns:
+                sname, metric = _TurbostatDFBuilder.split_colname(colname)
+                if sname is not None and sname not in snames_set:
+                    snames_set.add(sname)
+                    self._snames.append(sname)
+                if metric not in metrics_set:
+                    metrics_set.add(metric)
+                    metrics.append(metric)
 
         # Create a metrics definition object which covers all metrics across all the results.
         self._mdo = TurbostatMDC.TurbostatMDC(metrics)
 
-        # The dataframes include more columns than 'self._mdo.mdd' has metrics. TODO: better build
-        # smaller dataframes without unnecessary metrics.
-        colnames = []
-        for colname, metric in self._col2metric.items():
-            if metric in self._mdo.mdd:
-                colnames.append(colname)
+        # The 'slf.mdo.mdd' Metrics Definition Dictionary includes metric names. But the dataframes
+        # include column names. Build a Metrics Definition Dictionary for column names.
+        colnames: list[str] = []
+        colnames_set: set[str] = set()
+
+        for df in dfs.values():
+            for colname in df.columns:
+                _, metric = _TurbostatDFBuilder.split_colname(colname)
+                if metric not in self._mdo.mdd:
+                    continue
+                if colname not in colnames_set:
+                    colnames.append(colname)
+                    colnames_set.add(colname)
 
         mdd = self._build_mdd(self._mdo.mdd, colnames)
 
-        outdir = outdir / self.name
-        super().__init__(dfs, mdd, outdir, basedir=basedir)
+        super().__init__(dfs, mdd, outdir / self.name, basedir=basedir)
 
         # Convert the elapsed time column in dataframes to the "datetime" format so that
         # diagrams use a human-readable format.
         for df in dfs.values():
             df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
-
-        # Build the list of scope names.
-        found_snames = set()
-        for colname in self._mdd:
-            sname, _ = _TurbostatDFBuilder.split_colname(colname)
-            if not sname:
-                continue
-            if sname not in found_snames:
-                found_snames.add(sname)
-                self._snames.append(sname)
 
     def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
                    colnames: list[str]) -> dict[str, _TabBuilderBase.MDTypedDict]:
@@ -275,13 +273,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dfs = {}
         for lres in lrsts:
-            if "turbostat" not in lres.res.info["stinfo"]:
+            if self.stname not in lres.res.info["stinfo"]:
                 continue
 
             dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=lres.cpus)
 
-            dfs[lres.reportid] = lres.res.load_stat("turbostat", dfbldr)
-            self._col2metric.update(dfbldr.col2metric)
+            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
             self._hover_defs[lres.reportid] = lres.lmdd
 
         return dfs

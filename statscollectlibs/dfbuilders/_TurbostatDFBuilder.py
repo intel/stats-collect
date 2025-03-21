@@ -29,7 +29,7 @@ def split_colname(colname):
       * colname - a dataframe column name to split.
     """
 
-    split = colname.split("-")
+    split = colname.split("-", 1)
     if len(split) == 1:
         return None, colname
 
@@ -56,10 +56,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         self._cpus = cpus
-
-        # A dictionary mapping dataframe column names to the corresponding turbostat metric name.
-        # E.g., column "Totals-CPU%c1" will be mapped to 'CPU%c1'.
-        self.col2metric: dict[str, str] = {}
 
         super().__init__("Time_Of_Day_Seconds", "TimeElapsed")
 
@@ -97,7 +93,6 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
             else:
                 colname = f"{prefix}-{metric}"
 
-            self.col2metric[colname] = metric
             cols_dict[colname] = [value]
 
         return cols_dict
