@@ -122,44 +122,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 
-    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
-        """
-        Load the interrupts statistics dataframes for results in 'lrsts'.
-
-        Args:
-            lrsts: The loaded test result objects to load the dataframes for.
-
-        Returns:
-            A dictionary with keys being report IDs and values being interrupts statistics
-            dataframes.
-        """
-
-        dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
-
-        dfs = {}
-        found_stnames = set()
-        for lres in lrsts:
-            for stname in self.stnames:
-                if stname not in lres.res.info["stinfo"]:
-                    continue
-
-                dfs[lres.reportid] = lres.res.load_stat(stname, dfbldr)
-
-                self._mdd.update(dfbldr.mdo.mdd)
-
-                for category, cat_metrics in dfbldr.mdo.categories.items():
-                    if category not in self._categories:
-                        self._categories[category] = []
-                    self._categories[category] += cat_metrics
-
-                found_stnames.add(stname)
-                break
-
-        for category in self._categories:
-            self._categories[category] = Trivial.list_dedup(self._categories[category])
-
-        return dfs
-
     def _message_if_mixed(self, lrsts: list[LoadedResult]):
         """Check if in-band and out-of-band IPMI statistics are mixed."""
 
@@ -191,3 +153,40 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 msg += f"\n    * {path}"
 
         _LOG.notice("A mix of in-band and out-of-band IPMI statistics detected:%s", msg)
+
+    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
+        """
+        Load the IPMI statistics dataframes for results in 'lrsts'.
+
+        Args:
+            lrsts: The loaded test result objects to load the dataframes for.
+
+        Returns:
+            A dictionary with keys being report IDs and values being IPMI statistics dataframes.
+        """
+
+        dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
+
+        dfs = {}
+        found_stnames = set()
+        for lres in lrsts:
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
+
+                dfs[lres.reportid] = lres.res.load_stat(stname, dfbldr)
+
+                self._mdd.update(dfbldr.mdo.mdd)
+
+                for category, cat_metrics in dfbldr.mdo.categories.items():
+                    if category not in self._categories:
+                        self._categories[category] = []
+                    self._categories[category] += cat_metrics
+
+                found_stnames.add(stname)
+                break
+
+        for category in self._categories:
+            self._categories[category] = Trivial.list_dedup(self._categories[category])
+
+        return dfs
