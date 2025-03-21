@@ -16,7 +16,6 @@ import string
 from pathlib import Path
 import pandas
 from statscollectlibs.mdc import MDCBase, InterruptsMDC
-from statscollectlibs.dfbuilders import _InterruptsDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -172,8 +171,8 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             if self.stname not in lres.res.info["stinfo"]:
                 continue
 
-            dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=lres.cpus)
+            lres.load_stat(self.stname)
 
-            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
+            dfs[lres.reportid] = lres.lsts[self.stname].df
 
         return dfs

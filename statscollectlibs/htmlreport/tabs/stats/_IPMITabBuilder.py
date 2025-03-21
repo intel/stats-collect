@@ -17,7 +17,6 @@ from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
-from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
@@ -165,25 +164,30 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             A dictionary with keys being report IDs and values being IPMI statistics dataframes.
         """
 
-        dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
 
         dfs = {}
-        found_stnames = set()
         for lres in lrsts:
             for stname in self.stnames:
                 if stname not in lres.res.info["stinfo"]:
                     continue
 
-                dfs[lres.reportid] = lres.res.load_stat(stname, dfbldr)
+                if lres.reportid in dfs:
+                    # Include either in-band or out-of-band statistics, but not both. They are the
+                    # same, just collected with different agents.
+                    continue
 
-                self._mdd.update(dfbldr.mdo.mdd)
+                lres.load_stat(stname)
 
-                for category, cat_metrics in dfbldr.mdo.categories.items():
+                lstat = lres.lsts[stname]
+                dfs[lres.reportid] = lstat.df
+
+                self._mdd.update(lstat.mdd)
+
+                for category, cat_metrics in lstat.categories.items():
                     if category not in self._categories:
                         self._categories[category] = []
                     self._categories[category] += cat_metrics
 
-                found_stnames.add(stname)
                 break
 
         for category in self._categories:

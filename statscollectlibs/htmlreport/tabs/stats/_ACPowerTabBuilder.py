@@ -16,7 +16,6 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 import pandas
 from statscollectlibs.mdc import ACPowerMDC
-from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -82,8 +81,8 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             if self.stname not in lres.res.info["stinfo"]:
                 continue
 
-            dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
+            lres.load_stat(self.stname)
 
-            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
+            dfs[lres.reportid] = lres.lsts[self.stname].df
 
         return dfs

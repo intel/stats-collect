@@ -14,6 +14,8 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import json
 from pathlib import Path
+from typing import Any
+import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.result import RORawResult
@@ -71,19 +73,65 @@ class LoadedStatsitic:
     multiple statistics per test result.
     """
 
-    def __init__(self, stname: str, res: RORawResult.RORawResult, lls: LoadedLabels | None = None):
+    def __init__(self,
+                 stname: str,
+                 res: RORawResult.RORawResult,
+                 ll: LoadedLabels | None = None,
+                 cpus: list[int] | None = None):
         """
         Initialize a class instance.
 
         Args:
             stname: The name of the statistic this object represents.
             res: The raw result object containing the statistics data.
-            lls: The loaded labels object for this statistic, or 'None' if there are no labels.
+            ll: The loaded labels object for this statistic, or 'None' if there are no labels.
+            cpus: List of CPU numbers to include load the statistics for. Default is to load for all
+                  CPUs.
         """
 
         self.stname = stname
         self.res = res
-        self.lls = lls
+        self.ll = ll
+        self.cpus = cpus
+
+        self.df = pandas.DataFrame()
+
+        self.mdd: dict[str, MDTypedDict] = {}
+        self.categories: dict[str, Any]
+
+    def load(self):
+        """TODO"""
+
+        _LOG.debug(f"Loading statistics '{self.stname}'")
+
+        # Load the lables.
+        if self.ll:
+            self.ll.load()
+
+        # pylint: disable=import-outside-toplevel
+        if self.stname == "turbostat":
+            from statscollectlibs.dfbuilders import _TurbostatDFBuilder
+
+            self.df = self.res.load_stat(self.stname,
+                                         _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus))
+        elif self.stname == "interrupts":
+            from statscollectlibs.dfbuilders import _InterruptsDFBuilder
+
+            self.df = self.res.load_stat(self.stname,
+                                         _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self.cpus))
+        elif self.stname == "acpower":
+            from statscollectlibs.dfbuilders import _ACPowerDFBuilder
+
+            self.df = self.res.load_stat(self.stname, _ACPowerDFBuilder.ACPowerDFBuilder())
+        elif self.stname in ("ipmi-inband", "ipmi-oob"):
+            from statscollectlibs.dfbuilders import _IPMIDFBuilder
+
+            ipmi_dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
+            self.df = self.res.load_stat(self.stname, ipmi_dfbldr)
+            self.mdd = ipmi_dfbldr.mdo.mdd
+            self.categories = ipmi_dfbldr.mdo.categories
+        else:
+            raise Error(f"Unsupported statistic '{self.stname}'")
 
 class LoadedResult:
     """The loaded version of a raw test result."""
@@ -113,7 +161,7 @@ class LoadedResult:
         self.lls: dict[str, LoadedLabels] = {}
 
         # Loaded statistics.
-        self.lstats: dict[str, LoadedStatsitic] = {}
+        self.lsts: dict[str, LoadedStatsitic] = {}
 
         # Map labels file paths to 'LoadedLabels' objects.
         lpath2lls: dict[Path, LoadedLabels] = {}
@@ -136,4 +184,18 @@ class LoadedResult:
 
         # Build the loaded statistics objects, but do not actually load them yet.
         for stname, stinfo in self.res.info["stinfo"].items():
-            self.lstats[stname] = LoadedStatsitic(stname, self.res, lls=self.lls.get(stname))
+            self.lsts[stname] = LoadedStatsitic(stname, self.res, ll=self.lls.get(stname),
+                                                cpus=self.cpus)
+
+    def load_stat(self, stname: str):
+        """
+        Parse the raw statistics file and build pandas dataframe.
+
+        Args:
+            stname: The name of the statistic to load the data frame for.
+        """
+
+        if stname not in self.lsts:
+            return
+
+        self.lsts[stname].load()

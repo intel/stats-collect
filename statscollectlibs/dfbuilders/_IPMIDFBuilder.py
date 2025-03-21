@@ -65,7 +65,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             # Read the first data point from raw statistics file.
             parsed_dp = next(parser)
         except StopIteration as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"empty or incorrectly formatted IPMI raw statistics file:\n"
                         f"{errmsg}") from err
 

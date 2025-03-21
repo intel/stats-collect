@@ -273,8 +273,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             if self.stname not in lres.res.info["stinfo"]:
                 continue
 
-            dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=lres.cpus)
+            lres.load_stat(self.stname)
 
-            dfs[lres.reportid] = lres.res.load_stat(self.stname, dfbldr)
+            dfs[lres.reportid] = lres.lsts[self.stname].df
 
         return dfs
