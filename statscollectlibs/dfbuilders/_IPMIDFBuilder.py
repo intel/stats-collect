@@ -17,6 +17,10 @@ Terminology.
                "category, dash, metric name".
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from pathlib import Path
+from typing import Any
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.mdc import IPMIMDC
@@ -28,10 +32,26 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
     Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
     """
 
+    def __init__(self):
+        """The class constructor."""
+
+        self.mdo: IPMIMDC.IPMIMDC | None = None
+        super().__init__("timestamp", "TimeElapsed")
+
+    # TODO: annotate IPMIparser, use correct type in this module.
     @staticmethod
-    def _ipmi_to_df(parsed_dp, include_metrics=None):
+    def _ipmi_to_df(parsed_dp: dict[str, tuple[Any, str]], include_metrics: set[str] | None = None):
         """
-        Convert an 'IPMIParser' datapoint dictionary to a 'pandas.DataFrame' object.
+        Convert a parsed IPMI datapoint dictionary from IPMI parser to a pandas dataframe.
+
+        Args:
+            parsed_dp: Parsed datapoint dictionary from the 'IPMIParser'.
+            include_metrics: A set of metric names to include in the dataframe. If None, include all
+                             metrics.
+
+        Returns:
+            pandas.DataFrame: A dataframe containing the metrics as columns and their values in the
+                              rows.
         """
 
         def _reduce_dp():
@@ -53,10 +73,15 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         reduced_dp = {metric:[val] for metric, val in _reduce_dp()}
         return pandas.DataFrame.from_dict(reduced_dp)
 
-    def _read_stats_file(self, path):
+    def _read_stats_file(self, path: Path) -> pandas.DataFrame:
         """
-        Return a 'pandas.DataFrame' object containing the data stored in the raw IPMI statistics
-        file at 'path'.
+        Read a raw IPIP statistics file and return its data as a pandas dataframe.
+
+        Args:
+            path: The file path to the raw IPMI statistics file.
+
+        Returns:
+            pandas.DataFrame: A DataFrame containing the data from the IPMI statistics file.
         """
 
         parser = IPMIParser.IPMIParser(path, derivatives=True).next()
@@ -81,9 +106,3 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
         return sdf
-
-    def __init__(self):
-        """The class constructor."""
-
-        self.mdo: IPMIMDC.IPMIMDC | None = None
-        super().__init__("timestamp", "TimeElapsed")
