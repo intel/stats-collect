@@ -17,6 +17,7 @@ from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
 
@@ -45,20 +46,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "TimeElapsed"
 
-        # Metric definition dictionary for all metrics in all raw results.
-        self._mdd = {}
-        # Categories dictionary for all metrics in all results. Keys are the category name, values
-        # are list of IPMI metrics belonging to the category.
-        self._categories: dict[str, list[str]] = {}
-
         self._message_if_mixed(lrsts)
 
-        dfs = self._load_dfs(lrsts)
+        dfs, mdd, self._categories = self._load(lrsts)
 
-        # There will be C-tab for each category, except for the time-stamps.
-        del self._categories["Timestamp"]
-
-        super().__init__(dfs, self._mdd, outdir, basedir=basedir)
+        super().__init__(dfs, mdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.
@@ -70,8 +62,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         Get a 'TabConfig.DTabConfig' instance with the default interrupts tab configuration.
 
         Returns:
-            TabConfig.CTabConfig: The default configuration for the IPMI tab, including 
-            container tabs and their respective data tabs.
+            TabConfig.CTabConfig: The default configuration for the IPMI tab, including container
+            tabs and their respective data tabs.
 
         Notes:
             The IPMI default tab configuration includes container tabs for the following categories:
@@ -153,19 +145,29 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         _LOG.notice("A mix of in-band and out-of-band IPMI statistics detected:%s", msg)
 
-    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
+    def _load(self, lrsts: list[LoadedResult]) -> tuple[dict[str, pandas.DataFrame],
+                                                        dict[str, MDCBase.MDTypedDict],
+                                                        dict[str, list[str]]]:
         """
-        Load the IPMI statistics dataframes for results in 'lrsts'.
+        Build pandas dataframes for the IPMI statistics data. Merge MDDs of test results into a
+        single MDD (in case some test results include metric other test results do not include).
+        Merge categories of test results into a single dictionary. Return the dataframes, merged MDD
+        and merged categories dictionary.
 
         Args:
-            lrsts: The loaded test result objects to load the dataframes for.
+            lrsts: A list of loaded test result objects to process.
 
         Returns:
-            A dictionary with keys being report IDs and values being IPMI statistics dataframes.
+            tuple:
+                - A dataframes dictionarie with report IDs as keys.
+                - A merged metrdics definition dictionary (MDD).
+                - A dmerged categories dictionary.
         """
 
-
         dfs = {}
+        mdd: dict[str, MDCBase.MDTypedDict] = {}
+        categories: dict[str, list[str]] = {}
+
         for lres in lrsts:
             for stname in self.stnames:
                 if stname not in lres.res.info["stinfo"]:
@@ -181,16 +183,21 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                 lstat = lres.lsts[stname]
                 dfs[lres.reportid] = lstat.df
 
-                self._mdd.update(lstat.mdd)
+                mdd.update(lstat.mdd)
 
                 for category, cat_metrics in lstat.categories.items():
-                    if category not in self._categories:
-                        self._categories[category] = []
-                    self._categories[category] += cat_metrics
+                    if category not in categories:
+                        categories[category] = []
+                    categories[category] += cat_metrics
 
                 break
 
-        for category in self._categories:
-            self._categories[category] = Trivial.list_dedup(self._categories[category])
+        for category in categories:
+            categories[category] = Trivial.list_dedup(categories[category])
 
-        return dfs
+        if "Timestamp" in categories:
+            # Remove the "Timestamp" category from the categories dictionary to avoid a "Timestamp"
+            # container tab in the report.
+            del categories["Timestamp"]
+
+        return dfs, mdd, categories
