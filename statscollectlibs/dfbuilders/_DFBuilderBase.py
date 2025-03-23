@@ -146,8 +146,8 @@ class DFBuilderBase:
         except ErrorBadFormat:
             raise
         except Exception as err:
-            raise Error(f"unable to load raw statistics file at path '{path}':\n"
-                        f"{Error(err).indent(2)}") from err
+            errmsg = Error(str(err)).indent(2)
+            raise Error(f"unable to load raw statistics file at path '{path}':\n{errmsg}") from err
 
         if self._ts_colname not in df:
             raise Error(f"metric '{self._ts_colname}' was not found in statistics file '{path}'.")
