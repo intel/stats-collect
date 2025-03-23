@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Author: Adam Hawley <adam.james.hawley@intel.com>
+# Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """Provide the IPMI metrics definition class."""
 
-# TODO: Finish annotating this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+from typing import Any
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.mdc import MDCBase
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class IPMIMDC(MDCBase.MDCBase):
     """
@@ -21,16 +23,35 @@ class IPMIMDC(MDCBase.MDCBase):
     metrics provided by the IPMI raw statistics files.
     """
 
-    @staticmethod
-    def _get_category(unit):
+    # TODO: annotate IPMIparser, use correct type in this module.
+    def __init__(self, parsed_dp: dict[str, tuple[Any, str]]):
         """
-        Return the metric category name by its unit name. Return 'None' if there is no category for
-        the unit. The arguments are as follows.
-          * unit - unit name from the raw IPMI file or the definitions dictionary (there is a
-                   difference, e.g., "Amps" vs "Amp").
+        Initialize a class instance.
 
-        Get the name of an IPMI metric category by its unit name. Return 'None' if there is no
-        category for the unit.
+        Args:
+            parsed_dp: Parsed datapoint dictionary from the 'IPMIParser'.
+
+        Notes:
+            IPMI metrics are not predefined. The metrics definitions dictionary is dynamically
+            constructed from the 'parsed_dp' dictionary.
+        """
+
+        self.categories: dict[str, list[str]] = {}
+
+        super().__init__("stats-collect", Path("defs/statscollect/ipmi.yml"))
+        self._populate(parsed_dp)
+
+    @staticmethod
+    def _get_category(unit: str) -> str | None:
+        """
+        Metrics are categorized based on the unit. For example, "RPM" metrics are categorized as fan
+        speed. Return the category name based on the unit.
+
+        Args:
+            unit: The unit name of a metric.
+
+        Returns:
+            str: The name of the metric category, or 'None' if no category exists for the unit.
         """
 
         unit2category = {
@@ -42,10 +63,16 @@ class IPMIMDC(MDCBase.MDCBase):
         }
         return unit2category.get(unit)
 
-    def _populate(self, parsed_dp):
+    def _populate(self, parsed_dp: dict[str, tuple[Any, str]]):
         """
-        Populate the 'self.mdd' dictionary with metric names and categories.
+        Populate the 'self.mdd' dictionary with metric information using a parsed IPMI datapoint
+        from the IPMI parser.
+
+        Args:
+            parsed_dp: Parsed datapoint dictionary from the 'IPMIParser'.
         """
+
+        category: str | None
 
         # The IPMI metrics definition file includes only category names, except for "TimeElapsed"
         # and "timestamp", which are metric names.
@@ -57,7 +84,7 @@ class IPMIMDC(MDCBase.MDCBase):
                 continue
             self.categories[category] = []
 
-        new_mdd = {}
+        new_mdd: dict[str, MDTypedDict] = {}
 
         for metric, val in parsed_dp.items():
             unit = val[1]
@@ -72,27 +99,14 @@ class IPMIMDC(MDCBase.MDCBase):
                     continue
             else:
                 md = self.mdd.get(category)
-                if not md:
-                    raise Error(f"IPMI category '{category}' was not found in '{self.path}'")
+
+            if not md:
+                raise Error(f"IPMI category '{category}' was not found in '{self.path}'")
 
             new_mdd[metric] = md.copy()
-            new_mdd[metric]["Title"] = metric
-            new_mdd[metric]["category"] = category
+            new_mdd[metric]["title"] = metric
+            new_mdd[metric]["categories"] = [category]
 
             self.categories[category].append(metric)
 
         self.mdd = new_mdd
-
-    def __init__(self, parsed_dp):
-        """
-        The class constructor. The arguments are as follows.
-          * parsed_dp - the parsed datapoint dictionary from the 'IPMIParser'.
-
-        IMPI metrics are not known in advance, and metrics definitions dictionary is built
-        on-the-fly from the 'parsed_dp' dictionary.
-        """
-
-        self.categories = {}
-
-        super().__init__("stats-collect", Path("defs/statscollect/ipmi.yml"))
-        self._populate(parsed_dp)
