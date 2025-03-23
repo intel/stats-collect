@@ -15,7 +15,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 import pandas
-from statscollectlibs.mdc import ACPowerMDC
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -39,9 +39,9 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         self._time_metric = "TimeElapsed"
 
         dfs = self._load_dfs(lrsts)
-        mdo = ACPowerMDC.ACPowerMDC()
+        mdd = self._get_merged_mdd(lrsts)
 
-        super().__init__(dfs, mdo.mdd, outdir, basedir=basedir)
+        super().__init__(dfs, mdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.
@@ -86,3 +86,24 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[lres.reportid] = lres.lsts[self.stname].df
 
         return dfs
+
+    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDTypedDict]:
+        """
+        Merge MDDs from different results into a single dictionary (in case some results include
+        metrics not present in other test results).
+
+        Args:
+            lrsts: The loaded test result objects to merge the MDDs for.
+
+        Returns:
+            The merged MDD.
+        """
+
+        mdd: dict[str, MDTypedDict] = {}
+        for lres in lrsts:
+            if self.stname not in lres.res.info["stinfo"]:
+                continue
+
+            mdd.update(lres.lsts[self.stname].mdd)
+
+        return mdd

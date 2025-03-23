@@ -126,12 +126,19 @@ class LoadedStatsitic:
         elif self.stname == "acpower":
             from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 
-            self.df = self.res.load_stat(self.stname, _ACPowerDFBuilder.ACPowerDFBuilder())
+            acpower_dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
+            self.df = self.res.load_stat(self.stname, acpower_dfbldr)
+
+            assert acpower_dfbldr.mdo is not None
+            self.mdd = acpower_dfbldr.mdo.mdd
+
         elif self.stname in ("ipmi-inband", "ipmi-oob"):
             from statscollectlibs.dfbuilders import _IPMIDFBuilder
 
             ipmi_dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
             self.df = self.res.load_stat(self.stname, ipmi_dfbldr)
+
+            assert ipmi_dfbldr.mdo is not None
             self.mdd = ipmi_dfbldr.mdo.mdd
             self.categories = ipmi_dfbldr.mdo.categories
         else:
