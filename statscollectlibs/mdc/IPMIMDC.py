@@ -8,6 +8,9 @@
 
 """Provide the IPMI metrics definition class."""
 
+# TODO: Finish annotating this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.mdc import MDCBase

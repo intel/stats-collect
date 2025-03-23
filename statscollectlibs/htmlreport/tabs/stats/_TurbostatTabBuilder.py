@@ -14,10 +14,12 @@ Build and populate the turbostat statistics tab.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
+from typing import Any
 import pandas
+from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
-from statscollectlibs.mdc import MDCBase, TurbostatMDC
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.result.LoadedResult import LoadedResult
@@ -41,10 +43,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         self._time_metric = "TimeElapsed"
 
-        self._mdo: TurbostatMDC.TurbostatMDC
         self._snames: list[str] = []
 
         dfs = self._load_dfs(lrsts)
+        mdd = self._get_merged_mdd(lrsts)
+        self._categories = self.get_merged_categories(lrsts)
 
         metrics: list[str] = []
         metrics_set: set[str] = set()
@@ -61,9 +64,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                     metrics_set.add(metric)
                     metrics.append(metric)
 
-        # Create a metrics definition object which covers all metrics across all the results.
-        self._mdo = TurbostatMDC.TurbostatMDC(metrics)
-
         # The 'slf.mdo.mdd' Metrics Definition Dictionary includes metric names. But the dataframes
         # include column names. Build a Metrics Definition Dictionary for column names.
         colnames: list[str] = []
@@ -72,15 +72,14 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         for df in dfs.values():
             for colname in df.columns:
                 _, metric = _TurbostatDFBuilder.split_colname(colname)
-                if metric not in self._mdo.mdd:
+                if metric not in mdd:
                     continue
                 if colname not in colnames_set:
                     colnames.append(colname)
                     colnames_set.add(colname)
 
-        mdd = self._build_mdd(self._mdo.mdd, colnames)
-
-        super().__init__(dfs, mdd, outdir / self.name, basedir=basedir)
+        columns_mdd = self._build_mdd(mdd, colnames)
+        super().__init__(dfs, columns_mdd, outdir / self.name, basedir=basedir)
 
         # Convert the elapsed time column in dataframes to the "datetime" format so that
         # diagrams use a human-readable format.
@@ -158,15 +157,15 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             None: If no relevant metrics are found.
         """
 
-        # Remember: 'self._mdo.categories' refers to metric names, while 'self._mdd' refers to
+        # Remember: 'self._categories' refers to metric names, while 'self._mdd' refers to
         # column names.
 
         l3_ctabs: list[TabConfig.CTabConfig] = []
 
         # Create a combined level 3 C-tab for frequency-related metrics, both core and uncore.
-        if "Frequency" in self._mdo.categories:
+        if "Frequency" in self._categories:
             metrics: list[str] = []
-            for cs_metrics in self._mdo.categories["Frequency"].values():
+            for cs_metrics in self._categories["Frequency"].values():
                 metrics += cs_metrics
 
             l3_ctab = self._build_ctab_cfg("Frequency", metrics, sname)
@@ -174,18 +173,18 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 l3_ctabs.append(l3_ctab)
 
         # Create a level 3 C-tab for C-state metrics.
-        if "C-state" in self._mdo.categories:
+        if "C-state" in self._categories:
             cs_l3_ctabs: list[TabConfig.CTabConfig] = []
 
-            if "Hardware" in self._mdo.categories["C-state"]:
-                metrics = self._mdo.categories["C-state"]["Hardware"]
+            if "Hardware" in self._categories["C-state"]:
+                metrics = self._categories["C-state"]["Hardware"]
                 l3_ctab = self._build_ctab_cfg("Hardware", metrics, sname)
                 if l3_ctab:
                     cs_l3_ctabs.append(l3_ctab)
 
-            if "Requested" in self._mdo.categories["C-state"]:
+            if "Requested" in self._categories["C-state"]:
                 # The requested C-states category and their sub-categories.
-                subcats = self._mdo.categories["C-state"]["Requested"]
+                subcats = self._categories["C-state"]["Requested"]
 
                 l4_ctabs: list[TabConfig.CTabConfig] = []
 
@@ -203,18 +202,18 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 l3_ctabs.append(l3_ctab)
 
         # Add S-states level 3 C-tab.
-        if "S-state" in self._mdo.categories:
-            metrics = self._mdo.categories["S-state"]
+        if "S-state" in self._categories:
+            metrics = self._categories["S-state"]
             l3_ctab = self._build_ctab_cfg("S-states", metrics, sname)
             if l3_ctab:
                 l3_ctabs.append(l3_ctab)
 
         # Create a combined level 3 C-tab for temperature and power metrics.
         metrics = []
-        if "Power" in self._mdo.categories:
-            metrics += self._mdo.categories["Power"]
-        if "Temperature" in self._mdo.categories:
-            metrics += self._mdo.categories["Temperature"]
+        if "Power" in self._categories:
+            metrics += self._categories["Power"]
+        if "Temperature" in self._categories:
+            metrics += self._categories["Temperature"]
         if metrics:
             l3_ctab = self._build_ctab_cfg("Power / Temperature", metrics, sname)
             if l3_ctab:
@@ -222,10 +221,10 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         # Create a combined level 3 C-tab for the rest of the metrics.
         metrics = []
-        if "Interrupts" in self._mdo.categories:
-            metrics += self._mdo.categories["Interrupts"]
-        if "Instructions" in self._mdo.categories:
-            metrics += self._mdo.categories["Instructions"]
+        if "Interrupts" in self._categories:
+            metrics += self._categories["Interrupts"]
+        if "Instructions" in self._categories:
+            metrics += self._categories["Instructions"]
         if metrics:
             l3_ctab = self._build_ctab_cfg("Miscellaneous", metrics, sname)
             if l3_ctab:
@@ -278,3 +277,72 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[lres.reportid] = lres.lsts[self.stname].df
 
         return dfs
+
+    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDCBase.MDTypedDict]:
+        """
+        Merge MDDs from different results into a single dictionary (in case some results include
+        metrics not present in other test results).
+
+        Args:
+            lrsts: The loaded test result objects to merge the MDDs for.
+
+        Returns:
+            The merged MDD.
+        """
+
+        mdd: dict[str, MDCBase.MDTypedDict] = {}
+        for lres in lrsts:
+            if self.stname not in lres.res.info["stinfo"]:
+                continue
+
+            mdd.update(lres.lsts[self.stname].mdd)
+
+        return mdd
+
+    def get_merged_categories(self, lrsts: list[LoadedResult]) -> dict[str, Any]:
+        """
+        Merge categories from different results into a single dictionary (in case some of the test
+        results include categories or metrics not present in other test results).
+
+        Args:
+            lrsts: The loaded test result objects to merge the categories for.
+
+        Returns:
+            The merged categories dictionary.
+        """
+
+        def _merge(merged_categories: dict[str, Any], categories: dict[str, Any]) -> None:
+            """
+            Recursively merge the contents of one dictionary into another. The recursion is because
+            the categories dictionary can have nested dictionaries of varying depths.
+
+            Args:
+                merged_categories: The dictionary to merge into.
+                categories: The dictionary to merge from.
+            """
+
+            cat_value: dict[str, Any] | list[str]
+
+            for category, cat_value in categories.items():
+                if category not in merged_categories:
+                    if isinstance(cat_value, list):
+                        merged_categories[category] = []
+                    else:
+                        merged_categories[category] = {}
+
+                if isinstance(cat_value, list):
+                    merged_categories[category] = Trivial.list_dedup(merged_categories[category] +
+                                                                     cat_value)
+                else:
+                    _merge(merged_categories[category], cat_value)
+
+        merged_categories: dict[str, Any] = {}
+
+        for lres in lrsts:
+            if self.stname not in lres.res.info["stinfo"]:
+                continue
+
+            lstat = lres.lsts[self.stname]
+            _merge(merged_categories, lstat.categories)
+
+        return merged_categories

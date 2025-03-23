@@ -112,8 +112,10 @@ class LoadedStatsitic:
         if self.stname == "turbostat":
             from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 
-            turbostat_dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus))
+            turbostat_dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus)
             self.df = self.res.load_stat(self.stname, turbostat_dfbldr)
+
+            assert turbostat_dfbldr.mdo is not None
             self.mdd = turbostat_dfbldr.mdo.mdd
             self.categories = turbostat_dfbldr.mdo.categories
         elif self.stname == "interrupts":
