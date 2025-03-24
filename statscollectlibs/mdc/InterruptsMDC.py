@@ -21,12 +21,17 @@ class InterruptsMDC(MDCBase.MDCBase):
     metrics read from the '/proc/interrupts' file.
     """
 
-    def __init__(self):
+    def __init__(self, metrics: list[str]):
         """
         The class constructor.
+
+        Args:
+            metrics: List of metric names to use for substituting the pattern in the metric
+                     definition dictionary.
         """
 
         super().__init__("stats-collect", Path("defs/statscollect/interrupts.yml"))
+        self.mangle(metrics)
 
     def mangle(self, metrics: list[str], drop_missing: bool = True):
         """

@@ -66,8 +66,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                     metrics.append(metric)
                     metrics_set.add(metric)
 
-        mdo = InterruptsMDC.InterruptsMDC()
-        mdo.mangle(metrics)
+        mdo = InterruptsMDC.InterruptsMDC(metrics)
 
         mdd = self._build_mdd(mdo.mdd, colnames)
 
