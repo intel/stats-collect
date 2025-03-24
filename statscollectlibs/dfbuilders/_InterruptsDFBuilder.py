@@ -19,6 +19,7 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import InterruptsParser
 from statscollectlibs.parsers.InterruptsParser import DataSetTypedDict
+from statscollectlibs.mdc import InterruptsMDC
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -37,6 +38,8 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         self._cpus = cpus
+
+        self.mdo: InterruptsMDC.InterruptsMDC | None = None
 
         # Number of "numerical" interrupts per scope to include. There are many interrupts, but the
         # idea is to include only the most frequent ones. "Numerical" means interrupts referred to
@@ -105,7 +108,10 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
                 self._total_irq_metric: total_irqs,
                 self._total_xyz_metric: total_xyz}
 
-    def _add_dataset(self, dataset: DataSetTypedDict, irq_colnames: list[str], no_data_colnames: list[str]):
+    def _add_dataset(self,
+                     dataset: DataSetTypedDict,
+                     irq_colnames: list[str],
+                     no_data_colnames: list[str]):
         """
         Add a dataset to 'self._data', a temporary dictionary storing all data before building the
         dataframe. The dictionary structure is: "{ index: dataline }", where 'index' is the
@@ -326,4 +332,24 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Remove the first row, because it contains all zeros the column 'diff()' operation.
         df = df.iloc[1:]
 
+        self._build_mdo(list(df.columns))
         return df
+
+    def _build_mdo(self, colnames: list[str]):
+        """
+        Build the the Metrics Definition Object (MDO) based on dataframe column names.
+
+        Args:
+            colnames: The list of dataframe column names.
+        """
+
+        metrics = []
+        metrics_set = set()
+        for colname in colnames:
+            split = colname.split("-", 1)
+            metric = split[-1]
+            if metric not in metrics_set:
+                metrics.append(metric)
+                metrics_set.add(metric)
+
+        self.mdo = InterruptsMDC.InterruptsMDC(metrics)

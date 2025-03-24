@@ -121,8 +121,11 @@ class LoadedStatsitic:
         elif self.stname == "interrupts":
             from statscollectlibs.dfbuilders import _InterruptsDFBuilder
 
-            self.df = self.res.load_stat(self.stname,
-                                         _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self.cpus))
+            interrupts_dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self.cpus)
+            self.df = self.res.load_stat(self.stname, interrupts_dfbldr)
+
+            assert interrupts_dfbldr.mdo is not None
+            self.mdd = interrupts_dfbldr.mdo.mdd
         elif self.stname == "acpower":
             from statscollectlibs.dfbuilders import _ACPowerDFBuilder
 

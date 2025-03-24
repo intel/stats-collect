@@ -15,7 +15,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 import string
 from pathlib import Path
 import pandas
-from statscollectlibs.mdc import MDCBase, InterruptsMDC
+from statscollectlibs.mdc import MDCBase
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -47,8 +47,6 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Compose the list of all column names and all metrics in all dataframes.
         colnames = []
         colnames_set = set()
-        metrics = []
-        metrics_set = set()
         for df in dfs.values():
             for colname in df.columns:
                 if colname not in colnames_set:
@@ -61,16 +59,9 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                     if len(split) == 2:
                         self._tab_colnames.append(colname)
 
-                metric = split[-1]
-                if metric not in metrics_set:
-                    metrics.append(metric)
-                    metrics_set.add(metric)
-
-        mdo = InterruptsMDC.InterruptsMDC(metrics)
-
-        mdd = self._build_mdd(mdo.mdd, colnames)
-
-        super().__init__(dfs, mdd, outdir, basedir=basedir)
+        mdd = self._get_merged_mdd(lrsts)
+        cdd = self._build_mdd(mdd, colnames)
+        super().__init__(dfs, cdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.
@@ -175,3 +166,24 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[lres.reportid] = lres.lsts[self.stname].df
 
         return dfs
+
+    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDCBase.MDTypedDict]:
+        """
+        Merge MDDs from different results into a single dictionary (in case some results include
+        metrics not present in other test results).
+
+        Args:
+            lrsts: The loaded test result objects to merge the MDDs for.
+
+        Returns:
+            The merged MDD.
+        """
+
+        mdd: dict[str, MDCBase.MDTypedDict] = {}
+        for lres in lrsts:
+            if self.stname not in lres.res.info["stinfo"]:
+                continue
+
+            mdd.update(lres.lsts[self.stname].mdd)
+
+        return mdd
