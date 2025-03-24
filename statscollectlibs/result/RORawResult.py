@@ -11,7 +11,6 @@
  # TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import TypedDict
 from pathlib import Path
 from pepclibs.helperlibs import Logging, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
@@ -28,27 +27,6 @@ SUPPORTED_WORKLOADS = {
     "generic": "generic workload",
     "specjbb2015": "SPECjbb2015 benchmark"
 }
-
-class _TimeStampRangeTypedDict(TypedDict, total=False):
-    """
-    Type for a dictionary for storing the time-stamp range for valid or interesting measurement
-    data.
-
-    Attributes:
-        begin: The start time-stamp for measurements. Data collected before this time are not valid
-               or interesting, and should be discarded.
-        end: The end time-stamp for measurements. Data collected after this time are not valid or
-             interesting and should be discarded.
-        absolute: Whether 'begin' and 'end' are absolute or relative time-stamp values. If True, the
-                  values are absolute time since the epoch. If False, the values are relative to the
-                  start of the measurements in seconds. For example, if 'begin' is 5, it means data
-                  collected during the first 5 seconds from the start of the measurements are not
-                  valid or interesting and should be discarded.
-    """
-
-    begin: int
-    end: int
-    absolute: bool
 
 def reportids_dedup(rsts: list[RORawResult]):
     """
@@ -120,9 +98,6 @@ class RORawResult(_RawResultBase.RawResultBase):
         # Type of the workload that was running while statistics were collected.
         self.wltype = ""
 
-        # The time-stamp range dictionary.
-        self._ts_range: _TimeStampRangeTypedDict = {}
-
         self._load_info_yml()
 
         if reportid:
@@ -132,39 +107,6 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         if not self.wltype:
             self._detect_wltype()
-
-    def set_timestamp_limits(self, begin_ts, end_ts, absolute=True):
-        """
-        The statistics track metrics over a period of time. Typically raw statistics files include a
-        timestamp, and metric values at that time, then ext time-stamp and metric values, and so on.
-        In other words, the raw statistics file provide metrics values from time-stamp A to
-        time-stamp B. The time-stamp format is local time since the epoch.
-
-        Sometimes it is desirable to limit the time-stamps. For example, if a workload is known to
-        have some long and uninteresting preparation phases, it may be desirable to exclude them.
-        Provide the new time-stamps A ('begin_ts') and B ('end_ts') to use instead of the full
-        time-stamps range from the raw statistics file. The arguments are as follows.
-          * begin_ts - the measurements start time-stamps. All data collected before 'begin_ts'
-                       will be discarded.
-          * end_ts - the measurements end time-stamp. All data collected after 'end_ts' will be
-                     discarded.
-          * absolute - if 'True', then 'begin_ts' and 'end_ts' are absolute time values - the local
-                       time since the epoch. Otherwise, they are relative values from the beginning
-                       of the measurements in seconds. For example, if 'begin_ts' is 5, this would
-                       mean that all metrics collected during the first 5 seconds from the beginning
-                       of the measurements should be discarded.
-        """
-
-        if begin_ts >= end_ts:
-            raise Error(f"bad raw statistics time-stamp limits: begin time-stamp ({begin_ts}) must "
-                        f"be smaller than the end time-stamp ({end_ts})")
-
-        self._ts_range["begin"] = begin_ts
-        self._ts_range["end"] = end_ts
-        self._ts_range["absolute"] = absolute
-
-        _LOG.debug("set time-stamp limits for report ID '%s': begin %s, end %s, absolute %s",
-                   self.reportid, begin_ts, end_ts, absolute)
 
     def get_stats_path(self, stname):
         """
@@ -187,7 +129,7 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         raise ErrorNotFound(f"raw '{stname}' statistics file not found at path: {path}")
 
-    def _get_labels_path(self, stname):
+    def get_labels_path(self, stname):
         """Return path to the labels file for statistic 'stname'."""
 
         try:
@@ -200,19 +142,6 @@ class RORawResult(_RawResultBase.RawResultBase):
             return path
 
         raise ErrorNotFound(f"no labels file found for statistic '{stname}' at path: {path} '")
-
-    def load_stat(self, stname, dfbldr):
-        """
-        Load data for statistic 'stname'. Returns a 'pandas.DataFrame' containing statistics data.
-        The arguments are as follows.
-          * stname - the name of the statistic for which a 'pandas.DataFrame' should be retrieved.
-          * dfbldr - an instance of '_DFBuilderBase.DFBuilderBase' to use to build a
-                     'pandas.DataFrame' from the raw statistics file.
-        """
-
-        path = self.get_stats_path(stname)
-        labels_path = self._get_labels_path(stname)
-        return dfbldr.load_df(path, labels_path=labels_path, ts_limits=self._ts_range)
 
     def _is_specjbb2015(self) -> bool:
         """

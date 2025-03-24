@@ -14,14 +14,41 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, TypedDict
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
+from statscollectlibs.dfbuilders import _TurbostatDFBuilder, _InterruptsDFBuilder, _ACPowerDFBuilder
+from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.result import RORawResult
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+
+DFBuilderType = Union[_TurbostatDFBuilder.TurbostatDFBuilder,
+                      _InterruptsDFBuilder.InterruptsDFBuilder,
+                      _ACPowerDFBuilder.ACPowerDFBuilder,
+                      _IPMIDFBuilder.IPMIDFBuilder]
+class TimeStampLimitsTypedDict(TypedDict, total=False):
+    """
+    Type for a dictionary for storing the time-stamp range for valid or interesting measurement
+    data.
+
+    Attributes:
+        begin: The start time-stamp for measurements. Data collected before this time are not valid
+               or interesting, and should be discarded.
+        end: The end time-stamp for measurements. Data collected after this time are not valid or
+             interesting and should be discarded.
+        absolute: Whether 'begin' and 'end' are absolute or relative time-stamp values. If True, the
+                  values are absolute time since the epoch. If False, the values are relative to the
+                  start of the measurements in seconds. For example, if 'begin' is 5, it means data
+                  collected during the first 5 seconds from the start of the measurements are not
+                  valid or interesting and should be discarded.
+    """
+
+    begin: int
+    end: int
+    absolute: bool
 
 class LoadedLabels:
     """The loaded lables file class."""
@@ -94,13 +121,33 @@ class LoadedStatsitic:
         self.ll = ll
         self.cpus = cpus
 
+        self._ts_limits: TimeStampLimitsTypedDict = {}
+
         self.df = pandas.DataFrame()
 
         self.mdd: dict[str, MDTypedDict] = {}
         self.categories: dict[str, Any] = {}
 
+    def _build_df(self, dfbldr: DFBuilderType) -> pandas.DataFrame:
+        """
+        Build and return a pandas DataFrame using the provided dataframe builder.
+
+        Args:
+            dfbldr: The dataframe builder object responsible for loading the data.
+
+        Returns:
+            pandas.DataFrame: The constructed dataframe containing the loaded data.
+        """
+
+        path = self.res.get_stats_path(self.stname)
+        labels_path = self.res.get_labels_path(self.stname)
+        return dfbldr.load_df(path, labels_path=labels_path, ts_limits=self._ts_limits)
+
     def load(self):
-        """TODO"""
+        """
+        Parse and load statistics data and labels, build the dataframe for the statistics. Apply the
+        labels and time-stamp limits.
+        """
 
         _LOG.debug(f"Loading statistics '{self.stname}'")
 
@@ -108,44 +155,62 @@ class LoadedStatsitic:
         if self.ll:
             self.ll.load()
 
-        # pylint: disable=import-outside-toplevel
         if self.stname == "turbostat":
-            from statscollectlibs.dfbuilders import _TurbostatDFBuilder
-
             turbostat_dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus)
-            self.df = self.res.load_stat(self.stname, turbostat_dfbldr)
+            self.df = self._build_df(turbostat_dfbldr)
 
             assert turbostat_dfbldr.mdo is not None
             self.mdd = turbostat_dfbldr.mdo.mdd
             self.categories = turbostat_dfbldr.mdo.categories
         elif self.stname == "interrupts":
-            from statscollectlibs.dfbuilders import _InterruptsDFBuilder
-
             interrupts_dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self.cpus)
-            self.df = self.res.load_stat(self.stname, interrupts_dfbldr)
+            self.df = self._build_df(interrupts_dfbldr)
 
             assert interrupts_dfbldr.mdo is not None
             self.mdd = interrupts_dfbldr.mdo.mdd
         elif self.stname == "acpower":
-            from statscollectlibs.dfbuilders import _ACPowerDFBuilder
-
             acpower_dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
-            self.df = self.res.load_stat(self.stname, acpower_dfbldr)
+            self.df = self._build_df(acpower_dfbldr)
 
             assert acpower_dfbldr.mdo is not None
             self.mdd = acpower_dfbldr.mdo.mdd
 
         elif self.stname in ("ipmi-inband", "ipmi-oob"):
-            from statscollectlibs.dfbuilders import _IPMIDFBuilder
-
             ipmi_dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
-            self.df = self.res.load_stat(self.stname, ipmi_dfbldr)
+            self.df = self._build_df(ipmi_dfbldr)
 
             assert ipmi_dfbldr.mdo is not None
             self.mdd = ipmi_dfbldr.mdo.mdd
             self.categories = ipmi_dfbldr.mdo.categories
         else:
             raise Error(f"Unsupported statistic '{self.stname}'")
+
+    def set_timestamp_limits(self, ts_limits: TimeStampLimitsTypedDict):
+        """
+        Set time-stamp limits the statistic.
+
+        Restrict the time range of the collected metrics. Raw statistics files typically consist of
+        a series of time-stamps and corresponding metric values. By default, the entire time range
+        is used from the raw statistics file is loaded. This method enables limiting the range of
+        data that will be loaded.
+
+        Args:
+            ts_limits: a dictionary including the time-stamp range limits. The dictionary is
+                       expected to have the following keys.
+                * begin_ts: The start time-stamp. Discards all data collected before this time.
+                * end_ts: The end time-stamp. Discards all data collected after this time.
+                * absolute: If True, interpret 'begin_ts' and 'end_ts' as absolute time values
+                            (local time since the epoch). If False, interpret them as relative
+                            values in seconds from the beginning of the measurements.
+        """
+
+
+        if ts_limits["begin"] >= ts_limits["end"]:
+            raise Error(f"Bad raw statistics time-stamp limits: begin time-stamp "
+                        f"({ts_limits['begin']}) must be smaller than the end time-stamp "
+                        f"({ts_limits['end']})")
+
+        self._ts_limits = ts_limits.copy()
 
 class LoadedResult:
     """The loaded version of a raw test result."""
@@ -213,3 +278,18 @@ class LoadedResult:
             return
 
         self.lsts[stname].load()
+
+    def set_timestamp_limits(self, ts_limits: TimeStampLimitsTypedDict):
+        """
+        Set time-stamp limits for all statistics in the loaded result. Refer to
+        'LoadedStatsitic.set_timestamp_limits()' for details.
+
+        Args:
+            ts_limits: a dictionary including the time-stamp range limits.
+        """
+
+        _LOG.debug("Set time-stamp limits for report ID '%s': begin %s, end %s, absolute %s",
+                   self.reportid, ts_limits["begin"], ts_limits["end"], ts_limits["absolute"])
+
+        for lst in self.lsts.values():
+            lst.set_timestamp_limits(ts_limits)

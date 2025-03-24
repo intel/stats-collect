@@ -19,7 +19,7 @@ from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.result.LoadedResult import LoadedResult
+from statscollectlibs.result.LoadedResult import LoadedResult, TimeStampLimitsTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -156,8 +156,10 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
 
             # Limit the statistics data to the RT-curve, everything else is usually uninteresting
             # and only clutters the HTML report diagrams.
-            lres.res.set_timestamp_limits(info["first_level_ts"], info["last_level_ts"],
-                                          absolute=True)
+            ts_range: TimeStampLimitsTypedDict = {"begin": info["first_level_ts"],
+                                                  "end": info["last_level_ts"],
+                                                  "absolute": True}
+            lres.set_timestamp_limits(ts_range)
 
             dfs[lres.reportid] = pandas.DataFrame(data)
 
