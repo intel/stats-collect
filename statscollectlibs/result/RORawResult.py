@@ -8,7 +8,6 @@
 
 """Provide the read-only 'stats-collect' raw result class."""
 
- # TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
@@ -108,10 +107,19 @@ class RORawResult(_RawResultBase.RawResultBase):
         if not self.wltype:
             self._detect_wltype()
 
-    def get_stats_path(self, stname):
+    def get_stats_path(self, stname: str) -> Path:
         """
-        Return path to the raw statistics file for statistic 'stname'. The arguments are as follows.
-          * stname - the name of the statistic for which paths should be found.
+        Return the path to the raw statistics file for a given statistic.
+
+        Args:
+            stname: The name of the statistic for which the path should be returned.
+
+        Returns:
+            Path: The path to the raw statistics file.
+
+        Raises:
+            ErrorNotFound: If the statistic raw result does not include the statistics of the raw
+                           statistics file.
         """
 
         try:
@@ -129,8 +137,21 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         raise ErrorNotFound(f"raw '{stname}' statistics file not found at path: {path}")
 
-    def get_labels_path(self, stname):
-        """Return path to the labels file for statistic 'stname'."""
+    def get_labels_path(self, stname: str) -> Path | None:
+        """
+        Return the path to the labels file for the specified statistic. Note, label files are
+        actually not per-statistic, but per statistic collector. So multiple statistics may share
+        the same labels file.
+
+        Args:
+            stname: The name of the statistic for which to return the labels file path.
+
+        Returns:
+            Path: The path to the labels file or None if there are no labels for 'stname'.
+
+        Raises:
+            ErrorNotFound: If the labels file is expected to exist, but it does not.
+        """
 
         try:
             subpath = self.info["stinfo"][stname]["paths"]["labels"]
