@@ -27,19 +27,16 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
     Parse raw interrupt statistics file and build a dataframe.
     """
 
-    def __init__(self, colnames: list[str] | None = None, cpus: list[int] | None = None):
+    def __init__(self, cpus: list[int] | None = None):
         """
         Initialize the class instance.
 
         Args:
-            colnames: List of column names to include in the dataframe. If 'None', column names are
-                      automatically determined based on the most frequent interrupts.
             cpus: CPU numbers to include in the dataframe. If 'None', do not include any individual
                   CPU columns in the dataframe.
         """
 
         self._cpus = cpus
-        self.colnames = colnames
 
         # Number of "numerical" interrupts per scope to include. There are many interrupts, but the
         # idea is to include only the most frequent ones. "Numerical" means interrupts referred to
@@ -67,7 +64,6 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         self._path: Path
         self._data: list[list[int | float]]
         self._first_ts: float | None
-        self._irqcnt_colnames: list[str] # All 'self.colnames' columns, excluding time columns.
 
         super().__init__(self._ts_colname, self._time_colname)
 
@@ -289,12 +285,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         dataset = next(generator)
 
-        if not self.colnames:
-            self._irqcnt_colnames = self._construct_irq_colnames()
-            irq_colnames = self._irqcnt_colnames
-            self.colnames = self._time_colnames + self._irqcnt_colnames
-        else:
-            irq_colnames = self._get_existing_colnames(dataset, self._irqcnt_colnames)
+        irq_colnames = self._construct_irq_colnames()
 
         self._add_dataset(dataset, irq_colnames)
 
