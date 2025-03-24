@@ -105,7 +105,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
                 self._total_irq_metric: total_irqs,
                 self._total_xyz_metric: total_xyz}
 
-    def _add_dataset(self, dataset: DataSetTypedDict, irq_colnames: list[str]):
+    def _add_dataset(self, dataset: DataSetTypedDict, irq_colnames: list[str], no_data_colnames: list[str]):
         """
         Add a dataset to 'self._data', a temporary dictionary storing all data before building the
         dataframe. The dictionary structure is: "{ index: dataline }", where 'index' is the
@@ -120,6 +120,8 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         Args:
             dataset: Parsed dataset to add.
             irq_colnames: Non-time dataframe column names to include.
+            no_data_colnames: Non-time dataframe column names to include, but do not have data yet.
+                              Use 0 for the values.
         """
 
         if "timestamp" not in dataset:
@@ -152,6 +154,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
                 raise Error(f"BUG: unsupported scope '{scope}' in column name "
                             f"'{colname}'") from None
 
+        data += [0] * len(no_data_colnames)
         self._data.append(data)
 
     def _fetch_hottest_irqs(self, irqs: dict[str, int], scope: str) -> list[str]:
@@ -287,14 +290,19 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         irq_colnames = self._construct_irq_colnames()
 
-        self._add_dataset(dataset, irq_colnames)
+        # IRQ rate colnames.
+        irq_rate_colnames = [colname + "_rate" for colname in irq_colnames]
 
+        # Construct the dataframe. Values for the 'no_data_colnames' columns will be 0, and they
+        # will be filled with the actual data later, when the data is available.
+        self._add_dataset(dataset, irq_colnames, no_data_colnames=irq_rate_colnames)
         for dataset in generator:
-            self._add_dataset(dataset, irq_colnames)
+            self._add_dataset(dataset, irq_colnames, no_data_colnames=irq_rate_colnames)
 
         # The raw file is parsed, and all the data are in 'self._data'. Now build the dataframe.
         colnames = self._time_colnames + irq_colnames
-        df = DataFrame(self._data, columns=colnames)
+
+        df = DataFrame(self._data, columns=colnames + irq_rate_colnames)
 
         # Drop the unneeded and potentially large 'self._data'.
         del self._data
@@ -312,11 +320,10 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         intervals = df[self._time_colname].diff().fillna(0)
 
         # Add requests per second metrics.
-        for colname in irq_colnames:
-            # TODO: pandas printed warnings that this is slow, fix by having the rate in self._data
-            df[colname + "_rate"] = df[colname] / intervals
+        for colname, rate_colname in zip(irq_colnames, irq_rate_colnames):
+            df[rate_colname] = df[colname] / intervals
 
-        # Remove the first row, because it contains all zeros.
+        # Remove the first row, because it contains all zeros the column 'diff()' operation.
         df = df.iloc[1:]
 
         return df
