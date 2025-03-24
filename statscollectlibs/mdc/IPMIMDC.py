@@ -24,6 +24,8 @@ class IPMIMDC(MDCBase.MDCBase):
     """
 
     # TODO: annotate IPMIparser, use correct type in this module.
+    # TODO: consistently use the same terminology as in InterruptsParser: the dictionary from the
+    #       parser is a "dataset", not a "datapoint".
     def __init__(self, parsed_dp: dict[str, tuple[Any, str]]):
         """
         Initialize a class instance.
