@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -19,6 +19,24 @@ class TurbostatMDC(MDCBase.MDCBase):
     """
     Provide an API for turbostat metrics definitions.
     """
+
+    def __init__(self, metrics: list[str]):
+        """
+        Initialize a class instance.
+
+        Args:
+            metrics: A list of metric names used for substituting patterns in the metrics definition
+            dictionary.
+        """
+
+        # Metric names arrange by the category.
+        self.categories: dict[str, Any] = {}
+
+        super().__init__("stats-collect", Path("defs/statscollect/turbostat.yml"))
+        self.mangle(metrics)
+
+        self._sort_mdd()
+        self._categorize()
 
     def _categorize(self):
         """Arrange metrics into a multi-level dictionary by their categories."""
@@ -113,21 +131,3 @@ class TurbostatMDC(MDCBase.MDCBase):
                 new_mdd[too_shallow] = self.mdd.pop(too_shallow)
 
         self.mdd = new_mdd
-
-    def __init__(self, metrics: list[str]):
-        """
-        Initialize a class instance.
-
-        Args:
-            metrics: A list of metric names used for substituting patterns in the metrics definition
-            dictionary.
-        """
-
-        # Metric names arrange by the category.
-        self.categories: dict[str, Any] = {}
-
-        super().__init__("stats-collect", Path("defs/statscollect/turbostat.yml"))
-        self.mangle(metrics)
-
-        self._sort_mdd()
-        self._categorize()
