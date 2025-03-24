@@ -322,6 +322,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Add requests per second metrics.
         for colname in irq_colnames:
+            # TODO: pandas printed warnings that this is slow, fix by having the rate in self._data
             df[colname + "_rate"] = df[colname] / intervals
 
         # Remove the first row, because it contains all zeros.
