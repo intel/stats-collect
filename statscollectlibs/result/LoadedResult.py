@@ -298,3 +298,13 @@ class LoadedResult:
 
         for lst in self.lsts.values():
             lst.set_timestamp_limits(ts_limits)
+
+    def set_labels_mdd(self, lmdd: dict[str, MDTypedDict]):
+        """
+        Set the labels metrics definition dictionary.
+
+        Args:
+            lmdd: The labels metrics definition dictionary.
+        """
+
+        self.lmdd = lmdd

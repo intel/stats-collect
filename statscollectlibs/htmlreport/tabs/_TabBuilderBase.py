@@ -19,6 +19,7 @@ from typing import cast
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 
@@ -268,20 +269,13 @@ class TabBuilderBase:
         cdd: dict[str, CDTypedDict] = {}
 
         if colnames is None:
-            colnames = list (mdd)
+            colnames = list(mdd)
 
         # Build a metrics definition dictionary describing all columns in the dataframe.
         for colname in colnames:
-            split = colname.split("-", 1)
-            if len(split) == 1:
-                sname = None
-                metric = split[0]
-            else:
-                sname, metric = split
-
+            sname, metric = _DFBuilderBase.split_colname(colname)
             cd = cdd[colname] = cast(CDTypedDict, mdd[metric].copy())
             cd["colname"] = colname
-
             if sname:
                 cd["sname"] = sname
 

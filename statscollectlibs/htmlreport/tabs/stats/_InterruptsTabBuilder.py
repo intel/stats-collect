@@ -17,7 +17,7 @@ import pandas
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.dfbuilders import _TurbostatDFBuilder
+from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 
@@ -55,10 +55,8 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                     colnames.append(colname)
                     colnames_set.add(colname)
 
-                    # Keep in mind that there may be columns not prefixed by scope, e.g., ones that
-                    # came from the labels
-                    split = colname.split("-", 1)
-                    if len(split) == 2:
+                    sname, _ = _DFBuilderBase.split_colname(colname)
+                    if sname is not None:
                         self._tab_colnames.append(colname)
 
         mdd = self._get_merged_mdd(lrsts)
@@ -96,7 +94,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Adjust the descriptions of the columns.
         for colname in colnames:
             cd = cdd[colname]
-            sname, metric = _TurbostatDFBuilder.split_colname(colname)
+            sname, metric = _DFBuilderBase.split_colname(colname)
 
             if sname == "System":
                 if cd["scope"] == "system":
@@ -126,22 +124,24 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         dtabs: dict[str, dict[str, list[TabConfig.DTabConfig]]] = {}
 
         for colname in self._tab_colnames:
-            scope, metric = colname.split("-", 1)
-            if scope not in dtabs:
-                dtabs[scope] = {"Interrupts Rate": [], "Interrupts Count": []}
+            sname, metric = _DFBuilderBase.split_colname(colname)
+            if sname is None:
+                continue
 
+            if sname not in dtabs:
+                dtabs[sname] = {"Interrupts Rate": [], "Interrupts Count": []}
             dtab = self._build_def_dtab_cfg(colname, self._time_metric, {}, title=metric)
             if metric.endswith("_rate"):
-                dtabs[scope]["Interrupts Rate"].append(dtab)
+                dtabs[sname]["Interrupts Rate"].append(dtab)
             else:
-                dtabs[scope]["Interrupts Count"].append(dtab)
+                dtabs[sname]["Interrupts Count"].append(dtab)
 
         ctabs = []
-        for scope, scope_info in dtabs.items():
+        for sname, scope_info in dtabs.items():
             category_ctabs = []
             for category, category_dtabs in scope_info.items():
                 category_ctabs.append(TabConfig.CTabConfig(category, dtabs=category_dtabs))
-            ctabs.append(TabConfig.CTabConfig(scope, ctabs=category_ctabs))
+            ctabs.append(TabConfig.CTabConfig(sname, ctabs=category_ctabs))
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
 

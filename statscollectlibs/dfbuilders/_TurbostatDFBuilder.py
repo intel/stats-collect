@@ -21,28 +21,6 @@ from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import TurbostatMDC
 
-def split_colname(colname):
-    """
-    Turbostat dataframe columns have the "<scope>-<metric>" format, where "<scope>" is the scope
-    name, such as "CPU0", and "<metric>" is the metric name, such as "PkgPower". Split a turbostat
-    dataframe column name and return the "<scope>" and "<metric>" parts as a tuple. The arguments
-    are as follows.
-      * colname - a dataframe column name to split.
-    """
-
-    split = colname.split("-", 1)
-    if len(split) == 1:
-        return None, colname
-
-    return split[0], split[1]
-
-def format_colname(metric, sname):
-    """Format and return a dataframe column name for metric 'metric' and scope 'sname'."""
-
-    if metric in {"Time_Of_Day_Seconds", "TimeElapsed"}:
-        return metric
-    return f"{sname}-{metric}"
-
 class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
     """
     Provide the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.

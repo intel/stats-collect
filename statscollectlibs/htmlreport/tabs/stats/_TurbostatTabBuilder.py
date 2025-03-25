@@ -20,6 +20,7 @@ from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc.MDCBase import MDTypedDict
+from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
@@ -56,7 +57,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         for df in dfs.values():
             for colname in df.columns:
-                sname, metric = _TurbostatDFBuilder.split_colname(colname)
+                sname, metric = _DFBuilderBase.split_colname(colname)
                 if sname is not None and sname not in snames_set:
                     snames_set.add(sname)
                     self._snames.append(sname)
@@ -129,7 +130,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dtabs = []
         for metric in metrics:
-            colname = _TurbostatDFBuilder.format_colname(metric, sname)
+            colname = f"{sname}-{metric}"
             if colname not in self._cdd:
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue

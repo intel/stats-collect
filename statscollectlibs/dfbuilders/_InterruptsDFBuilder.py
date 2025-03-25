@@ -70,13 +70,13 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         super().__init__(self._ts_colname, self._time_colname)
 
-    def _get_totals(self, dataset: DataSetTypedDict, scope: str) -> dict[str, int]:
+    def _get_totals(self, dataset: DataSetTypedDict, sname: str) -> dict[str, int]:
         """
         Calculate and return the total number of interrupts.
 
         Args:
             dataset: The dataset containing the interrupt counters.
-            scope: The scope to calculate the total number of interrupts for.
+            sname: The scope to calculate the total number of interrupts for.
 
         Returns:
             dict[str, int]: A dictionary containing the total counts:
@@ -86,10 +86,10 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         irq_cpu = None
-        if scope.startswith("CPU"):
-            irq_cpu = int(scope[3:])
-        elif scope != "System":
-            raise Error(f"BUG: unsupported scope '{scope}'") from None
+        if sname.startswith("CPU"):
+            irq_cpu = int(sname[3:])
+        elif sname != "System":
+            raise Error(f"BUG: unsupported scope '{sname}'") from None
 
         total_irqs = 0
         total_xyz = 0
@@ -141,23 +141,25 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Calculate and add the interrupts for every column in 'irq_colnames'.
         for colname in irq_colnames:
-            scope, irqname = colname.split("-")
-
-            if irqname.startswith("Total"):
-                if scope not in totals:
-                    totals[scope] = self._get_totals(dataset, scope)
-                data.append(totals[scope][irqname])
+            sname, irqname = _DFBuilderBase.split_colname(colname)
+            if not sname:
                 continue
 
-            if scope == "System":
+            if irqname.startswith("Total"):
+                if sname not in totals:
+                    totals[sname] = self._get_totals(dataset, sname)
+                data.append(totals[sname][irqname])
+                continue
+
+            if sname == "System":
                 sum_all_cpus = 0
                 for irqs_info in dataset["cpu2irqs"].values():
                     sum_all_cpus += irqs_info.get(irqname, 0)
                 data.append(sum_all_cpus)
-            elif scope.startswith("CPU"):
-                data.append(dataset["cpu2irqs"][int(scope[3:])][irqname])
+            elif sname.startswith("CPU"):
+                data.append(dataset["cpu2irqs"][int(sname[3:])][irqname])
             else:
-                raise Error(f"BUG: unsupported scope '{scope}' in column name "
+                raise Error(f"BUG: unsupported scope '{sname}' in column name "
                             f"'{colname}'") from None
 
         data += [0] * len(no_data_colnames)
@@ -268,7 +270,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         new_colnames = []
 
         for colname in colnames:
-            _, irqname = colname.split("-")
+            _, irqname = _DFBuilderBase.split_colname(colname)
             if irqname in dataset["irq_info"] or irqname in self._total_metrics_set:
                 new_colnames.append(colname)
 
@@ -346,8 +348,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         metrics = []
         metrics_set = set()
         for colname in colnames:
-            split = colname.split("-", 1)
-            metric = split[-1]
+            _, metric = _DFBuilderBase.split_colname(colname)
             if metric not in metrics_set:
                 metrics.append(metric)
                 metrics_set.add(metric)
