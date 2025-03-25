@@ -19,7 +19,8 @@ from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.result.LoadedResult import LoadedResult, TimeStampLimitsTypedDict
+from statscollectlibs.result.LoadedResult import LoadedResult
+from statscollectlibs.dfbuilders._DFBuilderBase import TimeStampLimitsTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

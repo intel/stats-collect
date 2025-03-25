@@ -13,7 +13,7 @@ Parse raw interrupt statistics file and build a dataframe.
 from __future__ import annotations  # Remove when switching to Python 3.10+.
 
 from pathlib import Path
-from pandas import DataFrame
+import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFBuilderBase
@@ -276,7 +276,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return new_colnames
 
-    def _read_stats_file(self, path: Path) -> DataFrame:
+    def _read_stats_file(self, path: Path) -> pandas.DataFrame:
         """
         Parse the raw interrupt statistics file and build the dataframe.
 
@@ -310,7 +310,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         # The raw file is parsed, and all the data are in 'self._data'. Now build the dataframe.
         colnames = self._time_colnames + irq_colnames
 
-        df = DataFrame(self._data, columns=colnames + irq_rate_colnames)
+        df = pandas.DataFrame(self._data, columns=colnames + irq_rate_colnames)
 
         # Drop the unneeded and potentially large 'self._data'.
         del self._data
