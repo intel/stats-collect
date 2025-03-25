@@ -40,12 +40,12 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     # TODO: annotate IPMIparser, use correct type in this module.
     @staticmethod
-    def _ipmi_to_df(parsed_dp: dict[str, tuple[Any, str]], include_metrics: set[str] | None = None):
+    def _dataset_to_df(dataset: dict[str, tuple[Any, str]], include_metrics: set[str] | None = None):
         """
-        Convert a parsed IPMI datapoint dictionary from IPMI parser to a pandas dataframe.
+        Convert a dataset dictionary from 'IPMIParser' to a pandas dataframe.
 
         Args:
-            parsed_dp: Parsed datapoint dictionary from the 'IPMIParser'.
+            dataset: A dataset dictionary from the 'IPMIParser'.
             include_metrics: A set of metric names to include in the dataframe. If None, include all
                              metrics.
 
@@ -60,7 +60,7 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
             'include_metrics'.
             """
 
-            for metric, pair in parsed_dp.items():
+            for metric, pair in dataset.items():
                 val = pair[0]
                 if val is None:
                     # If "no reading" is parsed in a line of a raw IPMI file, 'None' is returned. In
@@ -88,21 +88,21 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         try:
             # Read the first data point from raw statistics file.
-            parsed_dp = next(parser)
+            dataset = next(parser)
         except StopIteration as err:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"empty or incorrectly formatted IPMI raw statistics file:\n"
                         f"{errmsg}") from err
 
-        self.mdo = IPMIMDC.IPMIMDC(parsed_dp)
+        self.mdo = IPMIMDC.IPMIMDC(dataset)
 
         include_metrics = set(self.mdo.mdd.keys())
 
-        sdf = self._ipmi_to_df(parsed_dp, include_metrics=include_metrics)
+        sdf = self._dataset_to_df(dataset, include_metrics=include_metrics)
 
         # Add the rest of the data from the raw IPMI statistics file to 'sdf'.
-        for parsed_dp in parser:
-            df = self._ipmi_to_df(parsed_dp, include_metrics=include_metrics)
+        for dataset in parser:
+            df = self._dataset_to_df(dataset, include_metrics=include_metrics)
             sdf = pandas.concat([sdf, df], ignore_index=True)
 
         return sdf

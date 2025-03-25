@@ -99,34 +99,34 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return cols_dict
 
-    def _extract_cpu_data(self, cpu: int, parsed_dp):
+    def _extract_cpu_data(self, cpu: int, dataset):
         """
-        Extract turbostat data for a specific CPU number.
+        Extract data for a specific CPU number from a dataset.
 
         Args:
             cpu: The CPU number.
-            parsed_dp: The parsed turbostat datapoint dictionary from 'TurbostatParser'.
+            dataset: The dataset dictionary from 'TurbostatParser'.
 
         Returns:
             dict: A dictionary containing the turbostat data for the specified CPU.
         """
 
         try:
-            cpu_tstat = parsed_dp["cpus"][cpu]
+            cpu_tstat = dataset["cpus"][cpu]
         except KeyError:
             raise Error(f"No data for CPU '{cpu}' found in turbostat statistics file "
                         f"'{self._path}") from None
 
         return cpu_tstat
 
-    # TODO: implement proper type hint for parsed_dp and add it.
-    def _turbostat_to_df(self, parsed_dp: dict[Any, Any]) -> pandas.DataFrame:
+    # TODO: implement proper type hint for dataset and add it.
+    def _dataset_to_df(self, dataset: dict[Any, Any]) -> pandas.DataFrame:
         """
-        Convert a parsed turbostat datapoint dictionary to a pandas dataframe. The DataFrame
+        Convert a dataset dictionary from 'TurbostatParser' to a pandas dataframe. The dataframe
         columns will be prefixed with the scope name.
 
         Args:
-            parsed_dp: The parsed turbostat datapoint dictionary from 'TurbostatParser'.
+            dataset: The dataset dictionary from 'TurbostatParser'.
 
         Returns:
             pandas.DataFrame: A dataframe containing the turbostat data with appropriate column
@@ -135,10 +135,10 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Prepare the "columns dictionary", which has the '{colname: [value]}' format. This format
         # is required by 'pandas.DataFrame.from_dict()'. Start with the system-wide scope metrics.
-        cols_dict = self._build_cols_dict(parsed_dp["totals"], "System")
+        cols_dict = self._build_cols_dict(dataset["totals"], "System")
         if self._cpus is not None:
             for cpu in self._cpus:
-                cpu_tstat = self._extract_cpu_data(cpu, parsed_dp)
+                cpu_tstat = self._extract_cpu_data(cpu, dataset)
                 cols_dict.update(self._build_cols_dict(cpu_tstat, "CPU", cpu=cpu))
 
         return pandas.DataFrame.from_dict(cols_dict)
@@ -162,25 +162,25 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         try:
             # Try to read the first data point from raw statistics file.
-            parsed_dp = next(generator)
+            dataset = next(generator)
         except StopIteration:
             raise Error(f"Empty or incorrectly formatted 'turbostat' statistics file "
                         f"'{path}") from None
 
         # Sanity check.
-        if "Time_Of_Day_Seconds" not in parsed_dp["totals"]:
+        if "Time_Of_Day_Seconds" not in dataset["totals"]:
             raise ErrorBadFormat(f"Rejecting turbostat statistics file '{path}' - it does not "
                                  f"include time-stamps.\nCollect turbostat statistics with the "
                                  f"'--enable Time_Of_Day_Seconds' option to include time-stamps.")
 
         # Initialise 'df' with the first datapoint in the raw statistics file.
-        df = self._turbostat_to_df(parsed_dp)
+        df = self._dataset_to_df(dataset)
 
-        self.mdo = TurbostatMDC.TurbostatMDC(list(parsed_dp["totals"]))
+        self.mdo = TurbostatMDC.TurbostatMDC(list(dataset["totals"]))
 
         # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
-        for parsed_dp in generator:
-            next_row_df = self._turbostat_to_df(parsed_dp)
+        for dataset in generator:
+            next_row_df = self._dataset_to_df(dataset)
             df = pandas.concat([df, next_row_df], ignore_index=True)
 
         return df

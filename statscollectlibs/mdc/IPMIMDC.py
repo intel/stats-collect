@@ -24,24 +24,22 @@ class IPMIMDC(MDCBase.MDCBase):
     """
 
     # TODO: annotate IPMIparser, use correct type in this module.
-    # TODO: consistently use the same terminology as in InterruptsParser: the dictionary from the
-    #       parser is a "dataset", not a "datapoint".
-    def __init__(self, parsed_dp: dict[str, tuple[Any, str]]):
+    def __init__(self, dataset: dict[str, tuple[Any, str]]):
         """
         Initialize a class instance.
 
         Args:
-            parsed_dp: Parsed datapoint dictionary from the 'IPMIParser'.
+            dataset: a dataset dictionary from the 'IPMIParser'.
 
         Notes:
             IPMI metrics are not predefined. The metrics definitions dictionary is dynamically
-            constructed from the 'parsed_dp' dictionary.
+            constructed from the 'dataset' dictionary.
         """
 
         self.categories: dict[str, list[str]] = {}
 
         super().__init__("stats-collect", Path("defs/statscollect/ipmi.yml"))
-        self._populate(parsed_dp)
+        self._populate(dataset)
 
     @staticmethod
     def _get_category(unit: str) -> str | None:
@@ -65,13 +63,13 @@ class IPMIMDC(MDCBase.MDCBase):
         }
         return unit2category.get(unit)
 
-    def _populate(self, parsed_dp: dict[str, tuple[Any, str]]):
+    def _populate(self, dataset: dict[str, tuple[Any, str]]):
         """
         Populate the 'self.mdd' dictionary with metric information using a parsed IPMI datapoint
         from the IPMI parser.
 
         Args:
-            parsed_dp: Parsed datapoint dictionary from the 'IPMIParser'.
+            dataset: Parsed datapoint dictionary from the 'IPMIParser'.
         """
 
         category: str | None
@@ -88,7 +86,7 @@ class IPMIMDC(MDCBase.MDCBase):
 
         new_mdd: dict[str, MDTypedDict] = {}
 
-        for metric, val in parsed_dp.items():
+        for metric, val in dataset.items():
             unit = val[1]
 
             category = self._get_category(unit)
