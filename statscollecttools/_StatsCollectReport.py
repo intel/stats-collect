@@ -125,6 +125,7 @@ def report_command(arguments):
     logpath = _Common.configure_log_file(args.outdir, ToolInfo.TOOLNAME)
     logpath = Path(logpath).relative_to(args.outdir)
 
-    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, cpus=args.cpus, logpath=logpath)
+    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, cpus=args.cpus,
+                                                         logpath=logpath)
     rep.copy_raw = args.copy_raw
     rep.generate()
