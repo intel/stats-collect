@@ -87,7 +87,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
     def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
-                   colnames: list[str]) -> dict[str, _TabBuilderBase.MDTypedDict]:
+                   colnames: list[str]) -> dict[str, _TabBuilderBase.CDTypedDict]:
         """
         Build a new metrics definition dictionary that describes all columns in the dataframe. This
         is applicable to dataframes where columns follow the "<scope name>-<metric name>" format.
@@ -130,7 +130,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         dtabs = []
         for metric in metrics:
             colname = _TurbostatDFBuilder.format_colname(metric, sname)
-            if colname not in self._mdd:
+            if colname not in self._cdd:
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
