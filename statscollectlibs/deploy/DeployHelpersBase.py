@@ -93,7 +93,9 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
         if not helpers_path:
             helpers_path = os.environ.get(envvar)
         if not helpers_path:
-            helpers_path = self._spman.get_homedir() / HELPERS_DEPLOY_SUBDIR / "bin"
+            homedir = self._spman.get_envar("HOME")
+            if homedir:
+                helpers_path =  Path(homedir) / HELPERS_DEPLOY_SUBDIR / "bin"
         return Path(helpers_path)
 
     def deploy(self, insts_info: dict[str, InstallableInfoTypedDict]):
