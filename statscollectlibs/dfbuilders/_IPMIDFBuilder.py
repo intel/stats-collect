@@ -40,7 +40,8 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
 
     # TODO: annotate IPMIparser, use correct type in this module.
     @staticmethod
-    def _dataset_to_df(dataset: dict[str, tuple[Any, str]], include_metrics: set[str] | None = None):
+    def _dataset_to_df(dataset: dict[str, tuple[Any, str]],
+                       include_metrics: set[str] | None = None):
         """
         Convert a dataset dictionary from 'IPMIParser' to a pandas dataframe.
 

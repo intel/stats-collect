@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Union, TypedDict
 import pandas
 from pepclibs.helperlibs import Logging
-from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
+from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat, ErrorNotFound
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder, _InterruptsDFBuilder, _ACPowerDFBuilder
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.result import RORawResult
@@ -266,18 +266,23 @@ class LoadedResult:
             self.lsts[stname] = LoadedStatsitic(stname, self.res, ll=self.lls.get(stname),
                                                 cpus=self.cpus)
 
-    def load_stat(self, stname: str):
+    def load_stat(self, stname: str) -> LoadedStatsitic:
         """
         Parse the raw statistics file and build pandas dataframe.
 
         Args:
             stname: The name of the statistic to load the data frame for.
+
+        Returns:
+            LoadedStatsitic: The loaded statistic object containing the parsed data.
         """
 
         if stname not in self.lsts:
-            return
+            raise ErrorNotFound(f"Statistic '{stname}' not found in result '{self.reportid}' at "
+                                f"'{self.res.dirpath}")
 
         self.lsts[stname].load()
+        return self.lsts[stname]
 
     def set_timestamp_limits(self, ts_limits: TimeStampLimitsTypedDict):
         """

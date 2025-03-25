@@ -9,9 +9,7 @@
 """Tests for the 'InterruptsParser' module."""
 
 from pathlib import Path
-
-from statscollectlibs.dfbuilders import _InterruptsDFBuilder
-from statscollectlibs.result.RORawResult import RORawResult
+from statscollectlibs.result import RORawResult, LoadedResult
 
 _TEST_RESULTS_DIR = Path("tests/data/test_module_InterruptsDFBuilder/results/")
 
@@ -42,13 +40,14 @@ def test_good_results():
     """
 
     for dirpath in _TEST_RESULTS_DIR.iterdir():
-        res = RORawResult(dirpath)
+        res = RORawResult.RORawResult(dirpath)
+        lres = LoadedResult.LoadedResult(res, cpus=[0,1])
 
         cpus = [0,1]
-        dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=cpus)
 
         pfx = f"DataFrame for '{dirpath}'"
-        df = res.load_stat("interrupts", dfbldr)
+        lst = lres.load_stat("interrupts")
+        df = lst.df
 
         # The test results in '_TEST_RESULTS_DIR' are crafted to have only 2 datapoints. The
         # dataframe builder should drop the first row, leaving only 1 datapoint.
