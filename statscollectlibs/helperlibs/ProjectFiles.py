@@ -12,7 +12,7 @@
 # pylint: disable=wildcard-import,unused-wildcard-import
 from pepclibs.helperlibs.ProjectFiles import *
 
-def get_project_web_assets_envvar(prjname):
+def get_project_web_assets_envar(prjname):
     """
     Return the name of the environment variable that points to the web assets location of project
     'prjname'.
@@ -40,9 +40,11 @@ def find_project_web_assets(prjname, datadir, pman=None, what=None):
       * in the directory specified by the '<prjname>_WEB_ASSETS_PATH' environment variable.
       * in '$HOME/.local/share/javascript/<prjname>/', if it exists.
       * in '$HOME/share/javascript/<prjname>/', if it exists.
+      * in '$VIRTUAL_ENV/share/javascript/<prjname>/', if the variable is defined and the directory
+            it exists.
       * in '/usr/local/share/javascript/<prjname>/', if it exists.
       * in '/usr/share/javascript/<prjname>/', if it exists.
     """
 
     return next(search_project_data(f"javascript/{prjname}", datadir, pman=pman, what=what,
-                                    envvars=(get_project_web_assets_envvar(prjname),)))
+                                    envars=(get_project_web_assets_envar(prjname),)))

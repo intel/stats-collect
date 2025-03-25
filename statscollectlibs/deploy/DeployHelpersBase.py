@@ -87,11 +87,11 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
             Path: The path to the directory where the helper programs should be deployed.
         """
 
-        envvar = ProjectFiles.get_project_helpers_envvar("stats-collect")
-        stdout, _ = self._spman.run_verify(f"echo ${envvar}")
+        envar = ProjectFiles.get_project_helpers_envar("stats-collect")
+        stdout, _ = self._spman.run_verify(f"echo ${envar}")
         helpers_path = stdout.strip()
         if not helpers_path:
-            helpers_path = os.environ.get(envvar)
+            helpers_path = os.environ.get(envar)
         if not helpers_path:
             homedir = self._spman.get_envar("HOME")
             if homedir:

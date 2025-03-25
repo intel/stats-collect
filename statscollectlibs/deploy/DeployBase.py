@@ -132,11 +132,11 @@ def _get_deploy_suggestion(pman: ProcessManagerType,
     if not is_helper:
         return f"Please run '{_get_deploy_cmd(pman, toolname)}'"
 
-    envvar = ProjectFiles.get_project_helpers_envvar(prjname)
+    envar = ProjectFiles.get_project_helpers_envar(prjname)
     msg = f"Here are the options to try:\n" \
           f" * Run '{_get_deploy_cmd(pman, toolname)}'.\n" \
           f" * Ensure that {what} is in 'PATH'{pman.hostmsg}.\n" \
-          f" * Set the '{envvar}' environment variable to the path of {what}{pman.hostmsg}."
+          f" * Set the '{envar}' environment variable to the path of {what}{pman.hostmsg}."
     return msg
 
 def get_installed_deployable_path(prjname: str,
