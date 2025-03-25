@@ -12,7 +12,6 @@ Provide the capability to populate the interrupts statistics tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import string
 from pathlib import Path
 import pandas
 from statscollectlibs.mdc import MDCBase
