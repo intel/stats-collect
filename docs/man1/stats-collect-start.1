@@ -3,10 +3,9 @@
 .TH "START" "" "25\-03\-2024" "" ""
 .SH Command \f[I]\[aq]start\[aq]\f[R]
 usage: stats\-collect start [\-h] [\-q] [\-d] [\-H HOSTNAME] [\-U
-USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-cpus CPUS] [\-\-time\-limit
-LIMIT] [\-o OUTDIR] [\-\-reportid REPORTID] [\-\-stats STATS]
-[\-\-stats\-intervals STATS_INTERVALS] [\-\-list\-stats] [\-\-report]
-COMMAND
+USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-time\-limit LIMIT] [\-o
+OUTDIR] [\-\-reportid REPORTID] [\-\-stats STATS] [\-\-stats\-intervals
+STATS_INTERVALS] [\-\-list\-stats] [\-\-report] COMMAND
 .PP
 Run a command and collecting statistics.
 The COMMAND string may include placeholders in \[dq]{}\[dq] braces,
@@ -51,16 +50,6 @@ By default the key is automatically found from standard paths like
 .TP
 \f[B]\-T\f[R] \f[I]TIMEOUT\f[R], \f[B]\-\-timeout\f[R] \f[I]TIMEOUT\f[R]
 SSH connect timeout in seconds, default is 8.
-.TP
-\f[B]\-\-cpus\f[R] \f[I]CPUS\f[R]
-If the executed command stresses particular CPU numbers, specify them
-via this option so that the numbers are saved in the test result and
-later the \[aq]stats\-collect report\[aq] command will take this into
-account while generating the test report.
-CPU numers should be specified as a comma\-separated list of integers or
-integer ranges.
-For For example, \[aq]1\-4,7,8,10\-12\[aq] would mean CPUs 1 to 4, CPUs
-7, 8, and 10 to 12.
 .TP
 \f[B]\-\-time\-limit\f[R] \f[I]LIMIT\f[R]
 The time limit for statistics collection, after which the collection
@@ -112,3 +101,30 @@ collect and exit.
 \f[B]\-\-report\f[R]
 Generate an HTML report for collected results (same as calling
 \[aq]report\[aq] command with default arguments).
+.TP
+\f[B]\-\-cmd\-local\f[R]
+Run the command on the local host instead of the SUT
+(\[aq]HOSTNAME\[aq]).
+This is useful for client/server workloads where the SUT runs the server
+and the local host runs the client.
+.TP
+\f[B]\-P\f[R] \f[I]PIPE_PATH\f[R], \f[B]\-\-pipe\-path\f[R] \f[I]PIPE_PATH\f[R]*
+Path to the named pipe where the executed command is going to write the
+lables to.
+The named pipe is created on the SUT (\[aq]HOSTNAME\[aq]).
+The labels are used for the X\-axix in the HTML reports.
+Use the special keyword \[dq]auto\[dq] to instruce
+\[aq]stats\-collect\[aq] to automatically create a named pipe in the
+temporary directory (use the \[dq]{PIPE_PATH}\[dq] placeholder in
+workload\[aq]s command line to get the path in this case).
+No named pipe is created by default.
+.TP
+\f[B]\-\-pipe\-timeout\f[R] \f[I]PIPE_TIMEOUT\f[R]
+The longest allowed time interval between named pipe input lines.
+The \[aq]stats\-collect\[aq] tool exits with an error if the interval
+exceeds PIPE_TIMEOUT.
+The default timeout is 5 minutes.
+Specify time value in minutes, or use one of the following specifiers: d
+\- days, h \- hours, m \- minutes, s \- seconds.
+For example, \[aq]\-\-pipe\-timeout=1m 20s\[aq] would mean mean 1 minute
+and 20 seconds.
