@@ -41,7 +41,8 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs = self._load_dfs(lrsts)
         mdd = self._get_merged_mdd(lrsts)
 
-        super().__init__(dfs, mdd, outdir, basedir=basedir)
+        cdd = self._build_cdd(mdd)
+        super().__init__(dfs, cdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.

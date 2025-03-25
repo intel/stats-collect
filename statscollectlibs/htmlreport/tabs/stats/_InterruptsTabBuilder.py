@@ -16,8 +16,11 @@ import string
 from pathlib import Path
 import pandas
 from statscollectlibs.mdc import MDCBase
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
+from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 
 class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
@@ -60,7 +63,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                         self._tab_colnames.append(colname)
 
         mdd = self._get_merged_mdd(lrsts)
-        cdd = self._build_mdd(mdd, colnames)
+        cdd = self._build_cdd(mdd, colnames=colnames)
         super().__init__(dfs, cdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
@@ -68,49 +71,48 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         for df in self._dfs.values():
             df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
-    def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
-                   colnames: list[str]) -> dict[str, _TabBuilderBase.CDTypedDict]:
+    def _build_cdd(self,
+                   mdd: dict[str, MDTypedDict],
+                   colnames: list[str] | None = None) -> dict[str, CDTypedDict]:
         """
-        Build a new metrics definition dictionary that describes all columns in the dataframe. This
-        is applicable to dataframes where columns follow the "<scope name>-<metric name>" format.
+        Build a columns definition dictionary (CDD) that describes columns in dataframes.
 
         Args:
-            mdd: The metrics definition dictionary from one of the 'MCDBase' sub-classes. This
-                 dictionary should include all the metrics referenced in 'colnames'.
-            colnames: the list of column names in the dataframe.
+            mdd: The metrics definition dictionary (MDD) for metrics that will be included in the
+                 tab. It describes metrics, while CDD describes columns. Coulumns may include the
+                 scope as well. For example, there is a "C1%" metric, which may have 2 columns -
+                 "System-C1%" for system-wide C1 residency, and "CPU5-C1%" C1 residency for CPU5.
+            colnames: list of dataframe column names to use for the CDD. By default, assume column
+                      names are the same as metric names.
 
         Returns:
-            A new metrics definition dictionary that describes all columns in the dataframe.
+            CDTypedDict: The Columns Definition Dictionary.
         """
 
-        new_mdd = super()._build_mdd(mdd, colnames)
+        cdd = super()._build_cdd(mdd, colnames=colnames)
+
+        if not colnames:
+            return cdd
 
         # Adjust the descriptions of the columns.
-        for colname in self._tab_colnames:
-            md = new_mdd[colname]
-            scope, metric = colname.split("-", 1)
+        for colname in colnames:
+            cd = cdd[colname]
+            sname, metric = _TurbostatDFBuilder.split_colname(colname)
 
-            # Turn column scope like "CPU5" to "CPU", to make it comparable to metric scopes.
-            column_scope = scope.rstrip(string.digits)
-            # Capitalize the metric scope to make it comparable to the column scope.
-            metric_scope = md["scope"].capitalize()
-
-            if column_scope == metric_scope:
-                continue
-
-            if column_scope == "System":
-                if md["scope"] == "System":
-                    # The metric is already system-wide, the description takes this into account.
+            if sname == "System":
+                if cd["scope"] == "system":
+                    # The metric is already system-wide, the current description already describes
+                    # this aspect.
                     continue
 
                 if not metric.endswith("_rate"):
-                    md["descr"] += f" This represents the total {md['title']} across all CPUs in " \
+                    cd["descr"] += f" This represents the total {cd['title']} across all CPUs in " \
                                    f"the system."
                 else:
-                    md["descr"] += f" This represents the average {md['title']} across all CPUs " \
+                    cd["descr"] += f" This represents the average {cd['title']} across all CPUs " \
                                    f"in the system."
 
-        return new_mdd
+        return cdd
 
     def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
         """

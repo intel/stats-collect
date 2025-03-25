@@ -19,15 +19,15 @@ from typing import cast
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.mdc import MDCBase
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-class CDTypedDict(MDCBase.MDTypedDict, total=False):
+class CDTypedDict(MDTypedDict, total=False):
     """
     The column definition dictionary for a dataframe column. It is same as the metrics definition
-    dictionary 'MDCBase.MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
+    dictionary 'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
 
     Attributes:
         colname: Column name the definition dictionary describes.
@@ -247,22 +247,28 @@ class TabBuilderBase:
         raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
                     f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
 
-    def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
-                   colnames: list[str]) -> dict[str, CDTypedDict]:
+    def _build_cdd(self,
+                   mdd: dict[str, MDTypedDict],
+                   colnames: list[str] | None = None) -> dict[str, CDTypedDict]:
         """
-        Build a new metrics definition dictionary that describes all columns in the dataframe. This
-        is applicable to dataframes where columns follow the "<scope name>-<metric name>" format.
+        Build a columns definition dictionary (CDD) that describes columns in dataframes.
 
         Args:
-            mdd: The metrics definition dictionary from one of the 'MCDBase' sub-classes. This
-                 dictionary should include all the metrics referenced in 'colnames'.
-            colnames: the list of column names in the dataframe.
+            mdd: The metrics definition dictionary (MDD) for metrics that will be included in the
+                 tab. It describes metrics, while CDD describes columns. Coulumns may include the
+                 scope as well. For example, there is a "C1%" metric, which may have 2 columns -
+                 "System-C1%" for system-wide C1 residency, and "CPU5-C1%" C1 residency for CPU5.
+            colnames: list of dataframe column names to use for the CDD. By default, assume column
+                      names are the same as metric names.
 
         Returns:
-            A new metrics definition dictionary that describes all columns in the dataframe.
+            CDTypedDict: The Columns Definition Dictionary.
         """
 
-        new_mdd: dict[str, CDTypedDict] = {}
+        cdd: dict[str, CDTypedDict] = {}
+
+        if colnames is None:
+            colnames = list (mdd)
 
         # Build a metrics definition dictionary describing all columns in the dataframe.
         for colname in colnames:
@@ -273,16 +279,16 @@ class TabBuilderBase:
             else:
                 sname, metric = split
 
-            md = new_mdd[colname] = cast(CDTypedDict, mdd[metric].copy())
-            md["colname"] = colname
+            cd = cdd[colname] = cast(CDTypedDict, mdd[metric].copy())
+            cd["colname"] = colname
 
             if sname:
-                md["sname"] = sname
+                cd["sname"] = sname
 
-        return new_mdd
+        return cdd
 
     def __init__(self,
-                 dfs: list[pandas.DataFrame],
+                 dfs: dict[str, pandas.DataFrame],
                  cdd: dict[str, CDTypedDict],
                  outdir: Path ,
                  basedir: Path | None = None):
@@ -290,8 +296,7 @@ class TabBuilderBase:
         Initialize a class instance.
 
         Args:
-            dfs: A list of dataframes containing statistics data (each dataframe represents a
-                 statistics from a test result).
+            dfs: A the dataframes dictionary with report IDs as the keys and dataframes as values.
             cdd: A columns definition dictionary describing the dataframe columns to include in the
                  tab.
             outdir: The output directory where the sub-directory with tab files will be created
@@ -308,20 +313,10 @@ class TabBuilderBase:
         if not dfs:
             raise ErrorNotFound(f"BUG: No data for '{self.name}'")
 
-        self._dfs: list[pandas.DataFrame] = dfs
-        self._cdd: dict[str, CDTypedDict] = {}
+        self._dfs = dfs
+        self._cdd = cdd
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
-
-        # Make sure the CDs (column definitions) from 'cdd' have the "columns" key. Column names may
-        # not be the same as metric names - they may be prefixed with the scope (e.g.,
-        # "CPU0-metric_name").
-        for colname, cd in cdd.items():
-            if "colname" not in cd:
-                self._cdd[colname] = cd.copy()
-                self._cdd[colname]["colname"] = colname
-            else:
-                self._cdd[colname] = cd
 
         try:
             self._outdir.mkdir(parents=True, exist_ok=True)

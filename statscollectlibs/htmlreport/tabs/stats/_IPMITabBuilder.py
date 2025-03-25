@@ -28,10 +28,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the IPMI statistics tab."""
 
     name = "IPMI"
-    stnames = (
-        "ipmi-inband",
-        "ipmi-oob",
-    )
+    stnames = ["ipmi-inband", "ipmi-oob"]
 
     def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
@@ -50,7 +47,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dfs, mdd, self._categories = self._load(lrsts)
 
-        super().__init__(dfs, mdd, outdir, basedir=basedir)
+        cdd = self._build_cdd(mdd)
+        super().__init__(dfs, cdd, outdir, basedir=basedir)
 
         # Convert the elapsed time metric to the "datetime" format so that diagrams use a
         # human-readable format.

@@ -16,12 +16,13 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 from typing import Any
 import pandas
-from pepclibs.helperlibs import Trivial
+from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
-from statscollectlibs.mdc import MDCBase
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 
 class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
@@ -49,68 +50,67 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         mdd = self._get_merged_mdd(lrsts)
         self._categories = self.get_merged_categories(lrsts)
 
-        metrics: list[str] = []
-        metrics_set: set[str] = set()
+        colnames: list[str] = []
+        colnames_set: set[str] = set()
         snames_set: set[str] = set()
 
-        # Build a the list metrics and scope names.
         for df in dfs.values():
             for colname in df.columns:
                 sname, metric = _TurbostatDFBuilder.split_colname(colname)
                 if sname is not None and sname not in snames_set:
                     snames_set.add(sname)
                     self._snames.append(sname)
-                if metric not in metrics_set:
-                    metrics_set.add(metric)
-                    metrics.append(metric)
-
-        # The 'slf.mdo.mdd' Metrics Definition Dictionary includes metric names. But the dataframes
-        # include column names. Build a Metrics Definition Dictionary for column names.
-        colnames: list[str] = []
-        colnames_set: set[str] = set()
-
-        for df in dfs.values():
-            for colname in df.columns:
-                _, metric = _TurbostatDFBuilder.split_colname(colname)
                 if metric not in mdd:
                     continue
                 if colname not in colnames_set:
                     colnames.append(colname)
                     colnames_set.add(colname)
 
-        columns_mdd = self._build_mdd(mdd, colnames)
-        super().__init__(dfs, columns_mdd, outdir / self.name, basedir=basedir)
+        cdd = self._build_cdd(mdd, colnames=colnames)
+        super().__init__(dfs, cdd, outdir / self.name, basedir=basedir)
 
         # Convert the elapsed time column in dataframes to the "datetime" format so that
         # diagrams use a human-readable format.
         for df in dfs.values():
             df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
-    def _build_mdd(self, mdd: dict[str, MDCBase.MDTypedDict],
-                   colnames: list[str]) -> dict[str, _TabBuilderBase.CDTypedDict]:
+    def _build_cdd(self,
+                   mdd: dict[str, MDTypedDict],
+                   colnames: list[str] | None = None) -> dict[str, CDTypedDict]:
         """
-        Build a new metrics definition dictionary that describes all columns in the dataframe. This
-        is applicable to dataframes where columns follow the "<scope name>-<metric name>" format.
+        Build a columns definition dictionary (CDD) that describes columns in dataframes.
 
         Args:
-            mdd: The metrics definition dictionary from one of the 'MCDBase' sub-classes. This
-                 dictionary should include all the metrics referenced in 'colnames'.
-            colnames: the list of column names in the dataframe.
+            mdd: The metrics definition dictionary (MDD) for metrics that will be included in the
+                 tab. It describes metrics, while CDD describes columns. Coulumns may include the
+                 scope as well. For example, there is a "C1%" metric, which may have 2 columns -
+                 "System-C1%" for system-wide C1 residency, and "CPU5-C1%" C1 residency for CPU5.
+            colnames: list of dataframe column names to use for the CDD. By default, assume column
+                      names are the same as metric names.
 
         Returns:
-            A new metrics definition dictionary that describes all columns in the dataframe.
+            CDTypedDict: The Columns Definition Dictionary.
         """
 
-        new_mdd = super()._build_mdd(mdd, colnames)
+        # Build the MDC.
+        cdd = super()._build_cdd(mdd, colnames=colnames)
 
-        for metric, mdef in mdd.items():
-            name = TurbostatParser.get_totals_func_name(metric)
-            if name is not None:
-                name = TurbostatParser.TOTALS_FUNCS[name] # Get user-friendly name.
-                mdef["descr"] = f"{mdef['descr']} Calculated by finding the {name} of " \
-                                f"\"{mdef['name']}\" across the system."
+        if not colnames:
+            return cdd
 
-        return new_mdd
+        # The description in MDC is based on MDD description and does not mention the scope. Adjust
+        # the description.
+        for colname, cd in cdd.items():
+            if not colname.startswith("System-"):
+                continue
+
+            short_func_name = TurbostatParser.get_totals_func_name(colname)
+            full_func_name = TurbostatParser.TOTALS_FUNCS[short_func_name]
+            title = Human.uncapitalize(cd["title"])
+            cd["descr"] = f"{cd['descr']} Calculated by finding the {full_func_name} value of " \
+                          f"the \"{title}\" metric across the system."
+
+        return cdd
 
     def _build_ctab_cfg(self, title: str, metrics: list[str], sname: str):
         """
@@ -278,7 +278,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return dfs
 
-    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDCBase.MDTypedDict]:
+    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDTypedDict]:
         """
         Merge MDDs from different results into a single dictionary (in case some results include
         metrics not present in other test results).
@@ -290,7 +290,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             The merged MDD.
         """
 
-        mdd: dict[str, MDCBase.MDTypedDict] = {}
+        mdd: dict[str, MDTypedDict] = {}
         for lres in lrsts:
             if self.stname not in lres.res.info["stinfo"]:
                 continue
