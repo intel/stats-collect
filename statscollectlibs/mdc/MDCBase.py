@@ -23,7 +23,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import re
 from pathlib import Path
-from typing import TypedDict, Literal, Sequence, NoReturn
+from typing import TypedDict, Literal, Sequence, NoReturn, Any
 from pepclibs.helperlibs import YAML, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 
@@ -152,6 +152,9 @@ class MDCBase:
 
         self.path = None
         self.mdd: dict[str, MDTypedDict] = {}
+
+        # Metric names may be arranged by the category.
+        self.categories: dict[str, Any] = {}
 
         if mdd:
             self.mdd = mdd

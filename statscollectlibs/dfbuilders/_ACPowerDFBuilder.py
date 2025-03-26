@@ -30,9 +30,14 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         """The class constructor."""
 
         self.mdo = ACPowerMDC.ACPowerMDC()
-        self._time_metric = "TimeElapsed"
 
-        super().__init__("T", self._time_metric)
+        # Name of the dataframe column containing the time since the epoch time-stamps.
+        self.ts_colname = "T"
+        # Name of the dataframe column containing the time elapsed since the beginning of the
+        # measurements.
+        self.time_colname = "TimeElapsed"
+
+        super().__init__(self.ts_colname, self._time_colname)
 
     def _read_stats_file(self, path: Path) -> pandas.DataFrame:
         """
@@ -46,7 +51,7 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         # Read only the columns defined in the MDC.
-        usecols = [metric for metric in self.mdo.mdd if metric != self._time_metric]
+        usecols = [metric for metric in self.mdo.mdd if metric != self._time_colname]
 
         try:
             # The 'skipfooter' parameter only available with the "python" engine.
@@ -58,10 +63,11 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
             msg = Error(str(err)).indent(2)
             raise Error(f"Unable to parse CSV '{path}':\n{msg}.") from err
 
-        if "T" not in df.columns:
-            raise Error(f"The 'T' (time-stamp) column was not found in AC power CSV file '{path}")
+        if self.ts_colname not in df.columns:
+            raise Error(f"The '{self.ts_colname}' (time-stamp) column was not found in AC power "
+                        f"CSV file '{path}")
 
         # Add the 'TImeElapsed' column for the time elapsed since the beginning of measurements.
-        df[self._time_metric] = df["T"] - df["T"].iloc[0]
+        df[self._time_colname] = df[self._ts_colname] - df[self._ts_colname].iloc[0]
 
         return df

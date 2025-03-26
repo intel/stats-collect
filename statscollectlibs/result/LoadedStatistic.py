@@ -57,7 +57,14 @@ class LoadedStatsitic:
         self.res = res
         self.ll = ll
         self.cpus = cpus
+
         self.ldd: dict[str, MDTypedDict] = {}
+
+        # Name of the dataframe column containing the time since the epoch time-stamps.
+        self.ts_colname: str | None = None
+        # Name of the dataframe column containing the time elapsed since the beginning of the
+        # measurements.
+        self.time_colname: str | None = None
 
         self._ts_limits: TimeStampLimitsTypedDict = {}
 
@@ -95,35 +102,27 @@ class LoadedStatsitic:
         if self.ll:
             self.ll.load()
 
+        dfbldr: DFBuilderType
+
         if self.stname == "turbostat":
-            turbostat_dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus)
-            self.df = self._build_df(turbostat_dfbldr)
-
-            assert turbostat_dfbldr.mdo is not None
-            self.mdd = turbostat_dfbldr.mdo.mdd
-            self.categories = turbostat_dfbldr.mdo.categories
+            dfbldr = _TurbostatDFBuilder.TurbostatDFBuilder(cpus=self.cpus)
         elif self.stname == "interrupts":
-            interrupts_dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self.cpus)
-            self.df = self._build_df(interrupts_dfbldr)
-
-            assert interrupts_dfbldr.mdo is not None
-            self.mdd = interrupts_dfbldr.mdo.mdd
+            dfbldr = _InterruptsDFBuilder.InterruptsDFBuilder(cpus=self.cpus)
         elif self.stname == "acpower":
-            acpower_dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
-            self.df = self._build_df(acpower_dfbldr)
-
-            assert acpower_dfbldr.mdo is not None
-            self.mdd = acpower_dfbldr.mdo.mdd
-
+            dfbldr = _ACPowerDFBuilder.ACPowerDFBuilder()
         elif self.stname in ("ipmi-inband", "ipmi-oob"):
-            ipmi_dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
-            self.df = self._build_df(ipmi_dfbldr)
-
-            assert ipmi_dfbldr.mdo is not None
-            self.mdd = ipmi_dfbldr.mdo.mdd
-            self.categories = ipmi_dfbldr.mdo.categories
+            dfbldr = _IPMIDFBuilder.IPMIDFBuilder()
         else:
             raise Error(f"Unsupported statistic '{self.stname}'")
+
+        self.ts_colname = dfbldr.ts_colname
+        self.time_colname = dfbldr.time_colname
+
+        self.df = self._build_df(dfbldr)
+
+        assert dfbldr.mdo is not None
+        self.mdd = dfbldr.mdo.mdd
+        self.categories = dfbldr.mdo.categories
 
         if self.ll:
             for lname in self.ldd:

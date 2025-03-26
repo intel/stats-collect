@@ -36,9 +36,9 @@ class IPMIMDC(MDCBase.MDCBase):
             constructed from the 'dataset' dictionary.
         """
 
-        self.categories: dict[str, list[str]] = {}
-
         super().__init__("stats-collect", Path("defs/statscollect/ipmi.yml"))
+
+        self.categories: dict[str, list[str]] = {}
         self._populate(dataset)
 
     @staticmethod

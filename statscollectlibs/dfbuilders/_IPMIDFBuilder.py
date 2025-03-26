@@ -36,7 +36,14 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         """The class constructor."""
 
         self.mdo: IPMIMDC.IPMIMDC | None = None
-        super().__init__("timestamp", "TimeElapsed")
+
+        # Name of the dataframe column containing the time since the epoch time-stamps.
+        self.ts_colname = "timestamp"
+        # Name of the dataframe column containing the time elapsed since the beginning of the
+        # measurements.
+        self.time_colname = "TimeElapsed"
+
+        super().__init__(self.ts_colname, self.time_colname)
 
     # TODO: annotate IPMIparser, use correct type in this module.
     @staticmethod

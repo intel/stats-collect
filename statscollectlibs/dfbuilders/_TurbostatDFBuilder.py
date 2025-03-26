@@ -37,7 +37,13 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         self._cpus = cpus
         self.mdo: TurbostatMDC.TurbostatMDC | None = None
 
-        super().__init__("Time_Of_Day_Seconds", "TimeElapsed")
+        # Name of the dataframe column containing the time since the epoch time-stamps.
+        self.ts_colname = "Time_Of_Day_Seconds"
+        # Name of the dataframe column containing the time elapsed since the beginning of the
+        # measurements.
+        self.time_colname = "TimeElapsed"
+
+        super().__init__(self.ts_colname, self.time_colname)
 
     def _build_cols_dict(self,
                          tstat: dict[str, Any],
@@ -57,7 +63,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         cols_dict = {}
-        dont_prefix_metrics = {"Time_Of_Day_Seconds", "TimeElapsed"}
+        dont_prefix_metrics = {self.ts_colname, self.time_colname}
 
         if scope == "System":
             prefix = "System"
@@ -146,7 +152,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
                         f"'{path}") from None
 
         # Sanity check.
-        if "Time_Of_Day_Seconds" not in dataset["totals"]:
+        if self._ts_colname not in dataset["totals"]:
             raise ErrorBadFormat(f"Rejecting turbostat statistics file '{path}' - it does not "
                                  f"include time-stamps.\nCollect turbostat statistics with the "
                                  f"'--enable Time_Of_Day_Seconds' option to include time-stamps.")

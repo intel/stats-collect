@@ -47,9 +47,13 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         # (e.g., 'LOC' or 'NMI').
         self._irqs_limit = 6
 
-        self._ts_colname = "Timestamp"
-        self._time_colname = "TimeElapsed"
-        self._time_colnames = [self._time_colname, self._ts_colname]
+        # Name of the dataframe column containing the time since the epoch time-stamps.
+        self.ts_colname = "Timestamp"
+        # Name of the dataframe column containing the time elapsed since the beginning of the
+        # measurements.
+        self.time_colname = "TimeElapsed"
+
+        self._time_colnames = [self.time_colname, self.ts_colname]
 
         # Total number of all interrupts on all CPUs.
         self._total_metric = "Total"
@@ -68,7 +72,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         self._data: list[list[int | float]]
         self._first_ts: float | None
 
-        super().__init__(self._ts_colname, self._time_colname)
+        super().__init__(self.ts_colname, self.time_colname)
 
     def _get_totals(self, dataset: DataSetTypedDict, sname: str) -> dict[str, int]:
         """
@@ -325,7 +329,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         df[irq_colnames] = df[irq_colnames].diff().fillna(0).astype(int)
 
         # Calculate the measurement intervals.
-        intervals = df[self._time_colname].diff().fillna(0)
+        intervals = df[self.time_colname].diff().fillna(0)
 
         # Add requests per second metrics.
         for colname, rate_colname in zip(irq_colnames, irq_rate_colnames):

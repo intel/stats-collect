@@ -11,7 +11,6 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
-from typing import Any
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
@@ -28,9 +27,6 @@ class TurbostatMDC(MDCBase.MDCBase):
             metrics: A list of metric names used for substituting patterns in the metrics definition
             dictionary.
         """
-
-        # Metric names arrange by the category.
-        self.categories: dict[str, Any] = {}
 
         super().__init__("stats-collect", Path("defs/statscollect/turbostat.yml"))
         self.mangle(metrics)
