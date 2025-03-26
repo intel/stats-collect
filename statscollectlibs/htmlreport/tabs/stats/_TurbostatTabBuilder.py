@@ -47,7 +47,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
-        print(f"{self.name} time column: {self._time_colname}")
 
         mdd = self._get_merged_mdd(lrsts)
         self._categories = self.get_merged_categories(lrsts)
@@ -275,28 +274,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 dfs[lres.reportid] = lres.lsts[stname].df
 
         return dfs
-
-    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDTypedDict]:
-        """
-        Merge MDDs from different results into a single dictionary (in case some results include
-        metrics not present in other test results).
-
-        Args:
-            lrsts: The loaded test result objects to merge the MDDs for.
-
-        Returns:
-            The merged MDD.
-        """
-
-        mdd: dict[str, MDTypedDict] = {}
-        for lres in lrsts:
-            for stname in self.stnames:
-                if stname not in lres.res.info["stinfo"]:
-                    continue
-
-                mdd.update(lres.lsts[stname].mdd)
-
-        return mdd
 
     def get_merged_categories(self, lrsts: list[LoadedResult]) -> dict[str, Any]:
         """

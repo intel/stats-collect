@@ -46,7 +46,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs, mdd, self._categories = self._load(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
-        print(f"{self.name} time column: {self._time_colname}")
 
         cdd = self._build_cdd(mdd)
         super().__init__(dfs, cdd, outdir, basedir=basedir)

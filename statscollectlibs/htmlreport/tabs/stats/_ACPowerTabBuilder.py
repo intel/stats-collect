@@ -15,7 +15,6 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 import pandas
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 
@@ -39,7 +38,6 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
-        print(f"{self.name} time column: {self._time_colname}")
 
         mdd = self._get_merged_mdd(lrsts)
 
@@ -85,25 +83,3 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
                 dfs[lres.reportid] = lres.lsts[stname].df
 
         return dfs
-
-    def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDTypedDict]:
-        """
-        Merge MDDs from different results into a single dictionary (in case some results include
-        metrics not present in other test results).
-
-        Args:
-            lrsts: The loaded test result objects to merge the MDDs for.
-
-        Returns:
-            The merged MDD.
-        """
-
-        mdd: dict[str, MDTypedDict] = {}
-        for lres in lrsts:
-            for stname in self.stnames:
-                if stname not in lres.res.info["stinfo"]:
-                    continue
-
-                mdd.update(lres.lsts[stname].mdd)
-
-        return mdd
