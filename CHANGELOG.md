@@ -9,6 +9,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.52] - 2025-03-26
+### Fixed
+ - Fix labels support that was broken in version 1.0.51.
+
 ## [1.0.51] - 2025-03-25
 ### Removed
  - Remove 'stats-collect start --cpus' option.
