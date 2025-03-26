@@ -15,7 +15,6 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 from typing import Any
-import pandas
 from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser

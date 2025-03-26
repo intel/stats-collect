@@ -251,57 +251,25 @@ class TabBuilderBase:
 
         return dtab
 
-    # TODO: this should go away.
-    def _resolve_metric(self, metric):
-        """
-        Resolve 'metric' to a metric definition dictionary from 'self._mdd'. If 'metric' is already
-        a metric definition dictionary, then do nothing. Else, try to find the relevant definition
-        dictionary from 'self._mdd'.
-        """
-
-        def _is_mdef(dct):
-            """Returns 'True' if 'dct' is a metric definition dictionary. Else, returns 'False'."""
-
-            try:
-                # Try and access the required fields for a metric definition dictionary.
-                _ = dct["name"]
-                _ = dct["title"]
-                _ = dct["descr"]
-                return True
-            except TypeError:
-                return False
-            except KeyError:
-                return False
-
-        if _is_mdef(metric):
-            return metric
-
-        if metric not in self._cdd:
-            raise Error(f"BUG: unsupported metric '{metric}'")
-
-        return self._cdd[metric]
-
     def _add_plots(self, dtabconfig, tab):
         """Add plots to 'tab' based on the metrics specified in the configuration 'dtabconfig'."""
 
         scatter = []
-        for xmetric, ymetric in dtabconfig.scatter_plots:
-            x_def = self._resolve_metric(xmetric)
-            y_def = self._resolve_metric(ymetric)
-            scatter.append((x_def, y_def))
+        for xcolumn, ycolumn in dtabconfig.scatter_plots:
+            scatter.append((self._cdd[xcolumn], self._cdd[ycolumn]))
 
         hists = []
-        for metric in dtabconfig.hists:
-            hists.append(self._resolve_metric(metric))
+        for column in dtabconfig.hists:
+            hists.append(self._cdd[column])
 
         chists = []
-        for metric in dtabconfig.chists:
-            chists.append(self._resolve_metric(metric))
+        for column in dtabconfig.chists:
+            chists.append(self._cdd[column])
 
         hover_defs = {}
         if dtabconfig.hover_defs:
-            for reportid, metrics in dtabconfig.hover_defs.items():
-                hover_defs[reportid] = [self._resolve_metric(metric) for metric in metrics]
+            for reportid, columns in dtabconfig.hover_defs.items():
+                hover_defs[reportid] = [self._cdd[column] for column in columns]
 
         hover_defs = hover_defs if hover_defs else None
 
