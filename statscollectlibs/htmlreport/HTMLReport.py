@@ -159,8 +159,10 @@ class HTMLReport:
         collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in lrsts])
 
         sysinfo_tbldr = _SysInfoTabBuilder.SysInfoTabBuilder
-        if sysinfo_tbldr.stname in collected_stnames:
-            self._sysinfo_tbldr = sysinfo_tbldr(self.tabs_dir, basedir=self._outdir)
+        for stname in sysinfo_tbldr.stnames:
+            if stname in collected_stnames:
+                self._sysinfo_tbldr = sysinfo_tbldr(lrsts, self.tabs_dir, basedir=self._outdir)
+                break
 
         collected_stnames -= {sysinfo_tbldr.name}
 

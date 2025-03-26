@@ -25,7 +25,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
 
     name = "Interrupts"
-    stname = "interrupts"
+    stnames = ["interrupts"]
 
     def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
@@ -38,13 +38,13 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                      Defaults to 'outdir'.
         """
 
-        self._time_metric = "TimeElapsed"
-        self._ts_metric = "Timestamp"
-
         # The column names to include in the interrupts statistics tab.
         self._tab_colnames: list[str] = []
 
         dfs = self._load_dfs(lrsts)
+
+        self._time_colname = self._get_time_colname(lrsts)
+        print(f"{self.name} time column: {self._time_colname}")
 
         # Compose the list of all column names and all metrics in all dataframes.
         colnames = []
@@ -62,11 +62,6 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         mdd = self._get_merged_mdd(lrsts)
         cdd = self._build_cdd(mdd, colnames=colnames)
         super().__init__(dfs, cdd, outdir, basedir=basedir)
-
-        # Convert the elapsed time metric to the "datetime" format so that diagrams use a
-        # human-readable format.
-        for df in self._dfs.values():
-            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],
@@ -130,7 +125,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
             if sname not in dtabs:
                 dtabs[sname] = {"Interrupts Rate": [], "Interrupts Count": []}
-            dtab = self._build_def_dtab_cfg(colname, self._time_metric, {}, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, self._time_colname, {}, title=metric)
             if metric.endswith("_rate"):
                 dtabs[sname]["Interrupts Rate"].append(dtab)
             else:
@@ -159,12 +154,13 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dfs = {}
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            lres.load_stat(self.stname)
+                lres.load_stat(stname)
 
-            dfs[lres.reportid] = lres.lsts[self.stname].df
+                dfs[lres.reportid] = lres.lsts[stname].df
 
         return dfs
 
@@ -182,9 +178,10 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         mdd: dict[str, MDCBase.MDTypedDict] = {}
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            mdd.update(lres.lsts[self.stname].mdd)
+                mdd.update(lres.lsts[stname].mdd)
 
         return mdd

@@ -81,10 +81,10 @@ class LoadedStatsitic:
         self.ldd: dict[str, MDTypedDict] = {}
 
         # Name of the dataframe column containing the time since the epoch time-stamps.
-        self.ts_colname: str | None = None
+        self.ts_colname: str = f"BUG: ts_colname not set for {self.stname}"
         # Name of the dataframe column containing the time elapsed since the beginning of the
         # measurements.
-        self.time_colname: str | None = None
+        self.time_colname: str = f"BUG: time_colname not set for {self.stname}"
 
         self._ts_limits: TimeStampLimitsTypedDict = {}
 
@@ -141,10 +141,6 @@ class LoadedStatsitic:
                 # 'label' corresponds to.
                 self.df.loc[filtered_rows, metric] = val
 
-        # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
-        # indexing. Reindex the dataframe.
-        self.df = self.df.reset_index(drop=True)
-
     def _apply_ts_limits(self):
         """Apply time-stamp limits to the statistics dataframe."""
 
@@ -192,15 +188,19 @@ class LoadedStatsitic:
 
         self._apply_ts_limits()
 
+        # Convert the elapsed time metric to the "datetime" format so that diagrams use a
+        # human-readable format.
+        self.df[self.time_colname] = pandas.to_datetime(self.df[self.time_colname], unit="s")
+
         # Remove any 'infinite' values which can appear in raw statistics files.
         self.df.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
         if self.df.isnull().values.any():
             _LOG.warning("Dropping one or more 'nan' values from statistics file '%s'", path)
             self.df.dropna(inplace=True)
 
-            # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
-            # indexing. Reset the index to avoid any of these problems.
-            self.df.reset_index(inplace=True)
+        # Some pandas operations break on dataframes without consistent indexing. Reset it.
+        self.df = self.df.reset_index(drop=True)
+
 
     def load(self):
         """

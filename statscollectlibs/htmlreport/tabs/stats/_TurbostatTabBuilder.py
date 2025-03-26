@@ -20,7 +20,7 @@ from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.dfbuilders import _TurbostatDFBuilder, _DFHelpers
+from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
@@ -29,7 +29,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
 
     name = "Turbostat"
-    stname = "turbostat"
+    stnames = ["turbostat"]
 
     def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
@@ -42,11 +42,13 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                      Defaults to 'outdir'.
         """
 
-        self._time_metric = "TimeElapsed"
-
         self._snames: list[str] = []
 
         dfs = self._load_dfs(lrsts)
+
+        self._time_colname = self._get_time_colname(lrsts)
+        print(f"{self.name} time column: {self._time_colname}")
+
         mdd = self._get_merged_mdd(lrsts)
         self._categories = self.get_merged_categories(lrsts)
 
@@ -68,11 +70,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         cdd = self._build_cdd(mdd, colnames=colnames)
         super().__init__(dfs, cdd, outdir / self.name, basedir=basedir)
-
-        # Convert the elapsed time column in dataframes to the "datetime" format so that
-        # diagrams use a human-readable format.
-        for df in dfs.values():
-            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],
@@ -134,7 +131,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            dtab = self._build_def_dtab_cfg(colname, self._time_metric, {}, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, self._time_colname, {}, title=metric)
             dtabs.append(dtab)
 
         if dtabs:
@@ -269,12 +266,13 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dfs = {}
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            lres.load_stat(self.stname)
+                lres.load_stat(stname)
 
-            dfs[lres.reportid] = lres.lsts[self.stname].df
+                dfs[lres.reportid] = lres.lsts[stname].df
 
         return dfs
 
@@ -292,10 +290,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         mdd: dict[str, MDTypedDict] = {}
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            mdd.update(lres.lsts[self.stname].mdd)
+                mdd.update(lres.lsts[stname].mdd)
 
         return mdd
 
@@ -339,10 +338,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         merged_categories: dict[str, Any] = {}
 
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            lstat = lres.lsts[self.stname]
-            _merge(merged_categories, lstat.categories)
+                lstat = lres.lsts[stname]
+                _merge(merged_categories, lstat.categories)
 
         return merged_categories

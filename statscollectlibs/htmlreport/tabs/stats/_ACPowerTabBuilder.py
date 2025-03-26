@@ -23,7 +23,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     """Provide the capability of populating the AC Power statistics tab."""
 
     name = "AC Power"
-    stname = "acpower"
+    stnames = ["acpower"]
 
     def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """
@@ -36,18 +36,15 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
                      Defaults to 'outdir'.
         """
 
-        self._time_metric = "TimeElapsed"
-
         dfs = self._load_dfs(lrsts)
+
+        self._time_colname = self._get_time_colname(lrsts)
+        print(f"{self.name} time column: {self._time_colname}")
+
         mdd = self._get_merged_mdd(lrsts)
 
         cdd = self._build_cdd(mdd)
         super().__init__(dfs, cdd, outdir, basedir=basedir)
-
-        # Convert the elapsed time metric to the "datetime" format so that diagrams use a
-        # human-readable format.
-        for df in self._dfs.values():
-            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
     def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
         """
@@ -60,7 +57,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         power_metric = "P"
 
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_metric, {})
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_colname, {})
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name
@@ -79,12 +76,13 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         dfs = {}
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            lres.load_stat(self.stname)
+                lres.load_stat(stname)
 
-            dfs[lres.reportid] = lres.lsts[self.stname].df
+                dfs[lres.reportid] = lres.lsts[stname].df
 
         return dfs
 
@@ -102,9 +100,10 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         mdd: dict[str, MDTypedDict] = {}
         for lres in lrsts:
-            if self.stname not in lres.res.info["stinfo"]:
-                continue
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
 
-            mdd.update(lres.lsts[self.stname].mdd)
+                mdd.update(lres.lsts[stname].mdd)
 
         return mdd

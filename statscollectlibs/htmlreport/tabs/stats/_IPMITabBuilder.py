@@ -41,19 +41,15 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
                      Defaults to 'outdir'.
         """
 
-        self._time_metric = "TimeElapsed"
-
         self._message_if_mixed(lrsts)
 
         dfs, mdd, self._categories = self._load(lrsts)
 
+        self._time_colname = self._get_time_colname(lrsts)
+        print(f"{self.name} time column: {self._time_colname}")
+
         cdd = self._build_cdd(mdd)
         super().__init__(dfs, cdd, outdir, basedir=basedir)
-
-        # Convert the elapsed time metric to the "datetime" format so that diagrams use a
-        # human-readable format.
-        for df in self._dfs.values():
-            df[self._time_metric] = pandas.to_datetime(df[self._time_metric], unit="s")
 
     def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
         """
@@ -98,7 +94,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, self._time_metric, {}, title=metric)
+                dtab = self._build_def_dtab_cfg(metric, self._time_colname, {}, title=metric)
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)

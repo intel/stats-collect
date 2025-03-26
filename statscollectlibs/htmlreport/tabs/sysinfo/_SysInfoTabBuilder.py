@@ -33,7 +33,20 @@ class SysInfoTabBuilder:
     """
 
     name = "SysInfo"
-    stname = "sysinfo"
+    stnames = ["sysinfo"]
+
+    def __init__(self, _: list[LoadedResult], outdir: Path, basedir: Path | None = None):
+        """
+        The class constructor.
+
+        Args:
+            _: Unused argument, only present to match the constructor signature of other tab.
+            outdir: The output directory path where the "SysInfo" tab files should be placed.
+            basedir: The report base directory path, defaults to 'outdir'.
+        """
+
+        self._outdir = outdir
+        self._basedir = basedir if basedir else outdir
 
     def get_tab(self, lrsts: list[LoadedResult]) -> _Tabs.CTabDC:
         """
@@ -84,15 +97,3 @@ class SysInfoTabBuilder:
             raise Error(f"All '{self.name}' tabs were skipped")
 
         return _Tabs.CTabDC(self.name, tabs=tabs)
-
-    def __init__(self, outdir: Path, basedir: Path | None = None):
-        """
-        The class constructor.
-
-        Args:
-            outdir: The output directory path where the "SysInfo" tab files should be placed.
-            basedir: The report base directory path, defaults to 'outdir'.
-        """
-
-        self._outdir = outdir
-        self._basedir = basedir if basedir else outdir
