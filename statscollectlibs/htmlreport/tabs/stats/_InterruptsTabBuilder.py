@@ -136,27 +136,3 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
             ctabs.append(TabConfig.CTabConfig(sname, ctabs=category_ctabs))
 
         return TabConfig.CTabConfig(self.name, ctabs=ctabs)
-
-    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
-        """
-        Load the interrupts statistics dataframes for results in 'lrsts'.
-
-        Args:
-            lrsts: The loaded test result objects to load the dataframes for.
-
-        Returns:
-            A dictionary with keys being report IDs and values being interrupts statistics
-            dataframes.
-        """
-
-        dfs = {}
-        for lres in lrsts:
-            for stname in self.stnames:
-                if stname not in lres.res.info["stinfo"]:
-                    continue
-
-                lres.load_stat(stname)
-
-                dfs[lres.reportid] = lres.lsts[stname].df
-
-        return dfs

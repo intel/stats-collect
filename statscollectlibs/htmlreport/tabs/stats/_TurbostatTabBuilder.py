@@ -251,30 +251,6 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         raise Error("no turbostat metrics found")
 
-    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
-        """
-        Load the turbostat statistics dataframes for results in 'lrsts'.
-
-        Args:
-            lrsts: The loaded test result objects to load the dataframes for.
-
-        Returns:
-            A dictionary with keys being report IDs and values being turbostat statistics
-            dataframes.
-        """
-
-        dfs = {}
-        for lres in lrsts:
-            for stname in self.stnames:
-                if stname not in lres.res.info["stinfo"]:
-                    continue
-
-                lres.load_stat(stname)
-
-                dfs[lres.reportid] = lres.lsts[stname].df
-
-        return dfs
-
     def get_merged_categories(self, lrsts: list[LoadedResult]) -> dict[str, Any]:
         """
         Merge categories from different results into a single dictionary (in case some of the test

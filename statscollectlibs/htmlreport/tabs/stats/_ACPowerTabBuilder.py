@@ -60,26 +60,3 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name
         return dtab_cfg
-
-    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
-        """
-        Load the AC power statistics dataframes for results in 'lrsts'.
-
-        Args:
-            lrsts: The loaded test result objects to load the dataframes for.
-
-        Returns:
-            A dictionary with keys being report IDs and values being AC power statistics dataframes.
-        """
-
-        dfs = {}
-        for lres in lrsts:
-            for stname in self.stnames:
-                if stname not in lres.res.info["stinfo"]:
-                    continue
-
-                lres.load_stat(stname)
-
-                dfs[lres.reportid] = lres.lsts[stname].df
-
-        return dfs

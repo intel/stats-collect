@@ -134,8 +134,7 @@ class TabBuilderBase:
 
         time_colname = new_time_colname = ""
 
-        if not self.stnames:
-            raise Error(f"BUG: no statistics found for tab '{self.name}'")
+        assert self.stnames is not None
 
         # Get the time column name from the first loaded result.
         for lres in lrsts:
@@ -154,6 +153,31 @@ class TabBuilderBase:
             raise Error(f"BUG: no time column found for tab '{self.name}'")
 
         return time_colname
+
+    def _load_dfs(self, lrsts: list[LoadedResult]) -> dict[str, pandas.DataFrame]:
+        """
+        Load the statistics dataframes for results in 'lrsts'.
+
+        Args:
+            lrsts: The loaded test result objects to load the dataframes for.
+
+        Returns:
+            A dictionary with keys being report IDs and values being statistics dataframes.
+        """
+
+        assert self.stnames is not None
+
+        dfs = {}
+        for lres in lrsts:
+            for stname in self.stnames:
+                if stname not in lres.res.info["stinfo"]:
+                    continue
+
+                lres.load_stat(stname)
+
+                dfs[lres.reportid] = lres.lsts[stname].df
+
+        return dfs
 
     def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDTypedDict]:
         """
