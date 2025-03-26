@@ -12,14 +12,28 @@ Provide a class representing a loaded statistic.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+from typing import TypedDict
 import json
 from pathlib import Path
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
-from statscollectlibs.dfbuilders._DFBuilderBase import LoadedLablesTypedDict
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+
+class LoadedLablesTypedDict(TypedDict, total=False):
+    """
+    Type for a dictionary for storing loaded labels.
+
+    Attributes:
+        name: The name of the label.
+        ts: The time-stamp of the label.
+        metrics: The metrics the lable defines.
+    """
+
+    ts: int
+    name: str
+    metrics: dict[str, str]
 
 class LoadedLabels:
     """The loaded lables file class."""

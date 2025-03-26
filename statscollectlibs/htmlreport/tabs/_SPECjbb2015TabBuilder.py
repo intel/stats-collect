@@ -20,12 +20,13 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.dfbuilders._DFBuilderBase import TimeStampLimitsTypedDict
+from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
+from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # SPECjbb2015 metrics definition dictionary.
-_SPECJBB_MDD = {
+_SPECJBB_MDD: dict[str, CDTypedDict] = {
     "max-jOPS": {"name": "max-jOPS",
                  "title": "max-jOPS",
                  "descr": "max-jOPS is the SPECjbb2015 metric characterizing the throughput and "

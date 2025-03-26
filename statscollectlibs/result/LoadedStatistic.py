@@ -12,19 +12,39 @@ Provide a class representing a loaded statistic.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import Any, Union
+from typing import Any, Union, TypedDict
 import pandas
+import numpy
 from pepclibs.helperlibs import Logging
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.dfbuilders import _TurbostatDFBuilder, _InterruptsDFBuilder, _ACPowerDFBuilder
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
-from statscollectlibs.dfbuilders._DFBuilderBase import TimeStampLimitsTypedDict
-from statscollectlibs.dfbuilders._DFBuilderBase import LoadedLablesTypedDict
 from statscollectlibs.result.RORawResult import RORawResult
 from statscollectlibs.result.LoadedLabels import LoadedLabels
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+
+class TimeStampLimitsTypedDict(TypedDict, total=False):
+    """
+    Type for a dictionary for storing the time-stamp range for valid or interesting measurement
+    data.
+
+    Attributes:
+        begin: The start time-stamp for measurements. Data collected before this time are not valid
+               or interesting, and should be discarded.
+        end: The end time-stamp for measurements. Data collected after this time are not valid or
+             interesting and should be discarded.
+        absolute: Whether 'begin' and 'end' are absolute or relative time-stamp values. If True, the
+                  values are absolute time since the epoch. If False, the values are relative to the
+                  start of the measurements in seconds. For example, if 'begin' is 5, it means data
+                  collected during the first 5 seconds from the start of the measurements are not
+                  valid or interesting and should be discarded.
+    """
+
+    begin: int
+    end: int
+    absolute: bool
 
 DFBuilderType = Union[_TurbostatDFBuilder.TurbostatDFBuilder,
                       _InterruptsDFBuilder.InterruptsDFBuilder,
@@ -73,9 +93,78 @@ class LoadedStatsitic:
         self.mdd: dict[str, MDTypedDict] = {}
         self.categories: dict[str, Any] = {}
 
-    def _build_df(self, dfbldr: DFBuilderType) -> pandas.DataFrame:
+    def _apply_labels(self):
         """
-        Build and return a pandas DataFrame using the provided dataframe builder.
+        Apply labels to a statistics dataframe.
+
+        Notes:
+            - The "skip" lable removes all dataframe rows with timestamps starting from the label's
+              timestamp and ending at the "start" label timestamp.
+            - The "start" label sets the metrics for all dataframe rows with timestamps starting
+              from the label's timestamp and ending at the next label's timestamp.
+        """
+
+        if not self.ll:
+            return
+
+        labels = self.ll.labels
+        ts_col = self.df[self.ts_colname]
+
+        if labels[0]["ts"] > ts_col.iloc[-1]:
+            raise Error("Frst label's timestamp is after the last datapoint timestamp")
+
+        lcnt = len(labels)
+
+        for i, label in enumerate(labels):
+            # 'filtered_rows' contains an index of all of the datapoints which 'label' applies to.
+            filtered_rows = ts_col >= label["ts"]
+
+            if i < lcnt - 1:
+                # Only one label is applicable at a time. Therefore, if there is still at least one
+                # label to apply, only apply 'label' to datapoints before the next one is
+                # applicable.
+                next_label = labels[i + 1]
+                filtered_rows &= ts_col < next_label["ts"]
+
+            if label["name"] == "skip":
+                # Datapoints labelled 'skip' are dropped from the 'pandas.DataFrame'.
+                self.df.drop(self.df.loc[filtered_rows].index, inplace=True)
+                continue
+            elif label["name"] != "start":
+                raise Error(f"BUG: usupported label name {label['name']}")
+
+            if len(filtered_rows) < 1:
+                continue
+
+            for metric, val in label.get("metrics", {}).items():
+                # Assign 'val' in the column for the label metric for all of the datapoints which
+                # 'label' corresponds to.
+                self.df.loc[filtered_rows, metric] = val
+
+        # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
+        # indexing. Reindex the dataframe.
+        self.df = self.df.reset_index(drop=True)
+
+    def _apply_ts_limits(self):
+        """Apply time-stamp limits to the statistics dataframe."""
+
+        if not self._ts_limits:
+            return
+
+        if self._ts_limits["absolute"]:
+            colname = self.ts_colname
+        else:
+            colname = self.time_colname
+
+        self.df.drop(self.df.loc[self.df[colname] < self._ts_limits["begin"]].index, inplace=True)
+        self.df.drop(self.df.loc[self.df[colname] > self._ts_limits["end"]].index, inplace=True)
+
+        # Normalize the Elapsed time column to start from 0.
+        self.df[self.time_colname] -= self.df[self.time_colname].iloc[0]
+
+    def _build_df(self, dfbldr: DFBuilderType):
+        """
+        Build the statistics dataframe.
 
         Args:
             dfbldr: The dataframe builder object responsible for loading the data.
@@ -85,10 +174,33 @@ class LoadedStatsitic:
         """
 
         path = self.res.get_stats_path(self.stname)
-        labels: list[LoadedLablesTypedDict] | None  = None
-        if self.ll:
-            labels = self.ll.labels
-        return dfbldr.load_df(path, labels=labels, ts_limits=self._ts_limits)
+
+        _LOG.debug("Loading raw statistics file '%s'", path)
+
+        try:
+            self.df = dfbldr.build_df(path)
+        except ErrorBadFormat:
+            raise
+        except Exception as err:
+            errmsg = Error(str(err)).indent(2)
+            raise Error(f"Unable to load raw statistics file at path '{path}':\n{errmsg}") from err
+
+        if self.ts_colname not in self.df:
+            raise Error(f"Metric '{self.ts_colname}' was not found in statistics file '{path}'.")
+
+        self._apply_labels()
+
+        self._apply_ts_limits()
+
+        # Remove any 'infinite' values which can appear in raw statistics files.
+        self.df.replace([numpy.inf, -numpy.inf], numpy.nan, inplace=True)
+        if self.df.isnull().values.any():
+            _LOG.warning("Dropping one or more 'nan' values from statistics file '%s'", path)
+            self.df.dropna(inplace=True)
+
+            # Some 'pandas' operations break on 'pandas.DataFrame' instances without consistent
+            # indexing. Reset the index to avoid any of these problems.
+            self.df.reset_index(inplace=True)
 
     def load(self):
         """
@@ -118,7 +230,7 @@ class LoadedStatsitic:
         self.ts_colname = dfbldr.ts_colname
         self.time_colname = dfbldr.time_colname
 
-        self.df = self._build_df(dfbldr)
+        self._build_df(dfbldr)
 
         assert dfbldr.mdo is not None
         self.mdd = dfbldr.mdo.mdd
@@ -147,6 +259,11 @@ class LoadedStatsitic:
                             (local time since the epoch). If False, interpret them as relative
                             values in seconds from the beginning of the measurements.
         """
+
+        # The 'ts_limits' dictionary sanity check.
+        for key in ("begin", "end", "absolute"):
+            if key not in ts_limits:
+                raise Error(f"BUG: bad time-stamp limits dictionary, key {key} is missing")
 
         if ts_limits["begin"] >= ts_limits["end"]:
             raise Error(f"Bad raw statistics time-stamp limits: begin time-stamp "

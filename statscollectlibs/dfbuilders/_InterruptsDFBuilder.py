@@ -16,14 +16,14 @@ from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.dfbuilders import _DFBuilderBase
+from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.parsers import InterruptsParser
 from statscollectlibs.parsers.InterruptsParser import DataSetTypedDict
 from statscollectlibs.mdc import InterruptsMDC
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
+class InterruptsDFBuilder:
     """
     Parse raw interrupt statistics file and build a dataframe.
     """
@@ -53,7 +53,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         # measurements.
         self.time_colname = "TimeElapsed"
 
-        self._time_colnames = [self.time_colname, self.ts_colname]
+        self.time_colnames = [self.time_colname, self.ts_colname]
 
         # Total number of all interrupts on all CPUs.
         self._total_metric = "Total"
@@ -67,12 +67,10 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         self._total_metrics_set = {self._total_metric, self._total_irq_metric,
                                    self._total_xyz_metric}
 
-        # These are initialized in '_read_stats_file()'.
+        # These are initialized in 'build_df()'.
         self._path: Path
         self._data: list[list[int | float]]
         self._first_ts: float | None
-
-        super().__init__(self.ts_colname, self.time_colname)
 
     def _get_totals(self, dataset: DataSetTypedDict, sname: str) -> dict[str, int]:
         """
@@ -145,7 +143,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         # Calculate and add the interrupts for every column in 'irq_colnames'.
         for colname in irq_colnames:
-            sname, irqname = _DFBuilderBase.split_colname(colname)
+            sname, irqname = _DFHelpers.split_colname(colname)
             if not sname:
                 continue
 
@@ -274,15 +272,15 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         new_colnames = []
 
         for colname in colnames:
-            _, irqname = _DFBuilderBase.split_colname(colname)
+            _, irqname = _DFHelpers.split_colname(colname)
             if irqname in dataset["irq_info"] or irqname in self._total_metrics_set:
                 new_colnames.append(colname)
 
         return new_colnames
 
-    def _read_stats_file(self, path: Path) -> pandas.DataFrame:
+    def build_df(self, path: Path) -> pandas.DataFrame:
         """
-        Parse the raw interrupt statistics file and build the dataframe.
+        Build the interrupts statistics dataframe from the raw statistics file.
 
         Args:
             path: Raw interrupts statistics file path.
@@ -312,7 +310,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
             self._add_dataset(dataset, irq_colnames, no_data_colnames=irq_rate_colnames)
 
         # The raw file is parsed, and all the data are in 'self._data'. Now build the dataframe.
-        colnames = self._time_colnames + irq_colnames
+        colnames = self.time_colnames + irq_colnames
 
         df = pandas.DataFrame(self._data, columns=colnames + irq_rate_colnames)
 
@@ -352,7 +350,7 @@ class InterruptsDFBuilder(_DFBuilderBase.DFBuilderBase):
         metrics = []
         metrics_set = set()
         for colname in colnames:
-            _, metric = _DFBuilderBase.split_colname(colname)
+            _, metric = _DFHelpers.split_colname(colname)
             if metric not in metrics_set:
                 metrics.append(metric)
                 metrics_set.add(metric)

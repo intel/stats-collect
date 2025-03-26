@@ -17,11 +17,10 @@ from typing import Any
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
-from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import TurbostatMDC
 
-class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
+class TurbostatDFBuilder:
     """
     Provide the capability of building a 'pandas.DataFrames' out of raw turbostat statistics files.
     """
@@ -43,7 +42,8 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         # measurements.
         self.time_colname = "TimeElapsed"
 
-        super().__init__(self.ts_colname, self.time_colname)
+        # Theis is initialized in 'build_df()'.
+        self._path: Path
 
     def _build_cols_dict(self,
                          tstat: dict[str, Any],
@@ -127,9 +127,9 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
 
         return pandas.DataFrame.from_dict(cols_dict)
 
-    def _read_stats_file(self, path: Path) -> pandas.DataFrame:
+    def build_df(self, path: Path) -> pandas.DataFrame:
         """
-        Read a raw turbostat statistics file and return its data as a pandas dataframe.
+        Build the turbostat statistics dataframe from the raw statistics file.
 
         Args:
             path: The file path to the raw turbostat statistics file.
@@ -140,6 +140,8 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
         Raises:
             ErrorBadFormat: If the raw statistics file does not include time-stamps.
         """
+
+        self._path = path
 
         parser = TurbostatParser.TurbostatParser(path, derivatives=True)
         generator = parser.next()
@@ -152,7 +154,7 @@ class TurbostatDFBuilder(_DFBuilderBase.DFBuilderBase):
                         f"'{path}") from None
 
         # Sanity check.
-        if self._ts_colname not in dataset["totals"]:
+        if self.ts_colname not in dataset["totals"]:
             raise ErrorBadFormat(f"Rejecting turbostat statistics file '{path}' - it does not "
                                  f"include time-stamps.\nCollect turbostat statistics with the "
                                  f"'--enable Time_Of_Day_Seconds' option to include time-stamps.")

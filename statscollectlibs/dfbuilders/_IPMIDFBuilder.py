@@ -24,10 +24,9 @@ from typing import Any
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.mdc import IPMIMDC
-from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.parsers import IPMIParser
 
-class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
+class IPMIDFBuilder:
     """
     Provide the capability of building a 'pandas.DataFrames' object out of IPMI statistics files.
     """
@@ -42,8 +41,6 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         # Name of the dataframe column containing the time elapsed since the beginning of the
         # measurements.
         self.time_colname = "TimeElapsed"
-
-        super().__init__(self.ts_colname, self.time_colname)
 
     # TODO: annotate IPMIparser, use correct type in this module.
     @staticmethod
@@ -81,9 +78,9 @@ class IPMIDFBuilder(_DFBuilderBase.DFBuilderBase):
         reduced_dp = {metric:[val] for metric, val in _reduce_dp()}
         return pandas.DataFrame.from_dict(reduced_dp)
 
-    def _read_stats_file(self, path: Path) -> pandas.DataFrame:
+    def build_df(self, path: Path) -> pandas.DataFrame:
         """
-        Read a raw IPIP statistics file and return its data as a pandas dataframe.
+        Build the IPMI statistics dataframe from the raw statistics file.
 
         Args:
             path: The file path to the raw IPMI statistics file.

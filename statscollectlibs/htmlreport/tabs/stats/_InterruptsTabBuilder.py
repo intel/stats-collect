@@ -17,7 +17,7 @@ import pandas
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.dfbuilders import _DFBuilderBase
+from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 
@@ -55,7 +55,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
                     colnames.append(colname)
                     colnames_set.add(colname)
 
-                    sname, _ = _DFBuilderBase.split_colname(colname)
+                    sname, _ = _DFHelpers.split_colname(colname)
                     if sname is not None:
                         self._tab_colnames.append(colname)
 
@@ -94,7 +94,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         # Adjust the descriptions of the columns.
         for colname in colnames:
             cd = cdd[colname]
-            sname, metric = _DFBuilderBase.split_colname(colname)
+            sname, metric = _DFHelpers.split_colname(colname)
 
             if sname == "System":
                 if cd["scope"] == "system":
@@ -124,7 +124,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
         dtabs: dict[str, dict[str, list[TabConfig.DTabConfig]]] = {}
 
         for colname in self._tab_colnames:
-            sname, metric = _DFBuilderBase.split_colname(colname)
+            sname, metric = _DFHelpers.split_colname(colname)
             if sname is None:
                 continue
 

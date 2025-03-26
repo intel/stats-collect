@@ -17,10 +17,9 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.dfbuilders import _DFBuilderBase
 from statscollectlibs.mdc import ACPowerMDC
 
-class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
+class ACPowerDFBuilder:
     """
     Provide the capability of building a 'pandas.DataFrame' object out of a raw AC Power statistics
     file.
@@ -37,11 +36,9 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         # measurements.
         self.time_colname = "TimeElapsed"
 
-        super().__init__(self.ts_colname, self._time_colname)
-
-    def _read_stats_file(self, path: Path) -> pandas.DataFrame:
+    def build_df(self, path: Path) -> pandas.DataFrame:
         """
-        Read a raw AC power statistics file and return its data as a pandas dataframe.
+        Build the AC power statistics dataframe from the raw statistics file.
 
         Args:
             path: The file path to the raw AC power statistics file.
@@ -51,7 +48,7 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
         """
 
         # Read only the columns defined in the MDC.
-        usecols = [metric for metric in self.mdo.mdd if metric != self._time_colname]
+        usecols = [metric for metric in self.mdo.mdd if metric != self.time_colname]
 
         try:
             # The 'skipfooter' parameter only available with the "python" engine.
@@ -68,6 +65,6 @@ class ACPowerDFBuilder(_DFBuilderBase.DFBuilderBase):
                         f"CSV file '{path}")
 
         # Add the 'TImeElapsed' column for the time elapsed since the beginning of measurements.
-        df[self._time_colname] = df[self._ts_colname] - df[self._ts_colname].iloc[0]
+        df[self.time_colname] = df[self.ts_colname] - df[self.ts_colname].iloc[0]
 
         return df

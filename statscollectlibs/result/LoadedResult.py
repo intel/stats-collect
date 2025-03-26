@@ -15,9 +15,8 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.dfbuilders._DFBuilderBase import TimeStampLimitsTypedDict
 from statscollectlibs.result.LoadedLabels import LoadedLabels
-from statscollectlibs.result.LoadedStatistic import LoadedStatsitic
+from statscollectlibs.result.LoadedStatistic import LoadedStatsitic, TimeStampLimitsTypedDict
 from statscollectlibs.result import RORawResult
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 
