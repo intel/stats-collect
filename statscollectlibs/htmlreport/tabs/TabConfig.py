@@ -20,22 +20,24 @@ from pepclibs.helperlibs.Exceptions import Error
 class DTabConfig:
     """This class provides the API used to configure the contents of a data tab."""
 
-    def add_hist(self, mdef):
-        """Add a histogram for metric with definition dictionary 'mdef' to the data tab."""
-        self.hists.append(mdef)
+    def add_hist(self, colname):
+        """Add a histogram for dataframe column 'colname' to the data tab."""
+        self.hists.append(colname)
 
-    def add_chist(self, mdef):
+    def add_chist(self, colname):
         """
-        Add a cumulative histogram for metric with definition dictionary 'mdef' to the data tab.
+        Add a cumulative histogram for dataframe column 'colname' to the data tab.
         """
-        self.chists.append(mdef)
+        self.chists.append(colname)
 
-    def add_scatter_plot(self, xdef, ydef):
+    def add_scatter_plot(self, xcolname, ycolname):
         """
-        Add a scatter plot for metrics with definition dictionary 'xdef', and 'ydef' to the data
-        tab.
+        Add a scatter plot for dataframe columns 'xcolname' and 'ycolname' to the data tab.
         """
-        self.scatter_plots.append((xdef, ydef,))
+        assert isinstance(xcolname, str)
+        assert isinstance(ycolname, str)
+        print(ycolname)
+        self.scatter_plots.append((xcolname, ycolname,))
 
     def add_alert(self, alert):
         """Set the alert message for the data tab."""
