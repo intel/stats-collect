@@ -228,15 +228,9 @@ class HTMLReport:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
 
-    def _generate_tabs(self, tab_cfgs: dict[str, CTabConfig] | None) -> list[_Tabs.CTabDC]:
+    def _generate_tabs(self) -> list[_Tabs.CTabDC]:
         """
         Generate statistics and system information tabs.
-
-        Args:
-            tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
-                      configuration customizes the contents of the 'stname' statistics tab. If an
-                      'stname' is not provided in 'tab_cfgs', the default tab configuration will be
-                      used.
 
         Returns:
             list: A list of generated tabs.
@@ -247,7 +241,7 @@ class HTMLReport:
         self._init_tab_builders()
 
         if self._stats_tbldr:
-            tabs.append(self._stats_tbldr.get_tab(tab_cfgs=tab_cfgs))
+            tabs.append(self._stats_tbldr.get_tab())
 
         if not self._sysinfo_tbldr:
             return tabs
@@ -261,26 +255,9 @@ class HTMLReport:
 
         return tabs
 
-    def get_default_tab_cfgs(self) -> dict[str, CTabConfig]:
-        """
-        Get the default tab configuration for all statistics.
-
-        Returns:
-            A dictionary containing default tab configurations in the format
-            '{stname: CTabConfig}' with an entry for each 'stname' (statistics name).
-        """
-
-        self._init_tab_builders()
-
-        if not self._stats_tbldr:
-            return {}
-
-        return self._stats_tbldr.get_default_tab_cfgs()
-
     def generate_report(self,
                         tabs: list[_Tabs.CTabDC] | None = None,
-                        intro_tbl: _IntroTable.IntroTable | None = None,
-                        tab_cfgs: dict[str, CTabConfig] | None = None):
+                        intro_tbl: _IntroTable.IntroTable | None = None):
         """
         Generate a 'stats-collect' statistics file in the HTML report directory.
 
@@ -288,10 +265,6 @@ class HTMLReport:
             tabs: A list of additional container tabs to include in the report.
             intro_tbl: An instance representing the table to include in the report. If not provided,
                        it will be omitted from the report.
-            tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
-                      configuration customizes the contents of the 'stname' statistics tab.
-                      If an 'stname' is not provided in 'tab_cfgs', the default tab configuration
-                      will be used.
         """
 
         if not tabs:
@@ -316,7 +289,7 @@ class HTMLReport:
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
         if self._lrsts:
-            tabs += self._generate_tabs(tab_cfgs)
+            tabs += self._generate_tabs()
 
         # Convert Dataclasses to dictionaries so that they are JSON serializable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]

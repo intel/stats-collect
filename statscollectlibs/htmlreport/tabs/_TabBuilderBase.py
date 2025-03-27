@@ -342,17 +342,13 @@ class TabBuilderBase:
 
         raise NotImplementedError()
 
-    def get_tab(self, tab_cfg=None):
+    def get_tab(self):
         """
         Return a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
-        statistic files. The arguments are as follows.
-          * tab_cfg - an instance of 'TabConfig.CTabConfig' or 'Tab.DTabConfig'. If provided, the
-            tab builder will attempt to build the tab according to the provided configuration.
-            Otherwise, by default, the default tab configuration will be used to build the tab.
+        statistic files.
         """
 
-        if tab_cfg is None:
-            return self.get_tab(self.get_default_tab_cfg())
+        tab_cfg = self.get_default_tab_cfg()
 
         if isinstance(tab_cfg, TabConfig.CTabConfig):
             return self._build_ctab(self._outdir, tab_cfg)

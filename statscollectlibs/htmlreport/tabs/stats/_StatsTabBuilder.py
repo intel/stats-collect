@@ -63,39 +63,20 @@ class StatsTabBuilder:
 
         self._init_tab_bldrs()
 
-    def get_default_tab_cfgs(self) -> dict[str, CTabConfig]:
-        """
-        Get the default statistics tabs configuration.
-
-        Returns:
-            A dictionary containing the default tab configurations for all statistics in the format
-            '{stname: CTabConfig}'.
-        """
-
-        return {stname: tbldr.get_default_tab_cfg() for stname, tbldr in self._tbldrs.items()}
-
-    def get_tab(self, tab_cfgs: dict[str, CTabConfig] | None = None) -> _Tabs.CTabDC:
+    def get_tab(self) -> _Tabs.CTabDC:
         """
         Generate and return the the statistics container tab (the top-level "Stats" tab in the HTML
         report).
-
-        Args:
-            tab_cfgs: A dictionary of tab configurations, where the key is the statistics collector
-                      name and the value is the configuration for that tab.
 
         Returns:
             _Tabs.CTabDC: The generated statistics container tab.
         """
 
-        if tab_cfgs is None:
-            tab_cfgs = {}
-
         tabs = []
-        for stname, tbldr in self._tbldrs.items():
+        for tbldr in self._tbldrs.values():
             _LOG.info("Generating '%s' tab.", tbldr.name)
             try:
-                tab_cfg = tab_cfgs.get(stname)
-                tabs.append(tbldr.get_tab(tab_cfg=tab_cfg))
+                tabs.append(tbldr.get_tab())
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate '%s' tab: %s", tbldr.name, err)
