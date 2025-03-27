@@ -111,7 +111,7 @@ General options
     Path to the named pipe where the executed command is going to
     write the lables to. The named pipe is created on the SUT ('HOSTNAME').
     The labels are used for the X-axix in the HTML reports. Use the special
-   keyword "auto" to instruce 'stats-collect' to automatically create a
+   keyword "auto" to instruct 'stats-collect' to automatically create a
    named pipe in the temporary directory (use the "{PIPE_PATH}"
    placeholder in workload's command line to get the path in this case).
    No named pipe is created by default.

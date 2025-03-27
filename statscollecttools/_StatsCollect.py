@@ -121,7 +121,7 @@ def _build_arguments_parser():
     subpars.add_argument("--cmd-local", action="store_true", help=text)
 
     text = """Path to the named pipe where the executed command is going to write the lables to (on
-              'HOSTNAME'). Use the special keyword "auto" to instruce 'stats-collect' to
+              'HOSTNAME'). Use the special keyword "auto" to instruct 'stats-collect' to
               automatically create a named pipe in the temporary directory (use the "{PIPE_PATH}"
               placeholder on workload's command line to get the path in this case). No named pipe is
               created by default."""
