@@ -41,7 +41,8 @@ class StatsCollectHTMLReport:
         Args:
             rsts: List of of test results objects ('RORawResult') to generate the HTML report for.
             outdir: The output directory to place the HTML report in.
-            cpus: List of CPU numbers to include in the report along with the system-wide statistics.
+            cpus: List of CPU numbers to include in the report along with the system-wide
+                  statistics.
             logpath: The HTML report generation log file path.
         """
 
@@ -205,7 +206,8 @@ class StatsCollectHTMLReport:
     def generate(self):
         """Generate the HTML report."""
 
-        rep = HTMLReport.HTMLReport(self.outdir, logpath=self.logpath)
+        title="stats-collect report"
+        rep = HTMLReport.HTMLReport(self._lrsts, title, self.outdir, logpath=self.logpath)
 
         results_tab = self._get_results_tab(rep.tabs_dir)
         tabs = [results_tab] if results_tab else None
@@ -215,5 +217,4 @@ class StatsCollectHTMLReport:
         self._raw_logs_paths, self._raw_wldata_paths = self._copy_raw_data()
 
         self._generate_intro_table(self.rsts)
-        rep.generate_report(tabs=tabs, lrsts=self._lrsts, intro_tbl=self._intro_tbl,
-                            title="stats-collect report")
+        rep.generate_report(tabs=tabs, intro_tbl=self._intro_tbl)

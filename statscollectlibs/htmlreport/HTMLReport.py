@@ -20,7 +20,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 import dataclasses
 import json
 from pathlib import Path
-from typing import Any
+from typing import TypedDict, Any
 import plotly # type: ignore[import-untyped]
 from packaging import version
 from pepclibs.helperlibs import Logging
@@ -117,6 +117,31 @@ def validate_outdir(outdir: Path):
             raise ErrorExists(f"Cannot use path '{outdir}' as the output directory, it already "
                               f"contains '{index_path.name}'")
 
+class _JSReportInfo(TypedDict, total=False):
+    """
+    A dictionary containing information for generating the 'report_info.json' file, which is the top
+    level JSON file describing the report as a whole and read by the Javascript code of the HTML
+    report.
+
+    Args:
+        title: The title of the report.
+        descr: A description of the report (no description if not provided).
+        toolname: The name of the tool used to generate the report.
+        toolver: The version of the tool used to generate the report.
+        logpath: The path to the log file from the tool that generated the report (e.g., from
+                 'stats-collect report').
+        intro_tbl: The path to the introduction table JSON file (contains the intro table).
+        tab_file: The path to the tabs JSON file (contains information about every tab).
+    """
+
+    title: str
+    descr: str | None
+    toolname: str
+    toolver: str
+    logpath: Path | None
+    intro_tbl: Path | None
+    tab_file: Path
+
 class HTMLReport:
     """
     Provide API for generating 'stats-collect' statistics tab in HTML report.
@@ -126,20 +151,48 @@ class HTMLReport:
     tab.
     """
 
-    def __init__(self, outdir: Path, logpath: Path | None = None):
+    def __init__(self,
+                 lrsts: list[LoadedResult],
+                 title: str,
+                 outdir: Path,
+                 logpath: Path | None = None,
+                 descr: str | None = None,
+                 toolname: str | None = None,
+                 toolver: str | None = None):
         """
         Initialize a class instatnce.
 
         Args:
+            lrsts: A list of loaded test result objects to generate the report for.
             outdir: The directory which will contain the report.
-            logpath: The path to the report generation log file.
+            logpath: The path to the log file from the tool that generated the report (e.g., from
+                    'stats-collect report').
+            title: The title of the report. If not provided, the title is omitted.
+            descr: A description of the report. If not provided, the description is omitted.
+            toolname: Override the name of the tool used to generate the report. Defaults to
+                     'stats-collect'. Should be used with the 'toolver' parameter.
+            toolver: Override the version of the tool used to generate the report. Defaults to the
+                     current version of 'stats-collect'.
         """
 
-        self._outdir = Path(outdir)
+        if (toolname and not toolver) or (not toolname and toolver):
+            raise Error("BUG: One of 'toolname' and 'toolver' was provided. Either both 'toolname' "
+                        "and 'toolver' should be provided or neither of the options.")
+        if not toolname:
+            toolname = ToolInfo.TOOLNAME
+        if not toolver:
+            toolver = ToolInfo.VERSION
+
+        self._lrsts = lrsts
+        self._title = title
+        self._outdir = outdir
+        self.logpath = logpath
+        self._descr = descr
+        self._toolname = toolname
+        self._toolver = toolver
+
         self._data_dir = self._outdir / "report-data"
         self.tabs_dir = self._data_dir / "tabs"
-
-        self.logpath = logpath
 
         self._stats_tbldr: _StatsTabBuilder.StatsTabBuilder | None = None
         self._sysinfo_tbldr: _SysInfoTabBuilder.SysInfoTabBuilder | None = None
@@ -147,41 +200,34 @@ class HTMLReport:
         _check_plotly_ver()
         validate_outdir(outdir)
 
-    def _init_tab_builders(self, lrsts: list[LoadedResult]):
-        """
-        Initialize tab builders for all results in 'lrsts'.
-
-        Args:
-            lrsts: List of loaded result objects to initialize the tab builders for.
-        """
+    def _init_tab_builders(self):
+        """Initialize tab builders for all test results."""
 
         # Only try and generate the statistics tab if statistics were collected.
-        collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in lrsts])
+        collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in self._lrsts])
 
         sysinfo_tbldr = _SysInfoTabBuilder.SysInfoTabBuilder
         for stname in sysinfo_tbldr.stnames:
             if stname in collected_stnames:
-                self._sysinfo_tbldr = sysinfo_tbldr(lrsts, self.tabs_dir, basedir=self._outdir)
+                self._sysinfo_tbldr = sysinfo_tbldr(self._lrsts, self.tabs_dir,
+                                                    basedir=self._outdir)
                 break
 
         collected_stnames -= {sysinfo_tbldr.name}
 
         if collected_stnames:
             try:
-                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(lrsts, self.tabs_dir,
+                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(self._lrsts, self.tabs_dir,
                                                                      basedir=self._outdir)
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
 
-    def _generate_tabs(self,
-                       lrsts: list[LoadedResult],
-                       tab_cfgs: dict[str, CTabConfig] | None) -> list[_Tabs.CTabDC]:
+    def _generate_tabs(self, tab_cfgs: dict[str, CTabConfig] | None) -> list[_Tabs.CTabDC]:
         """
         Generate statistics and system information tabs.
 
         Args:
-            rrsts: List of loaded test result objects to generate the tabs for.
             tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
                       configuration customizes the contents of the 'stname' statistics tab. If an
                       'stname' is not provided in 'tab_cfgs', the default tab configuration will be
@@ -193,7 +239,7 @@ class HTMLReport:
 
         tabs = []
 
-        self._init_tab_builders(lrsts)
+        self._init_tab_builders()
 
         if self._stats_tbldr:
             tabs.append(self._stats_tbldr.get_tab(tab_cfgs=tab_cfgs))
@@ -202,7 +248,7 @@ class HTMLReport:
             return tabs
 
         try:
-            sysinfo_tab = self._sysinfo_tbldr.get_tab(lrsts)
+            sysinfo_tab = self._sysinfo_tbldr.get_tab(self._lrsts)
             tabs.append(sysinfo_tab)
         except Error as err:
             _LOG.debug_print_stacktrace()
@@ -210,19 +256,16 @@ class HTMLReport:
 
         return tabs
 
-    def get_default_tab_cfgs(self, lrsts: list[LoadedResult]) -> dict[str, CTabConfig]:
+    def get_default_tab_cfgs(self) -> dict[str, CTabConfig]:
         """
-        Get the default tab configuration for all statistics in 'lrsts'.
-
-        Args:get_default_tab_cfgs
-            lrsts: List of loaded test result objects to get the default tabs configurations for.
+        Get the default tab configuration for all statistics.
 
         Returns:
             A dictionary containing default tab configurations in the format
             '{stname: CTabConfig}' with an entry for each 'stname' (statistics name).
         """
 
-        self._init_tab_builders(lrsts)
+        self._init_tab_builders()
 
         if not self._stats_tbldr:
             return {}
@@ -231,46 +274,20 @@ class HTMLReport:
 
     def generate_report(self,
                         tabs: list[_Tabs.CTabDC] | None = None,
-                        lrsts: list[LoadedResult] | None = None,
                         intro_tbl: _IntroTable.IntroTable | None = None,
-                        title: str | None = None,
-                        descr: str | None = None,
-                        toolname: str | None = None,
-                        toolver: str | None = None,
                         tab_cfgs: dict[str, CTabConfig] | None = None):
         """
         Generate a 'stats-collect' statistics file in the HTML report directory.
 
         Args:
             tabs: A list of additional container tabs to include in the report.
-            lrsts: A list of loaded test result objects to generate the report for.
             intro_tbl: An instance representing the table to include in the report. If not provided,
                        it will be omitted from the report.
-            title: The title of the report. If not provided, the title is omitted.
-            descr: A description of the report. If not provided, the description is omitted.
-            toolname: Override the name of the tool used to generate the report. Defaults to
-                     'stats-collect'. Should be used with the 'toolver' parameter.
-            toolver: Override the version of the tool used to generate the report. Defaults to the
-                     current version of 'stats-collect'.
             tab_cfgs: A dictionary in the format '{stname: CTabConfig}', where each tab
                       configuration customizes the contents of the 'stname' statistics tab.
                       If an 'stname' is not provided in 'tab_cfgs', the default tab configuration
                       will be used.
         """
-
-        if not tabs and not lrsts:
-            raise Error("BUG: Both 'tabs' and 'lrsts' can't be 'None'. One of the two parameters "
-                        "should be provided.")
-
-        if (toolname and not toolver) or (not toolname and toolver):
-            raise Error("BUG: One of 'toolname' and 'toolver' was provided. Either both 'toolname' "
-                        "and 'toolver' should be provided or neither of the options.")
-
-        if not toolname:
-            toolname = ToolInfo.TOOLNAME
-
-        if not toolver:
-            toolver = ToolInfo.VERSION
 
         if not tabs:
             tabs = []
@@ -282,13 +299,8 @@ class HTMLReport:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"Failed to create directory '{self._data_dir}':\n{errmsg}") from None
 
-        # 'report_info' stores data used by the Javascript to generate the main report page
-        # including the intro table, the file path of the tabs JSON dump plus the report title and
-        # description.
-        report_info: dict[str, str | Path | None] = {"title": title,
-                                                     "descr": descr,
-                                                     "toolname": toolname,
-                                                     "toolver": toolver}
+        report_info: _JSReportInfo = {"title": self._title, "descr": self._descr,
+                                      "toolname": self._toolname, "toolver": self._toolver}
 
         if self.logpath is not None:
             report_info["logpath"] = self.logpath
@@ -298,8 +310,8 @@ class HTMLReport:
             intro_tbl.generate(intro_tbl_path)
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
-        if lrsts:
-            tabs += self._generate_tabs(lrsts, tab_cfgs)
+        if self._lrsts:
+            tabs += self._generate_tabs(tab_cfgs)
 
         # Convert Dataclasses to dictionaries so that they are JSON serializable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]
