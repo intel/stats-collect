@@ -197,7 +197,7 @@ class RORawResult(_RawResultBase.RawResultBase):
     def _detect_wltype(self):
         """
         Detect the type of workload that was running during the collection of statistics in this raw
-        result.
+        result. The workload type is determined based on the workload data directory contents.
         """
 
         self.wltype = "generic"
@@ -347,26 +347,6 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         new_wlinfo: RawResultWLInfoTypedDict = {}
 
-        if "wldata_path" not in wlinfo:
-            raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wldata_path' key "
-                                 f"is missing")
-
-        if not wlinfo["wldata_path"]:
-            raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}' - "
-                                 f"'workload.wldata_path' is empty")
-
-        self.wldata_path = Path(wlinfo["wldata_path"])
-
-        if not self.wldata_path.is_absolute():
-            # Assume that the path is relative to the raw results directory path.
-            self.wldata_path = self.dirpath / self.wldata_path
-
-        if not self.wldata_path.is_dir():
-            raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}':\n"
-                                 f"  '{self.wldata_path}' does not exist or it is not a directory")
-
-        new_wlinfo["wldata_path"] =  self.wldata_path
-
         if "wltype" not in wlinfo:
             raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wltype' key is "
                                  f"missing")
@@ -380,6 +360,23 @@ class RORawResult(_RawResultBase.RawResultBase):
             raise ErrorBadFormat(f"Unsupported workload type '{self.wltype}' in '{self.info_path}'")
 
         new_wlinfo["wltype"] = self.wltype
+
+        if "wldata_path" in wlinfo:
+            if not wlinfo["wldata_path"]:
+                raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}' - "
+                                    f"'workload.wldata_path' is empty")
+            self.wldata_path = Path(wlinfo["wldata_path"])
+
+            if not self.wldata_path.is_absolute():
+                # Assume that the path is relative to the raw results directory path.
+                self.wldata_path = self.dirpath / self.wldata_path
+
+            if not self.wldata_path.is_dir():
+                raise ErrorBadFormat(f"Bad workload data path in '{self.info_path}':\n"
+                                    f"  '{self.wldata_path}' does not exist or it is not a "
+                                    f"directory")
+
+            new_wlinfo["wldata_path"] =  self.wldata_path
 
         return new_wlinfo
 
