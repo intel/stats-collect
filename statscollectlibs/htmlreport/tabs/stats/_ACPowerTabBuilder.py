@@ -23,7 +23,11 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "AC Power"
     stnames = ["acpower"]
 
-    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
+    def __init__(self,
+                 lrsts: list[LoadedResult],
+                 outdir: Path,
+                 basedir: Path | None = None,
+                 xmetric: str | None = None):
         """
         Initialize a class instance.
 
@@ -32,16 +36,20 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
             outdir: The output directory in which to create the sub-directory for the container tab.
             basedir: The base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
+            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
+                     X-axis will use the time elapsed since the beginning of the measurements.
         """
 
         dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
+        if not xmetric:
+            xmetric = self._time_colname
 
         mdd = self._get_merged_mdd(lrsts)
 
         cdd = self._build_cdd(mdd)
-        super().__init__(dfs, cdd, outdir, basedir=basedir)
+        super().__init__(dfs, cdd, outdir, basedir=basedir, xmetric=xmetric)
 
     def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
         """
@@ -54,7 +62,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         power_metric = "P"
 
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, self._time_colname, {})
+        dtab_cfg = self._build_def_dtab_cfg(power_metric, {})
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name

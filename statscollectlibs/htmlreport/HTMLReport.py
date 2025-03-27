@@ -158,7 +158,8 @@ class HTMLReport:
                  logpath: Path | None = None,
                  descr: str | None = None,
                  toolname: str | None = None,
-                 toolver: str | None = None):
+                 toolver: str | None = None,
+                 xmetric: str | None = None):
         """
         Initialize a class instatnce.
 
@@ -173,6 +174,8 @@ class HTMLReport:
                      'stats-collect'. Should be used with the 'toolver' parameter.
             toolver: Override the version of the tool used to generate the report. Defaults to the
                      current version of 'stats-collect'.
+            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
+                     X-axis will use the time elapsed since the beginning of the measurements.
         """
 
         if (toolname and not toolver) or (not toolname and toolver):
@@ -190,6 +193,7 @@ class HTMLReport:
         self._descr = descr
         self._toolname = toolname
         self._toolver = toolver
+        self._xmetric = xmetric
 
         self._data_dir = self._outdir / "report-data"
         self.tabs_dir = self._data_dir / "tabs"
@@ -218,7 +222,8 @@ class HTMLReport:
         if collected_stnames:
             try:
                 self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(self._lrsts, self.tabs_dir,
-                                                                     basedir=self._outdir)
+                                                                     basedir=self._outdir,
+                                                                     xmetric=self._xmetric)
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate statistics tabs: %s", err)

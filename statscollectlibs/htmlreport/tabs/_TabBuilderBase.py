@@ -55,7 +55,8 @@ class TabBuilderBase:
                  dfs: dict[str, pandas.DataFrame],
                  cdd: dict[str, CDTypedDict],
                  outdir: Path ,
-                 basedir: Path | None = None):
+                 basedir: Path | None = None,
+                 xmetric: str | None = None):
         """
         Initialize a class instance.
 
@@ -68,6 +69,8 @@ class TabBuilderBase:
             basedir: The base directory of the report. The 'outdir' is a sub-director y of
                      'basedir'. All links and pathes generated it the tab will be relative to
                      'basedir', as opposed to be absolute. Defaults to 'outdir'.
+            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
+                     X-axis will use the time elapsed since the beginning of the measurements.
         """
 
         if self.name is None:
@@ -81,6 +84,11 @@ class TabBuilderBase:
         self._cdd = cdd
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
+        self._xmetric = xmetric
+
+        if self._xmetric and self._xmetric not in cdd:
+            raise Error(f"BUG: the X-axis metric '{self._xmetric}' not found in the columns "
+                        f"definition dictionary for the '{self.name}' tab")
 
         try:
             self._outdir.mkdir(parents=True, exist_ok=True)
@@ -224,11 +232,11 @@ class TabBuilderBase:
 
         return funcs
 
-    def _build_def_dtab_cfg(self, y_metric, x_metric, hover_defs, hist=False, title=None):
+    def _build_def_dtab_cfg(self, ycolname, hover_defs, hist=False, title=None):
         """
         Provide a way to build a default data tab configuration. Return an instance of
         'TabConfig.DTabConfig'. The arguments are as follows.
-          * y_metric - the name of the metric which will be plotted on the y-axis of the tab's
+          * ycolname - the name of the metric which will be plotted on the y-axis of the tab's
                        scatter plot.
           * x_metric - the name of the metric which will be plotted on the x-axis of the tab's
                        scatter plot.
@@ -239,14 +247,17 @@ class TabBuilderBase:
           * title - optionally customize the name of the tab. Defaults to 'y_metric'.
         """
 
-        title = title if title is not None else y_metric
-        dtab = TabConfig.DTabConfig(title)
-        dtab.add_scatter_plot(x_metric, y_metric)
-        if hist:
-            dtab.add_hist(y_metric)
+        if not self._xmetric:
+            raise Error("BUG: the X-axis metric was not set")
 
-        smry_funcs = self._get_smry_funcs(y_metric)
-        dtab.set_smry_funcs({y_metric: smry_funcs})
+        title = title if title is not None else ycolname
+        dtab = TabConfig.DTabConfig(title)
+        dtab.add_scatter_plot(self._xmetric, ycolname)
+        if hist:
+            dtab.add_hist(ycolname)
+
+        smry_funcs = self._get_smry_funcs(ycolname)
+        dtab.set_smry_funcs({ycolname: smry_funcs})
         dtab.set_hover_defs(hover_defs)
 
         return dtab

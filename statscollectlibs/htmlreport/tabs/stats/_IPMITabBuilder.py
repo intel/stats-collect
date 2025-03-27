@@ -30,7 +30,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "IPMI"
     stnames = ["ipmi-inband", "ipmi-oob"]
 
-    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
+    def __init__(self,
+                 lrsts: list[LoadedResult],
+                 outdir: Path,
+                 basedir: Path | None = None,
+                 xmetric: str | None = None):
         """
         Initialize a class instance.
 
@@ -39,6 +43,8 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             outdir: The output directory in which to create the sub-directory for the container tab.
             basedir: The base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
+            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
+                     X-axis will use the time elapsed since the beginning of the measurements.
         """
 
         self._message_if_mixed(lrsts)
@@ -46,9 +52,11 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs, mdd, self._categories = self._load(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
+        if not xmetric:
+            xmetric = self._time_colname
 
         cdd = self._build_cdd(mdd)
-        super().__init__(dfs, cdd, outdir, basedir=basedir)
+        super().__init__(dfs, cdd, outdir, basedir=basedir, xmetric=xmetric)
 
     def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
         """
@@ -93,7 +101,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, self._time_colname, {}, title=metric)
+                dtab = self._build_def_dtab_cfg(metric, {}, title=metric)
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)

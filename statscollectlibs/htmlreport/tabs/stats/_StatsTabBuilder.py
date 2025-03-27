@@ -41,7 +41,8 @@ class StatsTabBuilder:
     def __init__(self,
                  lrsts: list[LoadedResult],
                  outdir: Path,
-                 basedir: Path | None = None):
+                 basedir: Path | None = None,
+                 xmetric: str | None = None):
         """
         Initialize a class instance.
 
@@ -49,11 +50,15 @@ class StatsTabBuilder:
             lrsts: list of loaded test result objects to generate the statistics tabs for.
             outdir: The output directory path to store that tabs data in.
             basedir: The base directory path (the 'outdir' should be a sub-path of 'basedir').
+            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
+                     X-axis will use the time elapsed since the beginning of the measurements.
         """
 
         self._lrsts = lrsts
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
+        self._xmetric = xmetric
+
         self._tbldrs: dict[str, _TabBuilderType] = {}
 
         self._init_tab_bldrs()
@@ -144,7 +149,10 @@ class StatsTabBuilder:
                 continue
 
             try:
-                self._tbldrs[stname] = tab_builder_class(self._lrsts, stats_dir, basedir=self._basedir)
+                self._tbldrs[stname] = tab_builder_class(self._lrsts, stats_dir,
+                                                         basedir=self._basedir,
+                                                         xmetric=self._xmetric)
+                _initialized_classes.add(tab_builder_class)
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder_class.name, tab_builder_class.name)

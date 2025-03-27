@@ -30,7 +30,11 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
     name = "Turbostat"
     stnames = ["turbostat"]
 
-    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
+    def __init__(self,
+                 lrsts: list[LoadedResult],
+                 outdir: Path,
+                 basedir: Path | None = None,
+                 xmetric: str | None = None):
         """
         Initialize a class instance.
 
@@ -39,6 +43,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             outdir: The output directory in which to create the sub-directory for the container tab.
             basedir: The base directory of the report. All paths should be made relative to this.
                      Defaults to 'outdir'.
+            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
+                     X-axis will use the time elapsed since the beginning of the measurements.
         """
 
         self._snames: list[str] = []
@@ -46,6 +52,8 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
         dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
+        if not xmetric:
+            xmetric = self._time_colname
 
         mdd = self._get_merged_mdd(lrsts)
         self._categories = self.get_merged_categories(lrsts)
@@ -67,7 +75,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                     colnames_set.add(colname)
 
         cdd = self._build_cdd(mdd, colnames=colnames)
-        super().__init__(dfs, cdd, outdir / self.name, basedir=basedir)
+        super().__init__(dfs, cdd, outdir / self.name, basedir=basedir, xmetric=xmetric)
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],
@@ -129,7 +137,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            dtab = self._build_def_dtab_cfg(colname, self._time_colname, {}, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, {}, title=metric)
             dtabs.append(dtab)
 
         if dtabs:
