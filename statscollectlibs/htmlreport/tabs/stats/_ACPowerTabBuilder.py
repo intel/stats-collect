@@ -49,7 +49,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         mdd = self._get_merged_mdd(lrsts)
 
         cdd = self._build_cdd(mdd)
-        super().__init__(dfs, cdd, outdir, basedir=basedir, xmetric=xmetric)
+        super().__init__(dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
 
     def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """

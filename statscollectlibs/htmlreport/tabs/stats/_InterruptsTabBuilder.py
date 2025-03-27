@@ -66,7 +66,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         mdd = self._get_merged_mdd(lrsts)
         cdd = self._build_cdd(mdd, colnames=colnames)
-        super().__init__(dfs, cdd, outdir, basedir=basedir, xmetric=xmetric)
+        super().__init__(dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],

@@ -56,7 +56,7 @@ class TabBuilderBase:
                  cdd: dict[str, CDTypedDict],
                  outdir: Path ,
                  basedir: Path | None = None,
-                 xmetric: str | None = None):
+                 xcolname: str | None = None):
         """
         Initialize a class instance.
 
@@ -69,8 +69,9 @@ class TabBuilderBase:
             basedir: The base directory of the report. The 'outdir' is a sub-director y of
                      'basedir'. All links and pathes generated it the tab will be relative to
                      'basedir', as opposed to be absolute. Defaults to 'outdir'.
-            xmetric: Name of the metric to use for the X-axis of the plots. If not provided, the
-                     X-axis will use the time elapsed since the beginning of the measurements.
+            xcolname: Name of the dataframe column to use for the X-axis of the plots. If not
+                      provided, the X-axis will use the time elapsed since the beginning of the
+                      measurements.
         """
 
         if self.name is None:
@@ -84,10 +85,10 @@ class TabBuilderBase:
         self._cdd = cdd
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
-        self._xmetric = xmetric
+        self.xcolname = xcolname
 
-        if self._xmetric and self._xmetric not in cdd:
-            raise Error(f"BUG: the X-axis metric '{self._xmetric}' not found in the columns "
+        if self.xcolname and self.xcolname not in cdd:
+            raise Error(f"BUG: the X-axis metric '{self.xcolname}' not found in the columns "
                         f"definition dictionary for the '{self.name}' tab")
 
         try:
@@ -238,8 +239,6 @@ class TabBuilderBase:
         'TabConfig.DTabConfig'. The arguments are as follows.
           * ycolname - the name of the metric which will be plotted on the y-axis of the tab's
                        scatter plot.
-          * x_metric - the name of the metric which will be plotted on the x-axis of the tab's
-                       scatter plot.
           * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
                          list of metric definition dictionaries for the metrics which should be
                          included on plots as hover text for the relevant report with id 'reportid'.
@@ -247,12 +246,12 @@ class TabBuilderBase:
           * title - optionally customize the name of the tab. Defaults to 'y_metric'.
         """
 
-        if not self._xmetric:
+        if not self.xcolname:
             raise Error("BUG: the X-axis metric was not set")
 
         title = title if title is not None else ycolname
         dtab = TabConfig.DTabConfig(title)
-        dtab.add_scatter_plot(self._xmetric, ycolname)
+        dtab.add_scatter_plot(self.xcolname, ycolname)
         if hist:
             dtab.add_hist(ycolname)
 
