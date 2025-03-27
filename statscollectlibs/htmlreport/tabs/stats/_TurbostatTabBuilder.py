@@ -137,7 +137,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            dtab = self._build_def_dtab_cfg(colname, title=metric)
+            dtab = self._build_dtab_cfg(colname, title=metric)
             dtabs.append(dtab)
 
         if dtabs:
@@ -238,13 +238,12 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return None
 
-    def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the default turbostat tab configuration. See
-        '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
+        Get a 'TabConfig.DTabConfig' instance with the turbostat tab configuration.
 
         Returns:
-            A 'TabConfig.DTabConfig' instance with the default turbostat tab configuration.
+            A 'TabConfig.DTabConfig' instance with the turbostat tab configuration.
         """
 
         l2_ctabs = []

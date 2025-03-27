@@ -59,7 +59,7 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
 
     name = "SPECjbb2105"
 
-    def get_default_tab_cfg(self):
+    def get_tab_cfg(self):
         """
         Return a 'TabConfig.DTabConfig' instance with the default 'SPECjbb2015' tab configuration.
         See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.

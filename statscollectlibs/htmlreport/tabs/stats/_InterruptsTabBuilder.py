@@ -111,13 +111,12 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return cdd
 
-    def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the default interrupts tab configuration. See
-        '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
+        Get a 'TabConfig.DTabConfig' instance with the interrupts tab configuration.
 
         Returns:
-            A 'TabConfig.DTabConfig' instance with the default interrupts tab configuration.
+            A 'TabConfig.DTabConfig' instance with the interrupts tab configuration.
         """
 
         # Scope -> Count/Rate -> list of 'TabConfig.DTabConfig' objects.
@@ -130,7 +129,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
             if sname not in dtabs:
                 dtabs[sname] = {"Interrupts Rate": [], "Interrupts Count": []}
-            dtab = self._build_def_dtab_cfg(colname, title=metric)
+            dtab = self._build_dtab_cfg(colname, title=metric)
             if metric.endswith("_rate"):
                 dtabs[sname]["Interrupts Rate"].append(dtab)
             else:

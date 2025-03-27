@@ -232,9 +232,9 @@ class TabBuilderBase:
 
         return funcs
 
-    def _build_def_dtab_cfg(self, ycolname, hover_defs=None, hist=False, title=None):
+    def _build_dtab_cfg(self, ycolname, hover_defs=None, hist=False, title=None):
         """
-        Provide a way to build a default data tab configuration. Return an instance of
+        Provide a way to build a data tab configuration. Return an instance of
         'TabConfig.DTabConfig'. The arguments are as follows.
           * ycolname - the name of the metric which will be plotted on the y-axis of the tab's
                        scatter plot.
@@ -334,10 +334,10 @@ class TabBuilderBase:
 
         raise Error(f"unable to generate a container tab for {self.name}.")
 
-    def get_default_tab_cfg(self):
+    def get_tab_cfg(self):
         """
-        Generate a 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance representing the
-        default tab configuration.
+        Generate a 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance representing the tab
+        configuration.
         """
 
         raise NotImplementedError()
@@ -348,7 +348,7 @@ class TabBuilderBase:
         statistic files.
         """
 
-        tab_cfg = self.get_default_tab_cfg()
+        tab_cfg = self.get_tab_cfg()
 
         if isinstance(tab_cfg, TabConfig.CTabConfig):
             return self._build_ctab(self._outdir, tab_cfg)

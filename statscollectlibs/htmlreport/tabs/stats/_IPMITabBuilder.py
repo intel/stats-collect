@@ -58,16 +58,16 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
         cdd = self._build_cdd(mdd)
         super().__init__(dfs, cdd, outdir, basedir=basedir, xmetric=xmetric)
 
-    def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the default interrupts tab configuration.
+        Get a 'TabConfig.DTabConfig' instance with the interrupts tab configuration.
 
         Returns:
-            TabConfig.CTabConfig: The default configuration for the IPMI tab, including container
-            tabs and their respective data tabs.
+            TabConfig.CTabConfig: The configuration for the IPMI tab, including container tabs and
+            their respective data tabs.
 
         Notes:
-            The IPMI default tab configuration includes container tabs for the following categories:
+            The IPMI tab configuration includes container tabs for the following categories:
             - "Fan Speed"
             - "Temperature"
             - "Power"
@@ -77,9 +77,6 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
             include data tabs such as "Fan1", "Fan2", etc., if these measurements are present in all
             raw IPMI statistics files. If no common IPMI metrics exist for a given category, the
             corresponding container tab will not be generated.
-
-            Refer to '_TabBuilderBase.TabBuilderBase' for additional details on default tab
-            configurations.
         """
 
         def _build_ctab_cfg(category: str, metrics: list[str]) -> TabConfig.CTabConfig:
@@ -101,7 +98,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, title=metric)
+                dtab = self._build_dtab_cfg(metric, title=metric)
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)

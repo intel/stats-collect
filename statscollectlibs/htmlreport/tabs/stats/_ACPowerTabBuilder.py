@@ -51,18 +51,17 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
         cdd = self._build_cdd(mdd)
         super().__init__(dfs, cdd, outdir, basedir=basedir, xmetric=xmetric)
 
-    def get_default_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the default interrupts tab configuration. See
-        '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
+        Get a 'TabConfig.DTabConfig' instance with the AC power data tab configuration.
 
         Returns:
-            A 'TabConfig.DTabConfig' instance with the default interrupts tab configuration.
+            A 'TabConfig.DTabConfig' instance with the AC power data tab configuration.
         """
 
         power_metric = "P"
 
-        dtab_cfg = self._build_def_dtab_cfg(power_metric)
+        dtab_cfg = self._build_dtab_cfg(power_metric)
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name
