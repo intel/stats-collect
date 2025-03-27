@@ -58,11 +58,11 @@ class RawResultWLInfoTypedDict(TypedDict, total=False):
 
     Attributes:
         wldata_path: The file system path to the workload data directory.
-        wltype: The type of the workload.
+        wlname: The name of the workload.
     """
 
     wldata_path: Path
-    wltype: str
+    wlname: str
 
 class RawResultInfoTypedDict(TypedDict, total=False):
     """

@@ -21,7 +21,7 @@ from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-# Supported workload types.
+# Supported workloads.
 SUPPORTED_WORKLOADS = {
     "generic": "generic workload",
     "specjbb2015": "SPECjbb2015 benchmark"
@@ -95,7 +95,7 @@ class RORawResult(_RawResultBase.RawResultBase):
         # Path to the workload data.
         self.wldata_path: Path | None = None
         # Type of the workload that was running while statistics were collected.
-        self.wltype = ""
+        self.wlname = ""
 
         self._load_info_yml()
 
@@ -104,8 +104,8 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         self.reportid = self.info["reportid"]
 
-        if not self.wltype:
-            self._detect_wltype()
+        if not self.wlname:
+            self._detect_workload()
 
     def get_stats_path(self, stname: str) -> Path:
         """
@@ -194,13 +194,13 @@ class RORawResult(_RawResultBase.RawResultBase):
             _LOG.debug("SPECjbb2015 probe is negative: %s", err)
             return False
 
-    def _detect_wltype(self):
+    def _detect_workload(self):
         """
-        Detect the type of workload that was running during the collection of statistics in this raw
-        result. The workload type is determined based on the workload data directory contents.
+        Detect what workload that was running during the collection of statistics in this raw
+        result.
         """
 
-        self.wltype = "generic"
+        self.wlname = "generic"
 
         # Check the default workload data path.
         path = self.dirpath.joinpath("wldata")
@@ -214,12 +214,12 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         try:
             if self._is_specjbb2015():
-                self.wltype = "specjbb2015"
+                self.wlname = "specjbb2015"
         except (Error, OSError) as err:
-            _LOG.warning("workload type detection failed:\n%s", Error(str(err)).indent(2))
+            _LOG.warning("workload detection failed:\n%s", Error(str(err)).indent(2))
 
-        _LOG.debug("%s: workload type is '%s (%s)'",
-                   self.reportid, self.wltype, SUPPORTED_WORKLOADS[self.wltype])
+        _LOG.debug("%s: workload is '%s (%s)'",
+                   self.reportid, self.wlname, SUPPORTED_WORKLOADS[self.wlname])
 
     def link_wldata(self, dstpath: Path):
         """
@@ -347,21 +347,21 @@ class RORawResult(_RawResultBase.RawResultBase):
 
         new_wlinfo: RawResultWLInfoTypedDict = {}
 
-        if "wltype" not in wlinfo:
-            raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wltype' key is "
+        if "wlname" not in wlinfo:
+            raise ErrorBadFormat(f"Bad '{self.info_path}' format - the 'workload.wlname' key is "
                                  f"missing")
 
-        self.wltype = wlinfo["wltype"]
-        if not self.wltype:
-            raise ErrorBadFormat(f"Bad workload type in '{self.info_path}':\n"
-                                 f"  'workload.wltype' is empty")
+        self.wlname = wlinfo["wlname"]
+        if not self.wlname:
+            raise ErrorBadFormat(f"Bad workload info in '{self.info_path}':\n"
+                                 f"  'workload.wlname' is empty")
 
-        if self.wltype not in SUPPORTED_WORKLOADS:
-            _LOG.warning("Unsupported workload type '%s' in '%s', assuming a generic workload",
-                         self.wltype, self.info_path)
-            self.wltype = "generic"
+        if self.wlname not in SUPPORTED_WORKLOADS:
+            _LOG.warning("Unsupported workload '%s' in '%s', assuming a generic workload",
+                         self.wlname, self.info_path)
+            self.wlname = "generic"
 
-        new_wlinfo["wltype"] = self.wltype
+        new_wlinfo["wlname"] = self.wlname
 
         if "wldata_path" in wlinfo:
             if not wlinfo["wldata_path"]:

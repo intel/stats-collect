@@ -29,7 +29,6 @@ from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport import _IntroTable
 from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
-from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollecttools import ToolInfo

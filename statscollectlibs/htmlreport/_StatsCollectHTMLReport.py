@@ -151,35 +151,35 @@ class StatsCollectHTMLReport:
             _Tabs.CTabDC: The resulting container tab object.
         """
 
-        wltypes = {}
-        wltypes_set = set()
+        wlnames = {}
+        wlnames_set = set()
 
         for res in self.rsts:
-            wltypes[res.reportid] = res.wltype
-            wltypes_set.add(res.wltype)
+            wlnames[res.reportid] = res.wlname
+            wlnames_set.add(res.wlname)
 
-        if len(wltypes_set) > 1:
+        if len(wlnames_set) > 1:
             msgs = []
             for res in self.rsts:
-                msgs.append(f"{res.reportid}: {wltypes[res.reportid]} "
-                            f"({RORawResult.SUPPORTED_WORKLOADS[res.wltype]})")
+                msgs.append(f"{res.reportid}: {wlnames[res.reportid]} "
+                            f"({RORawResult.SUPPORTED_WORKLOADS[res.wlname]})")
             msg = " * " + "\n * ".join(msgs)
-            wltype = "generic"
+            wlname = "generic"
             _LOG.warning("Multiple workload types detected, assuming a generic workload:\n%s", msg)
         else:
-            wltype = next(iter(wltypes_set))
+            wlname = next(iter(wlnames_set))
 
         _LOG.info("Workload type: %s (%s)",
-                  wltypes[res.reportid], RORawResult.SUPPORTED_WORKLOADS[res.wltype])
+                  wlnames[res.reportid], RORawResult.SUPPORTED_WORKLOADS[res.wlname])
 
-        if wltype == "generic":
+        if wlname == "generic":
             return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabs_dir,
                                                                       basedir=self.outdir).get_tab()
-        if wltype == "specjbb2015":
+        if wlname == "specjbb2015":
             return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabs_dir,
                                                                 basedir=self.outdir).get_tab()
 
-        raise Error(f"BUG: unsupported workload type '{wltype}'")
+        raise Error(f"BUG: unsupported workload type '{wlname}'")
 
     def _copy_raw_data(self):
         """Copy raw test results or their parts to the output directory."""
