@@ -62,7 +62,7 @@ class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         power_metric = "P"
 
-        dtab_cfg = self._build_def_dtab_cfg(power_metric, {})
+        dtab_cfg = self._build_def_dtab_cfg(power_metric)
 
         # By default the tab will be titled 'power_metric'. Change the title to "AC Power".
         dtab_cfg.name = self.name

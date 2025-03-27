@@ -101,7 +101,7 @@ class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_def_dtab_cfg(metric, {}, title=metric)
+                dtab = self._build_def_dtab_cfg(metric, title=metric)
                 dtabs.append(dtab)
 
             return TabConfig.CTabConfig(category, dtabs=dtabs)

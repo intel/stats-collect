@@ -232,7 +232,7 @@ class TabBuilderBase:
 
         return funcs
 
-    def _build_def_dtab_cfg(self, ycolname, hover_defs, hist=False, title=None):
+    def _build_def_dtab_cfg(self, ycolname, hover_defs=None, hist=False, title=None):
         """
         Provide a way to build a default data tab configuration. Return an instance of
         'TabConfig.DTabConfig'. The arguments are as follows.

@@ -130,7 +130,7 @@ class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
 
             if sname not in dtabs:
                 dtabs[sname] = {"Interrupts Rate": [], "Interrupts Count": []}
-            dtab = self._build_def_dtab_cfg(colname, {}, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, title=metric)
             if metric.endswith("_rate"):
                 dtabs[sname]["Interrupts Rate"].append(dtab)
             else:

@@ -139,20 +139,22 @@ class StatsTabBuilder:
 
         stats_dir = self._outdir / self.name
 
-        _initialized_classes: set[str] = set()
+        _initialized_classes: dict[_TabBuilderClassType, str] = {}
 
         for stname, tab_builder_class in classes_dict.items():
             if stname not in supported_stnames:
                 continue
 
             if tab_builder_class in _initialized_classes:
+                same_class_stname =  _initialized_classes[tab_builder_class]
+                self._tbldrs[stname] = self._tbldrs[same_class_stname]
                 continue
 
             try:
                 self._tbldrs[stname] = tab_builder_class(self._lrsts, stats_dir,
                                                          basedir=self._basedir,
                                                          xmetric=self._xmetric)
-                _initialized_classes.add(tab_builder_class)
+                _initialized_classes[tab_builder_class] = stname
             except ErrorNotFound as err:
                 _LOG.info("Skipping '%s' tab as '%s' statistics not found for all reports.",
                           tab_builder_class.name, tab_builder_class.name)

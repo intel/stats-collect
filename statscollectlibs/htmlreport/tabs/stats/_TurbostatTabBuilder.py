@@ -56,7 +56,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
             xmetric = self._time_colname
 
         mdd = self._get_merged_mdd(lrsts)
-        self._categories = self.get_merged_categories(lrsts)
+        self._categories = self._get_merged_categories(lrsts)
 
         colnames: list[str] = []
         colnames_set: set[str] = set()
@@ -137,7 +137,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
                 # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            dtab = self._build_def_dtab_cfg(colname, {}, title=metric)
+            dtab = self._build_def_dtab_cfg(colname, title=metric)
             dtabs.append(dtab)
 
         if dtabs:
@@ -258,7 +258,7 @@ class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
 
         raise Error("no turbostat metrics found")
 
-    def get_merged_categories(self, lrsts: list[LoadedResult]) -> dict[str, Any]:
+    def _get_merged_categories(self, lrsts: list[LoadedResult]) -> dict[str, Any]:
         """
         Merge categories from different results into a single dictionary (in case some of the test
         results include categories or metrics not present in other test results).
