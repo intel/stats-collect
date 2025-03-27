@@ -251,25 +251,6 @@ class TabBuilderBase:
 
         return dtab
 
-    def _build_def_ctab_cfg(self, ctab_name, metrics, def_x_metric, smry_funcs, hover_defs):
-        """
-        Provide a way to build a default container tab configuration. Return an instance of
-        'TabConfig.CTabConfig'. The arguments are the same as 'self._build_def_dtab_cfg()' except
-        for the following.
-          * ctab_name - the name of the container tab.
-          * metrics - a list of names of metrics, for which each should have a data tab.
-          * def_x_metric - the name of the metric used on the x-axis of plots for all metrics.
-        """
-
-        dtabs = []
-
-        for metric in metrics:
-            if metric not in self._cdd:
-                continue
-            dtabs.append(self._build_def_dtab_cfg(metric, def_x_metric, smry_funcs, hover_defs))
-
-        return TabConfig.CTabConfig(ctab_name, dtabs=dtabs)
-
     # TODO: this should go away.
     def _resolve_metric(self, metric):
         """
