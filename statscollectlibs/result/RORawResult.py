@@ -357,7 +357,9 @@ class RORawResult(_RawResultBase.RawResultBase):
                                  f"  'workload.wltype' is empty")
 
         if self.wltype not in SUPPORTED_WORKLOADS:
-            raise ErrorBadFormat(f"Unsupported workload type '{self.wltype}' in '{self.info_path}'")
+            _LOG.warning("Unsupported workload type '%s' in '%s', assuming a generic workload",
+                         self.wltype, self.info_path)
+            self.wltype = "generic"
 
         new_wlinfo["wltype"] = self.wltype
 
