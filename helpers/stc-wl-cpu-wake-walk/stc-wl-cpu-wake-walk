@@ -204,9 +204,9 @@ class _Runner(ClassHelpers.SimpleCloseContext):
             raise Error(f"Failed to write a JSON string to the named pipe '{self._pipe_path}':\n"
                         f"{errmsg}") from err
 
-    def _write_mdd(self):
+    def _write_wlinfo(self):
         """
-        Write the Metrics Definition Dictionary (MDD) to the named pipe.
+        Write the workload information lable to the named pipe.
         """
 
         mdd: MDTypedDict = {
@@ -219,7 +219,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
             "scope": "CPU",
         }
 
-        label = {"name": "MDD", "MDD": {"LDist": mdd}}
+        label = {"name": "wlinfo", "wlname": TOOLNAME, "MDD": {"LDist": mdd}}
 
         try:
             mdd_json = json.dumps(label)
@@ -296,7 +296,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
     def run(self):
         """Run the workload."""
 
-        self._write_mdd()
+        self._write_wlinfo()
 
         for ldist in self._get_ldist():
             self._run_iteration(ldist)

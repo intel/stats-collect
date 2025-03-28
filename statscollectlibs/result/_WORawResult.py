@@ -20,7 +20,7 @@ from typing import Any
 from pepclibs.helperlibs import Logging, Trivial, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.result import _RawResultBase
-from statscollectlibs.result._RawResultBase import RawResultInfoTypedDict
+from statscollectlibs.result._RawResultBase import RawResultInfoTypedDict, RawResultWLInfoTypedDict
 from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -42,11 +42,35 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
             raise Error(f"BUG: Key '{key}' already exists in the 'info' dictionary")
 
         if key not in RawResultInfoTypedDict.__annotations__:
-            _LOG.warning(f"BUG: unsupported key '{key}' for 'info.yml' file. Run with '-d' and "
-                         f"report this along with the stactrace")
+            _LOG.warning(f"Unsupported key '{key}' for 'info.yml' file. Run with '-d' and report "
+                         f"this along with the stactrace")
             _LOG.debug_print_stacktrace()
 
         self.info[key] = value # type: ignore
+
+    def add_wlinfo(self, wlinfo: RawResultWLInfoTypedDict, override: bool = False):
+        """
+        Add workload information dictionary to the 'info' dictionary, so that it gets saved in the
+        'info.yml' file.
+
+        Args:
+            wlinfo: The workload information dictionary to add.
+            override: If True, override the existing value if the key already exists.
+        """
+
+        for key in wlinfo:
+            if key not in RawResultWLInfoTypedDict.__annotations__:
+                _LOG.warning(f"Unsupported key '{key}' for 'wlinfo' in 'info.yml' file. Run with "
+                             f"'-d' and report this along with the stactrace")
+                _LOG.debug_print_stacktrace()
+
+            if not override and "wlinfo" in self.info and key in self.info["wlinfo"]:
+                raise Error("BUG: 'wlinfo' already exists in the 'info' dictionary")
+
+            if "wlinfo" not in self.info:
+                self.info["wlinfo"] = {}
+
+            self.info["wlinfo"][key] = wlinfo[key] # type: ignore
 
     def write_info(self):
         """Write the 'self.info' dictionary to the 'info.yml' file."""

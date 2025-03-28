@@ -28,6 +28,7 @@ from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result._WORawResult import WORawResult
+from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 from statscollectlibs.collector.StatsCollect import StatsCollect
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -69,8 +70,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
         self._cmd_proc: ProcessType | None = None
         # The process objects fof the named pipe reader.
         self._pipe_proc: ProcessType | None = None
-        # Whether MDD was provided by the workload.
-        self._mdd_provided = False
+        # Whether workload information was provided by the workload.
+        self._wlinfo_provided = False
 
         # For how long the command has been running (seconds).
         self._duration = 0.0
@@ -94,22 +95,25 @@ class Runner(ClassHelpers.SimpleCloseContext):
         ClassHelpers.close(self, close_attrs=("_cmd_proc", "_pipe_proc"),
                            unref_attrs=("_cmd_pman",))
 
-    def _add_mdd(self, mdd: dict[str, MDTypedDict]):
+    def _add_wlinfo(self, wlname: str, mdd: dict[str, MDTypedDict]):
         """
-        Add the Metric Definition Dictionary (MDD) to 'info.yml'.
+        Add the workload information to 'info.yml'.
 
         Args:
+            wlname: workload name.
             mdd: The Metric Definition Dictionary to be added.
         """
 
-        _LOG.debug("Received MDD:\n%s", json.dumps(mdd, indent=2))
+        _LOG.debug("Received workload name '%s', MDD:\n%s", wlname, json.dumps(mdd, indent=2))
 
-        if self._mdd_provided:
-            raise Error("The MDD is provided more than once")
+        if self._wlinfo_provided:
+            raise Error("The workload information was provided more than once")
 
         MDCBase.validate_mdd(mdd, mdd_src=f"workload data via named pipe '{self._pipe_path}'")
-        self.res.add_info("MDD", mdd)
-        self._mdd_provided = True
+
+        wlinfo: RawResultWLInfoTypedDict = {"wlname": wlname, "MDD": mdd}
+        self.res.add_wlinfo(wlinfo)
+        self._wlinfo_provided = True
 
     def _add_label(self, label_json: str):
         """
@@ -135,16 +139,17 @@ class Runner(ClassHelpers.SimpleCloseContext):
         if not self._stcoll:
             return
 
-        if name == "MDD":
-            # The special case - the "MDD" label. It contains the metrics definition dictionary and
-            # it is saved in the "info.yml" file. The MDD can later be used when visualizing the
-            # test result.
-            self._add_mdd(label["MDD"])
+        if name == "wlinfo":
+            # The special case - the "workload info" label. It contains workload name and the
+            # metrics definition dictionary. This information is saved in the "info.yml" file. The
+            # MDD can later be used when visualizing the test result.
+            self._add_wlinfo(label["wlname"], label["MDD"])
         else:
             _LOG.debug("Received label:\n%s", label_json)
 
-            if not self._mdd_provided:
-                raise Error(f"Got the following label before the MDD was provided:\n  {label_json}")
+            if not self._wlinfo_provided:
+                raise Error(f"Got the following label before the workload infomation was "
+                            f"provided:\n  {label_json}")
 
             metrics = {key: val for key, val in label.items() if key != "name"}
             if metrics:

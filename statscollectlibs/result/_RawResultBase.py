@@ -22,6 +22,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from typing import TypedDict, Literal
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 # The latest supported raw results directory format version.
 FORMAT_VERSION = "1.3"
@@ -59,10 +60,12 @@ class RawResultWLInfoTypedDict(TypedDict, total=False):
     Attributes:
         wldata_path: The file system path to the workload data directory.
         wlname: The name of the workload.
+        MDD: The Metrics Definition Dictionary (MDD) for the workload-specific metrics.
     """
 
     wldata_path: Path
     wlname: str
+    MDD: dict[str, MDTypedDict]
 
 # TODO: Not all fields are typed yet. Add all of them eventually, and make sure every write goes via
 # 'WORawResult.add_info()'.
@@ -89,7 +92,7 @@ class RawResultInfoTypedDict(TypedDict, total=False):
     stderr: Path
     duration: str
     stinfo: dict[str, RawResultSTInfoTypedDict]
-    wlinfo: RawResultWLInfoTypedDict | None
+    wlinfo: RawResultWLInfoTypedDict
 
 class RawResultBase:
     """Base class for raw test result classes."""
