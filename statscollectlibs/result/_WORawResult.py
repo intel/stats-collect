@@ -20,6 +20,7 @@ from typing import Any
 from pepclibs.helperlibs import Logging, Trivial, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.result import _RawResultBase
+from statscollectlibs.result._RawResultBase import RawResultInfoTypedDict
 from statscollecttools import ToolInfo
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -39,7 +40,13 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
 
         if not override and key in self.info:
             raise Error(f"BUG: Key '{key}' already exists in the 'info' dictionary")
-        self.info[key] = value
+
+        if key not in RawResultInfoTypedDict.__annotations__:
+            _LOG.warning(f"BUG: unsupported key '{key}' for 'info.yml' file. Run with '-d' and "
+                         f"report this along with the stactrace")
+            _LOG.debug_print_stacktrace()
+
+        self.info[key] = value # type: ignore
 
     def write_info(self):
         """Write the 'self.info' dictionary to the 'info.yml' file."""
@@ -56,7 +63,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
             paths = (self.info_path, self.logs_path, self.stats_path)
             for path in paths:
                 # If path exists fail, except for the case when it is an empty directory.
-                if path.exists():
+                if path and path.exists():
                     if not path.is_dir() or any(path.iterdir()):
                         raise ErrorExists(f"cannot use path '{self.dirpath}' as the output "
                                           f"directory, it already contains '{path.name}'")

@@ -64,6 +64,8 @@ class RawResultWLInfoTypedDict(TypedDict, total=False):
     wldata_path: Path
     wlname: str
 
+# TODO: Not all fields are typed yet. Add all of them eventually, and make sure every write goes via
+# 'WORawResult.add_info()'.
 class RawResultInfoTypedDict(TypedDict, total=False):
     """
     A type representing contents of the 'info.yml' file of a raw test result.
@@ -72,6 +74,9 @@ class RawResultInfoTypedDict(TypedDict, total=False):
         toolname: The name of the tool used to generate the raw test result.
         toolver: The version of the tool.
         reportid: A unique identifier for the raw test result, also referred to as "report ID".
+        stdout: Path to the file containing the standard output of the test command.
+        stderr: Path to the file containing the standard error of the test command.
+        duration: For how long the test ran, time in human readable format (e.g., "1h 2m 3s").
         wlinfo: Workload information associated with the raw test result. Applicable only for
                 certain workloads supported by this project. None of unsupported ("generic")
                 workloads.
@@ -80,6 +85,9 @@ class RawResultInfoTypedDict(TypedDict, total=False):
     toolname: str
     toolver: str
     reportid: str
+    stdout: Path
+    stderr: Path
+    duration: str
     stinfo: dict[str, RawResultSTInfoTypedDict]
     wlinfo: RawResultWLInfoTypedDict | None
 

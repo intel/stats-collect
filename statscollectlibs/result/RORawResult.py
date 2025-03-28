@@ -395,6 +395,11 @@ class RORawResult(_RawResultBase.RawResultBase):
 
             self.info[key] = info[key]
 
+        if "stdout" in info:
+            info["stdout"] = Path(info["stdout"])
+        if "stderr" in info:
+            info["stderr"] = Path(info["stderr"])
+
         if "stinfo" in info:
             self.info["stinfo"] = self._validate_stinfo(info["stinfo"])
         else:

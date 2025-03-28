@@ -81,15 +81,18 @@ class CapturedOutputTabBuilder():
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir, basedir=self._basedir)
         fpreviews = []
         trimmed_lrsts = set()
-        for ftype in ("stdout", "stderr"):
+        for stream_name in ("stdout", "stderr"):
             files = {}
             for lres in self._lrsts:
-                resdir = self._outdir / lres.reportid
-                fp = lres.res.info.get(ftype)
-                if not fp:
+                if stream_name not in lres.res.info:
                     continue
 
-                srcpath = lres.res.dirpath / fp
+                resdir = self._outdir / lres.reportid
+                relative_path = lres.res.info[stream_name]
+                if not relative_path:
+                    continue
+
+                srcpath = lres.res.dirpath / relative_path
                 if not srcpath.exists():
                     continue
 
@@ -113,7 +116,7 @@ class CapturedOutputTabBuilder():
                 files[lres.reportid] = dstpath
 
             if files:
-                fpreviews.append(fpbuilder.build_fpreview(ftype, files))
+                fpreviews.append(fpbuilder.build_fpreview(stream_name, files))
 
         if not fpreviews:
             return None
