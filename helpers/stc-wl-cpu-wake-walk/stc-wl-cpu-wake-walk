@@ -23,6 +23,7 @@ import time
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ArgParse, Human, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollecttools import _HelpersCommon
 
@@ -37,6 +38,7 @@ class _ArgsType(NamedTuple):
     ldist_step_pct: int | float
     ldist_step_ns: int
     span: int
+    cpu: int
 
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
@@ -71,6 +73,9 @@ def _build_arguments_parser():
                {duration_descr}. For example, '--span=40s' or '--span=1m' would mean mean 40 seconds
                 or 1 minute, respectively."""
     parser.add_argument("--span", help=text, default="1m")
+
+    text = """CPU number to bind the workload to (CPU 0 by default). """
+    parser.add_argument("--cpu", help=text, type=int, default=0)
 
     text = """Path to the named pipe on the SUT where the lables should be written to."""
     parser.add_argument("--pipe-path", help=text, type=Path)
@@ -125,13 +130,17 @@ def _format_args(arguments: argparse.Namespace) -> _ArgsType:
         raise Error(f"The span value '{arguments.span}' is too small, min. span value is 10 "
                     f"seconds")
 
+    cpu: int = arguments.cpu
+    if cpu < 0:
+        raise Error(f"Bad CPU number '{cpu}', it must be non-negative")
+
     return _ArgsType(
         pipe_path = pipe_path,
         ldist = (round(ldist[0]), round(ldist[1])),
         ldist_step_pct = ldist_step_pct,
         ldist_step_ns = ldist_step_ns,
         span = span,
-    )
+        cpu = cpu)
 
 def _parse_arguments() -> _ArgsType:
     """Parse input arguments."""
@@ -159,6 +168,8 @@ class _Runner(ClassHelpers.SimpleCloseContext):
 
         self._span_human = Human.duration(self._span)
         self._pipe: IO[str]
+
+        ProcHelpers.bind_pid(Trivial.get_pid(), args.cpu)
 
         try:
             # pylint: disable-next=consider-using-with

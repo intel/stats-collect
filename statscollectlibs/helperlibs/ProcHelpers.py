@@ -10,7 +10,8 @@
 This module contains misc. helper functions related to processes (tasks).
 """
 
-# pylint: disable=redefined-argument-from-local
+# Finish annotating this module
+from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import os
 import re
@@ -47,6 +48,37 @@ def is_root(pman=None):
         raise Error("unexpected output from 'id -u' command, expected an integer, got:\n{stdout}")
 
     return int(stdout) == 0
+
+def bind_pid(pid: int,
+             cpus: int | list[int] | str,
+             pman: ProcessManager.ProcessManagerType | None = None):
+    """
+    Bind a process with PID 'pid' to CPUs in 'cpus'
+
+    Args:
+        pid: The PID of the process to bind to CPUs.
+        cpus: The integer CPU number to bind the process to, or a list list of integer CPU numbers to
+              bind the process to. Can also be a string containing a comma-separated list of CPU
+              numbers and CPU number ranges. For example, "0,2-4,6".
+        pman - the process manager object that defines the system to the 'pid' process runs on
+               (local host by default).
+    """
+
+    if isinstance(cpus, int):
+        cpus_str = cpus = str(cpus)
+    if not isinstance(cpus, str):
+        cpus_str = ",".join([str(cpu) for cpu in cpus])
+    else:
+        cpus_str = cpus
+
+    cmd = f"taskset -pc {cpus_str} {pid}"
+
+    with ProcessManager.pman_or_local(pman) as wpman:
+        try:
+            wpman.run_verify(cmd)
+        except Error as err:
+            errmsg = err.indent(2)
+            raise Error(f"failed to bind PID {pid} to CPUs {cpus_str}:\n{errmsg}") from err
 
 def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=None):
     """
