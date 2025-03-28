@@ -17,6 +17,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 import sys
 import time
 import json
+import itertools
 from collections import deque
 from typing import Deque
 from pathlib import Path
@@ -204,8 +205,6 @@ class Runner(ClassHelpers.SimpleCloseContext):
                    the exit code will be None.
         """
 
-        _LOG.info("Running the following command%s:\n  %s", self._cmd_pman.hostmsg, self._cmd)
-
         if not tlimit:
             no_tlimit = True
             tlimit = 4 * 60 * 60
@@ -227,25 +226,41 @@ class Runner(ClassHelpers.SimpleCloseContext):
         # For how long to wait for the command or pipe process to finish.
         pipe_exitcode: int | None = None
 
+        _LOG.info("Running the following command%s:\n  %s", self._cmd_pman.hostmsg, self._cmd)
+
         start_time = time.time()
         self._cmd_proc = self._cmd_pman.run_async(self._cmd)
 
-        while True:
-            wait_time = min(wait_time, tlimit - self._duration)
+        # Forever loop with 'iteration' counter. The loop will break when the command process finishes or
+        # the time limit is reached.
+        for iteration in itertools.count():
+            if not no_tlimit:
+                wait_time = min(wait_time, tlimit - self._duration)
             cmd_wait_time = wait_time
 
             if self._pipe_proc:
-                pipe_exitcode = self._pipe_wait(wait_time)
-                if pipe_exitcode is None:
-                    # Continue waiting on the pipe process only at the next iteration. Do not wait
-                    # on the command process, just check its status.
-                    # without waiting.
-                    cmd_wait_time = 0.0
-                elif pipe_exitcode == 0:
-                    # The pipe process has finished successfully, which means that the other end of
-                    # the pipe has been closed. The command should have finished writing to the pipe
-                    # and should finish soon. Give it some time to finish.
-                    cmd_wait_time = 5.0
+                if iteration > 0:
+                    # Not the first iteration, normal case.
+                    pipe_exitcode = self._pipe_wait(wait_time)
+                    if pipe_exitcode is None:
+                        # Continue waiting on the pipe process only at the next iteration. Do not wait
+                        # on the command process, just check its status without waiting.
+                        cmd_wait_time = 0.0
+                    elif pipe_exitcode == 0:
+                        # The pipe process has finished successfully, which means that the other end of
+                        # the pipe has been closed. The command should have finished writing to the pipe
+                        # and should finish soon. Give it some time to finish.
+                        cmd_wait_time = 5.0
+                else:
+                    # The first iteration. Here is the prolem this block of code tries to solve: if
+                    # the command fails right away, then without this block of code we will wait for
+                    # the pipe data for 'wait_time' amount of seconds. We'll make the user wait too.
+                    # Then we will check the command status and notice that it has failed. And only
+                    # then we will exit.
+                    #
+                    # Instead, skip waiting for the pipe data in the first iteration and check the
+                    # command status.
+                    cmd_wait_time = 1.0
 
             _LOG.debug("Waiting for the command process for %s seconds", cmd_wait_time)
             cmd_res = self._cmd_proc.wait(timeout=cmd_wait_time,
