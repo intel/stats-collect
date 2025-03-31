@@ -161,25 +161,27 @@ class StatsCollectHTMLReport:
         if len(wlnames_set) > 1:
             msgs = []
             for res in self.rsts:
-                msgs.append(f"{res.reportid}: {wlnames[res.reportid]} "
-                            f"({RORawResult.SUPPORTED_WORKLOADS[res.wlname]})")
+                if res.wlname in RORawResult.KNOWN_WORKLOADS:
+                    descr = f"{RORawResult.KNOWN_WORKLOADS[res.wlname]}"
+                else:
+                    descr = "Unknown workload"
+                msgs.append(f"{res.reportid}: {wlnames[res.reportid]} {descr}")
             msg = " * " + "\n * ".join(msgs)
             wlname = "generic"
             _LOG.warning("Multiple workload types detected, assuming a generic workload:\n%s", msg)
         else:
             wlname = next(iter(wlnames_set))
 
-        _LOG.info("Workload type: %s (%s)",
-                  wlnames[res.reportid], RORawResult.SUPPORTED_WORKLOADS[res.wlname])
+        if res.wlname in RORawResult.KNOWN_WORKLOADS:
+            _LOG.info("Workload type: %s (%s)",
+                    wlnames[res.reportid], RORawResult.KNOWN_WORKLOADS[res.wlname])
 
-        if wlname == "generic":
-            return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabs_dir,
-                                                                      basedir=self.outdir).get_tab()
         if wlname == "specjbb2015":
             return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabs_dir,
                                                                 basedir=self.outdir).get_tab()
 
-        raise Error(f"BUG: unsupported workload type '{wlname}'")
+        return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabs_dir,
+                                                                    basedir=self.outdir).get_tab()
 
     def _copy_raw_data(self):
         """Copy raw test results or their parts to the output directory."""

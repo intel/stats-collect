@@ -281,8 +281,11 @@ class LoadedStatsitic:
             ldd: The labels definition dictionary.
         """
 
-        if self.mdd:
-            # Do not allow setting lables if they were already set and used for building the MDD.
+        if self.df:
+            raise Error(f"Refusing to set labels definition dictionary for already loaded "
+                        f"{self.stname} statistics")
+
+        if self.ldd:
             raise Error(f"The labels definition dictionary was already set for the {self.stname} "
                         f"statistics")
 

@@ -72,6 +72,9 @@ class LoadedResult:
         for stname, stinfo in self.res.info["stinfo"].items():
             self.lsts[stname] = LoadedStatsitic(stname, self.res, ll=self.lls.get(stname),
                                                 cpus=self.cpus)
+            if "MDD" in res.info["wlinfo"]:
+                self.lsts[stname].set_ldd(res.info["wlinfo"]["MDD"])
+
 
     def load_stat(self, stname: str) -> LoadedStatsitic:
         """

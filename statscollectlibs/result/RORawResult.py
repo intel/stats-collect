@@ -18,12 +18,12 @@ from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.result import _RawResultBase
 from statscollectlibs.result._RawResultBase import RawResultSTInfoTypedDict
 from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
+from statscollectlibs.mdc import MDCBase
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-# Supported workloads.
-SUPPORTED_WORKLOADS = {
-    "generic": "generic workload",
+KNOWN_WORKLOADS = {
     "specjbb2015": "SPECjbb2015 benchmark"
 }
 
@@ -219,7 +219,7 @@ class RORawResult(_RawResultBase.RawResultBase):
             _LOG.warning("workload detection failed:\n%s", Error(str(err)).indent(2))
 
         _LOG.debug("%s: workload is '%s (%s)'",
-                   self.reportid, self.wlname, SUPPORTED_WORKLOADS[self.wlname])
+                   self.reportid, self.wlname, KNOWN_WORKLOADS[self.wlname])
 
     def link_wldata(self, dstpath: Path):
         """
@@ -356,10 +356,8 @@ class RORawResult(_RawResultBase.RawResultBase):
             raise ErrorBadFormat(f"Bad workload info in '{self.info_path}':\n"
                                  f"  'workload.wlname' is empty")
 
-        if self.wlname not in SUPPORTED_WORKLOADS:
-            _LOG.warning("Unsupported workload '%s' in '%s', assuming a generic workload",
-                         self.wlname, self.info_path)
-            self.wlname = "generic"
+        if self.wlname not in KNOWN_WORKLOADS:
+            _LOG.debug("Unknown workload '%s' in '%s'", self.wlname, self.info_path)
 
         new_wlinfo["wlname"] = self.wlname
 
@@ -379,6 +377,10 @@ class RORawResult(_RawResultBase.RawResultBase):
                                     f"directory")
 
             new_wlinfo["wldata_path"] =  self.wldata_path
+
+        if "MDD" in wlinfo:
+            MDCBase.validate_mdd(wlinfo["MDD"], mdd_src=str(self.info_path))
+            new_wlinfo["MDD"] = wlinfo["MDD"]
 
         return new_wlinfo
 
