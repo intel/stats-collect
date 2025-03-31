@@ -36,7 +36,6 @@ class DTabConfig:
         """
         assert isinstance(xcolname, str)
         assert isinstance(ycolname, str)
-        print(ycolname)
         self.scatter_plots.append((xcolname, ycolname,))
 
     def add_alert(self, alert):
