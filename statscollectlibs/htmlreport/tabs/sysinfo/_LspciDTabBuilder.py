@@ -20,12 +20,12 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoTypedDict] = [
     {
         "title": "lspci",
         "path": Path("sysinfo/lspci.after.raw.txt"),
-        "diff": False,
+        "diff": True,
     },
     {
         "title": "lspci -vvv",
         "path": Path("sysinfo/lspci-vvv.after.raw.txt"),
-        "diff": False,
+        "diff": True,
     },
 ]
 

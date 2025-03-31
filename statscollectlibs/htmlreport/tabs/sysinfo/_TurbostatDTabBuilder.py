@@ -20,7 +20,7 @@ _FILE_PREVIEWS: list[_SysInfoDTabBuilderBase.FilePreviewInfoTypedDict] = [
     {
         "title": "turbostat -c 0 -S",
         "path": Path("sysinfo/turbostat-d-c0.after.raw.txt"),
-        "diff": False,
+        "diff": True,
     },
 ]
 
