@@ -171,7 +171,7 @@ class FilePreviewBuilder:
         new_paths: dict[str, Path] = {}
         for reportid, file_path in paths.items():
             if not file_path.exists():
-                # If one of the reports does not have a file, exclude the file preview entirely.
+                # If one of the files does not exist, do not add it to the file preview.
                 _LOG.debug("File preview '%s' does not include report '%s' since the file '%s' "
                            "doesn't exist", title, reportid, file_path)
                 continue
