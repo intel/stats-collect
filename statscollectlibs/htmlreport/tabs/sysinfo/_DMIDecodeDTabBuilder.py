@@ -20,7 +20,7 @@ _FILE_PREVIEWS = [
     {
         "title": "dmidecode",
         "path": Path("sysinfo/dmidecode.after.raw.txt"),
-        "diff": False,
+        "diff": True,
     },
 ]
 
