@@ -14,7 +14,6 @@ Provide the capability of populating the IPMI statistics tab.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
-import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.mdc import MDCBase
@@ -50,11 +49,13 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         self._message_if_mixed(lrsts)
 
-        dfs, mdd, self._categories = self._load(lrsts)
+        dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
         if not xmetric:
             xmetric = self._time_colname
+
+        mdd, self._categories = self._load(lrsts)
 
         cdd = self._build_cdd(mdd)
         super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
@@ -144,26 +145,22 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         _LOG.notice("A mix of in-band and out-of-band IPMI statistics detected:%s", msg)
 
-    def _load(self, lrsts: list[LoadedResult]) -> tuple[dict[str, pandas.DataFrame],
-                                                        dict[str, MDCBase.MDTypedDict],
+    def _load(self, lrsts: list[LoadedResult]) -> tuple[dict[str, MDCBase.MDTypedDict],
                                                         dict[str, list[str]]]:
         """
-        Build pandas dataframes for the IPMI statistics data. Merge MDDs of test results into a
-        single MDD (in case some test results include metric other test results do not include).
-        Merge categories of test results into a single dictionary. Return the dataframes, merged MDD
-        and merged categories dictionary.
+        Merge MDDs of test results into a single MDD (in case some test results include metric other
+        test results do not include). Merge categories of test results into a single dictionary.
+        Return the merged MDD and merged categories dictionary.
 
         Args:
             lrsts: A list of loaded test result objects to process.
 
         Returns:
             tuple:
-                - A dataframes dictionarie with report IDs as keys.
                 - A merged metrdics definition dictionary (MDD).
                 - A dmerged categories dictionary.
         """
 
-        dfs = {}
         mdd: dict[str, MDCBase.MDTypedDict] = {}
         categories: dict[str, list[str]] = {}
 
@@ -172,15 +169,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 if stname not in lres.res.info["stinfo"]:
                     continue
 
-                if lres.reportid in dfs:
-                    # Include either in-band or out-of-band statistics, but not both. They are the
-                    # same, just collected with different agents.
-                    continue
-
-                lres.load_stat(stname)
-
                 lstat = lres.lsts[stname]
-                dfs[lres.reportid] = lstat.df
 
                 mdd.update(lstat.mdd)
 
@@ -199,4 +188,4 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             # container tab in the report.
             del categories["Timestamp"]
 
-        return dfs, mdd, categories
+        return mdd, categories

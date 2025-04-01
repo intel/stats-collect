@@ -114,6 +114,11 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
                 dfs[lres.reportid] = lres.lsts[stname].df
 
+                # If there are multiple statistics supported by the child class, the statistics are
+                # assumed to provide the same data. Pick only one of them. For example, pick either
+                # IPMI in-band or out-of-band statistics, but not both.
+                break
+
         return dfs
 
     def _get_merged_mdd(self, lrsts: list[LoadedResult]) -> dict[str, MDTypedDict]:
