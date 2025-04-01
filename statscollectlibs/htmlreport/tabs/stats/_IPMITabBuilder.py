@@ -19,12 +19,13 @@ from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.mdc import MDCBase
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.htmlreport.tabs import _TabBuilderBase, TabConfig
+from statscollectlibs.htmlreport.tabs import TabConfig
+from statscollectlibs.htmlreport.tabs.stats import  _StatTabBuilderBase
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 
-class IPMITabBuilder(_TabBuilderBase.TabBuilderBase):
+class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability of populating the IPMI statistics tab."""
 
     name = "IPMI"

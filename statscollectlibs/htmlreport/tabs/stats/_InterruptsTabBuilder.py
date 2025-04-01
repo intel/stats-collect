@@ -16,10 +16,11 @@ from pathlib import Path
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.dfbuilders import _DFHelpers
-from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
+from statscollectlibs.htmlreport.tabs import TabConfig
+from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
+from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
 
-class InterruptsTabBuilder(_TabBuilderBase.TabBuilderBase):
+class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
 
     name = "Interrupts"

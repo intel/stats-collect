@@ -15,9 +15,10 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.htmlreport.tabs import TabConfig
+from statscollectlibs.htmlreport.tabs.stats import  _StatTabBuilderBase
 
-class ACPowerTabBuilder(_TabBuilderBase.TabBuilderBase):
+class ACPowerTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability of populating the AC Power statistics tab."""
 
     name = "AC Power"

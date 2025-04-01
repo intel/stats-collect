@@ -13,7 +13,6 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 from pepclibs.helperlibs import Logging
-from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
 from statscollectlibs.htmlreport.tabs import _Tabs

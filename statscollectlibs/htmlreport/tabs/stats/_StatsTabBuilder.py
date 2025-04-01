@@ -19,7 +19,6 @@ from statscollectlibs.htmlreport.tabs import _Tabs
 from statscollectlibs.htmlreport.tabs.stats import _TurbostatTabBuilder, _InterruptsTabBuilder
 from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
-from statscollectlibs.htmlreport.tabs.TabConfig import CTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")

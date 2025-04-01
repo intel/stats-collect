@@ -20,11 +20,12 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.dfbuilders import _DFHelpers
-from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
-from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
+from statscollectlibs.htmlreport.tabs import TabConfig
+from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
+from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 
-class TurbostatTabBuilder(_TabBuilderBase.TabBuilderBase):
+class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
 
     name = "Turbostat"
