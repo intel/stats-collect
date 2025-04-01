@@ -32,7 +32,8 @@ _TabBuilderType = Union[_TurbostatTabBuilder.TurbostatTabBuilder,
                         _InterruptsTabBuilder.InterruptsTabBuilder,
                         _ACPowerTabBuilder.ACPowerTabBuilder,
                         _IPMITabBuilder.IPMITabBuilder]
-class StatsTabBuilder:
+
+class TopLevelStatsTab:
     """Provide the API to generate a 'Stats' container tab."""
 
     name = "Stats"

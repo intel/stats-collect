@@ -28,8 +28,8 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport import _IntroTable
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.stats import _StatsTabBuilder
-from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
+from statscollectlibs.htmlreport.tabs.stats._TopLevelStatsTab import TopLevelStatsTab
+from statscollectlibs.htmlreport.tabs.sysinfo._SysInfoTabBuilder import SysInfoTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollecttools import ToolInfo
 
@@ -197,8 +197,8 @@ class HTMLReport:
         self._data_dir = self._outdir / "report-data"
         self.tabs_dir = self._data_dir / "tabs"
 
-        self._stats_tbldr: _StatsTabBuilder.StatsTabBuilder | None = None
-        self._sysinfo_tbldr: _SysInfoTabBuilder.SysInfoTabBuilder | None = None
+        self._stats_tbldr: TopLevelStatsTab | None = None
+        self._sysinfo_tbldr: SysInfoTabBuilder | None = None
 
         _check_plotly_ver()
         validate_outdir(outdir)
@@ -209,7 +209,7 @@ class HTMLReport:
         # Only try and generate the statistics tab if statistics were collected.
         collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in self._lrsts])
 
-        sysinfo_tbldr = _SysInfoTabBuilder.SysInfoTabBuilder
+        sysinfo_tbldr = SysInfoTabBuilder
         for stname in sysinfo_tbldr.stnames:
             if stname in collected_stnames:
                 self._sysinfo_tbldr = sysinfo_tbldr(self._lrsts, self.tabs_dir,
@@ -220,9 +220,8 @@ class HTMLReport:
 
         if collected_stnames:
             try:
-                self._stats_tbldr = _StatsTabBuilder.StatsTabBuilder(self._lrsts, self.tabs_dir,
-                                                                     basedir=self._outdir,
-                                                                     xmetric=self._xmetric)
+                self._stats_tbldr = TopLevelStatsTab(self._lrsts, self.tabs_dir,
+                                                     basedir=self._outdir, xmetric=self._xmetric)
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
