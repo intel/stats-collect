@@ -43,9 +43,6 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                      X-axis will use the time elapsed since the beginning of the measurements.
         """
 
-        # The column names to include in the interrupts statistics tab.
-        self._tab_colnames: list[str] = []
-
         dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
@@ -62,10 +59,6 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 if colname not in colnames_set:
                     colnames.append(colname)
                     colnames_set.add(colname)
-
-                    sname, _ = _DFHelpers.split_colname(colname)
-                    if sname is not None:
-                        self._tab_colnames.append(colname)
 
         cdd = self._build_cdd(mdd, colnames=colnames)
         super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
