@@ -11,7 +11,7 @@ This module provides the 'SpecStatsCollect' class, which implements specific (no
 statistics collection.
 """
 
-from pepclibs.helperlibs import Logging, ClassHelpers, ProjectFiles
+from pepclibs.helperlibs import Logging, ClassHelpers, ProjectFiles, ToolChecker
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import _StatsConfig
 from statscollectlibs.collector import _STCAgent
@@ -434,6 +434,9 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         self._pman = pman
         self.local_outdir = None
         self.remote_outdir = None
+
+        with ToolChecker.ToolChecker(self._pman) as tchk:
+            tchk.check_tool("rsync")
 
         # The in-band and out-of-band statistics collector objects.
         self._inbagent = None
