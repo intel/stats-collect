@@ -82,10 +82,10 @@ class TabBuilderBase:
         self._cdd = cdd
         self._outdir = outdir / _DTabBuilder.get_fsname(self.name)
         self._basedir = basedir if basedir else outdir
-        self.xcolname = xcolname
+        self._xcolname = xcolname
 
-        if self.xcolname and self.xcolname not in cdd:
-            raise Error(f"BUG: the X-axis metric '{self.xcolname}' not found in the columns "
+        if self._xcolname and self._xcolname not in cdd:
+            raise Error(f"BUG: the X-axis metric '{self._xcolname}' not found in the columns "
                         f"definition dictionary for the '{self.name}' tab")
 
         try:
@@ -115,69 +115,98 @@ class TabBuilderBase:
 
         return funcs
 
-    def _build_dtab_cfg(self, ycolname, hover_defs=None, hist=False, title=None):
+    def _build_dtab_cfg(self,
+                        ycolname: str,
+                        title: str | None = None,
+                        hist: bool = False,
+                        hover_colnames: list[str] | None = None) -> TabConfig.DTabConfig:
         """
-        Provide a way to build a data tab configuration. Return an instance of
-        'TabConfig.DTabConfig'. The arguments are as follows.
-          * ycolname - the name of the metric which will be plotted on the y-axis of the tab's
-                       scatter plot.
-          * hover_defs - a dictionary in the format '{reportid: hov_defs}' where 'hov_defs' is a
-                         list of metric definition dictionaries for the metrics which should be
-                         included on plots as hover text for the relevant report with id 'reportid'.
-          * hist - whether to include a histogram plot for the metric.
-          * title - optionally customize the name of the tab. Defaults to 'y_metric'.
+        Build a data tab configuration object ('TabConfig.DTabConfig').
+
+        Args:
+            ycolname: The name of the metric to be plotted on the Y-axis of the tab's scatter plot.
+            title: A name for the tab. Defaults to the value of 'ycolname'.
+            hist: A boolean indicating whether to include a histogram plot for the metric in the tab.
+            hover_colnames: A list of column names to include as hover text on the scatter plot.
+
+        Returns:
+            An instance of 'TabConfig.DTabConfig' configured with the provided parameters.
         """
 
-        if not self.xcolname:
+        if not self._xcolname:
             raise Error("BUG: the X-axis metric was not set")
 
         title = title if title is not None else ycolname
-        dtab = TabConfig.DTabConfig(title)
-        dtab.add_scatter_plot(self.xcolname, ycolname)
+        dtabconfig = TabConfig.DTabConfig(title)
+        dtabconfig.add_scatter_plot(self._xcolname, ycolname)
         if hist:
-            dtab.add_hist(ycolname)
+            dtabconfig.add_hist(ycolname)
 
         smry_funcs = self._get_smry_funcs(ycolname)
-        dtab.set_smry_funcs({ycolname: smry_funcs})
-        dtab.set_hover_defs(hover_defs)
+        dtabconfig.set_smry_funcs({ycolname: smry_funcs})
+        dtabconfig.set_hover_colnames(hover_colnames)
 
-        return dtab
+        return dtabconfig
 
-    def _add_plots(self, dtabconfig, tab):
-        """Add plots to 'tab' based on the metrics specified in the configuration 'dtabconfig'."""
+    def _add_plots(self,
+                   dtabconfig: TabConfig.DTabConfig,
+                   dtab_bldr: _DTabBuilder.DTabBuilder) -> _DTabBuilder.DTabBuilder:
+        """
+        Add plots to the tab based on the metrics specified in the data tab configuration.
 
-        scatter = []
-        for xcolumn, ycolumn in dtabconfig.scatter_plots:
-            scatter.append((self._cdd[xcolumn], self._cdd[ycolumn]))
+        Args:
+            dtabconfig: The data tab configuration object containing details about the plots to be
+            added, such as scatter plots, histograms, etc.
+            dtab_bldr: The data tab builder object that will be used for building the tab.
 
-        hists = []
-        for column in dtabconfig.hists:
-            hists.append(self._cdd[column])
+        Returns:
+            The updated data tab builder object with the added plots.
+        """
 
-        chists = []
-        for column in dtabconfig.chists:
-            chists.append(self._cdd[column])
+        scatter: list[tuple[CDTypedDict, CDTypedDict]] = []
+        for xcolname, ycolname in dtabconfig.scatter_plots:
+            scatter.append((self._cdd[xcolname], self._cdd[ycolname]))
 
-        hover_defs = {}
-        if dtabconfig.hover_defs:
-            for reportid, columns in dtabconfig.hover_defs.items():
-                hover_defs[reportid] = [self._cdd[column] for column in columns]
+        hists: list[CDTypedDict] = []
+        for colname in dtabconfig.hists:
+            hists.append(self._cdd[colname])
 
-        hover_defs = hover_defs if hover_defs else None
+        chists: list[CDTypedDict] = []
+        for colname in dtabconfig.chists:
+            chists.append(self._cdd[colname])
 
-        tab.add_plots(plot_axes=scatter, hist=hists, chist=chists, hover_defs=hover_defs)
-        return tab
+        hover_mds: list[CDTypedDict] = {}
+        if dtabconfig.hover_colnames:
+            hover_mds = []
+            for colname in dtabconfig.hover_colnames:
+                if colname == "CPU5-UMHz0.0":
+                    print("CDD columns: ", list(self._cdd))
+                hover_mds.append(self._cdd[colname])
 
-    def _build_dtab(self, outdir, dtabconfig):
-        """Build a data tab according to the tab configuration 'dtabconfig'."""
+        dtab_bldr.add_plots(plot_axes=scatter, hist=hists, chist=chists,
+                            hover_mds=hover_mds)
+        return dtab_bldr
 
-        tab = _DTabBuilder.DTabBuilder(self._dfs, outdir, dtabconfig.name, self._basedir)
-        tab = self._add_plots(dtabconfig, tab)
-        tab.add_smrytbl(dtabconfig.smry_funcs, self._cdd)
+    def _build_dtab(self, outdir: Path, dtabconfig: TabConfig.DTabConfig) -> _Tabs.DTabDC:
+        """
+        Build and return a data tab based on the provided data tab configuration.
+
+        Args:
+            outdir: The output directory where the data tab files will be stored.
+            dtabconfig: The data ab configuration object defining the properties of the data tab,
+                        including its name, summary functions, alerts, etc.
+
+        Returns:
+            A data tab object constructed using the provided configuration.
+        """
+
+        dtab_bldr = _DTabBuilder.DTabBuilder(self._dfs, outdir, dtabconfig.name, self._basedir)
+        dtab_bldr = self._add_plots(dtabconfig, dtab_bldr)
+        dtab_bldr.add_smrytbl(dtabconfig.smry_funcs, self._cdd)
         for alert in dtabconfig.alerts:
-            tab.add_alert(alert)
+            dtab_bldr.add_alert(alert)
 
-        return tab.get_tab()
+        return dtab_bldr.get_tab()
 
     def _build_ctab(self, outdir, ctabconfig):
         """

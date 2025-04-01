@@ -15,6 +15,9 @@ the following classes:
                    by specifying child container or data tabs.
 """
 
+# TODO: finish annotating and modernizing this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pepclibs.helperlibs.Exceptions import Error
 
 class DTabConfig:
@@ -50,13 +53,15 @@ class DTabConfig:
         """
         self.smry_funcs = smry_funcs
 
-    def set_hover_defs(self, hover_defs):
+    def set_hover_colnames(self, hover_colnames: list[str] | None):
         """
-        Set the hover text metric definitions.
+        Configure the list of column names to be used for hover text in the scatter plot.
 
-        Expects 'hover_defs' to be a dictionary in the format '{reportid: list[definitiod_dicts]}'.
+        Args:
+            hover_colnames: A list of column names to use for hover text. Use 'None' to disable
+            hover text.
         """
-        self.hover_defs = hover_defs
+        self.hover_colnames = hover_colnames
 
     def __init__(self, name):
         """
@@ -71,7 +76,7 @@ class DTabConfig:
         self.hists = []
 
         self.smry_funcs = {}
-        self.hover_defs = None
+        self.hover_colnames = None
         self.alerts = []
 
 class CTabConfig:

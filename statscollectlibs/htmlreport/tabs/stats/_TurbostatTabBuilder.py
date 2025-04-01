@@ -104,14 +104,20 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             None: If no valid metrics are found for the given scope.
         """
 
+
+        colnames = [f"{sname}-{metric}" for metric in metrics]
+
+        # Add all metrics from the C-tab to the hover text. But some column names may not exist in
+        # the dataframe. For example, package scope metrics like "Pkg%pc6" do not exist for the CPU
+        # scope.
+        hover_colnames = [colname for colname in colnames if colname in self._cdd]
+
         dtabs = []
-        for metric in metrics:
-            colname = f"{sname}-{metric}"
+        for metric, colname in zip(metrics, colnames):
             if colname not in self._cdd:
-                # The metric does not exist for this scope, e.g., 'CPU0-Pkg%pc6'.
                 continue
 
-            dtab = self._build_dtab_cfg(colname, title=metric)
+            dtab = self._build_dtab_cfg(colname, title=metric, hover_colnames=hover_colnames)
             dtabs.append(dtab)
 
         if dtabs:

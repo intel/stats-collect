@@ -10,6 +10,9 @@
 This module provides the capability of populating a data tab.
 """
 
+# TODO: finish annotating and modernizing this module.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
@@ -121,15 +124,14 @@ class DTabBuilder:
         _LOG.info("Excluding result '%s' from %s: result does not have data for '%s'.", reportid,
                    plottitle, mtitle)
 
-    def _add_scatter(self, xdef, ydef, hover_defs=None):
+    def _add_scatter(self, xdef, ydef, hover_mds=None):
         """
         Helper function for 'add_plots()'. Add a scatter plot to the report. Arguments are as
         follows:
          * xdef - definitions dictionary for the metric on the X-axis.
          * ydef - definitions dictionary for the metric on the Y-axis.
-         * hover_defs - a mapping between report ID and lists of definitions dictionaries which
-                        represent metrics for which hovertext should be generated for that result.
-                        By default, only includes hovertext for 'xdef' and 'ydef'.
+         * hover_mds - a list of metric definition dictionaries to include in the hover text of the
+                       scatter plots.
         """
 
         xcolname = self._get_colname(xdef)
@@ -151,8 +153,8 @@ class DTabBuilder:
                     break
             else:
                 reduced_df = s.reduce_df_density(df, reportid)
-                if hover_defs is not None:
-                    hovertext = s.create_hover_template(hover_defs[reportid], reduced_df)
+                if hover_mds:
+                    hovertext = s.create_hover_template(hover_mds, reduced_df)
                 else:
                     hovertext = None
                 s.add_df(reduced_df, reportid, hovertext)
@@ -223,7 +225,7 @@ class DTabBuilder:
 
         return False
 
-    def add_plots(self, plot_axes=None, hist=None, chist=None, hover_defs=None):
+    def add_plots(self, plot_axes=None, hist=None, chist=None, hover_mds=None):
         """
         Initialise the plots and populate them using the 'pandas.DataFrame' objects in 'self._dfs'.
         The arguments are as follows.
@@ -231,8 +233,8 @@ class DTabBuilder:
                        (xdef, ydef).
          * hist - a list of defs which represent metrics to create histograms for.
          * chist - a list of defs which represent metrics to create cumulative histograms for.
-         * hover_defs - a mapping from 'reportid' to defs of metrics which should be included in
-                        the hovertext of scatter plots.
+         * hover_mds - a list of metric definition dictionaries to include in the hover text of the
+                       scatter plots.
         """
 
         if plot_axes is None and hist is None and chist is None:
@@ -247,7 +249,7 @@ class DTabBuilder:
 
         for xdef, ydef in plot_axes:
             if not self._skip_metric_plot("scatter plot", xdef, ydef):
-                self._add_scatter(xdef, ydef, hover_defs)
+                self._add_scatter(xdef, ydef, hover_mds)
 
         for mdef in hist:
             if not self._skip_metric_plot("histogram", mdef):
@@ -256,7 +258,6 @@ class DTabBuilder:
         for mdef in chist:
             if not self._skip_metric_plot("cumulative histogram", mdef):
                 self._add_histogram(mdef, cumulative=True)
-
 
     def add_fpreview(self, title: str, paths: dict[str, Path], diff: bool = True):
         """

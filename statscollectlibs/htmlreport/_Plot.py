@@ -49,7 +49,7 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 class Plot:
     """This class provides the common defaults and logic for producing plotly diagrams."""
 
-    def _create_hover_template_col(self, row, hov_defs, columns):
+    def _create_hover_template_col(self, row, hover_mds, df):
         """
         Helper function for 'create_hover_template()'. Returns the hover template for a given 'row'
         of a 'pandas.DataFrame'.
@@ -60,43 +60,39 @@ class Plot:
         # Decimal places to provide in formatted hover text.
         decp = 2
 
-        for col in columns:
-            if col not in hov_defs:
-                continue
-            if not row.iloc[columns.get_loc(col)]:
+        for hover_md in hover_mds:
+            colname = hover_md["colname"]
+            if colname not in df.columns:
                 continue
 
-            mdef = hov_defs[col]
             # Metrics on the X-axis and Y-axis will be included at the beginning of the hovertext.
-            if (mdef["title"] == self.xaxis_label) or (mdef["title"] == self.yaxis_label):
+            if (hover_md["title"] == self.xaxis_label) or (hover_md["title"] == self.yaxis_label):
                 continue
 
-            short_unit = mdef.get("short_unit")
-            if not Trivial.is_num(row[col]):
-                val = row[col]
+            short_unit = hover_md.get("short_unit")
+            if not Trivial.is_num(row[colname]):
+                val = row[colname]
             elif short_unit == "%":
-                val = f"{row[col]:.{decp}f}"
+                val = f"{row[colname]:.{decp}f}"
             else:
-                val = Human.num2si(row[col], unit=short_unit, decp=decp)
+                val = Human.num2si(row[colname], unit=short_unit, decp=decp)
 
-            templ += f"{col}: {val}<br>"
+            templ += f"{hover_md["name"]}: {val}<br>"
 
         return templ
 
-    def create_hover_template(self, hov_defs, df):
+    def create_hover_template(self, hover_mds, df):
         """
         Create and return a 'plotly'-compatible hover template for the 'pandas.DataFrame' 'df'.
         Arguments are as follows:
-         * hov_defs - a list of definitions dictionaries which represent metrics for which hovertext
-                      should be generated.
+         * hover_mds - a list of metric definition dictionaries to include in the hover template.
          * df - the 'pandas.DataFrame' which contains the datapoints to label.
         """
 
-        _LOG.debug("preparing hover text for '%s vs %s'", self.ycolname, self.xcolname)
+        _LOG.debug("Preparing hover text for '%s vs %s'", self.ycolname, self.xcolname)
 
-        hov_defs = {mdef["name"]: mdef for mdef in hov_defs}
         hovertemplate = df.apply(self._create_hover_template_col, axis=1,
-                                 args=(hov_defs, df.columns))
+                                 args=(hover_mds, df))
         return hovertemplate
 
     @staticmethod
