@@ -7,6 +7,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Fixed
 ### Added
  - Check for 'rsync' before starting to collect statistics.
+ - Add support for workloads that provide custom lables. Use the '--pipe' option
+   for that. The 'stc-wl-cpu-wake-walk' is an example of such a workload.
 ### Removed
 ### Changed
 

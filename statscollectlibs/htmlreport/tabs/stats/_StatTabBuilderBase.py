@@ -16,12 +16,15 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from typing import cast
 from pathlib import Path
 import pandas
+from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
+
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
     """
@@ -57,10 +60,10 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
         dfs = self._load_dfs(lrsts)
 
         self._time_colname = self._get_time_colname(lrsts)
-        if not xcolname:
-            xcolname = self._time_colname
-
         self._colnames, self._snames = self._build_colnames_and_snames(dfs)
+
+        if not xcolname:
+            xcolname = self._select_xcolname(lrsts)
 
         mdd = self._get_merged_mdd(lrsts)
         cdd = self._build_cdd(mdd, colnames=self._colnames)
@@ -216,6 +219,77 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
                     colnames_set.add(colname)
 
         return colnames, snames
+
+    def _select_xcolname(self, lrsts: list[LoadedResult]) -> str:
+        """
+        Select the dataframe column name to use for the X-axis of the plots.
+
+        Args:
+            lrsts: The loaded test result objects to select the X-axis column name from.
+        """
+
+        lrsts_no_labels: list[LoadedResult] = []
+        lrsts_have_labels: list[LoadedResult] = []
+
+        assert self.stnames is not None
+
+        # Get the time column name from the first loaded result.
+        for lres in lrsts:
+            for stname in self.stnames:
+                if stname not in lres.lsts:
+                    continue
+
+                if lres.lsts[stname].ldd:
+                    lrsts_have_labels.append(lres)
+                else:
+                    lrsts_no_labels.append(lres)
+
+        if not lrsts_have_labels:
+            # Use the time column for the X-axis if there are no labels.
+            return self._time_colname
+
+        if lrsts_no_labels:
+            no_labels = "\n  * ".join([str(lres.res.dirpath) for lres in lrsts_no_labels])
+            have_labels = "\n  * ".join([str(lres.res.dirpath) for lres in lrsts_have_labels])
+            _LOG.notice(f"Will use {self._time_colname} for the X-axes, becomes some results have "
+                        f"lables, some do not have labels.\n"
+                        f"The following results have labels:\n"
+                        f"  * {have_labels}\n"
+                        f"The following results do not have labels:\n"
+                        f"  * {no_labels}")
+            return self._time_colname
+
+        # The intetnion is to use the first label as the X-axis metric. But check that all
+        # statistics have the same first label.
+        xmetric_candidates: dict[str, list[LoadedResult]] = {}
+
+        for lres in lrsts_have_labels:
+            for stname in self.stnames:
+                if stname not in lres.lsts:
+                    continue
+
+            first_label = next(iter(lres.lsts[stname].ldd))
+
+            if first_label not in xmetric_candidates:
+                xmetric_candidates[first_label] = []
+            xmetric_candidates[first_label].append(lres)
+
+        if len(xmetric_candidates) == 1:
+            # All statistics have the same first label.
+            xmetric = next(iter(xmetric_candidates))
+            _LOG.info("Using '%s' as the X-axis metric.", xmetric)
+            return xmetric
+
+        msg = ""
+        for label, lrsts in xmetric_candidates.items():
+            msg += f"\n  * {label}:"
+            for lres in lrsts:
+                msg += f"\n    - {lres.res.dirpath}"
+
+        _LOG.notice(f"Will use {self._time_colname} for the X-axes, test results have different "
+                    f"first labels:{msg}")
+
+        return self._time_colname
 
     def get_tab_cfg(self):
         """

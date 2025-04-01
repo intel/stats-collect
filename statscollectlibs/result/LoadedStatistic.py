@@ -280,7 +280,7 @@ class LoadedStatsitic:
             ldd: The labels definition dictionary.
         """
 
-        if self.df:
+        if not self.df.empty:
             raise Error(f"Refusing to set labels definition dictionary for already loaded "
                         f"{self.stname} statistics")
 
