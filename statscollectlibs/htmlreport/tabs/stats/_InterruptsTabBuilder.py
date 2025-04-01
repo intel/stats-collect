@@ -52,6 +52,8 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         if not xmetric:
             xmetric = self._time_colname
 
+        mdd = self._get_merged_mdd(lrsts)
+
         # Compose the list of all column names and all metrics in all dataframes.
         colnames = []
         colnames_set = set()
@@ -65,7 +67,6 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                     if sname is not None:
                         self._tab_colnames.append(colname)
 
-        mdd = self._get_merged_mdd(lrsts)
         cdd = self._build_cdd(mdd, colnames=colnames)
         super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
 

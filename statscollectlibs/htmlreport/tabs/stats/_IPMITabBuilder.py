@@ -55,7 +55,8 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         if not xmetric:
             xmetric = self._time_colname
 
-        mdd, self._categories = self._load(lrsts)
+        mdd = self._get_merged_mdd(lrsts)
+        self._categories = self._get_merged_categories(lrsts)
 
         cdd = self._build_cdd(mdd)
         super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
@@ -145,23 +146,18 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         _LOG.notice("A mix of in-band and out-of-band IPMI statistics detected:%s", msg)
 
-    def _load(self, lrsts: list[LoadedResult]) -> tuple[dict[str, MDCBase.MDTypedDict],
-                                                        dict[str, list[str]]]:
+    def _get_merged_categories(self, lrsts: list[LoadedResult]) -> dict[str, list[str]]:
         """
-        Merge MDDs of test results into a single MDD (in case some test results include metric other
-        test results do not include). Merge categories of test results into a single dictionary.
-        Return the merged MDD and merged categories dictionary.
+        Merge categories from different results into a single dictionary (in case some of the test
+        results include categories or metrics not present in other test results).
 
         Args:
-            lrsts: A list of loaded test result objects to process.
+            lrsts: The loaded test result objects to merge the categories for.
 
         Returns:
-            tuple:
-                - A merged metrdics definition dictionary (MDD).
-                - A dmerged categories dictionary.
+            The merged categories dictionary.
         """
 
-        mdd: dict[str, MDCBase.MDTypedDict] = {}
         categories: dict[str, list[str]] = {}
 
         for lres in lrsts:
@@ -170,8 +166,6 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                     continue
 
                 lstat = lres.lsts[stname]
-
-                mdd.update(lstat.mdd)
 
                 for category, cat_metrics in lstat.categories.items():
                     if category not in categories:
@@ -188,4 +182,4 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             # container tab in the report.
             del categories["Timestamp"]
 
-        return mdd, categories
+        return categories
