@@ -31,6 +31,7 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
     stnames: list[str] | None = None
 
     def __init__(self,
+                 lrsts: list[LoadedResult],
                  dfs: dict[str, pandas.DataFrame],
                  cdd: dict[str, CDTypedDict],
                  outdir: Path,
@@ -40,11 +41,12 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
         Initialize a class instance.
 
         Args:
-            outdir: The output directory where the sub-directory with tab files will be created
-                    created.
+            lrsts: A list of loaded test result objects to include in the tab.
             dfs: A the dataframes dictionary with report IDs as the keys and dataframes as values.
             cdd: A columns definition dictionary describing the dataframe columns to include in the
                  tab.
+            outdir: The output directory where the sub-directory with tab files will be created
+                    created.
             basedir: The base directory of the report. The 'outdir' is a sub-director y of
                      'basedir'. All links and pathes generated it the tab will be relative to
                      'basedir', as opposed to be absolute. Defaults to 'outdir'.
@@ -53,6 +55,7 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
                       measurements.
         """
 
+        self._lrsts = lrsts
         super().__init__(dfs, cdd, outdir, basedir=basedir, xcolname=xcolname)
 
     def _get_time_colname(self, lrsts: list[LoadedResult]) -> str:

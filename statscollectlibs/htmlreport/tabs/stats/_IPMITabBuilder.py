@@ -57,7 +57,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             xmetric = self._time_colname
 
         cdd = self._build_cdd(mdd)
-        super().__init__(dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
+        super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
 
     def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """

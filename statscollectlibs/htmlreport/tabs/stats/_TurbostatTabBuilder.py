@@ -76,7 +76,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                     colnames_set.add(colname)
 
         cdd = self._build_cdd(mdd, colnames=colnames)
-        super().__init__(dfs, cdd, outdir / self.name, basedir=basedir, xcolname=xmetric)
+        super().__init__(lrsts, dfs, cdd, outdir / self.name, basedir=basedir, xcolname=xmetric)
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],
