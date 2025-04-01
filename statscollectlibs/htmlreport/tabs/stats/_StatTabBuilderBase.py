@@ -13,9 +13,11 @@ Provide the base class and common logic for tab builder classes.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+from typing import cast
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
@@ -32,8 +34,6 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
     def __init__(self,
                  lrsts: list[LoadedResult],
-                 dfs: dict[str, pandas.DataFrame],
-                 cdd: dict[str, CDTypedDict],
                  outdir: Path,
                  basedir: Path | None = None,
                  xcolname: str | None = None):
@@ -42,9 +42,6 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         Args:
             lrsts: A list of loaded test result objects to include in the tab.
-            dfs: A the dataframes dictionary with report IDs as the keys and dataframes as values.
-            cdd: A columns definition dictionary describing the dataframe columns to include in the
-                 tab.
             outdir: The output directory where the sub-directory with tab files will be created
                     created.
             basedir: The base directory of the report. The 'outdir' is a sub-director y of
@@ -56,6 +53,18 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
         """
 
         self._lrsts = lrsts
+
+        dfs = self._load_dfs(lrsts)
+
+        self._time_colname = self._get_time_colname(lrsts)
+        if not xcolname:
+            xcolname = self._time_colname
+
+        self._colnames, self._snames = self._build_colnames_and_snames(dfs)
+
+        mdd = self._get_merged_mdd(lrsts)
+        cdd = self._build_cdd(mdd, colnames=self._colnames)
+
         super().__init__(dfs, cdd, outdir, basedir=basedir, xcolname=xcolname)
 
     def _get_time_colname(self, lrsts: list[LoadedResult]) -> str:
@@ -144,6 +153,69 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
                 mdd.update(lres.lsts[stname].mdd)
 
         return mdd
+
+    def _build_cdd(self,
+                   mdd: dict[str, MDTypedDict],
+                   colnames: list[str] | None = None) -> dict[str, CDTypedDict]:
+        """
+        Build a columns definition dictionary (CDD) that describes columns in dataframes.
+
+        Args:
+            mdd: The metrics definition dictionary (MDD) for metrics that will be included in the
+                 tab. It describes metrics, while CDD describes columns. Coulumns may include the
+                 scope as well. For example, there is a "C1%" metric, which may have 2 columns -
+                 "System-C1%" for system-wide C1 residency, and "CPU5-C1%" C1 residency for CPU5.
+            colnames: list of dataframe column names to use for the CDD. By default, assume column
+                      names are the same as metric names.
+
+        Returns:
+            CDTypedDict: The Columns Definition Dictionary.
+        """
+
+        cdd: dict[str, CDTypedDict] = {}
+
+        if colnames is None:
+            colnames = list(mdd)
+
+        # Build a metrics definition dictionary describing all columns in the dataframe.
+        for colname in colnames:
+            sname, metric = _DFHelpers.split_colname(colname)
+            cd = cdd[colname] = cast(CDTypedDict, mdd[metric].copy())
+            cd["colname"] = colname
+            if sname:
+                cd["sname"] = sname
+
+        return cdd
+
+    def _build_colnames_and_snames(self, dfs: dict[str, pandas.DataFrame]) -> tuple[list[str], list[str]]:
+        """
+        Build a list of column names and a list of scope names present in dataframes.
+
+        Args:
+            dfs: The dataframes to build the column names and scope names from.
+
+        Returns:
+            A tuple with two lists:
+                - all unique column names in dataframes
+                - all unique scope names in dataframes
+        """
+
+        colnames = []
+        colnames_set: set[str] = set()
+        snames = []
+        snames_set: set[str] = set()
+
+        for df in dfs.values():
+            for colname in df.columns:
+                sname, _ = _DFHelpers.split_colname(colname)
+                if sname is not None and sname not in snames_set:
+                    snames_set.add(sname)
+                    snames.append(sname)
+                if colname not in colnames_set:
+                    colnames.append(colname)
+                    colnames_set.add(colname)
+
+        return colnames, snames
 
     def get_tab_cfg(self):
         """

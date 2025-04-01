@@ -15,11 +15,9 @@ Provide the base class and common logic for tab builder classes.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
-from typing import cast
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
 
@@ -95,39 +93,6 @@ class TabBuilderBase:
         except OSError as err:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"Failed to create directory '{self._outdir}':\n{errmsg}") from None
-
-    def _build_cdd(self,
-                   mdd: dict[str, MDTypedDict],
-                   colnames: list[str] | None = None) -> dict[str, CDTypedDict]:
-        """
-        Build a columns definition dictionary (CDD) that describes columns in dataframes.
-
-        Args:
-            mdd: The metrics definition dictionary (MDD) for metrics that will be included in the
-                 tab. It describes metrics, while CDD describes columns. Coulumns may include the
-                 scope as well. For example, there is a "C1%" metric, which may have 2 columns -
-                 "System-C1%" for system-wide C1 residency, and "CPU5-C1%" C1 residency for CPU5.
-            colnames: list of dataframe column names to use for the CDD. By default, assume column
-                      names are the same as metric names.
-
-        Returns:
-            CDTypedDict: The Columns Definition Dictionary.
-        """
-
-        cdd: dict[str, CDTypedDict] = {}
-
-        if colnames is None:
-            colnames = list(mdd)
-
-        # Build a metrics definition dictionary describing all columns in the dataframe.
-        for colname in colnames:
-            sname, metric = _DFHelpers.split_colname(colname)
-            cd = cdd[colname] = cast(CDTypedDict, mdd[metric].copy())
-            cd["colname"] = colname
-            if sname:
-                cd["sname"] = sname
-
-        return cdd
 
     def _get_smry_funcs(self, colname: str) -> list[str]:
         """

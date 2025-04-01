@@ -16,7 +16,6 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
-from statscollectlibs.mdc import MDCBase
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import TabConfig
 from statscollectlibs.htmlreport.tabs.stats import  _StatTabBuilderBase
@@ -49,17 +48,9 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         self._message_if_mixed(lrsts)
 
-        dfs = self._load_dfs(lrsts)
+        super().__init__(lrsts, outdir, basedir=basedir, xcolname=xmetric)
 
-        self._time_colname = self._get_time_colname(lrsts)
-        if not xmetric:
-            xmetric = self._time_colname
-
-        mdd = self._get_merged_mdd(lrsts)
         self._categories = self._get_merged_categories(lrsts)
-
-        cdd = self._build_cdd(mdd)
-        super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
 
     def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """

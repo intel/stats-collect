@@ -19,7 +19,6 @@ from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.htmlreport.tabs import TabConfig
 from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
 from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
@@ -48,35 +47,9 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                      X-axis will use the time elapsed since the beginning of the measurements.
         """
 
-        self._snames: list[str] = []
+        super().__init__(lrsts, outdir / self.name, basedir=basedir, xcolname=xmetric)
 
-        dfs = self._load_dfs(lrsts)
-
-        self._time_colname = self._get_time_colname(lrsts)
-        if not xmetric:
-            xmetric = self._time_colname
-
-        mdd = self._get_merged_mdd(lrsts)
         self._categories = self._get_merged_categories(lrsts)
-
-        colnames: list[str] = []
-        colnames_set: set[str] = set()
-        snames_set: set[str] = set()
-
-        for df in dfs.values():
-            for colname in df.columns:
-                sname, metric = _DFHelpers.split_colname(colname)
-                if sname is not None and sname not in snames_set:
-                    snames_set.add(sname)
-                    self._snames.append(sname)
-                if metric not in mdd:
-                    continue
-                if colname not in colnames_set:
-                    colnames.append(colname)
-                    colnames_set.add(colname)
-
-        cdd = self._build_cdd(mdd, colnames=colnames)
-        super().__init__(lrsts, dfs, cdd, outdir / self.name, basedir=basedir, xcolname=xmetric)
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],

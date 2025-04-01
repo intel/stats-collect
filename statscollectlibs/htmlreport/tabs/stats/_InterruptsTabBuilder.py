@@ -43,25 +43,7 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                      X-axis will use the time elapsed since the beginning of the measurements.
         """
 
-        dfs = self._load_dfs(lrsts)
-
-        self._time_colname = self._get_time_colname(lrsts)
-        if not xmetric:
-            xmetric = self._time_colname
-
-        mdd = self._get_merged_mdd(lrsts)
-
-        # Compose the list of all column names and all metrics in all dataframes.
-        colnames = []
-        colnames_set = set()
-        for df in dfs.values():
-            for colname in df.columns:
-                if colname not in colnames_set:
-                    colnames.append(colname)
-                    colnames_set.add(colname)
-
-        cdd = self._build_cdd(mdd, colnames=colnames)
-        super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
+        super().__init__(lrsts, outdir, basedir=basedir, xcolname=xmetric)
 
     def _build_cdd(self,
                    mdd: dict[str, MDTypedDict],
@@ -117,7 +99,7 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         # Scope -> Count/Rate -> list of 'TabConfig.DTabConfig' objects.
         dtabs: dict[str, dict[str, list[TabConfig.DTabConfig]]] = {}
 
-        for colname in self._tab_colnames:
+        for colname in self._colnames:
             sname, metric = _DFHelpers.split_colname(colname)
             if sname is None:
                 continue

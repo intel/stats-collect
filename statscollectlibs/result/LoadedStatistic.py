@@ -201,7 +201,6 @@ class LoadedStatsitic:
         # Some pandas operations break on dataframes without consistent indexing. Reset it.
         self.df = self.df.reset_index(drop=True)
 
-
     def load(self):
         """
         Parse and load statistics data and labels, build the dataframe for the statistics. Apply the

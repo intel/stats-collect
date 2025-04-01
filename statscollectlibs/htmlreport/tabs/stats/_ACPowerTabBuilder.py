@@ -41,16 +41,7 @@ class ACPowerTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                      X-axis will use the time elapsed since the beginning of the measurements.
         """
 
-        dfs = self._load_dfs(lrsts)
-
-        self._time_colname = self._get_time_colname(lrsts)
-        if not xmetric:
-            xmetric = self._time_colname
-
-        mdd = self._get_merged_mdd(lrsts)
-
-        cdd = self._build_cdd(mdd)
-        super().__init__(lrsts, dfs, cdd, outdir, basedir=basedir, xcolname=xmetric)
+        super().__init__(lrsts, outdir, basedir=basedir, xcolname=xmetric)
 
     def get_tab_cfg(self) -> TabConfig.CTabConfig:
         """

@@ -17,6 +17,7 @@ from typing import Any
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
+from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import TurbostatMDC
 
@@ -74,6 +75,9 @@ class TurbostatDFBuilder:
             raise Error("BUG: unsupported scope '{scope}'")
 
         for metric, value in tstat.items():
+            if self.mdo and metric not in self.mdo.mdd:
+                continue
+
             if metric in dont_prefix_metrics:
                 colname = metric
             else:
@@ -163,6 +167,13 @@ class TurbostatDFBuilder:
         df = self._dataset_to_df(dataset)
 
         self.mdo = TurbostatMDC.TurbostatMDC(list(dataset["totals"]))
+
+        # The very first dataframe was built without taking into account that some metrics are not
+        # needed. Remove the corresponding columns.
+        for colname in df.columns:
+            _, metric = _DFHelpers.split_colname(colname)
+            if metric not in self.mdo.mdd:
+                df.drop(columns=[colname], inplace=True)
 
         # Add the rest of the data from the raw turbostat statistics file to 'sdf'.
         for dataset in generator:
