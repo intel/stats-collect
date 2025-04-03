@@ -13,7 +13,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 from pepclibs.helperlibs import Logging
-from statscollectlibs.htmlreport import HTMLReport, _IntroTable
+from statscollectlibs.htmlreport import HTMLReport, IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
 from statscollectlibs.htmlreport.tabs import _BuiltTab
 from statscollectlibs.result import RORawResult, LoadedResult
@@ -57,7 +57,7 @@ class StatsCollectHTMLReport:
         # The loaded test results for the raw test results.
         self._lrsts: list[LoadedResult.LoadedResult] = []
 
-        self._intro_tbl: _IntroTable.IntroTable
+        self._intro_tbl: IntroTable.IntroTable
 
         # Paths to (copied) raw test result directories in the output directory, and logs/workload
         # data sub-directories in the output directory. The dictionary is indexed by report ID.
@@ -99,17 +99,17 @@ class StatsCollectHTMLReport:
         for reportid, path in valid_paths.items():
             row.add_cell(reportid, label, link=path)
 
-    def _build_intro_table(self, rsts: list[RORawResult.RORawResult]):
+    def _init_intro_table(self, rsts: list[RORawResult.RORawResult]):
         """
-        Build the intro table, which the top table in the HTML report, containing general
-        information, such as the command used to collect the statistics, the collection date, etc.
-        Generate all the files related to the intro table.
+        Initialize the intro table and populate it with data. The intro table is located at the top
+        of the HTML report and provides general information, such as the command used for
+        statistics collection, the collection date, and more.
 
         Args:
-            rsts: A list of raw result objects.
+            rsts: List of raw results to be described in the intro table.
         """
 
-        self._intro_tbl = _IntroTable.IntroTable()
+        self._intro_tbl = IntroTable.IntroTable()
         descr = "The command run during statistics collection."
         cmd_row = self._intro_tbl.create_row("Command", hovertext=descr)
         for res in rsts:
@@ -219,5 +219,5 @@ class StatsCollectHTMLReport:
             self._raw_paths[res.reportid] = self.outdir / f"raw-{res.reportid}"
         self._raw_logs_paths, self._raw_wldata_paths = self._copy_raw_data()
 
-        self._build_intro_table(self.rsts)
+        self._init_intro_table(self.rsts)
         rep.generate_report(tabs=tabs, intro_tbl=self._intro_tbl)

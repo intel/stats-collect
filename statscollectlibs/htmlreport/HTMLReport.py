@@ -26,7 +26,7 @@ from packaging import version
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
-from statscollectlibs.htmlreport import _IntroTable
+from statscollectlibs.htmlreport import IntroTable
 from statscollectlibs.htmlreport.tabs import _BuiltTab
 from statscollectlibs.htmlreport.tabs.stats._StatsTabBuilder import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo._SysInfoTabBuilder import SysInfoTabBuilder
@@ -129,7 +129,7 @@ class _JSReportInfo(TypedDict, total=False):
         toolver: The version of the tool used to generate the report.
         logpath: The path to the log file from the tool that generated the report (e.g., from
                  'stats-collect report').
-        intro_tbl: The path to the introduction table JSON file (contains the intro table).
+        intro_tbl: The path to the introduction table JSON file.
         tab_file: The path to the tabs JSON file (contains information about every tab).
     """
 
@@ -259,14 +259,14 @@ class HTMLReport:
 
     def generate_report(self,
                         tabs: list[_BuiltTab.BuiltCTab] | None = None,
-                        intro_tbl: _IntroTable.IntroTable | None = None):
+                        intro_tbl: IntroTable.IntroTable | None = None):
         """
         Generate a 'stats-collect' statistics file in the HTML report directory.
 
         Args:
             tabs: A list of additional container tabs to include in the report.
-            intro_tbl: An instance representing the table to include in the report. If not provided,
-                       it will be omitted from the report.
+            intro_tbl: An 'IntroTable' object that will be used for generating the intro table of
+                       the report. If not provided, the intro table will be omitted.
         """
 
         if not tabs:
@@ -286,9 +286,9 @@ class HTMLReport:
             report_info["logpath"] = self.logpath
 
         if intro_tbl is not None:
-            intro_tbl_path = self._data_dir / "intro_tbl.json"
-            intro_tbl.generate(intro_tbl_path)
-            report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
+            path = self._data_dir / "intro_tbl.json"
+            intro_tbl.generate(path)
+            report_info["intro_tbl"] = path.relative_to(self._outdir)
 
         if self._lrsts:
             tabs += self._build_tabs()
