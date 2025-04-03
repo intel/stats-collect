@@ -7,7 +7,11 @@
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""Provide the API to generate a 'Stats' container tab."""
+"""
+Provide an API to generate the top-level statistics container tab (C-tab), which includes all
+statistics (e.g., turbostat, IPMI). Generate the tab by parsing raw statistical data from all
+results and creating plots, histograms, tables, and more.
+"""
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
@@ -33,8 +37,12 @@ _TabBuilderType = Union[_TurbostatTabBuilder.TurbostatTabBuilder,
                         _ACPowerTabBuilder.ACPowerTabBuilder,
                         _IPMITabBuilder.IPMITabBuilder]
 
-class TopLevelStatsTab:
-    """Provide the API to generate a 'Stats' container tab."""
+class _StatsTabBuilder:
+    """
+    Generate the top-level statistics container tab (C-tab), which includes all statistics such as
+    turbostat and IPMI. Parse raw statistical data from all results to create plots, histograms,
+    tables, and more.
+    """
 
     name = "Stats"
 
@@ -63,13 +71,13 @@ class TopLevelStatsTab:
 
         self._init_tab_bldrs()
 
-    def get_tab(self) -> _Tabs.CTabDC:
+    def build_tab(self) -> _Tabs.CTabDC:
         """
-        Generate and return the the statistics container tab (the top-level "Stats" tab in the HTML
-        report).
+        Build the top-level statistics tab. Parse all statistics from raw results and generate
+        plots, histograms, tables, and other visualizations.
 
         Returns:
-            _Tabs.CTabDC: The generated statistics container tab.
+            The built container tab (C-tab) object representing the top-level statistics tab.
         """
 
         tabs = []

@@ -28,7 +28,7 @@ from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport import _IntroTable
 from statscollectlibs.htmlreport.tabs import _Tabs
-from statscollectlibs.htmlreport.tabs.stats._TopLevelStatsTab import TopLevelStatsTab
+from statscollectlibs.htmlreport.tabs.stats._StatsTabBuilder import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo._SysInfoTabBuilder import SysInfoTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollecttools import ToolInfo
@@ -197,7 +197,7 @@ class HTMLReport:
         self._data_dir = self._outdir / "report-data"
         self.tabs_dir = self._data_dir / "tabs"
 
-        self._stats_tbldr: TopLevelStatsTab | None = None
+        self._stats_tbldr: _StatsTabBuilder | None = None
         self._sysinfo_tbldr: SysInfoTabBuilder | None = None
 
         _check_plotly_ver()
@@ -206,7 +206,6 @@ class HTMLReport:
     def _init_tab_builders(self):
         """Initialize tab builders for all test results."""
 
-        # Only try and generate the statistics tab if statistics were collected.
         collected_stnames = set.union(*[set(lres.res.info["stinfo"]) for lres in self._lrsts])
 
         sysinfo_tbldr = SysInfoTabBuilder
@@ -220,18 +219,23 @@ class HTMLReport:
 
         if collected_stnames:
             try:
-                self._stats_tbldr = TopLevelStatsTab(self._lrsts, self.tabs_dir,
+                self._stats_tbldr = _StatsTabBuilder(self._lrsts, self.tabs_dir,
                                                      basedir=self._outdir, xmetric=self._xmetric)
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
 
-    def _generate_tabs(self) -> list[_Tabs.CTabDC]:
+    def _build_tabs(self) -> list[_Tabs.CTabDC]:
         """
-        Generate statistics and system information tabs.
+        Build all tabs and return a list of build container tabs (C-tabs). This includes parsing all
+        the raw statistic files, generating all the plots, etc.
+
+        At this point the list includes only 2 built C-tabs:
+          * The top level "Stats" C-tab, that includes all the statistics.
+          * The "Sysinfo" C-tab, that includes the overall system information.
 
         Returns:
-            list: A list of generated tabs.
+            A list of built C-tabs.
         """
 
         tabs = []
@@ -239,17 +243,17 @@ class HTMLReport:
         self._init_tab_builders()
 
         if self._stats_tbldr:
-            tabs.append(self._stats_tbldr.get_tab())
+            tabs.append(self._stats_tbldr.build_tab())
 
         if not self._sysinfo_tbldr:
             return tabs
 
         try:
-            sysinfo_tab = self._sysinfo_tbldr.get_tab(self._lrsts)
+            sysinfo_tab = self._sysinfo_tbldr.build_tab()
             tabs.append(sysinfo_tab)
         except Error as err:
             _LOG.debug_print_stacktrace()
-            _LOG.warning("Failed to generate '%s' tab: %s", self._sysinfo_tbldr.name, err)
+            _LOG.warning("Failed to build  the'%s' tab: %s", self._sysinfo_tbldr.name, err)
 
         return tabs
 
@@ -287,7 +291,7 @@ class HTMLReport:
             report_info["intro_tbl"] = intro_tbl_path.relative_to(self._outdir)
 
         if self._lrsts:
-            tabs += self._generate_tabs()
+            tabs += self._build_tabs()
 
         # Convert Dataclasses to dictionaries so that they are JSON serializable.
         json_tabs = [dataclasses.asdict(tab) for tab in tabs]
