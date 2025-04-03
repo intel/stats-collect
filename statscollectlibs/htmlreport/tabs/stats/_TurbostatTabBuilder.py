@@ -14,7 +14,7 @@ Build and populate the turbostat statistics tab.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
@@ -89,14 +89,91 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         return cdd
 
-    def _build_ctab_cfg(self, title: str, metrics: list[str], sname: str):
+    def _get_category_metrics(self, category_path: list[str]) -> list[str]:
+        """
+        Retrieve the list of metrics for a given category path.
+
+        Args:
+            category_path: A list of the 'self._categories' dictionary keys representing the path to
+                           navigate through.
+
+        Returns:
+             A list of metrics for the specified category path, or an empty list if the path does
+             not exist.
+        """
+
+        categories = self._categories
+        for cat in category_path:
+            if cat not in categories:
+                return []
+            categories = categories[cat]
+
+        return cast(list[str], categories)
+
+    def _get_hover_colnames(self, metric: str, sname: str) -> list[str]:
+        """
+        Generate a list of column names to display as scatter plot hover text for a given metric and
+        scope.
+
+        Hover columns are selectively added for specific metrics to optimize memory and storage
+        usage.
+
+        Args:
+            metric: The name of the metric for which hover column names are to be generated.
+            sname: The scope name associated with the metric.
+
+        Returns:
+            A list of column names relevant to the given metric to be included as hover text in the
+            scatter plot.
+        """
+
+        colname = f"{sname}-{metric}"
+        if colname not in self._cdd:
+            return []
+
+        cd = self._cdd[colname]
+
+        hover_metrics: list[str] = []
+
+        if metric == "Bzy_MHz":
+            # Add power and C-state metrics.
+            hover_metrics.append("PkgWatt")
+            hover_metrics += self._get_category_metrics(["C-state", "Requested", "Residency"])
+            hover_metrics += self._get_category_metrics(["C-state", "Hardware"])
+
+        if cd["categories"] == ["Frequency", "Uncore"]:
+            # Add other domains' uncore frequency metrics.
+            hover_metrics += self._get_category_metrics(["Frequency", "Uncore"])
+
+        if cd["categories"] == ["C-state", "Hardware"]:
+            # Add other hardware C-states' residency and requested C-state residency.
+            hover_metrics += self._get_category_metrics(["C-state", "Hardware"])
+            hover_metrics += self._get_category_metrics(["C-state", "Requested", "Residency"])
+
+        if cd["categories"] == ["C-state", "Requested", "Residency"]:
+            # Add other requested C-states' residency and hardware C-state residency.
+            hover_metrics += self._get_category_metrics(["C-state", "Requested", "Residency"])
+            hover_metrics += self._get_category_metrics(["C-state", "Hardware"])
+
+        if metric in ("PkgWatt", "PkgWatt%TDP"):
+            # Add other power metrics, CPU frequency, hardware C-state residency, and uncore
+            # frequency.
+            hover_metrics += self._get_category_metrics(["Power"])
+            hover_metrics.append("Bzy_MHz")
+            hover_metrics += self._get_category_metrics(["C-state", "Hardware"])
+            hover_metrics += self._get_category_metrics(["Frequency", "Uncore"])
+
+        hover_colnames = [f"{sname}-{metric}" for metric in hover_metrics]
+        return [colname for colname in hover_colnames if colname in self._cdd]
+
+    def _build_ctab_cfg(self, tabname: str, metrics: list[str], sname: str):
         """
         Build and return a leaf-level C-tab with a D-tab for every metric in 'metrics' and scope
         'sname'.
 
         Args:
-            title: The title of the C-tab.
-            metrics: A list of metrics to include in the D-tabs.
+            tabname: The name of the C-tab (as it appears in the tab hierachy in the HTML report).
+            metrics: A list of metrics to include in the D-tabs of the C-tab.
             sname: The scope name for the metrics.
 
         Returns:
@@ -104,24 +181,19 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             None: If no valid metrics are found for the given scope.
         """
 
-
-        colnames = [f"{sname}-{metric}" for metric in metrics]
-
-        # Add all metrics from the C-tab to the hover text. But some column names may not exist in
-        # the dataframe. For example, package scope metrics like "Pkg%pc6" do not exist for the CPU
-        # scope.
-        hover_colnames = [colname for colname in colnames if colname in self._cdd]
-
         dtabs = []
-        for metric, colname in zip(metrics, colnames):
+        for metric in metrics:
+            colname = f"{sname}-{metric}"
             if colname not in self._cdd:
                 continue
+
+            hover_colnames = self._get_hover_colnames(metric, sname)
 
             dtab = self._build_dtab_cfg(colname, title=metric, hover_colnames=hover_colnames)
             dtabs.append(dtab)
 
         if dtabs:
-            return TabConfig.CTabConfig(title, dtabs=dtabs)
+            return TabConfig.CTabConfig(tabname, dtabs=dtabs)
 
         return None
 

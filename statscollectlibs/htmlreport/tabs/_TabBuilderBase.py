@@ -126,7 +126,8 @@ class TabBuilderBase:
         Args:
             ycolname: The name of the metric to be plotted on the Y-axis of the tab's scatter plot.
             title: A name for the tab. Defaults to the value of 'ycolname'.
-            hist: A boolean indicating whether to include a histogram plot for the metric in the tab.
+            hist: A boolean indicating whether to include a histogram plot for the metric in the
+                  tab.
             hover_colnames: A list of column names to include as hover text on the scatter plot.
 
         Returns:
@@ -175,9 +176,8 @@ class TabBuilderBase:
         for colname in dtabconfig.chists:
             chists.append(self._cdd[colname])
 
-        hover_mds: list[CDTypedDict] = {}
+        hover_mds: list[CDTypedDict] = []
         if dtabconfig.hover_colnames:
-            hover_mds = []
             for colname in dtabconfig.hover_colnames:
                 if colname == "CPU5-UMHz0.0":
                     print("CDD columns: ", list(self._cdd))

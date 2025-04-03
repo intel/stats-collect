@@ -190,7 +190,8 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         return cdd
 
-    def _build_colnames_and_snames(self, dfs: dict[str, pandas.DataFrame]) -> tuple[list[str], list[str]]:
+    def _build_colnames_and_snames(self,
+                                   dfs: dict[str, pandas.DataFrame]) -> tuple[list[str], list[str]]:
         """
         Build a list of column names and a list of scope names present in dataframes.
 
