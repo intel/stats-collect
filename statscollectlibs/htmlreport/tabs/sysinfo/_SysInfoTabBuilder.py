@@ -51,7 +51,7 @@ class SysInfoTabBuilder:
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
 
-    def build_tab(self) -> _Tabs.CTabDC:
+    def build_tab(self) -> _Tabs.BuiltCTab:
         """
         Build the SysInfo tab and its sub-tabs. Parse the required raw system information files and
         generate the necessary files for the HTML report, such as diffs.
@@ -100,4 +100,4 @@ class SysInfoTabBuilder:
         if not tabs:
             raise Error(f"All '{self.name}' tabs were skipped")
 
-        return _Tabs.CTabDC(self.name, tabs=tabs)
+        return _Tabs.BuiltCTab(self.name, tabs=tabs)

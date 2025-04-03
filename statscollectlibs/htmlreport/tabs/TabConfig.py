@@ -65,7 +65,7 @@ class DTabConfig:
 
     def __init__(self, name):
         """
-        Class constructor. 'name' represents the name of the tab. See 'DTabDC.name' for more
+        Class constructor. 'name' represents the name of the tab. See 'BuiltDTab.name' for more
         information.
         """
 

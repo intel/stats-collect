@@ -71,7 +71,7 @@ class _StatsTabBuilder:
 
         self._init_tab_bldrs()
 
-    def build_tab(self) -> _Tabs.CTabDC:
+    def build_tab(self) -> _Tabs.BuiltCTab:
         """
         Build the top-level statistics tab. Parse all statistics from raw results and generate
         plots, histograms, tables, and other visualizations.
@@ -93,7 +93,7 @@ class _StatsTabBuilder:
         if not tabs:
             _LOG.warning("All statistics tabs were skipped")
 
-        return _Tabs.CTabDC(self.name, tabs)
+        return _Tabs.BuiltCTab(self.name, tabs)
 
     def _init_tab_bldrs(self):
         """Initialise tab builder objects."""

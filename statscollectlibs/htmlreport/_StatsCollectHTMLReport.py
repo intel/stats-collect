@@ -15,7 +15,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging
 from statscollectlibs.htmlreport import HTMLReport, _IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
-from statscollectlibs.htmlreport.tabs import _Tabs
+from statscollectlibs.htmlreport.tabs import _BuiltTab
 from statscollectlibs.result import RORawResult, LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -99,9 +99,11 @@ class StatsCollectHTMLReport:
         for reportid, path in valid_paths.items():
             row.add_cell(reportid, label, link=path)
 
-    def _generate_intro_table(self, rsts: list[RORawResult.RORawResult]):
+    def _build_intro_table(self, rsts: list[RORawResult.RORawResult]):
         """
-        Generate an intro table for test results in 'rsts'.
+        Build the intro table, which the top table in the HTML report, containing general
+        information, such as the command used to collect the statistics, the collection date, etc.
+        Generate all the files related to the intro table.
 
         Args:
             rsts: A list of raw result objects.
@@ -139,15 +141,15 @@ class StatsCollectHTMLReport:
         # Add links to the logs directories.
         self._add_intro_tbl_links("Logs", self._raw_logs_paths)
 
-    def _get_results_tab(self, tabs_dir: Path) -> _Tabs.CTabDC:
+    def _build_results_tab(self, tabdir: Path) -> _BuiltTab.BuiltCTab:
         """
-        Create and return the results tab object.
+        Build the "Results" tab (generate all the tab files for the HTML report)
 
         Args:
-            tabs_dir: Path to the directory where the tabs will be stored.
+            tabdir: Path to the directory where all the "Results" tab files will be stored.
 
         Returns:
-            _Tabs.CTabDC: The resulting container tab object.
+            The built container tab (C-Tab) object representing the built "Results" tab.
         """
 
         wlnames = {}
@@ -176,10 +178,10 @@ class StatsCollectHTMLReport:
                     wlnames[res.reportid], RORawResult.KNOWN_WORKLOADS[res.wlname])
 
         if wlname == "specjbb2015":
-            return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabs_dir,
+            return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabdir,
                                                                 basedir=self.outdir).get_tab()
 
-        return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabs_dir,
+        return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabdir,
                                                                     basedir=self.outdir).get_tab()
 
     def _copy_raw_data(self):
@@ -205,17 +207,17 @@ class StatsCollectHTMLReport:
         return logs_paths, wldata_paths
 
     def generate(self):
-        """Generate the HTML report."""
+        """Generate the stats-collect HTML report."""
 
         title="stats-collect report"
         rep = HTMLReport.HTMLReport(self._lrsts, title, self.outdir, logpath=self.logpath)
 
-        results_tab = self._get_results_tab(rep.tabs_dir)
+        results_tab = self._build_results_tab(rep.tabs_dir)
         tabs = [results_tab] if results_tab else None
 
         for res in self.rsts:
             self._raw_paths[res.reportid] = self.outdir / f"raw-{res.reportid}"
         self._raw_logs_paths, self._raw_wldata_paths = self._copy_raw_data()
 
-        self._generate_intro_table(self.rsts)
+        self._build_intro_table(self.rsts)
         rep.generate_report(tabs=tabs, intro_tbl=self._intro_tbl)

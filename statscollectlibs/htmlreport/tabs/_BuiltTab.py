@@ -34,7 +34,7 @@ class FilePreviewDC:
     diff: Path | None = None
 
 @dataclass
-class DTabDC:
+class BuiltDTab:
     """
     This dataclass defines what is expected by the JavaScript side when adding a data tab to HTML
     reports. A "data tab" is defined as a tab which contains data such as a summary table and plots.
@@ -57,7 +57,7 @@ class DTabDC:
     alerts: List[str] = field(default_factory=list)
 
 @dataclass
-class CTabDC:
+class BuiltCTab:
     """
     This class defines what is expected by the JavaScript side when adding a container tab to HTML
     report. A "container tab" is defined as tab which contains child tabs. Child tabs can either be
@@ -66,4 +66,4 @@ class CTabDC:
     """
 
     name: str
-    tabs: Union[CTabDC, List[DTabDC]]
+    tabs: Union[BuiltCTab, List[BuiltDTab]]

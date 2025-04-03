@@ -19,7 +19,7 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.htmlreport.tabs import _DTabBuilder, _Tabs, TabConfig
+from statscollectlibs.htmlreport.tabs import _DTabBuilder, _BuiltTab, TabConfig
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -187,7 +187,7 @@ class TabBuilderBase:
                             hover_mds=hover_mds)
         return dtab_bldr
 
-    def _build_dtab(self, outdir: Path, dtabconfig: TabConfig.DTabConfig) -> _Tabs.DTabDC:
+    def _build_dtab(self, outdir: Path, dtabconfig: TabConfig.DTabConfig) -> _BuiltTab.BuiltDTab:
         """
         Build and return a data tab based on the provided data tab configuration.
 
@@ -240,7 +240,7 @@ class TabBuilderBase:
                 sub_tabs.append(subtab)
 
         if sub_tabs:
-            return _Tabs.CTabDC(ctabconfig.name, sub_tabs)
+            return _BuiltTab.BuiltCTab(ctabconfig.name, sub_tabs)
 
         raise Error(f"unable to generate a container tab for {self.name}.")
 
@@ -254,7 +254,7 @@ class TabBuilderBase:
 
     def get_tab(self):
         """
-        Return a '_Tabs.DTabDC' or '_Tabs.CTabDC' instance which represents statistics found in raw
+        Return a '_BuiltTab.BuiltDTab' or '_Tabs.BuiltCTab' instance which represents statistics found in raw
         statistic files.
         """
 

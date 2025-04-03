@@ -112,7 +112,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
         return new_paths
 
-    def get_tab(self) -> _Tabs.DTabDC:
+    def get_tab(self) -> _Tabs.BuiltDTab:
         """
         Generate and returns a D-tab for the "Sysinfo" C-tab.
 
