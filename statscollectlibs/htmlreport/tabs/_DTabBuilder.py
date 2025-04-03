@@ -57,22 +57,7 @@ class DTabBuilder:
        * 'get_tab()'
     """
 
-    def _get_colname(self, md: dict) -> str:
-        """
-        Return dataframe column name for the metric described by 'md'.
-
-        Args:
-            md: the metric definition dictionary
-
-        Returns:
-            The dataframe column name.
-        """
-
-        if "colname" in md:
-            return md["colname"]
-        return md["name"]
-
-    def add_smrytbl(self, smry_funcs, mdd):
+    def add_smrytbl(self, smry_funcs, cdd):
         """
         Construct a 'SummaryTable' to summarise the metrics in 'smry_funcs' in the results given
         to the constructor as 'reports'. Arguments are as follows.
@@ -82,14 +67,14 @@ class DTabBuilder:
                          Note, 'summary_func' is allowed to be 'None', which means that no functions
                          will be applied to the metric, and can be used for metrics that have only
                          on value.
-         * mdd - the metrics definition dictionary describing the metrics in 'smry_funcs'.
+         * cdd - the columns definition dictionary describing the metrics in 'smry_funcs'.
         """
 
         self._smrytbl = _SummaryTable.SummaryTable()
 
         for metric, funcs in smry_funcs.items():
-            md = mdd[metric]
-            self._smrytbl.add_metric(md["title"], md.get("short_unit"), md.get("descr"),
+            cd = cdd[metric]
+            self._smrytbl.add_metric(cd["title"], cd.get("short_unit"), cd.get("descr"),
                                      fmt="{:.2f}")
 
             for rep, df in self._dfs.items():
@@ -99,7 +84,7 @@ class DTabBuilder:
                 if funcs:
                     smry_dict = DFSummary.calc_col_smry(df, metric, funcs)
                     for funcname in funcs:
-                        self._smrytbl.add_smry_func(rep, md["title"], smry_dict[funcname],
+                        self._smrytbl.add_smry_func(rep, cd["title"], smry_dict[funcname],
                                                     funcname=funcname)
                 else:
                     # Special case: there is only one metric value, so no functions can be applied.
@@ -107,7 +92,7 @@ class DTabBuilder:
                         raise Error(f"BUG: no functions were specified for metric '{metric}', "
                                     f"but there is more than one metric value.")
                     val = df[metric][0]
-                    self._smrytbl.add_smry_func(rep, md["title"], val, funcname=None)
+                    self._smrytbl.add_smry_func(rep, cd["title"], val, funcname=None)
 
         try:
             self._smrytbl.generate(self.smry_path)
@@ -124,37 +109,37 @@ class DTabBuilder:
         _LOG.info("Excluding result '%s' from %s: result does not have data for '%s'.", reportid,
                    plottitle, mtitle)
 
-    def _add_scatter(self, xdef, ydef, hover_mds=None):
+    def _add_scatter(self, xcd, ycd, hover_cds=None):
         """
         Helper function for 'add_plots()'. Add a scatter plot to the report. Arguments are as
         follows:
-         * xdef - definitions dictionary for the metric on the X-axis.
-         * ydef - definitions dictionary for the metric on the Y-axis.
-         * hover_mds - a list of metric definition dictionaries to include in the hover text of the
+         * xcd - the X-axis column definition dictionary.
+         * ycd - the Y-axis column definition dictionary.
+         * hover_ccs - a list of colunb definition dictionaries to include in the hover text of the
                        scatter plots.
         """
 
-        xcolname = self._get_colname(xdef)
-        ycolname = self._get_colname(ydef)
+        xcolname = xcd["colname"]
+        ycolname = ycd["colname"]
 
         # Initialise scatter plot.
         fname = f"{get_fsname(ycolname)}-vs-{get_fsname(xcolname)}.html"
-        plottitle = f"scatter plot '{ydef['title']} vs {xdef['title']}'"
+        plottitle = f"scatter plot '{ycd['title']} vs {xcd['title']}'"
 
         s_path = self._outdir / fname
-        s = _ScatterPlot.ScatterPlot(xcolname, ycolname, s_path, xdef.get("title"),
-                                     ydef.get("title"), xdef.get("short_unit"),
-                                     ydef.get("short_unit"))
+        s = _ScatterPlot.ScatterPlot(xcolname, ycolname, s_path, xcd.get("title"),
+                                     ycd.get("title"), xcd.get("short_unit"),
+                                     ycd.get("short_unit"))
 
         for reportid, df in self._dfs.items():
-            for mdef in [xdef, ydef]:
-                if self._get_colname(mdef) not in df:
-                    self._warn_plot_skip_res(reportid, plottitle, mdef["title"])
+            for cd in [xcd, ycd]:
+                if cd["colname"] not in df:
+                    self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                     break
             else:
                 reduced_df = s.reduce_df_density(df, reportid)
-                if hover_mds:
-                    hovertext = s.create_hover_template(hover_mds, reduced_df)
+                if hover_cds:
+                    hovertext = s.create_hover_template(hover_cds, reduced_df)
                 else:
                     hovertext = None
                 s.add_df(reduced_df, reportid, hovertext)
@@ -162,49 +147,49 @@ class DTabBuilder:
         s.generate()
         self._ppaths.append(s_path)
 
-    def _add_histogram(self, mdef, cumulative=False, xbins=None):
+    def _add_histogram(self, cd, cumulative=False, xbins=None):
         """
-        Helper function for 'add_plots()'. Add a histogram to the report for metric with
-        definitions dictionary 'mdef'. See '_Histogram.Histogram' for details of 'cumulative' and
+        Helper function for 'add_plots()'. Add a histogram to the report for datafame column with
+        definitions dictionary 'cd'. See '_Histogram.Histogram' for details of 'cumulative' and
         'xbins' arguments.
         """
 
-        colname = self._get_colname(mdef)
+        colname = cd["colname"]
         if cumulative:
             h_path = self._outdir / f"Percentile-vs-{get_fsname(colname)}.html"
-            plottitle = f"cumulative histogram 'Percentile vs {mdef['title']}'"
+            plottitle = f"cumulative histogram 'Percentile vs {cd['title']}'"
         else:
             h_path = self._outdir / f"Count-vs-{get_fsname(colname)}.html"
-            plottitle = f"histogram 'Count vs {mdef['title']}'"
+            plottitle = f"histogram 'Count vs {cd['title']}'"
 
-        h = _Histogram.Histogram(colname, h_path, mdef.get("title"), mdef.get("short_unit"),
+        h = _Histogram.Histogram(colname, h_path, cd.get("title"), cd.get("short_unit"),
                                  cumulative=cumulative, xbins=xbins)
 
         for reportid, df in self._dfs.items():
             if colname not in df:
-                self._warn_plot_skip_res(reportid, plottitle, mdef["title"])
+                self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                 continue
             h.add_df(df, reportid)
 
         h.generate()
         self._ppaths.append(h_path)
 
-    def _skip_metric_plot(self, plotname, xdef, ydef=None):
+    def _skip_metric_plot(self, plotname, xcd, ycd=None):
         """
         Helper function for 'add_plots()'. Checks the data in 'self._dfs' to see if there is
-        sufficient data to generate a plot for the metrics 'xdef' and 'ydef'. Returns 'True' or
+        sufficient data to generate a plot for the metrics 'xcd' and 'ycd'. Returns 'True' or
         'False' if the plot should be skipped or generated respectively.
         """
 
-        if ydef is not None:
-            mdefs = [xdef, ydef]
-            plotname = f"{plotname} '{ydef['name']} vs {xdef['name']}'"
+        if ycd is not None:
+            cds = [xcd, ycd]
+            plotname = f"{plotname} '{ycd['name']} vs {xcd['name']}'"
         else:
-            mdefs = [xdef]
-            plotname = f"{plotname} '{xdef['name']}'"
+            cds = [xcd]
+            plotname = f"{plotname} '{xcd['name']}'"
 
-        for mdef in mdefs:
-            colname = self._get_colname(mdef)
+        for cd in cds:
+            colname = cd["colname"]
 
             sdfs_with_data = [sdf for sdf in self._dfs.values() if colname in sdf]
             # Check that at least one result contains data for column 'colname'.
@@ -230,7 +215,7 @@ class DTabBuilder:
         Initialise the plots and populate them using the 'pandas.DataFrame' objects in 'self._dfs'.
         The arguments are as follows.
          * plot_axes - tuples of defs which represent axes to create scatter plots for in the format
-                       (xdef, ydef).
+                       (xcd, ycd).
          * hist - a list of defs which represent metrics to create histograms for.
          * chist - a list of defs which represent metrics to create cumulative histograms for.
          * hover_mds - a list of metric definition dictionaries to include in the hover text of the
@@ -247,17 +232,17 @@ class DTabBuilder:
         if chist is None:
             chist = []
 
-        for xdef, ydef in plot_axes:
-            if not self._skip_metric_plot("scatter plot", xdef, ydef):
-                self._add_scatter(xdef, ydef, hover_mds)
+        for xcd, ycd in plot_axes:
+            if not self._skip_metric_plot("scatter plot", xcd, ycd):
+                self._add_scatter(xcd, ycd, hover_mds)
 
-        for mdef in hist:
-            if not self._skip_metric_plot("histogram", mdef):
-                self._add_histogram(mdef)
+        for cd in hist:
+            if not self._skip_metric_plot("histogram", cd):
+                self._add_histogram(cd)
 
-        for mdef in chist:
-            if not self._skip_metric_plot("cumulative histogram", mdef):
-                self._add_histogram(mdef, cumulative=True)
+        for cd in chist:
+            if not self._skip_metric_plot("cumulative histogram", cd):
+                self._add_histogram(cd, cumulative=True)
 
     def add_fpreview(self, title: str, paths: dict[str, Path], diff: bool = True):
         """
