@@ -254,8 +254,8 @@ class TabBuilderBase:
 
     def get_tab(self):
         """
-        Return a '_BuiltTab.BuiltDTab' or '_Tabs.BuiltCTab' instance which represents statistics found in raw
-        statistic files.
+        Return a '_BuiltTab.BuiltDTab' or '_BuiltTab.BuiltCTab' instance which represents statistics
+        found in raw statistic files.
         """
 
         tab_cfg = self.get_tab_cfg()

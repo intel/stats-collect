@@ -77,7 +77,7 @@ class Plot:
             else:
                 val = Human.num2si(row[colname], unit=short_unit, decp=decp)
 
-            templ += f"{hover_md["name"]}: {val}<br>"
+            templ += f"{hover_md['name']}: {val}<br>"
 
         return templ
 
