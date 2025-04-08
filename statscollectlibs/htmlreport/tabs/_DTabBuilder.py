@@ -40,8 +40,8 @@ class DTabBuilder:
     """
     This base class provides the capability of populating a data tab.
 
-    Note, each tab element is optional and can be added in any order. See 'BuiltTab.BuiltDTab' docstring
-    for more information on each tab element.
+    Note, each tab element is optional and can be added in any order. See 'BuiltTab.BuiltDTab'
+    docstring for more information on each tab element.
 
     Public methods overview:
     1. Add a summary table to the tab.
@@ -52,8 +52,8 @@ class DTabBuilder:
        * 'add_fpreviews()'
     4. Add an alert to the tab.
        * 'add_alert()'
-    5. Generate a 'BuiltTab.BuiltDTab' instance containing all of the tab features added with the methods
-       listed above.
+    5. Generate a 'BuiltTab.BuiltDTab' instance containing all of the tab features added with the
+       methods listed above.
        * 'get_tab()'
     """
 
@@ -267,8 +267,8 @@ class DTabBuilder:
 
     def get_tab(self):
         """
-        Return a 'BuiltTab.BuiltDTab' instance which contains an aggregate of all of the data 'self._dfs'.
-        Return a 'BuiltTab.BuiltDTab' object that can be used to populate an HTML tab.
+        Return a 'BuiltTab.BuiltDTab' instance which contains an aggregate of all of the data
+        'self._dfs'. Return a 'BuiltTab.BuiltDTab' object that can be used to populate an HTML tab.
         """
 
         ppaths = [p.relative_to(self._basedir) for p in self._ppaths]

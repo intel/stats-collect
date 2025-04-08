@@ -33,8 +33,8 @@ class CapturedOutputTabBuilder():
     and stderr of the workload(s).
 
     Public methods overview:
-     * 'get_tab()' - Generate a 'BuiltTab.BuiltDTab' instance containing file previews of the captured
-                     'stdout' and 'stderr' logs from 'stats-collect start'.
+     * 'get_tab()' - Generate a 'BuiltTab.BuiltDTab' instance containing file previews of the
+                     captured 'stdout' and 'stderr' logs from 'stats-collect start'.
     """
 
     name = "Captured Output"
