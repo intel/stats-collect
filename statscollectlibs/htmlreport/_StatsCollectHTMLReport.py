@@ -94,7 +94,7 @@ class StatsCollectHTMLReport:
             # can be moved or copied without breaking the link.
             valid_paths[res.reportid] = path.relative_to(self.outdir)
 
-        row = self._intro_tbl.create_row(label)
+        row = self._intro_tbl.add_row(label)
 
         for reportid, path in valid_paths.items():
             row.add_cell(reportid, label, link=path)
@@ -111,23 +111,23 @@ class StatsCollectHTMLReport:
 
         self._intro_tbl = IntroTable.IntroTable()
         descr = "The command run during statistics collection."
-        cmd_row = self._intro_tbl.create_row("Command", hovertext=descr)
+        cmd_row = self._intro_tbl.add_row("Command", hovertext=descr)
         for res in rsts:
             cmd_row.add_cell(res.reportid, res.info.get("cmd"))
 
         # Add tool information.
-        tinfo_row = self._intro_tbl.create_row("Data Collection Tool")
+        tinfo_row = self._intro_tbl.add_row("Data Collection Tool")
         for res in rsts:
             tool_info = f"{res.info['toolname'].capitalize()} version {res.info['toolver']}"
             tinfo_row.add_cell(res.reportid, tool_info)
 
         # Add run date.
-        date_row = self._intro_tbl.create_row("Collection Date")
+        date_row = self._intro_tbl.add_row("Collection Date")
         for res in rsts:
             date_row.add_cell(res.reportid, res.info.get("date"))
 
         # Add duration.
-        date_row = self._intro_tbl.create_row("Duration")
+        date_row = self._intro_tbl.add_row("Duration")
         for res in rsts:
             date_row.add_cell(res.reportid, res.info.get("duration"))
 
