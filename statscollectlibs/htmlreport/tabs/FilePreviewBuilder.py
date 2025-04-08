@@ -9,7 +9,7 @@
 
 """
 API for creating and populating file previews. A file preview is a data tab element that includes
-the contents of one or mutliple files, and possibly a diff between the files.
+the contents of one or multiple files, and possibly a diff between the files.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -57,7 +57,7 @@ def _has_reasonable_size(file_path: Path, title: str) -> bool:
 class FilePreviewBuilder:
     """
     Create and Populate file previews. A file preview is a data tab element that includes the
-    contents of one or mutliple files, and possibly a diff between the files.
+    contents of one or multiple files, and possibly a diff between the files.
     """
 
     def __init__(self, outdir: Path, basedir: Path | None = None, diff: bool = True):
