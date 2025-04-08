@@ -19,6 +19,7 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFHelpers
+from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
@@ -292,10 +293,14 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
 
         return self._time_colname
 
-    def get_tab_cfg(self):
+    def get_tab_cfg(self) -> CTabConfig | DTabConfig:
         """
-        Generate a 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance representing the tab
-        configuration.
+        Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
+        configuration object ('DTabConfig') for the statistic. The tab configuration object
+        describes how the HTML tab should be built.
+
+        Returns:
+            The tab configuration object describing how the tab should be built.
         """
 
         raise NotImplementedError()

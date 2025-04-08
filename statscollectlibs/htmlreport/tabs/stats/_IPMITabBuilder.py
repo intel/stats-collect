@@ -17,8 +17,8 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.htmlreport.tabs import TabConfig
 from statscollectlibs.htmlreport.tabs.stats import  _StatTabBuilderBase
+from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -52,42 +52,35 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         self._categories = self._get_merged_categories(lrsts)
 
-    def get_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the interrupts tab configuration.
+        Get a container tab (C-tab) configuration object that sub-C-tab for every IPMI statistic
+        categoriy, which includes D-tabs for every IPMI metric in the category.
 
         Returns:
-            TabConfig.CTabConfig: The configuration for the IPMI tab, including container tabs and
-            their respective data tabs.
+            The IPMI statistics container tab (C-tab) configuration object ('CTabConfig').
 
         Notes:
-            The IPMI tab configuration includes container tabs for the following categories:
-            - "Fan Speed"
-            - "Temperature"
-            - "Power"
+            The IPMI tab configuration includes container tabs for metric categories, such as: Fan
+            Speed, Temperature, and Power.
 
-            Each container tab configuration contains data tab configurations for each IPMI metric
-            that is common across all results. For example, the "Fan Speed" container  tab may
-            include data tabs such as "Fan1", "Fan2", etc., if these measurements are present in all
-            raw IPMI statistics files. If no common IPMI metrics exist for a given category, the
-            corresponding container tab will not be generated.
+            Each container tab configuration object includes data tab configuration objects for each
+            IPMI metric in the category. For example, the "Fan Speed" container tab may include data
+            tabs such as "Fan1", "Fan2", etc.
         """
 
-        def _build_ctab_cfg(category: str, metrics: list[str]) -> TabConfig.CTabConfig:
+        def _build_ctab_cfg(category: str, metrics: list[str]) -> CTabConfig:
             """
-            Build a container tab (C-tab) configuration for a given category and metrics.
+            Build a container tab object for a given category and metrics.
 
             Args:
                 category: The category name (e.g., "Power") for the C-tab.
                 metrics A list of metric names to include in the C-tab.
 
             Returns:
-                TabConfig.CTabConfig: A configuration object for the C-tab, containing
-                                       D-tabs (data tabs) for each metric in the provided list.
-
-            Notes:
-                Each metric in the 'metrics' list will have a corresponding D-tab
-                created and added to the C-tab.
+                A container tab (C-tab) configuration object, describing how the HTML tabs for IPMI
+                statistics should be built. The C-tab includes D-tabs (data tabs) for each metric in
+                the provided list.
             """
 
             dtabs = []
@@ -95,7 +88,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 dtab = self._build_dtab_cfg(metric, title=metric)
                 dtabs.append(dtab)
 
-            return TabConfig.CTabConfig(category, dtabs=dtabs)
+            return CTabConfig(category, dtabs=dtabs)
 
         ctabs = []
 
@@ -103,7 +96,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             ctab = _build_ctab_cfg(category, metrics)
             ctabs.append(ctab)
 
-        return TabConfig.CTabConfig(self.name, ctabs=ctabs)
+        return CTabConfig(self.name, ctabs=ctabs)
 
     def _message_if_mixed(self, lrsts: list[LoadedResult]):
         """Check if in-band and out-of-band IPMI statistics are mixed."""

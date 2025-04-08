@@ -16,9 +16,9 @@ from pathlib import Path
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.dfbuilders import _DFHelpers
-from statscollectlibs.htmlreport.tabs import TabConfig
 from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
 from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
+from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 
 class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""
@@ -88,16 +88,28 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         return cdd
 
-    def get_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the interrupts tab configuration.
+        Get a container tab (C-tab) configuration object for interrupt statistics. The C-tab
+        includes sub-C-tabs for system-wide and CPU-specific interrupts. Each of these C-tabs
+        includes sub-C-tabs for interrupt counts and interrupt rate. And those C-tabs include
+        D-tabs for individual interrupts (metrics):
+
+        Interrupts C-tab:
+            - System-wide interrupts:
+                - Interrupts Count
+                    - D-tab for each system-wide interrupt metric.
+                - Interrupts Rate
+                    - D-tab for each system-wide interrupt rate metric.
+            - CPU-specific interrupts:
+                Similar to system-wide interrupts, but for CPU-specific metrics
 
         Returns:
-            A 'TabConfig.DTabConfig' instance with the interrupts tab configuration.
+            The interrupt statistics container tab (C-tab) configuration object ('CTabConfig').
         """
 
-        # Scope -> Count/Rate -> list of 'TabConfig.DTabConfig' objects.
-        dtabs: dict[str, dict[str, list[TabConfig.DTabConfig]]] = {}
+        # Scope -> Count/Rate -> list of 'DTabConfig' objects.
+        dtabs: dict[str, dict[str, list[DTabConfig]]] = {}
 
         for colname in self._colnames:
             sname, metric = _DFHelpers.split_colname(colname)
@@ -116,7 +128,7 @@ class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         for sname, scope_info in dtabs.items():
             category_ctabs = []
             for category, category_dtabs in scope_info.items():
-                category_ctabs.append(TabConfig.CTabConfig(category, dtabs=category_dtabs))
-            ctabs.append(TabConfig.CTabConfig(sname, ctabs=category_ctabs))
+                category_ctabs.append(CTabConfig(category, dtabs=category_dtabs))
+            ctabs.append(CTabConfig(sname, ctabs=category_ctabs))
 
-        return TabConfig.CTabConfig(self.name, ctabs=ctabs)
+        return CTabConfig(self.name, ctabs=ctabs)

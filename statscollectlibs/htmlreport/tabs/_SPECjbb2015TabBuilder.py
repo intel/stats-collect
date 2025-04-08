@@ -18,7 +18,8 @@ import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
-from statscollectlibs.htmlreport.tabs import TabConfig, _TabBuilderBase
+from statscollectlibs.htmlreport.tabs import _TabBuilderBase
+from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
@@ -59,19 +60,22 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
 
     name = "SPECjbb2105"
 
-    def get_tab_cfg(self):
+    def get_tab_cfg(self) -> CTabConfig:
         """
-        Return a 'TabConfig.DTabConfig' instance with the default 'SPECjbb2015' tab configuration.
-        See '_TabBuilderBase.TabBuilderBase' for more information on default tab configurations.
+        Return a container tab (C-tab) configuration object describing how the SPECjbb2015 C-tab
+        should be built.
+
+        At the moment the SPECjbb2015 C-tab inlcudes a single D-tab, which contains a table with
+        SPECjbb2015 metrics.
         """
 
-        dtab = TabConfig.DTabConfig(self.name)
+        dtab = DTabConfig(self.name)
         smrys = {"max-jOPS": None,
                  "critical-jOPS": None,
                  "HBIR": None}
         dtab.set_smry_funcs(smrys)
 
-        return TabConfig.CTabConfig(self.name, dtabs=[dtab])
+        return CTabConfig(self.name, dtabs=[dtab])
 
     def _get_specjbb_info(self, res):
         """Parse the SPECjbb2015 controller logs and return SPECjbb information dictionary."""

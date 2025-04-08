@@ -15,8 +15,8 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.htmlreport.tabs import TabConfig
 from statscollectlibs.htmlreport.tabs.stats import  _StatTabBuilderBase
+from statscollectlibs.htmlreport.tabs._TabConfig import DTabConfig
 
 class ACPowerTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability of populating the AC Power statistics tab."""
@@ -43,12 +43,13 @@ class ACPowerTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         super().__init__(lrsts, outdir, basedir=basedir, xcolname=xmetric)
 
-    def get_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> DTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the AC power data tab configuration.
+        Get a 'DTabConfig' instance with the AC power data tab configuration.
 
         Returns:
-            A 'TabConfig.DTabConfig' instance with the AC power data tab configuration.
+            A data tab (D-tab) configuration object describing how the AC power HTML tab should be
+            built.
         """
 
         power_metric = "P"

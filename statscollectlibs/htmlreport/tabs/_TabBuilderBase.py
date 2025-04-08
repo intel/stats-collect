@@ -19,7 +19,8 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.htmlreport.tabs import _DTabBuilder, _BuiltTab, TabConfig
+from statscollectlibs.htmlreport.tabs import _DTabBuilder, _BuiltTab
+from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -119,9 +120,9 @@ class TabBuilderBase:
                         ycolname: str,
                         title: str | None = None,
                         hist: bool = False,
-                        hover_colnames: list[str] | None = None) -> TabConfig.DTabConfig:
+                        hover_colnames: list[str] | None = None) -> DTabConfig:
         """
-        Build a data tab configuration object ('TabConfig.DTabConfig').
+        Build a data tab configuration object ('DTabConfig').
 
         Args:
             ycolname: The name of the metric to be plotted on the Y-axis of the tab's scatter plot.
@@ -131,14 +132,14 @@ class TabBuilderBase:
             hover_colnames: A list of column names to include as hover text on the scatter plot.
 
         Returns:
-            An instance of 'TabConfig.DTabConfig' configured with the provided parameters.
+            An instance of 'DTabConfig' configured with the provided parameters.
         """
 
         if not self._xcolname:
             raise Error("BUG: the X-axis metric was not set")
 
         title = title if title is not None else ycolname
-        dtabconfig = TabConfig.DTabConfig(title)
+        dtabconfig = DTabConfig(title)
         dtabconfig.add_scatter_plot(self._xcolname, ycolname)
         if hist:
             dtabconfig.add_hist(ycolname)
@@ -150,7 +151,7 @@ class TabBuilderBase:
         return dtabconfig
 
     def _add_plots(self,
-                   dtabconfig: TabConfig.DTabConfig,
+                   dtabconfig: DTabConfig,
                    dtab_bldr: _DTabBuilder.DTabBuilder) -> _DTabBuilder.DTabBuilder:
         """
         Add plots to the tab based on the metrics specified in the data tab configuration.
@@ -187,7 +188,7 @@ class TabBuilderBase:
                             hover_mds=hover_mds)
         return dtab_bldr
 
-    def _build_dtab(self, outdir: Path, dtabconfig: TabConfig.DTabConfig) -> _BuiltTab.BuiltDTab:
+    def _build_dtab(self, outdir: Path, dtabconfig: DTabConfig) -> _BuiltTab.BuiltDTab:
         """
         Build and return a data tab based on the provided data tab configuration.
 
@@ -214,8 +215,8 @@ class TabBuilderBase:
         generated then raise an 'Error' and if the config provided is empty then return 'None'. The
         arguments are as follows.
           * outdir - path of the directory in which to store the generated tabs.
-          * ctabconfig - an instance of 'TabConfig.CTabConfig' which configures the contents of the
-                         resultant container tab.
+          * ctabconfig - an instance of 'CTabConfig' which configures the contents of the resultant
+                         container tab.
         """
 
         if not (ctabconfig.ctabs or ctabconfig.dtabs):
@@ -244,10 +245,14 @@ class TabBuilderBase:
 
         raise Error(f"unable to generate a container tab for {self.name}.")
 
-    def get_tab_cfg(self):
+    def get_tab_cfg(self) -> CTabConfig | DTabConfig:
         """
-        Generate a 'TabConfig.DTabConfig' or 'TabConfig.CTabConfig' instance representing the tab
-        configuration.
+        Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
+        configuration object ('DTabConfig'). The tab configuration object describes how the HTML tab
+        should be built.
+
+        Returns:
+            The tab configuration object describing how the tab should be built.
         """
 
         raise NotImplementedError()
@@ -260,11 +265,11 @@ class TabBuilderBase:
 
         tab_cfg = self.get_tab_cfg()
 
-        if isinstance(tab_cfg, TabConfig.CTabConfig):
+        if isinstance(tab_cfg, CTabConfig):
             return self._build_ctab(self._outdir, tab_cfg)
 
-        if isinstance(tab_cfg, TabConfig.DTabConfig):
+        if isinstance(tab_cfg, DTabConfig):
             return self._build_dtab(self._outdir, tab_cfg)
 
         raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
-                    f"'{TabConfig.CTabConfig.__name__}' or '{TabConfig.DTabConfig.__name__}'")
+                    f"'{CTabConfig.__name__}' or '{DTabConfig.__name__}'")

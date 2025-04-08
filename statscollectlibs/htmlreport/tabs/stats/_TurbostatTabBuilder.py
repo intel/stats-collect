@@ -19,9 +19,9 @@ from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.htmlreport.tabs import TabConfig
 from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
 from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
+from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
 
 class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
@@ -168,17 +168,17 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
     def _build_ctab_cfg(self, tabname: str, metrics: list[str], sname: str):
         """
-        Build and return a leaf-level C-tab with a D-tab for every metric in 'metrics' and scope
-        'sname'.
+        Return a last level container tab (C-tab) configuration object. This C-tab includes D-tabs
+        for each metric in the category (provided via the 'metrics' list).
 
         Args:
             tabname: The name of the C-tab (as it appears in the tab hierachy in the HTML report).
-            metrics: A list of metrics to include in the D-tabs of the C-tab.
+            metrics: A list of metrics to the C-tab configuration object shold include.
             sname: The scope name for the metrics.
 
         Returns:
-            TabConfig.CTabConfig: The configuration for the C-tab containing D-tabs for each metric.
-            None: If no valid metrics are found for the given scope.
+            The configuration object for the C-tab, including a D-tab for each metric, or None if no
+            relevant metrics are found.
         """
 
         dtabs = []
@@ -193,29 +193,28 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             dtabs.append(dtab)
 
         if dtabs:
-            return TabConfig.CTabConfig(tabname, dtabs=dtabs)
+            return CTabConfig(tabname, dtabs=dtabs)
 
         return None
 
-    def _get_l2_tab_cfg(self, sname: str) -> TabConfig.CTabConfig | None:
+    def _get_l2_tab_cfg(self, sname: str) -> CTabConfig | None:
         """
-        Assemble the C-tab configuration object for the given scope name.
-
-        This method creates a hierarchical configuration of tabs (C-tabs) based on various metric
-        categories such as Frequency, C-state, and so on.
+        Return a "level 2" C-tab configuration object for the given scope name (e.g., a C-tab for
+        system-wide metrics, or a C-tab for CPU-specific metrics). The level 2 C-tab includes
+        sub-C-tabs for different categories of metrics.
 
         Args:
             sname: The scope name for which the C-tab configuration is being assembled.
 
         Returns:
-            TabConfig.CTabConfig: The assembled C-tab configuration object for the given scope name.
-            None: If no relevant metrics are found.
+            The C-tab configuration object for the given scope name, or None if no relevant metrics
+            are found.
         """
 
         # Remember: 'self._categories' refers to metric names, while 'self._mdd' refers to
         # column names.
 
-        l3_ctabs: list[TabConfig.CTabConfig] = []
+        l3_ctabs: list[CTabConfig] = []
 
         # Create a combined level 3 C-tab for frequency-related metrics, both core and uncore.
         if "Frequency" in self._categories:
@@ -229,7 +228,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         # Create a level 3 C-tab for C-state metrics.
         if "C-state" in self._categories:
-            cs_l3_ctabs: list[TabConfig.CTabConfig] = []
+            cs_l3_ctabs: list[CTabConfig] = []
 
             if "Hardware" in self._categories["C-state"]:
                 metrics = self._categories["C-state"]["Hardware"]
@@ -241,7 +240,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 # The requested C-states category and their sub-categories.
                 subcats = self._categories["C-state"]["Requested"]
 
-                l4_ctabs: list[TabConfig.CTabConfig] = []
+                l4_ctabs: list[CTabConfig] = []
 
                 for subcat in ("Residency", "Count", "Request Rate", "Average Time"):
                     if subcat in subcats:
@@ -250,10 +249,10 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                             l4_ctabs.append(l3_ctab)
 
                 if l4_ctabs:
-                    cs_l3_ctabs.append(TabConfig.CTabConfig("Requested", ctabs=l4_ctabs))
+                    cs_l3_ctabs.append(CTabConfig("Requested", ctabs=l4_ctabs))
 
             if cs_l3_ctabs:
-                l3_ctab = TabConfig.CTabConfig("C-states", ctabs=cs_l3_ctabs)
+                l3_ctab = CTabConfig("C-states", ctabs=cs_l3_ctabs)
                 l3_ctabs.append(l3_ctab)
 
         # Add S-states level 3 C-tab.
@@ -286,16 +285,21 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 l3_ctabs.append(l3_ctab)
 
         if l3_ctabs:
-            return TabConfig.CTabConfig(sname, ctabs=l3_ctabs)
+            return CTabConfig(sname, ctabs=l3_ctabs)
 
         return None
 
-    def get_tab_cfg(self) -> TabConfig.CTabConfig:
+    def get_tab_cfg(self) -> CTabConfig:
         """
-        Get a 'TabConfig.DTabConfig' instance with the turbostat tab configuration.
+        Return a container tab (C-tab) object for turbostat statistics. The object describes how the
+        turbostat statistics HTML tabs should be built.
+
+        The returned C-tab includes sub-C-tabs for each scope (e.g., CPU, System) and each sub-C-tab
+        includes one or multiple levels of C-tab for different categories of metrics. The leaf level
+        includes D-tabs for every metric in the category.
 
         Returns:
-            A 'TabConfig.DTabConfig' instance with the turbostat tab configuration.
+            The turbostat statistics container tab (C-tab) configuration object ('CTabConfig').
         """
 
         l2_ctabs = []
@@ -305,7 +309,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 l2_ctabs.append(l2_ctab)
 
         if l2_ctabs:
-            return TabConfig.CTabConfig(self.name, ctabs=l2_ctabs)
+            return CTabConfig(self.name, ctabs=l2_ctabs)
 
         raise Error("no turbostat metrics found")
 
