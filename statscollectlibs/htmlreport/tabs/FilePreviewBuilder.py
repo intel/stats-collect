@@ -155,7 +155,7 @@ class FilePreviewBuilder:
 
         return dst_path
 
-    def build_fpreview(self, title: str, paths: dict[str, Path]) -> _BuiltTab.FilePreviewDC:
+    def build_fpreview(self, title: str, paths: dict[str, Path]) -> _BuiltTab.BuiltDTabFilePreview:
         """
         Build and return a file preview element.
 
@@ -206,4 +206,4 @@ class FilePreviewBuilder:
         for reportid, path in new_paths.items():
             new_paths[reportid] = path.relative_to(self._basedir)
 
-        return _BuiltTab.FilePreviewDC(title, new_paths, diff)
+        return _BuiltTab.BuiltDTabFilePreview(title, new_paths, diff)

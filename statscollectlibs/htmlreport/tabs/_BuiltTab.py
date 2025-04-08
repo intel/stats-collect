@@ -1,69 +1,75 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module defines what is expected by the JavaScript side when adding a set of tabs to the report.
+Provide several dataclasses representing built tabs and tab components. These classes eventually get
+serialised into JSON, which is read and interpreted by the JavaScript side of the HTML report.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Union
+from typing import Dict, List
 from pathlib import Path
 
 @dataclass
-class FilePreviewDC:
+class BuiltDTabFilePreview:
     """
-    This dataclass defines what is expected by the JavaScript side when adding a file preview to an
-    HTML report. A "file preview" includes the entire contents of a file in the report in a small
-    preview window.
+    The data required for adding a file preview to an HTML report. A file preview is a data tab
+    element that includes the contents of one or multiple files, and possibly a diff between the
+    files.
+
+    Attributes:
+        title: The title to be displayed at the top of the file preview.
+        paths: A dictionary mapping report IDs to file paths in the format '{ReportID: FilePath}'.
+        diff: The path to the diff file to be displayed in the file preview (no diff if 'None').
     """
 
-    # The title which will be placed at the top of the file preview.
     title: str
-
-    # A dictionary in the format '{ReportID: FilePath}'.
     paths: Dict[str, Path]
-
-    # Optional path to a diff file to be included in the file preview.
     diff: Path | None = None
 
 @dataclass
 class BuiltDTab:
     """
-    This dataclass defines what is expected by the JavaScript side when adding a data tab to HTML
-    reports. A "data tab" is defined as a tab which contains data such as a summary table and plots.
+    The data required for adding a data tab (D-tab) to an HTML report. A data tab contains data such
+    as a summary table and plots.
+
+    Attributes:
+        name: The name of the data tab, used as the tab label in the hierarchy of tabs in HTML
+              report.
+        ppaths: A list of relative paths to 'plotly' plots to include in the tab. No plots if None.
+        smrytblpath: A relative path to the summary table dump for the metric. No summary table if
+                     None.
+        fpreviews: A list of file previews to include in the tab. No file previews if None.
+        alerts: A list of alert messages to notify the report viewer of specific nuances or issues
+                related to the tab, such as missing diagrams or other elements. No alerts if None.
     """
 
-    # The name is used as the tab label.
     name: str
-
-    # Relative paths to any 'plotly' plots to include in the tab.
-    ppaths: List[Path] = field(default_factory=list)
-
-    # Relative path to the summary table dump for the metric.
+    ppaths: List[Path] | None = field(default_factory=list)
     smrytblpath: Path | None = None
-
-    # File previews to include in the tab.
-    fpreviews: List[FilePreviewDC] = field(default_factory=list)
-
-    # Alerts to notify the report viewer of certain nuances/elements of the tab, for example if a
-    # diagram was not generated for a specific reason.
-    alerts: List[str] = field(default_factory=list)
+    fpreviews: List[BuiltDTabFilePreview] | None = field(default_factory=list)
+    alerts: List[str] | None = field(default_factory=list)
 
 @dataclass
 class BuiltCTab:
     """
-    This class defines what is expected by the JavaScript side when adding a container tab to HTML
-    report. A "container tab" is defined as tab which contains child tabs. Child tabs can either be
-    container tabs or data tabs. In other words, container tabs are non-leaf tabs in the HTML report
-    tabs hierarchy.
+    The data required for adding a container tab (C-tab) to an HTML report. A container tab is a
+    non-leaf tab in the HTML report's tab hierarchy. It can contain child tabs, which may either be
+    other container tabs or data tabs.
+
+    Attributes:
+        name: The name of the C-tab, used as the tab label in the hierarchy of tabs in HTML report.
+        tabs: The child tabs contained within this container tab. These can be either other
+              container tabs or data tabs.
     """
 
     name: str
-    tabs: Union[BuiltCTab, List[BuiltDTab]]
+    tabs: List[BuiltCTab] | List[BuiltDTab]
