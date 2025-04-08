@@ -41,7 +41,7 @@ def _has_reasonable_size(file_path: Path, title: str) -> bool:
     try:
         fsize = file_path.stat().st_size
     except OSError as err:
-        errmsg = Error(err).indent(2)
+        errmsg = Error(str(err)).indent(2)
         _LOG.warning("Skipping file preview '%s': Unable to check the size of file '%s' before "
                      "copying:\n%s", title, file_path, errmsg)
         return False
@@ -102,7 +102,7 @@ class FilePreviewBuilder:
                 with open(fp, "r", encoding="utf-8") as f:
                     lines.append(f.readlines())
             except OSError as err:
-                msg = Error(err).indent(2)
+                msg = Error(str(err)).indent(2)
                 raise Error(f"Cannot open file at '{fp}' to create diff:\n{msg}") from None
 
         # Store the diff in a separate directory and with the '.diff' file ending.
@@ -110,7 +110,7 @@ class FilePreviewBuilder:
         try:
             diff_path.parent.mkdir(parents=True, exist_ok=True)
         except OSError as err:
-            msg = Error(err).indent(2)
+            msg = Error(str(err)).indent(2)
             raise Error(f"Cannot create diffs directory '{diff_path.parent}':\n"
                         f"{msg}") from None
 
@@ -120,7 +120,7 @@ class FilePreviewBuilder:
                 f.writelines(difflib.unified_diff(lines[0], lines[1],
                                                   fromfile=reportids[0], tofile=reportids[1]))
         except Exception as err:
-            msg = Error(err).indent(2)
+            msg = Error(str(err)).indent(2)
             raise Error(f"Cannot create diff at path '{diff_path}':\n{msg}") from None
 
         return diff_path.relative_to(self._basedir)
@@ -142,7 +142,7 @@ class FilePreviewBuilder:
         try:
             dst_dir.mkdir(parents=True, exist_ok=True)
         except OSError as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"Can't create directory '{dst_dir}':\n{errmsg}") from err
 
         dst_path = dst_dir / file_path.name
