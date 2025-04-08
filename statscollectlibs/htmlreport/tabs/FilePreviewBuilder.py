@@ -20,7 +20,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging, Human
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists, ErrorNotFound
 from statscollectlibs.helperlibs import FSHelpers
-from statscollectlibs.htmlreport.tabs import _BuiltTab
+from statscollectlibs.htmlreport.tabs import BuiltTab
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -155,7 +155,7 @@ class FilePreviewBuilder:
 
         return dst_path
 
-    def build_fpreview(self, title: str, paths: dict[str, Path]) -> _BuiltTab.BuiltDTabFilePreview:
+    def build_fpreview(self, title: str, paths: dict[str, Path]) -> BuiltTab.BuiltDTabFilePreview:
         """
         Build and return a file preview element.
 
@@ -165,7 +165,7 @@ class FilePreviewBuilder:
                    to the file which should be included in the file preview for result 'ReportID'.
 
         Returns:
-            The file preview element object ('_BuiltTab.FilePreviewDC').
+            The file preview element object ('BuiltTab.FilePreviewDC').
         """
 
         new_paths: dict[str, Path] = {}
@@ -206,4 +206,4 @@ class FilePreviewBuilder:
         for reportid, path in new_paths.items():
             new_paths[reportid] = path.relative_to(self._basedir)
 
-        return _BuiltTab.BuiltDTabFilePreview(title, new_paths, diff)
+        return BuiltTab.BuiltDTabFilePreview(title, new_paths, diff)

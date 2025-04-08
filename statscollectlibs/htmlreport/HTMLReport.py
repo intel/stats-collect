@@ -27,7 +27,7 @@ from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
 from statscollectlibs.htmlreport import IntroTable
-from statscollectlibs.htmlreport.tabs import _BuiltTab
+from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.htmlreport.tabs.stats._StatsTabBuilder import _StatsTabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo._SysInfoTabBuilder import SysInfoTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
@@ -225,7 +225,7 @@ class HTMLReport:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate statistics tabs: %s", err)
 
-    def _build_tabs(self) -> list[_BuiltTab.BuiltCTab]:
+    def _build_tabs(self) -> list[BuiltTab.BuiltCTab]:
         """
         Build all tabs and return a list of build container tabs (C-tabs). This includes parsing all
         the raw statistic files, generating all the plots, etc.
@@ -258,7 +258,7 @@ class HTMLReport:
         return tabs
 
     def generate_report(self,
-                        tabs: list[_BuiltTab.BuiltCTab] | None = None,
+                        tabs: list[BuiltTab.BuiltCTab] | None = None,
                         intro_tbl: IntroTable.IntroTable | None = None):
         """
         Generate a 'stats-collect' statistics file in the HTML report directory.

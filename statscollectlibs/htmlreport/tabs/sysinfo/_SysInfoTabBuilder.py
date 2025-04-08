@@ -20,7 +20,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.result.LoadedResult import LoadedResult
-from statscollectlibs.htmlreport.tabs import _BuiltTab
+from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.htmlreport.tabs.sysinfo import (_CPUFreqDTabBuilder, _CPUIdleDTabBuilder,
     _DMIDecodeDTabBuilder, _DmesgDTabBuilder, _EPPDTabBuilder, _LspciDTabBuilder, _MiscDTabBuilder,
     _PepcDTabBuilder, _ThermalThrottleDTabBuilder, _TurbostatDTabBuilder)
@@ -51,7 +51,7 @@ class SysInfoTabBuilder:
         self._outdir = outdir
         self._basedir = basedir if basedir else outdir
 
-    def build_tab(self) -> _BuiltTab.BuiltCTab:
+    def build_tab(self) -> BuiltTab.BuiltCTab:
         """
         Build the SysInfo tab and its sub-tabs. Parse the required raw system information files and
         generate the necessary files for the HTML report, such as diffs.
@@ -100,4 +100,4 @@ class SysInfoTabBuilder:
         if not tabs:
             raise Error(f"All '{self.name}' tabs were skipped")
 
-        return _BuiltTab.BuiltCTab(self.name, tabs=tabs)
+        return BuiltTab.BuiltCTab(self.name, tabs=tabs)

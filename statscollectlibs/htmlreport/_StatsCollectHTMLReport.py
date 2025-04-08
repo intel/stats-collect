@@ -15,7 +15,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging
 from statscollectlibs.htmlreport import HTMLReport, IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
-from statscollectlibs.htmlreport.tabs import _BuiltTab
+from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.result import RORawResult, LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -141,7 +141,7 @@ class StatsCollectHTMLReport:
         # Add links to the logs directories.
         self._add_intro_tbl_links("Logs", self._raw_logs_paths)
 
-    def _build_results_tab(self, tabdir: Path) -> _BuiltTab.BuiltCTab:
+    def _build_results_tab(self, tabdir: Path) -> BuiltTab.BuiltCTab:
         """
         Build the "Results" tab (generate all the tab files for the HTML report)
 

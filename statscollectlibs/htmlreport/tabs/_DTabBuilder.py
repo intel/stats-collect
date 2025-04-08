@@ -18,7 +18,7 @@ from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
-from statscollectlibs.htmlreport.tabs import _BuiltTab, FilePreviewBuilder
+from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -40,7 +40,7 @@ class DTabBuilder:
     """
     This base class provides the capability of populating a data tab.
 
-    Note, each tab element is optional and can be added in any order. See '_BuiltTab.BuiltDTab' docstring
+    Note, each tab element is optional and can be added in any order. See 'BuiltTab.BuiltDTab' docstring
     for more information on each tab element.
 
     Public methods overview:
@@ -52,7 +52,7 @@ class DTabBuilder:
        * 'add_fpreviews()'
     4. Add an alert to the tab.
        * 'add_alert()'
-    5. Generate a '_BuiltTab.BuiltDTab' instance containing all of the tab features added with the methods
+    5. Generate a 'BuiltTab.BuiltDTab' instance containing all of the tab features added with the methods
        listed above.
        * 'get_tab()'
     """
@@ -267,8 +267,8 @@ class DTabBuilder:
 
     def get_tab(self):
         """
-        Return a '_BuiltTab.BuiltDTab' instance which contains an aggregate of all of the data 'self._dfs'.
-        Return a '_BuiltTab.BuiltDTab' object that can be used to populate an HTML tab.
+        Return a 'BuiltTab.BuiltDTab' instance which contains an aggregate of all of the data 'self._dfs'.
+        Return a 'BuiltTab.BuiltDTab' object that can be used to populate an HTML tab.
         """
 
         ppaths = [p.relative_to(self._basedir) for p in self._ppaths]
@@ -278,7 +278,7 @@ class DTabBuilder:
         else:
             smry_path = ""
 
-        return _BuiltTab.BuiltDTab(self.tabname, ppaths, smry_path, self.fpreviews, self._alerts)
+        return BuiltTab.BuiltDTab(self.tabname, ppaths, smry_path, self.fpreviews, self._alerts)
 
     def __init__(self, dfs, outdir, tabname, basedir=None):
         """
@@ -319,5 +319,5 @@ class DTabBuilder:
         # Paths of plots generated for this tab.
         self._ppaths = []
 
-        # Instances of '_BuiltTab.FilePreview' which will be generated with the tab.
+        # Instances of 'BuiltTab.FilePreview' which will be generated with the tab.
         self.fpreviews = []

@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Union, Type
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
-from statscollectlibs.htmlreport.tabs import _BuiltTab
+from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.htmlreport.tabs.stats import _TurbostatTabBuilder, _InterruptsTabBuilder
 from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabBuilder
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
@@ -71,7 +71,7 @@ class _StatsTabBuilder:
 
         self._init_tab_bldrs()
 
-    def build_tab(self) -> _BuiltTab.BuiltCTab:
+    def build_tab(self) -> BuiltTab.BuiltCTab:
         """
         Build the top-level statistics tab. Parse all statistics from raw results and generate
         plots, histograms, tables, and other visualizations.
@@ -93,7 +93,7 @@ class _StatsTabBuilder:
         if not tabs:
             _LOG.warning("All statistics tabs were skipped")
 
-        return _BuiltTab.BuiltCTab(self.name, tabs)
+        return BuiltTab.BuiltCTab(self.name, tabs)
 
     def _init_tab_bldrs(self):
         """Initialise tab builder objects."""

@@ -17,7 +17,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, _BuiltTab, _DTabBuilder
+from statscollectlibs.htmlreport.tabs import FilePreviewBuilder, BuiltTab, _DTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -33,7 +33,7 @@ class CapturedOutputTabBuilder():
     and stderr of the workload(s).
 
     Public methods overview:
-     * 'get_tab()' - Generate a '_BuiltTab.BuiltDTab' instance containing file previews of the captured
+     * 'get_tab()' - Generate a 'BuiltTab.BuiltDTab' instance containing file previews of the captured
                      'stdout' and 'stderr' logs from 'stats-collect start'.
     """
 
@@ -72,7 +72,7 @@ class CapturedOutputTabBuilder():
 
     def get_tab(self):
         """
-        Return a '_BuiltTab.BuiltDTab' instance containing file previews of the captured 'stdout' and
+        Return a 'BuiltTab.BuiltDTab' instance containing file previews of the captured 'stdout' and
         'stderr' logs from 'stats-collect start'.
         """
 
@@ -131,8 +131,8 @@ class CapturedOutputTabBuilder():
         else:
             alerts = []
 
-        dtab = _BuiltTab.BuiltDTab(self.name, fpreviews=fpreviews, alerts=alerts)
-        return _BuiltTab.BuiltCTab(self.name, tabs=[dtab])
+        dtab = BuiltTab.BuiltDTab(self.name, fpreviews=fpreviews, alerts=alerts)
+        return BuiltTab.BuiltCTab(self.name, tabs=[dtab])
 
     def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
         """

@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import TypedDict
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.htmlreport.tabs import _BuiltTab
+from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -112,7 +112,7 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
         return new_paths
 
-    def get_tab(self) -> _BuiltTab.BuiltDTab:
+    def get_tab(self) -> BuiltTab.BuiltDTab:
         """
         Generate and returns a D-tab for the "Sysinfo" C-tab.
 
