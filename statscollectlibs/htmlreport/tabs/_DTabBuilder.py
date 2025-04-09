@@ -107,47 +107,59 @@ class DTabBuilder:
         # File previews which will be added to the data tab.
         self._fpreviews: list[BuiltTab.BuiltDTabFilePreview] = []
 
-    def add_smrytbl(self, smry_funcs, cdd):
+    def add_smrytbl(self, smry_funcs: dict[str, list[str]], cdd: dict[str, dict[str, str]]):
         """
-        Construct a 'SummaryTable' to summarise the metrics in 'smry_funcs' in the results given
-        to the constructor as 'reports'. Arguments are as follows.
-          * smry_funcs - a dictionary in the format '{metric: summary_func}', for example:
-                         {Metric1: ["99.999%", "99.99%",...],
-                          Metric2: ["max", "min",...]}
-                         Note, 'summary_func' is allowed to be 'None', which means that no functions
-                         will be applied to the metric, and can be used for metrics that have only
-                         on value.
-         * cdd - the columns definition dictionary describing the metrics in 'smry_funcs'.
+        Construct the summary table ('SummaryTable' object) to summarize the tab metrics. The table
+        typically contains functions like the average, median, and standard deviation for the
+        metrics.
+
+        Args:
+            smry_funcs: A dictionary in the format '{colname: list of summary function names}'.
+            cdd: The columns definition dictionary describing the dataframe colun names used in
+                 'smry_funcs'.
+
+        Notes:
+            Example of 'smry_funcs':
+                        {
+                            "System-Metric1": ["99.999%", "99.99%", ...],
+                            "System-Metric2": ["max", "min", ...]
+                        }
+
+            The metric name is derived from the column name and the 'cdd' dictionary.
+
+            The 'summary_func' value is allowed to be '[]', which means that no functions will be
+            applied to the metric. This can be used for metrics that have only one value.
         """
 
         self._smrytbl = _SummaryTable.SummaryTable()
 
-        for metric, funcs in smry_funcs.items():
-            cd = cdd[metric]
+        for colname, funcs in smry_funcs.items():
+            cd = cdd[colname]
             self._smrytbl.add_metric(cd["title"], cd.get("short_unit"), cd.get("descr"),
                                      fmt="{:.2f}")
 
-            for rep, df in self._dfs.items():
-                # Only try to calculate summary values if result 'rep' contains data for the metric.
-                if metric not in df:
+            for reportid, df in self._dfs.items():
+                if colname not in df:
                     continue
+
                 if funcs:
-                    smry_dict = DFSummary.calc_col_smry(df, metric, funcs)
+                    smry_dict = DFSummary.calc_col_smry(df, colname, funcs)
                     for funcname in funcs:
-                        self._smrytbl.add_smry_func(rep, cd["title"], smry_dict[funcname],
+                        self._smrytbl.add_smry_func(reportid, cd["title"], smry_dict[funcname],
                                                     funcname=funcname)
                 else:
-                    # Special case: there is only one metric value, so no functions can be applied.
-                    if len(df[metric]) > 1:
-                        raise Error(f"BUG: no functions were specified for metric '{metric}', "
-                                    f"but there is more than one metric value.")
-                    val = df[metric][0]
-                    self._smrytbl.add_smry_func(rep, cd["title"], val, funcname=None)
+                    # No functions were specified. Allow this only for metrics that have a single
+                    # value.
+                    if len(df[colname]) > 1:
+                        raise Error(f"BUG: no functions were specified for '{colname}', but there "
+                                    f"is more than one metric value")
+                    val = df[colname][0]
+                    self._smrytbl.add_smry_func(reportid, cd["title"], val, funcname=None)
 
         try:
             self._smrytbl.generate(self._smry_path)
         except Error as err:
-            raise Error("Failed to generate summary table.") from err
+            raise Error(f"Failed to generate the summary table for tab '{self.tabname}'") from err
 
     @staticmethod
     def _warn_plot_skip_res(reportid, plottitle, mtitle):
