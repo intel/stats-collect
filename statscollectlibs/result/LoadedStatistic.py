@@ -42,8 +42,8 @@ class TimeStampLimitsTypedDict(TypedDict, total=False):
                   valid or interesting and should be discarded.
     """
 
-    begin: int
-    end: int
+    begin: float
+    end: float
     absolute: bool
 
 DFBuilderType = Union[_TurbostatDFBuilder.TurbostatDFBuilder,

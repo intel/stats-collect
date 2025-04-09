@@ -10,21 +10,42 @@
 Provide the tab builder for the SPECjbb2015 workload.
 """
 
-# TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
+from typing import TypedDict
 import pandas
-from pepclibs.helperlibs import Logging, Trivial
+from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
+from statscollectlibs.result import RORawResult
 from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
 from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
 
-_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+class _SPECjbb2015InfoTypedDict(TypedDict, total=False):
+    """
+    A dictionary containing SPECjbb2015 information.
+
+    Attributes:
+        max_jops: The maximum jOPS value.
+        crit_jops: The critical jOPS value.
+        hbir: The high-bound injection rate (HBIR).
+        first_level: The first level number in the RT-curve.
+        last_level: The last level number in the RT-curve.
+        first_level_ts: The time-stamp of the first level in the RT-curve.
+        last_level_ts: The time-stamp of the last level in the RT-curve.
+    """
+
+    max_jops: int
+    crit_jops: int
+    hbir: int
+    first_level: int
+    last_level: int
+    first_level_ts: float
+    last_level_ts: float
 
 # SPECjbb2015 metrics definition dictionary.
 _SPECJBB_MDD: dict[str, CDTypedDict] = {
@@ -60,37 +81,67 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
 
     name = "SPECjbb2105"
 
+    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
+        """
+        Initialize a class instance.
+
+        Args:
+            lrsts: A list of loaded test result objects to include in the tab.
+            outdir: The output directory where the sub-directory for the container tab will be
+                    created.
+            basedir: The base directory of the report. Paths in all refences and links will be made
+                     relative to this directory. Defaults to 'outdir'.
+        """
+
+        self._lrsts = lrsts
+
+        dfs = self._construct_dfs()
+        super().__init__(dfs, _SPECJBB_MDD, outdir, basedir=basedir)
+
     def get_tab_cfg(self) -> CTabConfig:
         """
-        Return a container tab (C-tab) configuration object describing how the SPECjbb2015 C-tab
-        should be built.
+        Create and return a container tab (C-tab) configuration object describing how the
+        SPECjbb2015 C-tab should be built.
 
-        At the moment the SPECjbb2015 C-tab inlcudes a single D-tab, which contains a table with
-        SPECjbb2015 metrics.
+        Returns:
+            The SPECjbb2015 container tab (C-tab) configuration object ('CTabConfig').
+
+        Notes:
+            At the moment the SPECjbb2015 C-tab inlcudes a single D-tab, which contains a table with
+            main SPECjbb2015 metrics.
         """
 
         dtab = DTabConfig(self.name)
-        smrys = {"max-jOPS": None,
-                 "critical-jOPS": None,
-                 "HBIR": None}
+        smrys: dict[str, list[str]] = {"max-jOPS": [],
+                                       "critical-jOPS": [],
+                                       "HBIR": []}
         dtab.set_smry_funcs(smrys)
 
         return CTabConfig(self.name, dtabs=[dtab])
 
-    def _get_specjbb_info(self, res):
-        """Parse the SPECjbb2015 controller logs and return SPECjbb information dictionary."""
+    def _get_specjbb_info(self, res: RORawResult.RORawResult) -> _SPECjbb2015InfoTypedDict:
+        """
+        Parse the SPECjbb2015 controller logs and return a dictionary with SPECjbb information.
+
+        Returns:
+            dict: A dictionary containing SPECjbb2015 performance metrics.
+        """
+
+        if not res.wldata_path:
+            raise Error(f"BUG: no SPECjbb2015 workload data path for raw result {res.reportid}")
 
         log_path = res.wldata_path / "controller.log"
         if not log_path.exists():
-            return False
+            raise Error(f"SPECjbb2015 controller log file '{log_path}' does not exist")
 
         log_parser = SPECjbb2015CtrlLogParser.SPECjbb2015CtrlLogParser(path=log_path)
+        # TODO: there should be a TypedDict for 'log_info' and 'out_info'.
         log_info = next(log_parser.next())
 
         # Both SPECjbb2015 controller log and stdout output are necessary.
         out_path = res.wldata_path / "controller.out"
         if not out_path.exists():
-            return False
+            raise Error(f"SPECjbb2015 controller stdout file '{out_path}' does not exist")
 
         out_parser = SPECjbb2015CtrlOutParser.SPECjbb2015CtrlOutParser(path=out_path)
         out_info = next(out_parser.next())
@@ -134,7 +185,7 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
                             f"  * controller log: {log_levels_cnt} levels ({log_range})\n"
                             f"  * controller out: {out_levels_cnt} levels ({out_range})")
 
-            info = {}
+            info: _SPECjbb2015InfoTypedDict = {}
             info["max_jops"] = out_max_jops
             info["crit_jops"] = out_info["crit_jops"]
             info["hbir"] = out_hbir
@@ -149,10 +200,21 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
 
         return info
 
-    def _construct_dfs(self):
-        """Construct and return a SPECjbb2014 'Pandas.dataframe' objects."""
+    def _construct_dfs(self) -> dict[str, pandas.DataFrame]:
+        """
+        Construct and return a dictionary of dataframes for SPECjbb2015 test results.
 
-        dfs = {}
+        Returns:
+            A dictionary where keys are report IDs and values are dataframes containing the
+            extracted metrics.
+
+        Notes:
+            In case of SPECjbb2015 tab builder, using dataframes is an overkill. But this is what
+            the base class expects, so we have to do it this way.
+        """
+
+        dfs: dict[str, pandas.DataFrame] = {}
+
         for lres in self._lrsts:
             info = self._get_specjbb_info(lres.res)
 
@@ -170,18 +232,3 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
             dfs[lres.reportid] = pandas.DataFrame(data)
 
         return dfs
-
-    def __init__(self, lrsts: list[LoadedResult], outdir: Path, basedir: Path | None = None):
-        """
-        The class constructor. The arguments are as follows.
-         * lrsts - a list of loaded test result objects for which data should be included in the
-                   tab.
-         * outdir - the output directory in which to create the sub-directory for the container tab.
-         * basedir - base directory of the report. All paths should be made relative to this.
-                     Defaults to 'outdir'.
-        """
-
-        self._lrsts = lrsts
-
-        dfs = self._construct_dfs()
-        super().__init__(dfs, _SPECJBB_MDD, outdir, basedir=basedir)
