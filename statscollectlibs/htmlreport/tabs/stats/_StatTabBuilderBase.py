@@ -298,9 +298,6 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
         Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
         configuration object ('DTabConfig') for the statistic. The tab configuration object
         describes how the HTML tab should be built.
-
-        Returns:
-            The tab configuration object describing how the tab should be built.
         """
 
         raise NotImplementedError()

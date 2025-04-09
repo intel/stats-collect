@@ -158,7 +158,7 @@ class TabBuilderBase:
 
         Args:
             dtabconfig: The data tab configuration object containing details about the plots to be
-            added, such as scatter plots, histograms, etc.
+                        added, such as scatter plots, histograms, etc.
             dtab_bldr: The data tab builder object that will be used for building the tab.
 
         Returns:
@@ -250,9 +250,6 @@ class TabBuilderBase:
         Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
         configuration object ('DTabConfig'). The tab configuration object describes how the HTML tab
         should be built.
-
-        Returns:
-            The tab configuration object describing how the tab should be built.
         """
 
         raise NotImplementedError()
