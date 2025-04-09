@@ -126,7 +126,8 @@ class TabBuilderBase:
 
         smry_funcs = self._get_smry_funcs(ycolname)
         dtab_cfg.set_smry_funcs({ycolname: smry_funcs})
-        dtab_cfg.set_hover_colnames(hover_colnames)
+        if hover_colnames:
+            dtab_cfg.set_hover_colnames(hover_colnames)
 
         return dtab_cfg
 
