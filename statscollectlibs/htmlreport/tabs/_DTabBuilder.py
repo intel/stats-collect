@@ -162,14 +162,17 @@ class DTabBuilder:
             raise Error(f"Failed to generate the summary table for tab '{self.tabname}'") from err
 
     @staticmethod
-    def _warn_plot_skip_res(reportid, plottitle, mtitle):
+    def _warn_plot_skip_res(reportid: str, plottitle: str, mtitle: str):
         """
-        Helper function for '_add_scatter()' and '_add_histogram()'. Logs when a result is excluded
-        from a diagram because it does not have data for the metric with title 'mtitle'.
+        Log when a result is excluded from a plot because it does not have data for the metric.
+
+        Args:
+            reportid: The roport ID of the result being excluded.
+            plottitle: The title of the plot being the result is excluded from.
+            mtitle: The title of the metric for which data is missing.
         """
 
-        _LOG.info("Excluding result '%s' from %s: result does not have data for '%s'.", reportid,
-                   plottitle, mtitle)
+        _LOG.info("Excluding result '%s' from %s: no data for '%s'.", reportid, plottitle, mtitle)
 
     def _add_scatter(self, xcd, ycd, hover_cds=None):
         """
