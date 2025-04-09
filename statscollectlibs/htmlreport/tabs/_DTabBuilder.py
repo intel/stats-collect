@@ -22,19 +22,29 @@ from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-def get_fsname(metric):
+def get_fsname(name: str):
     """
-    Return a file-system and URL-safe name for a metric. The arguments are as follows.
-      * metric - name of the metric to return an FS and URL-safe name for.
+    Generate a file-system and URL-safe version of the input string.
+
+    This function replaces certain special characters in the input string with descriptive words and
+    removes non-alphanumeric characters. It is useful for creating safe names for file names and
+    URLs.
+
+    Args:
+        name: The input string to be sanitized. This can be a dataframe column name, a metric name,
+              or a tab name.
+
+    Returns:
+        A sanitized string that is safe for use in file systems and URLs.
     """
 
-    metric = metric.replace("%", "Percent")
-    metric = metric.replace("+", "Plus")
-    metric = metric.replace("-", "Minus")
+    name = name.replace("%", "Percent")
+    name = name.replace("+", "Plus")
+    name = name.replace("-", "Minus")
 
     # Filter out any remaining non-alphanumeric characters.
-    metric = "".join([c for c in metric if c.isalnum()])
-    return metric
+    name = "".join([c for c in name if c.isalnum()])
+    return name
 
 class DTabBuilder:
     """
