@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
+#          Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module provides the capability of populating a data tab.
+Provide the 'DTabBuider' class that builds an HTML report data tab (D-tab).
 """
 
 # TODO: finish annotating and modernizing this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
+import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
@@ -48,24 +50,62 @@ def get_fsname(name: str):
 
 class DTabBuilder:
     """
-    This base class provides the capability of populating a data tab.
-
-    Note, each tab element is optional and can be added in any order. See 'BuiltTab.BuiltDTab'
-    docstring for more information on each tab element.
-
-    Public methods overview:
-    1. Add a summary table to the tab.
-       * 'add_smrytbl()'
-    2. Add plots to the tab.
-       * 'add_plots()'
-    3. Add file previews to the tab.
-       * 'add_fpreviews()'
-    4. Add an alert to the tab.
-       * 'add_alert()'
-    5. Generate a 'BuiltTab.BuiltDTab' instance containing all of the tab features added with the
-       methods listed above.
-       * 'get_tab()'
+    Provide a capability of building a data tab (D-tab) for the HTML report.
     """
+
+    def __init__(self,
+                 dfs: dict[str, pandas.DataFrame],
+                 outdir: Path,
+                 tabname: str,
+                 basedir: Path | None = None):
+        """
+        Initialize a class instance.
+
+        Args:
+            dfs: A dictionary indexed by report ID with values being the dataframe containing the
+                 data tab data.
+            outdir: The output directory where the tab's files will be stored.
+            name: The name of the data tab, used as the tab label in the hierarchy of tabs in HTML
+                  report.
+            basedir: The base directory of the report. The 'outdir' is a sub-director y of
+                     'basedir'. All links and pathes generated it the tab will be relative to
+                     'basedir', as opposed to be absolute. Defaults to 'outdir'.
+        """
+
+        self._dfs = dfs
+        self.tabname = tabname
+        self._fsname = get_fsname(self.tabname)
+
+        self._outdir = outdir / self._fsname
+        self._smry_path = self._outdir / "summary-table.txt"
+        self._smrytbl: _SummaryTable.SummaryTable | None = None
+
+        # Sometimes certain diagrams may be skipped for certain column names. In this case there are
+        # alerts to inform the user about the reason for absence of the diagram.
+        #
+        # Using a set to avoid alerting the user of a metric multiple times.
+        self._alerted_metrics: set[str] = set()
+
+        # The tab alerts.
+        self._alerts: list[str] = []
+
+        if basedir is None:
+            self._basedir = outdir
+        else:
+            self._basedir = basedir
+
+        try:
+            self._outdir.mkdir(parents=True, exist_ok=True)
+        except OSError as err:
+            msg = Error(str(err)).indent(2)
+            raise Error(f"Failed to create directory '{self._outdir}':\n{msg}") from None
+
+        # Paths to files with plots generated for this tab (all of them - scatter plots and
+        # histograms).
+        self._ppaths: list[Path] = []
+
+        # File previews which will be added to the data tab.
+        self._fpreviews: list[BuiltTab.BuiltDTabFilePreview] = []
 
     def add_smrytbl(self, smry_funcs, cdd):
         """
@@ -105,7 +145,7 @@ class DTabBuilder:
                     self._smrytbl.add_smry_func(rep, cd["title"], val, funcname=None)
 
         try:
-            self._smrytbl.generate(self.smry_path)
+            self._smrytbl.generate(self._smry_path)
         except Error as err:
             raise Error("Failed to generate summary table.") from err
 
@@ -268,7 +308,7 @@ class DTabBuilder:
 
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir / "file-previews",
                                                           self._basedir, diff=diff)
-        self.fpreviews.append(fpbuilder.build_fpreview(title, paths))
+        self._fpreviews.append(fpbuilder.build_fpreview(title, paths))
 
     def add_alert(self, alert):
         """Add an alert to the data tab."""
@@ -285,50 +325,8 @@ class DTabBuilder:
         ppaths = [p.relative_to(self._basedir) for p in self._ppaths]
 
         if self._smrytbl is not None:
-            smry_path = self.smry_path.relative_to(self._basedir)
+            smry_path = self._smry_path.relative_to(self._basedir)
         else:
             smry_path = ""
 
-        return BuiltTab.BuiltDTab(self.tabname, ppaths, smry_path, self.fpreviews, self._alerts)
-
-    def __init__(self, dfs, outdir, tabname, basedir=None):
-        """
-        The class constructor. Adding a data tab will create a sub-directory named after the metric
-        in 'metric_def' and store plots and the summary table in it.
-
-        Arguments are the same as in '_TabBuilderBase.TabBuilderBase()' except for the following:
-         * dfs - dictionary containing indexed by report ID with values being the dataframe
-                 including the data for the tab.
-         * tabname - the name of the tab. See 'BuiltDTab.name' for more information.
-        """
-
-        self._dfs = dfs
-        self.tabname = tabname
-        # File system-friendly tab name.
-        self._fsname = get_fsname(self.tabname)
-
-        self._outdir = outdir / self._fsname
-        self.smry_path = self._outdir / "summary-table.txt"
-        self._smrytbl = None
-
-        # Sometimes certain metrics cause diagrams to be skipped. See '_skip_metric_plot()' for more
-        # info. Add alerts to '_alerts' to inform the user why some diagrams have been skipped.
-        self._alerted_metrics = set() # Avoid alerting the user of a metric multiple times.
-        self._alerts = []
-
-        if basedir is None:
-            self._basedir = outdir
-        else:
-            self._basedir = basedir
-
-        try:
-            self._outdir.mkdir(parents=True, exist_ok=True)
-        except OSError as err:
-            msg = Error(str(err)).indent(2)
-            raise Error(f"Failed to create directory '{self._outdir}':\n{msg}") from None
-
-        # Paths of plots generated for this tab.
-        self._ppaths = []
-
-        # Instances of 'BuiltTab.FilePreview' which will be generated with the tab.
-        self.fpreviews = []
+        return BuiltTab.BuiltDTab(self.tabname, ppaths, smry_path, self._fpreviews, self._alerts)
