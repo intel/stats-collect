@@ -119,16 +119,16 @@ class TabBuilderBase:
             raise Error("BUG: the X-axis metric was not set")
 
         title = title if title is not None else ycolname
-        dtabconfig = DTabConfig(title)
-        dtabconfig.add_scatter_plot(self._xcolname, ycolname)
+        dtab_cfg = DTabConfig(title)
+        dtab_cfg.add_scatter_plot(self._xcolname, ycolname)
         if hist:
-            dtabconfig.add_hist(ycolname)
+            dtab_cfg.add_hist(ycolname)
 
         smry_funcs = self._get_smry_funcs(ycolname)
-        dtabconfig.set_smry_funcs({ycolname: smry_funcs})
-        dtabconfig.set_hover_colnames(hover_colnames)
+        dtab_cfg.set_smry_funcs({ycolname: smry_funcs})
+        dtab_cfg.set_hover_colnames(hover_colnames)
 
-        return dtabconfig
+        return dtab_cfg
 
     def get_tab_cfg(self) -> CTabConfig | DTabConfig:
         """
@@ -161,13 +161,13 @@ class TabBuilderBase:
         return funcs
 
     def _add_plots(self,
-                   dtabconfig: DTabConfig,
+                   dtab_cfg: DTabConfig,
                    dtab_bldr: _DTabBuilder.DTabBuilder) -> _DTabBuilder.DTabBuilder:
         """
         Add plots to the tab based on the metrics specified in the data tab configuration.
 
         Args:
-            dtabconfig: The data tab configuration object containing details about the plots to be
+            dtab_cfg: The data tab configuration object containing details about the plots to be
                         added, such as scatter plots, histograms, etc.
             dtab_bldr: The data tab builder object that will be used for building the tab.
 
@@ -176,20 +176,20 @@ class TabBuilderBase:
         """
 
         scatter: list[tuple[CDTypedDict, CDTypedDict]] = []
-        for xcolname, ycolname in dtabconfig.scatter_plots:
+        for xcolname, ycolname in dtab_cfg.scatter_plots:
             scatter.append((self._cdd[xcolname], self._cdd[ycolname]))
 
         hists: list[CDTypedDict] = []
-        for colname in dtabconfig.hists:
+        for colname in dtab_cfg.hists:
             hists.append(self._cdd[colname])
 
         chists: list[CDTypedDict] = []
-        for colname in dtabconfig.chists:
+        for colname in dtab_cfg.chists:
             chists.append(self._cdd[colname])
 
         hover_mds: list[CDTypedDict] = []
-        if dtabconfig.hover_colnames:
-            for colname in dtabconfig.hover_colnames:
+        if dtab_cfg.hover_colnames:
+            for colname in dtab_cfg.hover_colnames:
                 if colname == "CPU5-UMHz0.0":
                     print("CDD columns: ", list(self._cdd))
                 hover_mds.append(self._cdd[colname])
@@ -198,52 +198,55 @@ class TabBuilderBase:
                             hover_mds=hover_mds)
         return dtab_bldr
 
-    def _build_dtab(self, outdir: Path, dtabconfig: DTabConfig) -> BuiltTab.BuiltDTab:
+    def _build_dtab(self, outdir: Path, dtab_cfg: DTabConfig) -> BuiltTab.BuiltDTab:
         """
         Build and return a data tab based on the provided data tab configuration.
 
         Args:
             outdir: The output directory where the data tab files will be stored.
-            dtabconfig: The data ab configuration object defining the properties of the data tab,
+            dtab_cfg: The data ab configuration object defining the properties of the data tab,
                         including its name, summary functions, alerts, etc.
 
         Returns:
-            A data tab object constructed using the provided configuration.
+            A built data tab object constructed using the provided configuration.
         """
 
-        dtab_bldr = _DTabBuilder.DTabBuilder(self._dfs, outdir, dtabconfig.name, self._basedir)
-        dtab_bldr = self._add_plots(dtabconfig, dtab_bldr)
-        dtab_bldr.add_smrytbl(dtabconfig.smry_funcs, self._cdd)
-        for alert in dtabconfig.alerts:
+        dtab_bldr = _DTabBuilder.DTabBuilder(self._dfs, outdir, dtab_cfg.name, self._basedir)
+        dtab_bldr = self._add_plots(dtab_cfg, dtab_bldr)
+        dtab_bldr.add_smrytbl(dtab_cfg.smry_funcs, self._cdd)
+        for alert in dtab_cfg.alerts:
             dtab_bldr.add_alert(alert)
 
         return dtab_bldr.get_tab()
 
-    def _build_ctab(self, outdir, ctabconfig):
+    def _build_ctab(self, outdir: Path, ctab_cfg: CTabConfig) -> BuiltTab.BuiltCTab:
         """
-        Build a container tab according to the tab configuration 'ctabconfig'. If no sub-tabs can be
-        generated then raise an 'Error' and if the config provided is empty then return 'None'. The
-        arguments are as follows.
-          * outdir - path of the directory in which to store the generated tabs.
-          * ctabconfig - an instance of 'CTabConfig' which configures the contents of the resultant
-                         container tab.
+        Build and return a container tab based on the provided container tab configuration.
+
+        Args:
+            outdir: The output directory where the container tab files will be stored.
+            ctab_cfg: The container ab configuration object defining the properties of the container
+                      tab, including its name, summary functions, alerts, etc.
+
+        Returns:
+            A built container tab object (CTabConfig) constructed using the provided configuration.
         """
 
-        if not (ctabconfig.ctabs or ctabconfig.dtabs):
-            return None
+        if not (ctab_cfg.ctabs or ctab_cfg.dtabs):
+            raise Error("BUG: an empty C-tab?")
 
         # Sub-tabs which will be contained by the returned container tab.
         sub_tabs = []
 
-        for dtabconfig in ctabconfig.dtabs:
+        for dtab_cfg in ctab_cfg.dtabs:
             try:
-                sub_tabs.append(self._build_dtab(outdir, dtabconfig))
+                sub_tabs.append(self._build_dtab(outdir, dtab_cfg))
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("failed to generate '%s' tab in '%s' tab:\n%s",
-                             dtabconfig.name, self.name, err.indent(2))
+                             dtab_cfg.name, self.name, err.indent(2))
 
-        for subtab_cfg in ctabconfig.ctabs:
+        for subtab_cfg in ctab_cfg.ctabs:
             subdir = Path(outdir) / _DTabBuilder.get_fsname(subtab_cfg.name)
             subtab = self._build_ctab(subdir, subtab_cfg)
 
@@ -251,6 +254,6 @@ class TabBuilderBase:
                 sub_tabs.append(subtab)
 
         if sub_tabs:
-            return BuiltTab.BuiltCTab(ctabconfig.name, sub_tabs)
+            return BuiltTab.BuiltCTab(ctab_cfg.name, sub_tabs)
 
         raise Error(f"unable to generate a container tab for {self.name}.")
