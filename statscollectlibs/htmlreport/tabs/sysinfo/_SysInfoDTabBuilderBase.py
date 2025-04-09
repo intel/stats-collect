@@ -112,9 +112,9 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
 
         return new_paths
 
-    def get_tab(self) -> BuiltTab.BuiltDTab:
+    def build_tab(self) -> BuiltTab.BuiltDTab:
         """
-        Generate and returns a D-tab for the "Sysinfo" C-tab.
+        Build and returns a D-tab for the "Sysinfo" C-tab.
 
         Returns:
             The data tab object.
@@ -139,4 +139,4 @@ class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
                              "file preview generation:\n%s", fpwi["title"], self.name, errmsg)
                 continue
 
-        return super().get_tab()
+        return super().build_tab()

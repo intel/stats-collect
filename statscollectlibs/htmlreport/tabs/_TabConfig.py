@@ -94,8 +94,10 @@ class CTabConfig:
         """
 
         if dtabs and ctabs:
-            raise Error("the options 'dtabs' and 'ctabs' are mutually exclusive, please only "
+            raise Error("BUG: The options 'dtabs' and 'ctabs' are mutually exclusive, please only "
                         "provide one")
+        if not dtabs and not ctabs:
+            raise Error("BUG: Cannot create a C-tab without contents")
 
         self.name = name
         self.dtabs = [] if dtabs is None else dtabs

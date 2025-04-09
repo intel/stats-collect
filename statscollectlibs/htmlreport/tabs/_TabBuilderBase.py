@@ -11,7 +11,6 @@
 Provide the base class and common logic for tab builder classes.
 """
 
-# TODO: finish annotating this module
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
@@ -19,7 +18,8 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.mdc.MDCBase import MDTypedDict
-from statscollectlibs.htmlreport.tabs import _DTabBuilder, BuiltTab
+from statscollectlibs.htmlreport.tabs import _DTabBuilder
+from statscollectlibs.htmlreport.tabs.BuiltTab import BuiltDTab, BuiltCTab
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -74,7 +74,7 @@ class TabBuilderBase:
 
         if self.name is None:
             raise Error(f"BUG: failed to initialise '{type(self).__name__}': 'name' class "
-                        f"attribute not populated.")
+                        f"attribute not populated")
 
         if not dfs:
             raise ErrorNotFound(f"BUG: No data for '{self.name}'")
@@ -135,6 +135,9 @@ class TabBuilderBase:
         Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
         configuration object ('DTabConfig'). The tab configuration object describes how the HTML tab
         should be built.
+
+        Raises:
+            NotImplementedError: This method must be implemented by subclasses.
         """
 
         raise NotImplementedError()
@@ -198,7 +201,7 @@ class TabBuilderBase:
                             hover_mds=hover_mds)
         return dtab_bldr
 
-    def _build_dtab(self, outdir: Path, dtab_cfg: DTabConfig) -> BuiltTab.BuiltDTab:
+    def _build_dtab(self, outdir: Path, dtab_cfg: DTabConfig) -> BuiltDTab:
         """
         Build and return a data tab based on the provided data tab configuration.
 
@@ -217,9 +220,9 @@ class TabBuilderBase:
         for alert in dtab_cfg.alerts:
             dtab_bldr.add_alert(alert)
 
-        return dtab_bldr.get_tab()
+        return dtab_bldr.build_tab()
 
-    def _build_ctab(self, outdir: Path, ctab_cfg: CTabConfig) -> BuiltTab.BuiltCTab:
+    def _build_ctab(self, outdir: Path, ctab_cfg: CTabConfig) -> BuiltCTab:
         """
         Build and return a container tab based on the provided container tab configuration.
 
@@ -232,28 +235,47 @@ class TabBuilderBase:
             A built container tab object (CTabConfig) constructed using the provided configuration.
         """
 
-        if not (ctab_cfg.ctabs or ctab_cfg.dtabs):
-            raise Error("BUG: an empty C-tab?")
+        if not ctab_cfg.ctabs and not ctab_cfg.dtabs:
+            raise Error(f"BUG: an empty C-tab {ctab_cfg.name} was found")
 
         # Sub-tabs which will be contained by the returned container tab.
-        sub_tabs = []
+        subtabs: list[BuiltCTab | BuiltDTab] = []
 
-        for dtab_cfg in ctab_cfg.dtabs:
+        for sub_dtab_cfg in ctab_cfg.dtabs:
             try:
-                sub_tabs.append(self._build_dtab(outdir, dtab_cfg))
+                subtabs.append(self._build_dtab(outdir, sub_dtab_cfg))
             except Error as err:
                 _LOG.debug_print_stacktrace()
-                _LOG.warning("failed to generate '%s' tab in '%s' tab:\n%s",
-                             dtab_cfg.name, self.name, err.indent(2))
+                _LOG.warning("Failed to generate '%s' tab in '%s' statistic tab:\n%s",
+                             sub_dtab_cfg.name, self.name, err.indent(2))
 
-        for subtab_cfg in ctab_cfg.ctabs:
-            subdir = Path(outdir) / _DTabBuilder.get_fsname(subtab_cfg.name)
-            subtab = self._build_ctab(subdir, subtab_cfg)
+        for sub_ctab_cfg in ctab_cfg.ctabs:
+            subdir = Path(outdir) / _DTabBuilder.get_fsname(sub_ctab_cfg.name)
+            subtab = self._build_ctab(subdir, sub_ctab_cfg)
 
             if subtab:
-                sub_tabs.append(subtab)
+                subtabs.append(subtab)
 
-        if sub_tabs:
-            return BuiltTab.BuiltCTab(ctab_cfg.name, sub_tabs)
+        if subtabs:
+            return BuiltCTab(ctab_cfg.name, subtabs)
 
-        raise Error(f"unable to generate a container tab for {self.name}.")
+        raise Error(f"Unable to generate a container tab for {self.name}")
+
+    def build_tab(self) -> BuiltCTab | BuiltDTab:
+        """
+        Build the necessary files for the HTML report, such as plots, histograms, and summary
+        tables.
+
+        Returns:
+            CTabConfig or DTabConfig: The the built statistic tab object.
+        """
+
+        tab_cfg = self.get_tab_cfg()
+
+        if isinstance(tab_cfg, CTabConfig):
+            return self._build_ctab(self._outdir, tab_cfg)
+
+        if isinstance(tab_cfg, DTabConfig):
+            return self._build_dtab(self._outdir, tab_cfg)
+
+        raise Error(f"Unknown tab configuration type '{type(tab_cfg)}")

@@ -265,10 +265,11 @@ class DTabBuilder:
 
         self._alerts.append(alert)
 
-    def get_tab(self):
+    def build_tab(self):
         """
-        Return a 'BuiltTab.BuiltDTab' instance which contains an aggregate of all of the data
-        'self._dfs'. Return a 'BuiltTab.BuiltDTab' object that can be used to populate an HTML tab.
+        Build and return a 'BuiltTab.BuiltDTab' instance which contains an aggregate of all of the
+        data 'self._dfs'. Return a 'BuiltTab.BuiltDTab' object that can be used to populate an HTML
+        tab.
         """
 
         ppaths = [p.relative_to(self._basedir) for p in self._ppaths]

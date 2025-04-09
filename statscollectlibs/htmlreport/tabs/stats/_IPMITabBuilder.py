@@ -75,7 +75,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
             Args:
                 category: The category name (e.g., "Power") for the C-tab.
-                metrics A list of metric names to include in the C-tab.
+                metrics: A list of metric names to include in the C-tab.
 
             Returns:
                 A container tab (C-tab) configuration object, describing how the HTML tabs for IPMI

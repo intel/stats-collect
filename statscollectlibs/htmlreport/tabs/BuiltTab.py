@@ -72,4 +72,4 @@ class BuiltCTab:
     """
 
     name: str
-    tabs: List[BuiltCTab] | List[BuiltDTab]
+    tabs: List[BuiltCTab | BuiltDTab]

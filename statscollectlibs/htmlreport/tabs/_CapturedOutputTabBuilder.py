@@ -70,7 +70,7 @@ class CapturedOutputTabBuilder():
 
         return trimmed_lines
 
-    def get_tab(self):
+    def build_tab(self):
         """
         Return a 'BuiltTab.BuiltDTab' instance containing file previews of the captured 'stdout' and
         'stderr' logs from 'stats-collect start'.

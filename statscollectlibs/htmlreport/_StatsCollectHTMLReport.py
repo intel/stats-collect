@@ -179,10 +179,10 @@ class StatsCollectHTMLReport:
 
         if wlname == "specjbb2015":
             return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabdir,
-                                                                basedir=self.outdir).get_tab()
+                                                                basedir=self.outdir).build_tab()
 
         return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabdir,
-                                                                    basedir=self.outdir).get_tab()
+                                                                    basedir=self.outdir).build_tab()
 
     def _copy_raw_data(self):
         """Copy raw test results or their parts to the output directory."""

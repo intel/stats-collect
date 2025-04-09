@@ -84,7 +84,7 @@ class _StatsTabBuilder:
         for tbldr in self._tbldrs.values():
             _LOG.info("Generating '%s' tab.", tbldr.name)
             try:
-                tabs.append(tbldr.get_tab())
+                tabs.append(tbldr.build_tab())
             except Error as err:
                 _LOG.debug_print_stacktrace()
                 _LOG.warning("Failed to generate '%s' tab: %s", tbldr.name, err)
