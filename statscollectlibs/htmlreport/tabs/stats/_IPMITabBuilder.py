@@ -69,9 +69,9 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             tabs such as "Fan1", "Fan2", etc.
         """
 
-        def _build_ctab_cfg(category: str, metrics: list[str]) -> CTabConfig:
+        def _get_ctab_cfg(category: str, metrics: list[str]) -> CTabConfig:
             """
-            Build a container tab object for a given category and metrics.
+            Create and return a container tab object for a given category and metrics.
 
             Args:
                 category: The category name (e.g., "Power") for the C-tab.
@@ -85,7 +85,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
             dtabs = []
             for metric in metrics:
-                dtab = self._build_dtab_cfg(metric, title=metric)
+                dtab = self._get_dtab_cfg(metric, title=metric)
                 dtabs.append(dtab)
 
             return CTabConfig(category, dtabs=dtabs)
@@ -93,7 +93,7 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         ctabs = []
 
         for category, metrics in self._categories.items():
-            ctab = _build_ctab_cfg(category, metrics)
+            ctab = _get_ctab_cfg(category, metrics)
             ctabs.append(ctab)
 
         return CTabConfig(self.name, ctabs=ctabs)

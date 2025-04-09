@@ -95,34 +95,14 @@ class TabBuilderBase:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"Failed to create directory '{self._outdir}':\n{errmsg}") from None
 
-    def _get_smry_funcs(self, colname: str) -> list[str]:
+    def _get_dtab_cfg(self,
+                      ycolname: str,
+                      title: str | None = None,
+                      hist: bool = False,
+                      hover_colnames: list[str] | None = None) -> DTabConfig:
         """
-        Return the list of summary function names to include to the D-tab summary table for
-        dataframe column 'colname' (e.g., "max" for the maximum value, etc).
-
-        Args:
-            colname: dataframe column name to return the summary funcion names for.
-
-        Returns:
-            A summary function names list.
-        """
-
-        colinfo = self._cdd[colname]
-        unit = colinfo.get("unit")
-        if not unit:
-            funcs = ["max", "avg", "min", "std"]
-        else:
-            funcs = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min", "std"]
-
-        return funcs
-
-    def _build_dtab_cfg(self,
-                        ycolname: str,
-                        title: str | None = None,
-                        hist: bool = False,
-                        hover_colnames: list[str] | None = None) -> DTabConfig:
-        """
-        Build a data tab configuration object ('DTabConfig').
+        Create and return a data tab (D-tab) configuration object ('DTabConfig') for a datafrane
+        column.
 
         Args:
             ycolname: The name of the metric to be plotted on the Y-axis of the tab's scatter plot.
@@ -149,6 +129,36 @@ class TabBuilderBase:
         dtabconfig.set_hover_colnames(hover_colnames)
 
         return dtabconfig
+
+    def get_tab_cfg(self) -> CTabConfig | DTabConfig:
+        """
+        Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
+        configuration object ('DTabConfig'). The tab configuration object describes how the HTML tab
+        should be built.
+        """
+
+        raise NotImplementedError()
+
+    def _get_smry_funcs(self, colname: str) -> list[str]:
+        """
+        Return the list of summary function names to include to the D-tab summary table for
+        dataframe column 'colname' (e.g., "max" for the maximum value, etc).
+
+        Args:
+            colname: dataframe column name to return the summary funcion names for.
+
+        Returns:
+            A summary function names list.
+        """
+
+        colinfo = self._cdd[colname]
+        unit = colinfo.get("unit")
+        if not unit:
+            funcs = ["max", "avg", "min", "std"]
+        else:
+            funcs = ["max", "99.999%", "99.99%", "99.9%", "99%", "med", "avg", "min", "std"]
+
+        return funcs
 
     def _add_plots(self,
                    dtabconfig: DTabConfig,
@@ -244,29 +254,3 @@ class TabBuilderBase:
             return BuiltTab.BuiltCTab(ctabconfig.name, sub_tabs)
 
         raise Error(f"unable to generate a container tab for {self.name}.")
-
-    def get_tab_cfg(self) -> CTabConfig | DTabConfig:
-        """
-        Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
-        configuration object ('DTabConfig'). The tab configuration object describes how the HTML tab
-        should be built.
-        """
-
-        raise NotImplementedError()
-
-    def get_tab(self):
-        """
-        Return a 'BuiltTab.BuiltDTab' or 'BuiltTab.BuiltCTab' instance which represents statistics
-        found in raw statistic files.
-        """
-
-        tab_cfg = self.get_tab_cfg()
-
-        if isinstance(tab_cfg, CTabConfig):
-            return self._build_ctab(self._outdir, tab_cfg)
-
-        if isinstance(tab_cfg, DTabConfig):
-            return self._build_dtab(self._outdir, tab_cfg)
-
-        raise Error(f"unknown tab configuration type '{type(tab_cfg)}, please provide "
-                    f"'{CTabConfig.__name__}' or '{DTabConfig.__name__}'")

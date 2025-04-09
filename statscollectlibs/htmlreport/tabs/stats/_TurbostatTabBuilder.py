@@ -166,10 +166,10 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         hover_colnames = [f"{sname}-{metric}" for metric in hover_metrics]
         return [colname for colname in hover_colnames if colname in self._cdd]
 
-    def _build_ctab_cfg(self, tabname: str, metrics: list[str], sname: str):
+    def _get_last_level_ctab_cfg(self, tabname: str, metrics: list[str], sname: str):
         """
-        Return a last level container tab (C-tab) configuration object. This C-tab includes D-tabs
-        for each metric in the category (provided via the 'metrics' list).
+        Create and return a last level container tab (C-tab) configuration object. This C-tab
+        includes D-tabs for each metric in the category (provided via the 'metrics' list).
 
         Args:
             tabname: The name of the C-tab (as it appears in the tab hierachy in the HTML report).
@@ -189,7 +189,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
             hover_colnames = self._get_hover_colnames(metric, sname)
 
-            dtab = self._build_dtab_cfg(colname, title=metric, hover_colnames=hover_colnames)
+            dtab = self._get_dtab_cfg(colname, title=metric, hover_colnames=hover_colnames)
             dtabs.append(dtab)
 
         if dtabs:
@@ -197,7 +197,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         return None
 
-    def _get_l2_tab_cfg(self, sname: str) -> CTabConfig | None:
+    def _get_l2_ctab_cfg(self, sname: str) -> CTabConfig | None:
         """
         Return a "level 2" C-tab configuration object for the given scope name (e.g., a C-tab for
         system-wide metrics, or a C-tab for CPU-specific metrics). The level 2 C-tab includes
@@ -222,7 +222,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
             for cs_metrics in self._categories["Frequency"].values():
                 metrics += cs_metrics
 
-            l3_ctab = self._build_ctab_cfg("Frequency", metrics, sname)
+            l3_ctab = self._get_last_level_ctab_cfg("Frequency", metrics, sname)
             if l3_ctab:
                 l3_ctabs.append(l3_ctab)
 
@@ -232,7 +232,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
             if "Hardware" in self._categories["C-state"]:
                 metrics = self._categories["C-state"]["Hardware"]
-                l3_ctab = self._build_ctab_cfg("Hardware", metrics, sname)
+                l3_ctab = self._get_last_level_ctab_cfg("Hardware", metrics, sname)
                 if l3_ctab:
                     cs_l3_ctabs.append(l3_ctab)
 
@@ -244,7 +244,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
                 for subcat in ("Residency", "Count", "Request Rate", "Average Time"):
                     if subcat in subcats:
-                        l3_ctab = self._build_ctab_cfg(subcat, subcats[subcat], sname)
+                        l3_ctab = self._get_last_level_ctab_cfg(subcat, subcats[subcat], sname)
                         if l3_ctab:
                             l4_ctabs.append(l3_ctab)
 
@@ -258,7 +258,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         # Add S-states level 3 C-tab.
         if "S-state" in self._categories:
             metrics = self._categories["S-state"]
-            l3_ctab = self._build_ctab_cfg("S-states", metrics, sname)
+            l3_ctab = self._get_last_level_ctab_cfg("S-states", metrics, sname)
             if l3_ctab:
                 l3_ctabs.append(l3_ctab)
 
@@ -269,7 +269,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         if "Temperature" in self._categories:
             metrics += self._categories["Temperature"]
         if metrics:
-            l3_ctab = self._build_ctab_cfg("Power / Temperature", metrics, sname)
+            l3_ctab = self._get_last_level_ctab_cfg("Power / Temperature", metrics, sname)
             if l3_ctab:
                 l3_ctabs.append(l3_ctab)
 
@@ -280,7 +280,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
         if "Instructions" in self._categories:
             metrics += self._categories["Instructions"]
         if metrics:
-            l3_ctab = self._build_ctab_cfg("Miscellaneous", metrics, sname)
+            l3_ctab = self._get_last_level_ctab_cfg("Miscellaneous", metrics, sname)
             if l3_ctab:
                 l3_ctabs.append(l3_ctab)
 
@@ -304,7 +304,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
         l2_ctabs = []
         for sname in self._snames:
-            l2_ctab = self._get_l2_tab_cfg(sname)
+            l2_ctab = self._get_l2_ctab_cfg(sname)
             if l2_ctab:
                 l2_ctabs.append(l2_ctab)
 
