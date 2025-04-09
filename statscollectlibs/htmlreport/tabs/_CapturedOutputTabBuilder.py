@@ -11,7 +11,6 @@ Provide the tab builder for the "Captured Output" tab, which just shows and comp
 stderr of the workload(s).
 """
 
-# TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
@@ -100,8 +99,15 @@ class CapturedOutputTabBuilder():
 
     def build_tab(self) -> BuiltTab.BuiltCTab:
         """
-        Build the tab and return a built C-tab object ('BuiltTab.BuiltCTab'). The resulting tab will
-        include file previews of the captured 'stdout' and 'stderr' logs from 'stats-collect start'.
+        Build and return the tab object with file previews of the captured 'stdout' and 'stderr'
+        logs from the 'stats-collect start' process.
+
+        Returns:
+            BuiltTab.BuiltCTab: A built C-tab object containing a D-tab object that includes the
+            file previews.
+
+        Raises:
+            Error: If there is an issue reading or processing the captured output files.
         """
 
         _LOG.info("Generating '%s' tab", self.name)
@@ -148,7 +154,7 @@ class CapturedOutputTabBuilder():
                 fpreviews.append(fpbuilder.build_fpreview(stream_name, files))
 
         if not fpreviews:
-            raise Error("No captured output files found in the raw results")
+            return BuiltTab.BuiltCTab(self.name, tabs=[])
 
         if trimmed_reportids:
             # Add a notice about trimmed contents to the HTML report.

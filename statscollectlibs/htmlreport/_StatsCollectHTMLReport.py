@@ -12,6 +12,7 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
+from typing import cast
 from pepclibs.helperlibs import Logging
 from statscollectlibs.htmlreport import HTMLReport, IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
@@ -178,11 +179,15 @@ class StatsCollectHTMLReport:
                     wlnames[res.reportid], RORawResult.KNOWN_WORKLOADS[res.wlname])
 
         if wlname == "specjbb2015":
-            return _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabdir,
-                                                                basedir=self.outdir).build_tab()
+            specjbb_bldr = _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabdir,
+                                                                        basedir=self.outdir)
+            ctab = cast(BuiltTab.BuiltCTab, specjbb_bldr.build_tab())
+        else:
+            capout_bldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabdir,
+                                                                             basedir=self.outdir)
+            ctab = capout_bldr.build_tab()
 
-        return _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabdir,
-                                                                    basedir=self.outdir).build_tab()
+        return ctab
 
     def _copy_raw_data(self):
         """Copy raw test results or their parts to the output directory."""
@@ -213,7 +218,9 @@ class StatsCollectHTMLReport:
         rep = HTMLReport.HTMLReport(self._lrsts, title, self.outdir, logpath=self.logpath)
 
         results_tab = self._build_results_tab(rep.tabs_dir)
-        tabs = [results_tab] if results_tab else None
+
+        # Do not include the results tab if it is empty (no sub-tabs).
+        tabs = [results_tab] if results_tab.tabs else None
 
         for res in self.rsts:
             self._raw_paths[res.reportid] = self.outdir / f"raw-{res.reportid}"

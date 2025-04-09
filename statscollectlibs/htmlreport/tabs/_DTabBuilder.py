@@ -314,8 +314,8 @@ class DTabBuilder:
         try:
             self._outdir.mkdir(parents=True, exist_ok=True)
         except OSError as err:
-            msg = Error(err).indent(2)
-            raise Error(f"failed to create directory '{self._outdir}':\n{msg}") from None
+            msg = Error(str(err)).indent(2)
+            raise Error(f"Failed to create directory '{self._outdir}':\n{msg}") from None
 
         # Paths of plots generated for this tab.
         self._ppaths = []

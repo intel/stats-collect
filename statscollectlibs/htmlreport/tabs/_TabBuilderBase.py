@@ -132,9 +132,12 @@ class TabBuilderBase:
 
     def get_tab_cfg(self) -> CTabConfig | DTabConfig:
         """
-        Return a container tab (C-tab) configuration object ('CTabConfig') or a data tab (D-tab)
-        configuration object ('DTabConfig'). The tab configuration object describes how the HTML tab
-        should be built.
+        Create and return the tab configuration object, whi describes how the HTML tab should be
+        built.
+
+        Returns:
+            The tab configuration object, which can be either a container tab configuration object
+            ('CTabConfig') or a data tab configuration object ('DTabConfig').
 
         Raises:
             NotImplementedError: This method must be implemented by subclasses.

@@ -158,8 +158,12 @@ class IPMITabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
 
                 break
 
-        for category in categories:
-            categories[category] = Trivial.list_dedup(categories[category])
+        for category in list(categories):
+            if not categories[category]:
+                # Remove empty categories.
+                del categories[category]
+            else:
+                categories[category] = Trivial.list_dedup(categories[category])
 
         if "Timestamp" in categories:
             # Remove the "Timestamp" category from the categories dictionary to avoid a "Timestamp"
