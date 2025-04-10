@@ -253,33 +253,43 @@ class DTabBuilder:
         h.generate()
         self._ppaths.append(h_path)
 
-    def _skip_metric_plot(self, plotname, xcd, ycd=None):
+    def _skip_metric_plot(self,
+                          plot_type: str,
+                          xcd: CDTypedDict,
+                          ycd: CDTypedDict | None = None) -> bool:
         """
-        Helper function for 'add_plots()'. Checks the data in 'self._dfs' to see if there is
-        sufficient data to generate a plot for the metrics 'xcd' and 'ycd'. Returns 'True' or
-        'False' if the plot should be skipped or generated respectively.
+        Checks if there is sufficient data to generate a plot for the metrics 'xcd' and 'ycd'.
+
+        Args:
+            plotname: The name of the plot being checked.
+            xcd: The column definition dictionary for the X-axis metric.
+            ycd: The column definition dictionary for the Y-axis metric (optional).
+
+        Returns:
+            'True' if the plot should be skipped, 'False' if the plot can be generated.
         """
 
         if ycd is not None:
             cds = [xcd, ycd]
-            plotname = f"{plotname} '{ycd['name']} vs {xcd['name']}'"
+            plotname = f"{plot_type} '{ycd['name']} vs {xcd['name']}'"
         else:
             cds = [xcd]
-            plotname = f"{plotname} '{xcd['name']}'"
+            plotname = f"{plot_type} '{xcd['name']}'"
 
         for cd in cds:
             colname = cd["colname"]
 
+            # Filter dataframes that contain the column 'colname'.
             sdfs_with_data = [sdf for sdf in self._dfs.values() if colname in sdf]
-            # Check that at least one result contains data for column 'colname'.
+            # Check that at least one dataframe contains data for column 'colname'.
             if not sdfs_with_data:
-                _LOG.debug("skipping %s: no results have data for '%s'", plotname, colname)
+                _LOG.debug("Skipping %s: no results have data for '%s'", plotname, colname)
                 return True
 
-            # Check if there is a constant value for all datapoints.
+            # Check if the column has a constant value across all data points.
             sample_dp = sdfs_with_data[0][colname].max()
             if all((sdf[colname] == sample_dp).all() for sdf in sdfs_with_data):
-                _LOG.debug("skipping %s: every datapoint in all results is the same, '%s' is "
+                _LOG.debug("Skipping %s: every datapoint in all results is the same, '%s' is "
                            "always '%s'", plotname, colname, sample_dp)
                 if colname not in self._alerted_metrics:
                     self._alerts.append(f"'{colname}' was always: '{sample_dp}'. One or more "
