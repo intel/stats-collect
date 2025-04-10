@@ -124,7 +124,7 @@ class SPECjbb2015TabBuilder(_TabBuilderBase.TabBuilderBase):
         Parse the SPECjbb2015 controller logs and return a dictionary with SPECjbb information.
 
         Returns:
-            dict: A dictionary containing SPECjbb2015 performance metrics.
+            A dictionary containing SPECjbb2015 performance metrics.
         """
 
         if not res.wldata_path:

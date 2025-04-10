@@ -66,8 +66,8 @@ class DTabBuilder:
             dfs: A dictionary indexed by report ID with values being the dataframe containing the
                  data tab data.
             outdir: The output directory where the tab's files will be stored.
-            name: The name of the data tab, used as the tab label in the hierarchy of tabs in HTML
-                  report.
+            tabname: The name of the data tab, used as the tab label in the hierarchy of tabs in
+                     HTML report.
             basedir: The base directory of the report. The 'outdir' is a sub-director y of
                      'basedir'. All links and pathes generated it the tab will be relative to
                      'basedir', as opposed to be absolute. Defaults to 'outdir'.
@@ -259,7 +259,7 @@ class DTabBuilder:
         Checks if there is sufficient data to generate a plot for the metrics 'xcd' and 'ycd'.
 
         Args:
-            plotname: The name of the plot being checked.
+            plot_type: The description string of the plot time (e.g., "scatter plot", "histogram").
             xcd: The column definition for the X-axis metric.
             ycd: The column definition for the Y-axis metric (optional).
 
