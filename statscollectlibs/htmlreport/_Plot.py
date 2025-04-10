@@ -164,8 +164,7 @@ class Plot:
 
     def _create_hover_template(self,
                                row: pandas.Series,
-                               hover_cds: list[CDTypedDict],
-                               df: pandas.DataFrame) -> str:
+                               hover_cds: list[CDTypedDict]) -> str:
         """
         Create a hover template string for a dataframe row. Called by the 'df.apply()' method.
 
@@ -173,7 +172,6 @@ class Plot:
             row: The dataframe row to create the template for.
             hover_cds: A dictionary of column definitions for the columns to include in the hover
                        template.
-            df: The dataframe that includes all columns in 'hover_cds'.
 
         Returns:
             A Plotly-compatible hover template string for the given row.
@@ -186,9 +184,6 @@ class Plot:
 
         for hover_cd in hover_cds:
             colname = hover_cd["colname"]
-            if colname not in df.columns:
-                # Skip columns not present in the dataframe.
-                continue
 
             # Skip X-axis and Y-axis columns, which are already included in the hover template.
             if hover_cd["title"] == self.xaxis_label or hover_cd["title"] == self.yaxis_label:
@@ -237,8 +232,24 @@ class Plot:
 
         _LOG.debug("Preparing hover text for '%s vs %s'", self.ycolname, self.xcolname)
 
+        new_hover_cds: list[CDTypedDict] = []
+
+        for hover_cd in hover_cds:
+            colname = hover_cd["colname"]
+            if colname not in df.columns:
+                # Skip columns not present in the dataframe.
+                continue
+
+            # Exclude metrics with constant values from the hover text for optimization.
+            # Check for this by comparing the column data points ti the first column data point.
+            sample = df[colname].iloc[0]
+            if all(dp == sample for dp in df[colname]):
+                continue
+
+            new_hover_cds.append(hover_cd)
+
         # Apply '_create_hover_template' to each row of the dataframe.
-        return df.apply(self._create_hover_template, axis=1, args=(hover_cds, df))
+        return df.apply(self._create_hover_template, axis=1, args=(new_hover_cds,))
 
     @staticmethod
     def _is_numeric(df: pandas.DataFrame, colname: str) -> bool:

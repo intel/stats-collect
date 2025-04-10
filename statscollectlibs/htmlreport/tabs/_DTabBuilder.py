@@ -21,6 +21,7 @@ from statscollectlibs import DFSummary
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
 from statscollectlibs.htmlreport._Plot import CDTypedDict
+from statscollectlibs.htmlreport._Histogram import XBinsTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -215,7 +216,10 @@ class DTabBuilder:
         s.generate()
         self._ppaths.append(s_path)
 
-    def _add_histogram(self, cd: CDTypedDict, cumulative: bool = False, xbins: int | None = None):
+    def _add_histogram(self,
+                       cd: CDTypedDict,
+                       cumulative: bool = False,
+                       xbins: XBinsTypedDict | None = None):
         """
         Add a histogram to the data tab.
 
@@ -281,8 +285,8 @@ class DTabBuilder:
                 return True
 
             # Check if the column has a constant value across all data points.
-            sample_dp = sdfs_with_data[0][colname].max()
-            if all((sdf[colname] == sample_dp).all() for sdf in sdfs_with_data):
+            sample_dp = sdfs_with_data[0][colname].iloc[0]
+            if all(all(dp ==sample_dp for dp in sdf[colname]) for sdf in sdfs_with_data):
                 _LOG.debug("Skipping %s: every datapoint in all results is the same, '%s' is "
                            "always '%s'", plotname, colname, sample_dp)
                 if colname not in self._alerted_metrics:
