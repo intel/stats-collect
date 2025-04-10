@@ -14,6 +14,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from typing import Union
 from pathlib import Path
+import pandas
 import plotly
 from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
 from pepclibs.helperlibs import Logging, Human, Trivial
@@ -101,6 +102,47 @@ class Plot:
 
         self._layout = self._configure_layout()
 
+    def _scale_xval(self, val: int | float) -> int | float:
+        """
+        Scale an X-axis value to a base SI-unit.
+
+        Args:
+            val: the value to scale.
+
+        Returns:
+            The scaled value.
+        """
+
+        return Human.scale_si_val(val, self.xaxis_unit)
+
+    def _scale_yval(self, val: int | float) -> int | float:
+        """
+        Scale n Y-axis value to a base SI-unit.
+
+        Args:
+            val: the value to scale.
+
+        Returns:
+            The scaled value.
+        """
+
+        return Human.scale_si_val(val, self.yaxis_unit)
+
+    def add_df(self, df: pandas.DataFrame, legend: str, hover_template: str | None = None):
+        """
+        Add a dataframe of data to the plot.
+
+        Args:
+            df: a dataframe containing the data to be plotted.
+            legend: The legend (name) for the plotted data.
+            hover_template: A plotly-compatible hover text template for the datapoints.
+
+        Raises:
+            NotImplementedError: This is not provided by the subclass.
+        """
+
+        raise NotImplementedError()
+
     def _create_hover_template_col(self, row, hover_mds, df):
         """
         Helper function for 'create_hover_template()'. Returns the hover template for a given 'row'
@@ -163,20 +205,6 @@ class Plot:
         # boolean. This function returns the same as the pandas function unless the datatype is a
         # boolean, in which case it returns False.
         return is_numeric_dtype(df[colname]) and df[colname].dtype != 'bool'
-
-    def add_df(self, df, legend, hover_template=None):
-        """
-        Add a dataframe of data to the plot.
-
-        Args:
-            df: a dataframe containing the data to be plotted.
-            legend: The legend (name) for the plotted 'df' data. Scatter plots with multiple sets of
-                    data will include a legend indicating which plot points are from which set of
-                    data.
-            hover_template: A plotly-compatible hover text template for the datapoints.
-        """
-
-        raise NotImplementedError()
 
     def generate(self):
         """

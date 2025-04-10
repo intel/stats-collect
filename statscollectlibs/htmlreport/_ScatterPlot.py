@@ -8,7 +8,7 @@
 #          Vladislav Govtva <vladislav.govtva@intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""Provide functionality for generating Plotly scatter plots."""
+"""Provide a class for generating Plotly scatter plots."""
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
@@ -18,7 +18,7 @@ import numpy
 import pandas
 import plotly
 from pandas.core.dtypes.common import is_datetime64_any_dtype
-from pepclibs.helperlibs import Logging, Human
+from pepclibs.helperlibs import Logging
 from statscollectlibs.htmlreport import _Plot
 
 # List of diagram markers that we use in scatter plots.
@@ -193,14 +193,14 @@ class ScatterPlot(_Plot.Plot):
                 self._layout[axis]["hoverformat"] = "%H:%M:%S"
 
         # Scale data on the Y-axis to base SI-units if applicable.
-        if self.yaxis_baseunit and self.yaxis_unit:
-            ycol = Human.scale_si_val(df[self.ycolname], self.yaxis_unit)
+        if self.yaxis_baseunit and self.yaxis_unit and self.yaxis_baseunit != self.yaxis_unit:
+            ycol: pandas.Series = df[self.ycolname].map(self._scale_yval)
         else:
             ycol = df[self.ycolname]
 
         # Scale data on the X-axis to base SI-units if applicable.
-        if self.xaxis_baseunit and self.xaxis_unit:
-            xcol = Human.scale_si_val(df[self.xcolname], self.xaxis_unit)
+        if self.xaxis_baseunit and self.xaxis_unit and self.xaxis_baseunit != self.xaxis_unit:
+            xcol: pandas.Series = df[self.xcolname].map(self._scale_xval)
         else:
             xcol = df[self.xcolname]
 

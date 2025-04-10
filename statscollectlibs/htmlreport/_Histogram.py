@@ -8,43 +8,18 @@
 #          Vladislav Govtva <vladislav.govtva@intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides the functionality for producing plotly histograms."""
+"""Provide a class for generating Plotly histograms."""
 
+# TODO: finish annotating.
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+import pandas
 import plotly
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs import Human
 from statscollectlibs.htmlreport import _Plot
 
 class Histogram(_Plot.Plot):
-    """This class provides the functionality to generate plotly histograms."""
-
-    def add_df(self, df, name, hover_template=None):
-        """
-        Overrides the 'add_df' function in the base class 'Plot'. See more details in
-        'Plot.add_df()'.
-        """
-
-        # If data on x-axis can be scaled to a base SI-unit, do it to let 'plotly' handle SI-unit
-        # prefixes for every datapoint.
-        if self.xaxis_baseunit and self.xaxis_unit:
-            xcol = Human.scale_si_val(df[self.xcolname], self.xaxis_unit)
-        else:
-            xcol = df[self.xcolname]
-
-        try:
-            if self.cumulative:
-                gobj = plotly.graph_objs.Histogram(x=xcol, name=name, xbins=self.xbins,
-                                                   cumulative={"enabled": True}, histnorm="percent",
-                                                   opacity=self.opacity)
-            else:
-                gobj = plotly.graph_objs.Histogram(x=xcol, name=name, xbins=self.xbins,
-                                                   opacity=self.opacity,
-                                                   hovertemplate=hover_template)
-        except Exception as err:
-            msg = Error(err).indent(2)
-            raise Error(f"failed to create histogram 'count-vs-{self.xcolname}':\n{msg}") from err
-
-        self._gobjs.append(gobj)
+    """Provide functionality for generating Plotly histograms."""
 
     def __init__(self, xcolname, outpath, xaxis_label=None, xaxis_unit=None, opacity=None,
                  xbins=None, cumulative=False):
@@ -69,3 +44,31 @@ class Histogram(_Plot.Plot):
 
         super().__init__(xcolname, ycolname, outpath, xaxis_label=xaxis_label,
                          xaxis_unit=xaxis_unit, yaxis_unit=yaxis_unit, opacity=opacity)
+
+    def add_df(self, df, legend, hover_template=None):
+        """
+        Overrides the 'add_df' function in the base class 'Plot'. See more details in
+        'Plot.add_df()'.
+        """
+
+        # If data on x-axis can be scaled to a base SI-unit, do it to let 'plotly' handle SI-unit
+        # prefixes for every datapoint.
+        if self.xaxis_baseunit and self.xaxis_unit:
+            xcol: pandas.Series = df[self.xcolname].map(self._scale_xval)
+        else:
+            xcol = df[self.xcolname]
+
+        try:
+            if self.cumulative:
+                gobj = plotly.graph_objs.Histogram(x=xcol, name=legend, xbins=self.xbins,
+                                                   cumulative={"enabled": True}, histnorm="percent",
+                                                   opacity=self.opacity)
+            else:
+                gobj = plotly.graph_objs.Histogram(x=xcol, name=legend, xbins=self.xbins,
+                                                   opacity=self.opacity,
+                                                   hovertemplate=hover_template)
+        except Exception as err:
+            msg = Error(err).indent(2)
+            raise Error(f"failed to create histogram 'count-vs-{self.xcolname}':\n{msg}") from err
+
+        self._gobjs.append(gobj)
