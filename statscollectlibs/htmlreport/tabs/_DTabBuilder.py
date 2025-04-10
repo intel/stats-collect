@@ -11,7 +11,6 @@
 Provide the 'DTabBuider' class that builds an HTML report data tab (D-tab).
 """
 
-# TODO: finish annotating and modernizing this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 from pathlib import Path
@@ -188,20 +187,23 @@ class DTabBuilder:
 
         _LOG.info("Excluding result '%s' from %s: no data for '%s'.", reportid, plottitle, mtitle)
 
-    def _add_scatter(self, xcd, ycd, hover_cds=None):
+    def _add_scatter(self,
+                     xcd: CDTypedDict,
+                     ycd: CDTypedDict,
+                     hover_cds: list[CDTypedDict] | None = None):
         """
-        Helper function for 'add_plots()'. Add a scatter plot to the report. Arguments are as
-        follows:
-         * xcd - the X-axis column definition.
-         * ycd - the Y-axis column definition.
-         * hover_ccs - a list of column definitions to include in the hover text of the scatter
-                       plots.
+        Add a scatter plot to the data tab.
+
+        Args:
+            xcd: The column definition for the X-axis.
+            ycd: The column definition for the Y-axis.
+            hover_cds: A list of column definitions to include in the hover text of the scatter
+                       plots. Defaults to 'None'.
         """
 
         xcolname = xcd["colname"]
         ycolname = ycd["colname"]
 
-        # Initialise scatter plot.
         fname = f"{get_fsname(ycolname)}-vs-{get_fsname(xcolname)}.html"
         plottitle = f"scatter plot '{ycd['title']} vs {xcd['title']}'"
 
