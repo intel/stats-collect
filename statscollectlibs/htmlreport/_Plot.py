@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Vladislav Govtva <vladislav.govtva@intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides the common defaults and logic for producing plotly diagrams."""
+"""Provide a base class for Plotly diagrams used in HTML reports."""
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from typing import Union
+from pathlib import Path
 import plotly
 from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
 from pepclibs.helperlibs import Logging, Human, Trivial
@@ -17,27 +21,27 @@ from pepclibs.helperlibs.Exceptions import Error
 
 # Default plotly diagram layout configuration.
 
-_FONTFMT = {"family" : "Arial, sans-serif",
-            "size"   : 18,
-            "color"  : "black"}
+_FONTFMT = {"family": "Arial, sans-serif",
+            "size": 18,
+            "color": "black"}
 
-_AXIS = {"hoverformat" : ".3s",
-         "showline"  : True,
-         "showgrid"  : True,
-         "ticks"     : "outside",
-         "tickwidth" : 1,
-         "tickformat" : ".3s",
-         "showticklabels" : True,
-         "linewidth" : 1,
-         "linecolor" : "black",
-         "zeroline" : True,
-         "zerolinewidth" : 1,
-         "zerolinecolor" : "black"}
+_AXIS = {"hoverformat": ".3s",
+         "showline": True,
+         "showgrid": True,
+         "ticks": "outside",
+         "tickwidth": 1,
+         "tickformat": ".3s",
+         "showticklabels": True,
+         "linewidth": 1,
+         "linecolor": "black",
+         "zeroline": True,
+         "zerolinewidth": 1,
+         "zerolinecolor": "black"}
 
-_LEGEND = {"font"    : {"size" : 14},
-           "bgcolor" : "#E2E2E2",
-           "borderwidth" : 2,
-           "bordercolor" : "#FFFFFF",
+_LEGEND = {"font": {"size" : 14},
+           "bgcolor": "#E2E2E2",
+           "borderwidth": 2,
+           "bordercolor": "#FFFFFF",
            "orientation": "h",
            "xanchor": "right",
            "yanchor": "bottom",
@@ -46,8 +50,56 @@ _LEGEND = {"font"    : {"size" : 14},
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
+_PlotlyGraphObjectType = Union[plotly.graph_objs.Scatter, plotly.graph_objs.Histogram]
+
 class Plot:
-    """This class provides the common defaults and logic for producing plotly diagrams."""
+    """Base class for Plotly diagrams used in HTML reports."""
+
+    def __init__(self,
+                 xcolname: str,
+                 ycolname: str,
+                 outpath: Path,
+                 xaxis_label: str | None = None,
+                 yaxis_label: str | None = None,
+                 xaxis_unit: str | None = None,
+                 yaxis_unit: str | None = None,
+                 opacity: float | None = None):
+        """
+        Initialize a class instance.
+
+        Args:
+            xcolname: Name of the dataframe column to use as the X-axis.
+            ycolname: Name of the dataframe column to use as the Y-axis.
+            outpath: Path for the resultant plot HTML file.
+            xaxis_label: Label describing the data plotted on the X-axis, 'xcolname' by default.
+            yaxis_label: Label describing the data plotted on the Y-axis, 'ycolname' by default.
+            xaxis_unit: The X-axis metric unit.
+            yaxis_unit: The Y-axis metric unit.
+            opacity: Opacity of the plotly trace. Overrides the project default value if provided.
+        """
+
+        self.xcolname = xcolname
+        self.ycolname = ycolname
+        self.outpath = outpath
+
+        # '_gobjs' contains plotly "Graph Objects". This attribute holds the data for each
+        # 'self.add_df()' call. Then the data is aggregated for the final diagram during the
+        # 'self.generate()' stage.
+        self._gobjs: list[_PlotlyGraphObjectType] = []
+
+        self.xaxis_label = xaxis_label if xaxis_label else xcolname
+        self.yaxis_label = yaxis_label if yaxis_label else ycolname
+        self.xaxis_unit = xaxis_unit if xaxis_unit else ""
+        self.yaxis_unit = yaxis_unit if yaxis_unit else ""
+
+        _, xaxis_baseunit = Human.separate_si_prefix(self.xaxis_unit)
+        self.xaxis_baseunit = xaxis_baseunit if xaxis_baseunit in Human.SUPPORTED_UNITS else None
+        _, yaxis_baseunit = Human.separate_si_prefix(self.yaxis_unit)
+        self.yaxis_baseunit = yaxis_baseunit if yaxis_baseunit in Human.SUPPORTED_UNITS else None
+
+        self.opacity = opacity if opacity else 0.8
+
+        self._layout = self._configure_layout()
 
     def _create_hover_template_col(self, row, hover_mds, df):
         """
@@ -182,42 +234,3 @@ class Plot:
                   "bargap"  : 0,
                   "legend"  : _LEGEND}
         return layout
-
-    def __init__(self, xcolname, ycolname, outpath, xaxis_label=None, yaxis_label=None,
-                 xaxis_unit=None, yaxis_unit=None, opacity=None):
-        """
-        The class constructor. The arguments are as follows.
-         * xcolname - name of the column to use as the X-axis.
-         * ycolname - name of the column to use as the Y-axis.
-         * outpath - desired filepath of resultant plot HTML.
-         * xaxis_label - label which describes the data plotted on the X-axis.
-         * yaxis_label - label which describes the data plotted on the Y-axis.
-         * xaxis_unit - the unit provided will be appended as a suffix to datapoints and along the
-                        X-axis.
-         * yaxis_unit - same as 'xaxis_unit', but for Y-axis.
-         * opacity - opacity of the plotly trace, will be passed directly to plotly. Can be
-                     used for overriding the project default value.
-        """
-
-        self.xcolname = xcolname
-        self.ycolname = ycolname
-        self.outpath = outpath
-
-        self._formats = {}
-
-        # 'gobjs' contains plotly "Graph Objects". This attribute stores the data from each
-        # 'self.add_df()' call. Then the data is aggregated for the final diagram during the
-        # 'self.generate()' stage.
-        self._gobjs = []
-
-        self.xaxis_label = xaxis_label if xaxis_label else xcolname
-        self.yaxis_label = yaxis_label if yaxis_label else ycolname
-        self.xaxis_unit = xaxis_unit if xaxis_unit else ""
-        self.yaxis_unit = yaxis_unit if yaxis_unit else ""
-        _, xaxis_baseunit = Human.separate_si_prefix(self.xaxis_unit)
-        self.xaxis_baseunit = xaxis_baseunit if xaxis_baseunit in Human.SUPPORTED_UNITS else None
-        _, yaxis_baseunit = Human.separate_si_prefix(self.yaxis_unit)
-        self.yaxis_baseunit = yaxis_baseunit if yaxis_baseunit in Human.SUPPORTED_UNITS else None
-        self.opacity = opacity if opacity else 0.8
-
-        self._layout = self._configure_layout()
