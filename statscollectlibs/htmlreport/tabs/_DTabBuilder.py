@@ -289,20 +289,29 @@ class DTabBuilder:
 
         return False
 
-    def add_plots(self, plot_axes=None, hist=None, chist=None, hover_mds=None):
+    def add_plots(self,
+                  plot_axes: list[tuple[CDTypedDict, CDTypedDict]] | None,
+                  hist: list[CDTypedDict] | None = None,
+                  chist: list[CDTypedDict] | None = None,
+                  hover_mds: list[CDTypedDict] | None = None):
         """
-        Initialise the plots and populate them using the 'pandas.DataFrame' objects in 'self._dfs'.
-        The arguments are as follows.
-         * plot_axes - tuples of defs which represent axes to create scatter plots for in the format
-                       (xcd, ycd).
-         * hist - a list of defs which represent metrics to create histograms for.
-         * chist - a list of defs which represent metrics to create cumulative histograms for.
-         * hover_mds - a list of metric definition dictionaries to include in the hover text of the
-                       scatter plots.
+        Add various types of plots to the data tab.
+
+        Args:
+            plot_axes: Specifies the X and Y axes metrics for the scatter plots to be added. A list
+                       of tuples, where each tuple contains two column definitions (CDTypedDict)
+                       representing the X and Y axes for a scatter plot. Each scatter plot will
+                       include data from all dataframes.
+            hist: Specifies the metrics for the histograms. A list of column definitions
+                  (CDTypedDict), where each definition corresponds to a histogram.
+            chist: Specifies the metrics for the cumulative histograms. A list of column definitions
+                  (CDTypedDict), where each definition corresponds to a cumulative histogram.
+            hover_mds: Specifies the metrics to include in the hover text of the scatter plots.  A
+                       list of column definitions (CDTypedDict).
         """
 
         if plot_axes is None and hist is None and chist is None:
-            raise Error("BUG: no arguments provided for 'add_plots()', unable to generate plots")
+            raise Error("BUG: No arguments provided for 'add_plots()', unable to generate plots")
 
         if plot_axes is None:
             plot_axes = []
