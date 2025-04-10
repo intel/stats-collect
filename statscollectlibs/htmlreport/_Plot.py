@@ -175,7 +175,7 @@ class Plot:
 
         return templ
 
-    def create_hover_template(self, hover_mds, df):
+    def create_hover_template(self, hover_cds, df):
         """
         Create and return a 'plotly'-compatible hover template for the 'pandas.DataFrame' 'df'.
         Arguments are as follows:
@@ -186,7 +186,7 @@ class Plot:
         _LOG.debug("Preparing hover text for '%s vs %s'", self.ycolname, self.xcolname)
 
         hovertemplate = df.apply(self._create_hover_template_col, axis=1,
-                                 args=(hover_mds, df))
+                                 args=(hover_cds, df))
         return hovertemplate
 
     @staticmethod
