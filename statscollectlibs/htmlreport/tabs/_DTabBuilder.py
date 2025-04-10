@@ -27,11 +27,11 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class CDTypedDict(MDTypedDict, total=False):
     """
-    The column definition dictionary for a dataframe column. It is same as the metrics definition
-    dictionary 'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
+    The column definition for a dataframe column. It is same as the metrics definition
+    'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
 
     Attributes:
-        colname: Column name the definition dictionary describes.
+        colname: Column name the definition describes.
         sname: Column scope, for example "System" or "CPU0".
     """
 
@@ -192,10 +192,10 @@ class DTabBuilder:
         """
         Helper function for 'add_plots()'. Add a scatter plot to the report. Arguments are as
         follows:
-         * xcd - the X-axis column definition dictionary.
-         * ycd - the Y-axis column definition dictionary.
-         * hover_ccs - a list of colunb definition dictionaries to include in the hover text of the
-                       scatter plots.
+         * xcd - the X-axis column definition.
+         * ycd - the Y-axis column definition.
+         * hover_ccs - a list of column definitions to include in the hover text of the scatter
+                       plots.
         """
 
         xcolname = xcd["colname"]
@@ -226,11 +226,16 @@ class DTabBuilder:
         s.generate()
         self._ppaths.append(s_path)
 
-    def _add_histogram(self, cd, cumulative=False, xbins=None):
+    def _add_histogram(self, cd: CDTypedDict, cumulative: bool = False, xbins: int | None = None):
         """
-        Helper function for 'add_plots()'. Add a histogram to the report for datafame column with
-        definitions dictionary 'cd'. See '_Histogram.Histogram' for details of 'cumulative' and
-        'xbins' arguments.
+        Add a histogram to the data tab.
+
+        Args:
+            cd: The column definition describing the dataframe column for which the histogram will
+                be generated.
+            cumulative: Generate a cumulative histogram if 'True'.
+            xbins: The number of bins to use for the histogram. If 'None', the default bins number
+                   will be used.
         """
 
         colname = cd["colname"]
@@ -262,8 +267,8 @@ class DTabBuilder:
 
         Args:
             plotname: The name of the plot being checked.
-            xcd: The column definition dictionary for the X-axis metric.
-            ycd: The column definition dictionary for the Y-axis metric (optional).
+            xcd: The column definition for the X-axis metric.
+            ycd: The column definition for the Y-axis metric (optional).
 
         Returns:
             'True' if the plot should be skipped, 'False' if the plot can be generated.

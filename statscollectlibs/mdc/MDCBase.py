@@ -34,7 +34,7 @@ MAX_VAL_LEN = 2048
 
 class MDTypedDict(TypedDict, total=False):
     """
-    The metric definition dictionary, describing a single metric.
+    The metric definition, describing a single metric.
 
     Attributes:
         name: Metric name.
@@ -186,7 +186,7 @@ class MDCBase:
             md: The metric definition to apply the pattern substitutions to.
 
         Returns:
-            The substituted version of the 'md' dictionary.
+            The substituted version of the 'md' metric definition.
         """
 
         new_md: MDTypedDict = {}
