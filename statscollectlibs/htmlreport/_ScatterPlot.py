@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Vladislav Govtva <vladislav.govtva@intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module provides the functionality for producing plotly scatter plots."""
+"""Provide functionality for generating Plotly scatter plots."""
+
+from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import itertools
+from pathlib import Path
 import numpy
 import pandas
 import plotly
@@ -24,44 +27,83 @@ _SCATTERPLOT_MARKERS = ["circle", "square", "diamond", "cross", "triangle-up", "
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class ScatterPlot(_Plot.Plot):
-    """This class provides the functionality to generate plotly scatter plots."""
+    """Provide functionality for generating Plotly scatter plots."""
 
-    def reduce_df_density(self, rawdf, reportid):
+    def __init__(self,
+                 xcolname: str,
+                 ycolname: str,
+                 outpath: Path,
+                 xaxis_label: str | None = None,
+                 yaxis_label: str | None = None,
+                 xaxis_unit: str | None = None,
+                 yaxis_unit: str | None = None,
+                 opacity: float | None = None):
         """
-        Reduce the density of a 'pandas.DataFrame' object. The arguments are as follows.
-          * rawdf - the raw wult data 'pandas.DataFrame' object to reduce.
-          * reportid - the ReportID corresponding to the dataframe.
+        Initialize a class instance.
 
-        The problem: the raw data dataframe may be large (say, 10000000 datapoint), resulting in a
-        large plotly scatter plot (gigabytes in size), and the web browser simply refuses to display
-        it.
-
-        Observation: there are many "uninteresting" datapoints per one "interesting" datapoint (an
-        outlier) in the raw results dataframe.
-
-        Solution:
-        1. Split the scatter plot on NxN squares, where N is the bins count.
-        2. Calculate how many datapoints each square contains (the 2D histogram).
-        3. If a square has few datapoints, these are outliers, we leave them alone. "Few" is defined
-           by the "low threshold" value.
-        4. The for the squares containing many datapoints, we do the reduction. We basically drop
-           the datapoints and leave maximum "high threshold" amount of datapoints. And we try to
-           scale the amount of datapoints left proportionally to the original value between the
-           values of ("low threshold", "high threshold").
+        Args:
+            xcolname: Name of the dataframe column to use as the X-axis.
+            ycolname: Name of the dataframe column to use as the Y-axis.
+            outpath: Path for the resultant plot HTML file.
+            xaxis_label: Label describing the data plotted on the X-axis, 'xcolname' by default.
+            yaxis_label: Label describing the data plotted on the Y-axis, 'ycolname' by default.
+            xaxis_unit: The X-axis metric unit.
+            yaxis_unit: The Y-axis metric unit.
+            opacity: Opacity of the plotly trace. Overrides the project default value if provided.
         """
 
-        def _map_non_numeric(colname):
+        super().__init__(xcolname, ycolname, outpath, xaxis_label=xaxis_label,
+                         yaxis_label=yaxis_label, xaxis_unit=xaxis_unit, yaxis_unit=yaxis_unit,
+                         opacity=opacity)
+
+        self._markers = itertools.cycle(_SCATTERPLOT_MARKERS)
+
+    def reduce_df_density(self, rawdf: pandas.DataFrame, reportid: str):
+        """
+        Reduce the density of a dataframe to optimize scatter plot rendering.
+
+        Reduce the number of data points in a dataframe to make scatter plots more manageable for
+        visualization. Large datasets can result in scatter plots that are too large for web
+        browsers to handle effectively. The reduction process retains outliers and proportionally
+        scales down dense regions of data.
+
+        Args:
+            rawdf: The dataframe containing the data to reduce.
+            reportid: The report ID corresponding to the DataFrame.
+
+        Steps:
+            1. Divide the scatter plot into NxN bins, where N is the number of bins.
+            2. Compute a 2D histogram to determine the number of data points in each bin.
+            3. Retain bins with fewer data points (defined by a low threshold) as they likely
+               contain outliers.
+            4. For bins with many data points, reduce the number of points to a maximum defined by a
+               high threshold. Scale the retained points proportionally between the low and high
+               thresholds.
+
+        Returns:
+            A reduced dataframe containing fewer data points, optimized for scatter plot rendering.
+        """
+
+        def _map_non_numeric(colname: str):
             """
-            In order to reduce density for a non-numeric column, we need to map that column to
-            unique numbers, find datapoints to keep, and then reduce the 'pandas.DataFrame'. This
-            function does exactly that - maps a non-numeric column 'colname' to unique numbers and
-            returns the corresponding pandas series object.
+            Map a non-numeric column to unique numeric values.
+
+            Reduce the density of a non-numeric column by mapping its unique values to numeric
+            identifiers. It checks if the column is scalar, and if not, create a mapping of unique
+            values to integers. Apply this mapping to the column and returns the transformed column
+            pandas 'Series'.
+
+            Args:
+                colname: The name of the column to process.
+
+            Returns:
+                A pandas 'Series' where non-numeric values are replaced with unique numeric
+                identifiers. If the column is already scalar, it is returned unchanged.
             """
 
             if not self._is_scalar_col(df, colname):
                 num_rmap = {name: idx for idx, name in enumerate(df[colname].unique())}
                 return df[colname].map(num_rmap)
-
             return df[colname]
 
         lo_thresh = 20
@@ -71,8 +113,8 @@ class ScatterPlot(_Plot.Plot):
         _LOG.info("Reducing density for report ID '%s', diagram '%s vs %s'",
                   reportid, self.yaxis_label, self.xaxis_label)
 
-        # Create a new 'pandas.DataFrame' with just the X- and Y-columns, which we'll be reducing.
-        # It should be a bit more optimal than reducing the bigger original 'pandas.DataFrame'.
+        # Create a new dataframe with just the X- and Y-columns, which we'll be reducing.
+        # It should be a bit more optimal than reducing the bigger original dataframe.
         df = rawdf[[self.xcolname, self.ycolname]]
 
         xdata = _map_non_numeric(self.xcolname)
@@ -80,12 +122,12 @@ class ScatterPlot(_Plot.Plot):
 
         # Crete a histogram for the columns in question.
         hist, xbins, ybins = numpy.histogram2d(xdata, ydata, bins_cnt)
-        # Turn the histogram into a 'pandas.DataFrame'.
+        # Turn the histogram into a dataframe.
         hist = pandas.DataFrame(hist, dtype=int)
 
         hist_max = hist.max().max()
         if hist_max <= lo_thresh:
-            _LOG.debug("cancel density reduction: max frequency for '%s vs %s' is %d, but scaling "
+            _LOG.debug("Cancel density reduction: max frequency for '%s vs %s' is %d, but scaling "
                        "threshold is %d", self.yaxis_label, self.xaxis_label, hist_max, lo_thresh)
             return rawdf
 
@@ -99,16 +141,16 @@ class ScatterPlot(_Plot.Plot):
         # Create a copy of the histogram, but populate it with zeroes.
         cur_hist = pandas.DataFrame(0, columns=hist.columns, index=hist.index)
 
-        # Calculate bin indexes for all the X and Y values in the 'pandas.DataFrame'.
+        # Calculate bin indexes for all the X and Y values in the dataframe.
         xindeces = numpy.digitize(xdata, xbins[:-1])
         yindeces = numpy.digitize(ydata, ybins[:-1])
 
-        # This is how many datapoints we are going to have in the reduced 'pandas.DataFrame'.
+        # This is how many datapoints we are going to have in the reduced dataframe.
         reduced_datapoints_cnt = hist.values.sum()
-        _LOG.debug("reduced datapoints count is %d", reduced_datapoints_cnt)
+        _LOG.debug("Reduced datapoints count is %d", reduced_datapoints_cnt)
 
         # Here we'll store 'df' indexes of the rows that will be included into the resulting
-        # reduced 'pandas.DataFrame'.
+        # reduced dataframe.
         copy_cols = []
 
         for idx in range(0, len(df)):
@@ -121,22 +163,22 @@ class ScatterPlot(_Plot.Plot):
             cur_hist.at[xidx, yidx] += 1
             copy_cols.append(idx)
 
-        # Include all the columns in reduced version of the 'pandas.DataFrame'.
+        # Include all the columns in reduced version of the dataframe.
         return rawdf.loc[copy_cols]
 
-    def add_df(self, df, name, hover_template=None):
+    def add_df(self, df: pandas.DataFrame, legend: str, hover_template: str | None = None):
         """
-        Add a 'pandas.DataFrame' of data to the scatter plot.
-         * df - 'pandas.DataFrame' containing the data to be plotted.
-         * name - the legend name (scatter plots with multiple sets of data will include a legend
-                  indicating which plot points are from which set of data).
-         * hover_template - a 'plotly'-compatible hover text template for each datapoint.
+        Add a dataframe of data to the scatter plot.
+
+        Args:
+            df: a dataframe containing the data to be plotted.
+            legend: The legend (name) for the plotted 'df' data. Scatter plots with multiple sets of
+                    data will include a legend indicating which plot points are from which set of
+                    data.
+            hover_template: A plotly-compatible hover text template for the datapoints.
         """
 
-        # Non-numeric columns will have only few unique values, e.g. 'ReqState' might have
-        # "C1", "C1E" and "C6". Using dotted markers for such data will have 3 thin lines
-        # which is hard to see. Improve it by using line markers to turn lines into wider
-        # "bars".
+        # Determine marker size and symbol based on whether the X and Y columns are scalar.
         if self._is_scalar_col(df, self.xcolname) and self._is_scalar_col(df, self.ycolname):
             marker_size = 4
             marker_symbol = next(self._markers)
@@ -144,47 +186,33 @@ class ScatterPlot(_Plot.Plot):
             marker_size = 30
             marker_symbol = "line-ns"
 
-        # If the data passed is an instance of 'datetime' then it should be formatted in a
-        # human-readable way on the axes and hover text.
+        # Format datetime columns for human-readable display on axes and hover text.
         for colname, axis in (("xcolname", "xaxis"), ("ycolname", "yaxis")):
             if is_datetime64_any_dtype(df[getattr(self, colname)]):
                 self._layout[axis]["tickformat"] = "%H:%M:%S"
                 self._layout[axis]["hoverformat"] = "%H:%M:%S"
 
-        # If data on x/y axis can be scaled to a base SI-unit, do it to let 'plotly' handle SI-unit
-        # prefixes for every datapoint.
+        # Scale data on the Y-axis to base SI-units if applicable.
         if self.yaxis_baseunit and self.yaxis_unit:
             ycol = Human.scale_si_val(df[self.ycolname], self.yaxis_unit)
         else:
             ycol = df[self.ycolname]
 
+        # Scale data on the X-axis to base SI-units if applicable.
         if self.xaxis_baseunit and self.xaxis_unit:
             xcol = Human.scale_si_val(df[self.xcolname], self.xaxis_unit)
         else:
             xcol = df[self.xcolname]
 
-        marker = {"size" : marker_size, "symbol" : marker_symbol, "opacity" : self.opacity}
-        gobj = plotly.graph_objs.Scattergl(x=xcol, y=ycol, hovertemplate=hover_template,
-                                           opacity=self.opacity, marker=marker, mode="markers",
-                                           name=name)
+        # Define marker properties.
+        marker = {"size": marker_size, "symbol": marker_symbol, "opacity": self.opacity}
+
+        # Create a Plotly Scattergl object and add it to the plot.
+        gobj = plotly.graph_objs.Scattergl(x=xcol,
+                                           y=ycol,
+                                           hovertemplate=hover_template,
+                                           opacity=self.opacity,
+                                           marker=marker,
+                                           mode="markers",
+                                           name=legend)
         self._gobjs.append(gobj)
-
-    def __init__(self, xcolname, ycolname, outpath, xaxis_label=None, yaxis_label=None,
-                 xaxis_unit=None, yaxis_unit=None, opacity=None):
-        """
-        The class constructor. The arguments are as follows.
-         * xcolname - same as in '_Plot.__init__()'.
-         * ycolname - same as in '_Plot.__init__()'.
-         * outpath - same as in '_Plot.__init__()'.
-         * xaxis_label - same as in '_Plot.__init__()'.
-         * yaxis_label - same as in '_Plot.__init__()'.
-         * xaxis_unit - same as in '_Plot.__init__()'.
-         * yaxis_unit - same as in '_Plot.__init__()'.
-         * opacity - same as in '_Plot.__init__()'.
-        """
-
-        super().__init__(xcolname, ycolname, outpath, xaxis_label=xaxis_label,
-                         yaxis_label=yaxis_label, xaxis_unit=xaxis_unit, yaxis_unit=yaxis_unit,
-                         opacity=opacity)
-
-        self._markers = itertools.cycle(_SCATTERPLOT_MARKERS)

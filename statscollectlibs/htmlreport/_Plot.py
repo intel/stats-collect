@@ -112,16 +112,16 @@ class Plot:
         # boolean, in which case it returns False.
         return is_numeric_dtype(df[colname]) and df[colname].dtype != 'bool'
 
-    def add_df(self, df, name, hover_template=None):
+    def add_df(self, df, legend, hover_template=None):
         """
-        Add a single 'pandas.DataFrame' of data to the plot.
-         * df - 'pandas.DataFrame' containing the data to be plotted for that test run.
-         * name - plots with multiple sets of data will include a legend indicating which plot
-                  points are from which set of data. This 'name' parameter will be used to label
-                  the data given when this function is called.
-         * hover_template - a 'plotly'-compatible hover text template for each datapoint. May use
-                            the 'customdata' attribute. This method will provide 'df' to plotly as
-                            'customdata'.
+        Add a dataframe of data to the plot.
+
+        Args:
+            df: a dataframe containing the data to be plotted.
+            legend: The legend (name) for the plotted 'df' data. Scatter plots with multiple sets of
+                    data will include a legend indicating which plot points are from which set of
+                    data.
+            hover_template: A plotly-compatible hover text template for the datapoints.
         """
 
         raise NotImplementedError()
