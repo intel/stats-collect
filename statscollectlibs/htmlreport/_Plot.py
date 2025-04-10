@@ -142,14 +142,19 @@ class Plot:
 
         return Human.scale_si_val(val, self.yaxis_unit)
 
-    def add_df(self, df: pandas.DataFrame, legend: str, hover_template: str | None = None):
+    def add_df(self,
+               df: pandas.DataFrame,
+               legend: str,
+               hover_templates: pandas.Series[str] | None = None):
         """
         Add a dataframe of data to the plot.
 
         Args:
             df: a dataframe containing the data to be plotted.
             legend: The legend (name) for the plotted data.
-            hover_template: A plotly-compatible hover text template for the datapoints.
+            hover_templates: A series (think of it as a list in this context) of plotly-compatible
+                             hover text templates, one template for every row in the dataframe. If
+                             None, the default hover text will be used.
 
         Raises:
             NotImplementedError: This is not provided by the subclass.
@@ -157,51 +162,83 @@ class Plot:
 
         raise NotImplementedError()
 
-    def _create_hover_template_col(self, row, hover_mds, df):
+    def _create_hover_template(self,
+                               row: pandas.Series,
+                               hover_cds: list[CDTypedDict],
+                               df: pandas.DataFrame) -> str:
         """
-        Helper function for 'create_hover_template()'. Returns the hover template for a given 'row'
-        of a 'pandas.DataFrame'.
+        Create a hover template string for a dataframe row. Called by the 'df.apply()' method.
+
+        Args:
+            row: The dataframe row to create the template for.
+            hover_cds: A dictionary of column definitions for the columns to include in the hover
+                       template.
+            df: The dataframe that includes all columns in 'hover_cds'.
+
+        Returns:
+            A Plotly-compatible hover template string for the given row.
         """
 
-        templ = "(%{x}, %{y})<br>"
+        template = "(%{x}, %{y})<br>"
 
         # Decimal places to provide in formatted hover text.
         decp = 2
 
-        for hover_md in hover_mds:
-            colname = hover_md["colname"]
+        for hover_cd in hover_cds:
+            colname = hover_cd["colname"]
             if colname not in df.columns:
+                # Skip columns not present in the dataframe.
                 continue
 
-            # Metrics on the X-axis and Y-axis will be included at the beginning of the hovertext.
-            if (hover_md["title"] == self.xaxis_label) or (hover_md["title"] == self.yaxis_label):
+            # Skip X-axis and Y-axis columns, which are already included in the hover template.
+            if hover_cd["title"] == self.xaxis_label or hover_cd["title"] == self.yaxis_label:
                 continue
 
-            short_unit = hover_md.get("short_unit")
+            short_unit = hover_cd.get("short_unit")
             if not Trivial.is_num(row[colname]):
+                # If the value is not numeric, use it as-is.
                 val = row[colname]
             elif short_unit == "%":
+                # Format percentage values with the specified decimal places.
                 val = f"{row[colname]:.{decp}f}"
             else:
+                # Convert numeric values to SI format with the specified unit and decimal places.
                 val = Human.num2si(row[colname], unit=short_unit, decp=decp)
 
-            templ += f"{hover_md['name']}: {val}<br>"
+            template += f"{hover_cd['name']}: {val}<br>"
 
-        return templ
+        return template
 
-    def create_hover_template(self, hover_cds, df):
+    def create_hover_templates(self,
+                               hover_cds: list[CDTypedDict],
+                               df: pandas.DataFrame) -> pandas.Series[str]:
         """
-        Create and return a 'plotly'-compatible hover template for the 'pandas.DataFrame' 'df'.
-        Arguments are as follows:
-         * hover_mds - a list of metric definition dictionaries to include in the hover template.
-         * df - the 'pandas.DataFrame' which contains the datapoints to label.
+        Create and return a list of Plotly-compatible hover template strings.
+
+        Args:
+            hover_cds: A list of column definitions for the columns to include in the hover
+                       template.
+            df: The dataframe that includes all columns in 'hover_cds'.
+
+        Returns:
+            A series (think about it as a list in this context) of hover text column templates, one
+            for every row in 'df'.
+
+        Example:
+            Suppose 'hover_cds' contains the definitions for the 'PkgWatt' and 'Busy%" metrics. And
+            the 'df' dataframe includes 2 rows with the following values:
+                Row 0: PkgWatt = 50.0, Busy% = 0.5, TimeElapsed = 1000, OtherMetric = 0.1
+                Row 1: PkgWatt = 60.0, Busy% = 9.0, TimeElapsed = 2000, OtherMetric = 2.2
+
+            The resulting hover templates series will look like this:
+                ["(%{x}, %{y})<br>PkgWatt: 50.0<br>Busy%: 0.5<br>",
+                 "(%{x}, %{y})<br>PkgWatt: 60.0<br>Busy%: 9.0<br>"]
         """
 
         _LOG.debug("Preparing hover text for '%s vs %s'", self.ycolname, self.xcolname)
 
-        hovertemplate = df.apply(self._create_hover_template_col, axis=1,
-                                 args=(hover_cds, df))
-        return hovertemplate
+        # Apply '_create_hover_template' to each row of the dataframe.
+        return df.apply(self._create_hover_template, axis=1, args=(hover_cds, df))
 
     @staticmethod
     def _is_scalar_col(df, colname):

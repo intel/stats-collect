@@ -207,10 +207,10 @@ class DTabBuilder:
             else:
                 reduced_df = s.reduce_df_density(df, reportid)
                 if hover_cds:
-                    hovertext = s.create_hover_template(hover_cds, reduced_df)
+                    hover_templates = s.create_hover_templates(hover_cds, reduced_df)
                 else:
-                    hovertext = None
-                s.add_df(reduced_df, reportid, hovertext)
+                    hover_templates = None
+                s.add_df(reduced_df, reportid, hover_templates)
 
         s.generate()
         self._ppaths.append(s_path)

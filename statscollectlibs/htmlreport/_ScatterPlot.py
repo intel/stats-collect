@@ -166,7 +166,10 @@ class ScatterPlot(_Plot.Plot):
         # Include all the columns in reduced version of the dataframe.
         return rawdf.loc[copy_cols]
 
-    def add_df(self, df: pandas.DataFrame, legend: str, hover_template: str | None = None):
+    def add_df(self,
+               df: pandas.DataFrame,
+               legend: str,
+               hover_templates: pandas.Series[str] | None = None):
         """
         Add a dataframe of data to the scatter plot.
 
@@ -175,7 +178,9 @@ class ScatterPlot(_Plot.Plot):
             legend: The legend (name) for the plotted 'df' data. Scatter plots with multiple sets of
                     data will include a legend indicating which plot points are from which set of
                     data.
-            hover_template: A plotly-compatible hover text template for the datapoints.
+            hover_templates: A series (think of it as a list in this context) of plotly-compatible
+                             hover text templates, one template for every row in the dataframe. If
+                             None, the default hover text will be used.
         """
 
         # Determine marker size and symbol based on whether the X and Y columns are scalar.
@@ -210,7 +215,7 @@ class ScatterPlot(_Plot.Plot):
         # Create a Plotly Scattergl object and add it to the plot.
         gobj = plotly.graph_objs.Scattergl(x=xcol,
                                            y=ycol,
-                                           hovertemplate=hover_template,
+                                           hovertemplate=hover_templates,
                                            opacity=self.opacity,
                                            marker=marker,
                                            mode="markers",
