@@ -12,7 +12,7 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import Union
+from typing import Union, Any
 from pathlib import Path
 import pandas
 import plotly
@@ -254,7 +254,7 @@ class Plot:
             otherwise.
         """
 
-        # Check if the column contains date-time data, which is treated as scalar.
+        # Treat datetime columns as numeric.
         if is_datetime64_any_dtype(df[colname]):
             return True
 
@@ -263,36 +263,33 @@ class Plot:
 
     def generate(self):
         """
-        Generates a plotly diagram based on the data in all instances of 'pandas.DataFrame' saved
-        with 'self.add_df()'. Then saves it to a file at the output path 'self.outpath'.
+        Generate all the configured Plotly diagrams and save them in 'self.outpath'.
         """
 
         try:
             fig = plotly.graph_objs.Figure(data=self._gobjs, layout=self._layout)
-            if hasattr(fig, "update_layout") and fig.update_layout:
-                # In plotly version 4 the default theme has changed. The old theme is called
-                # 'plotly_white'. Use it to maintain consistent look for plotly v3 and v4.
-                fig.update_layout(template="plotly_white")
+            fig.update_layout(template="plotly_white")
 
             _LOG.info("Generating plot: %s vs %s.", self.yaxis_label, self.xaxis_label)
-            plotly.offline.plot(fig, filename=str(self.outpath), auto_open=False,
-                                config={"showLink" : False})
-        except Exception as err:
-            msg = Error(err).indent(2)
-            raise Error(f"failed to create the '{self.outpath}' diagram:\n{msg}") from err
 
-    def _configure_layout(self):
+            plotly.offline.plot(fig, filename=str(self.outpath), auto_open=False,
+                                config={"showLink": False})
+        except Exception as err:
+            msg = Error(str(err)).indent(2)
+            raise Error(f"Failed to create the '{self.outpath}' diagram:\n{msg}") from err
+
+    def _configure_layout(self) -> dict[str, Any]:
         """
-        Creates and returns a plotly layout configuration using the parameters provided to the
-        constructor.
+        Create and return a Plotly dagram layout configuration based on the parameters provided to
+        the constructor.
         """
 
         xaxis = {**_AXIS,
                  "ticksuffix": self.xaxis_baseunit if self.xaxis_baseunit else self.xaxis_unit,
                  "title": {"text": self.xaxis_label, "font": _FONTFMT}}
 
-        # The default axis configuration uses an SI prefix for units (e.g. ms, ks, etc.).  For units
-        # which do not support SI prefixes (such as '%'), just round the value to 3 significant
+        # The default axis configuration uses an SI prefix for units (e.g. ms, ks, etc.). For units
+        # which do not support SI prefixes (such as '%'), format the value with 3 significant digits
         # figures and do not include an SI prefix.
         if not self.xaxis_baseunit:
             fmt = ".3r"
@@ -303,7 +300,7 @@ class Plot:
                  "ticksuffix": self.yaxis_baseunit if self.yaxis_baseunit else self.yaxis_unit,
                  "title": {"text": self.yaxis_label, "font": _FONTFMT}}
 
-        # See comment above regarding SI prefixes. Here we do the same but for the Y-axis.
+        # Similar to the X-axis, handle units that do not support SI prefixes for the Y-axis.
         if not self.yaxis_baseunit:
             fmt = ".3r"
             yaxis["tickformat"] = fmt
@@ -316,4 +313,5 @@ class Plot:
                   "barmode" : "overlay",
                   "bargap"  : 0,
                   "legend"  : _LEGEND}
+
         return layout
