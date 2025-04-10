@@ -171,7 +171,7 @@ class ScatterPlot(_Plot.Plot):
                legend: str,
                hover_templates: pandas.Series[str] | None = None):
         """
-        Add a dataframe of data to the scatter plot.
+        Add data to the scatter plot.
 
         Args:
             df: a dataframe containing the data to be plotted.

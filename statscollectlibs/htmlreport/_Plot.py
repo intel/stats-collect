@@ -147,7 +147,7 @@ class Plot:
                legend: str,
                hover_templates: pandas.Series[str] | None = None):
         """
-        Add a dataframe of data to the plot.
+        Add data to the plot.
 
         Args:
             df: a dataframe containing the data to be plotted.
