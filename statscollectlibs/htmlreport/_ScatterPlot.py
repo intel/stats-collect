@@ -101,7 +101,7 @@ class ScatterPlot(_Plot.Plot):
                 identifiers. If the column is already scalar, it is returned unchanged.
             """
 
-            if not self._is_scalar_col(df, colname):
+            if not self._is_numeric(df, colname):
                 num_rmap = {name: idx for idx, name in enumerate(df[colname].unique())}
                 return df[colname].map(num_rmap)
             return df[colname]
@@ -184,7 +184,7 @@ class ScatterPlot(_Plot.Plot):
         """
 
         # Determine marker size and symbol based on whether the X and Y columns are scalar.
-        if self._is_scalar_col(df, self.xcolname) and self._is_scalar_col(df, self.ycolname):
+        if self._is_numeric(df, self.xcolname) and self._is_numeric(df, self.ycolname):
             marker_size = 4
             marker_symbol = next(self._markers)
         else:

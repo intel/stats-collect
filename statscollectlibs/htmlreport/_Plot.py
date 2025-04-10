@@ -241,20 +241,24 @@ class Plot:
         return df.apply(self._create_hover_template, axis=1, args=(hover_cds, df))
 
     @staticmethod
-    def _is_scalar_col(df, colname):
+    def _is_numeric(df: pandas.DataFrame, colname: str) -> bool:
         """
-        Returns 'True' if column 'colname' in 'pandas.DataFrame' 'df' consists of scalar data,
-        otherwise returns 'False'.  Helper for child classes to dictate styling based on whether a
-        column is scalar or not.
+        Determine if a column in a dataframe contains only numeric data.
+
+        Args:
+            df: The dataframe to check.
+            colname: The column name to check.
+
+        Returns:
+            True if the column consists only of scalar data (e.g., numbers, or datetime), False
+            otherwise.
         """
 
-        # Date-time data is used in time-series and therefore as scalar data.
+        # Check if the column contains date-time data, which is treated as scalar.
         if is_datetime64_any_dtype(df[colname]):
             return True
 
-        # Pandas 'is_numeric_dtype' function returns 'True' if the column datatype is numeric or a
-        # boolean. This function returns the same as the pandas function unless the datatype is a
-        # boolean, in which case it returns False.
+        # Check if the column contains numeric data, excluding boolean types.
         return is_numeric_dtype(df[colname]) and df[colname].dtype != 'bool'
 
     def generate(self):
