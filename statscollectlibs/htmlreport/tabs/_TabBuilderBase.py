@@ -17,25 +17,12 @@ from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
+from statscollectlibs.htmlreport.tabs._DTabBuilder import CDTypedDict
 from statscollectlibs.htmlreport.tabs.BuiltTab import BuiltDTab, BuiltCTab
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-class CDTypedDict(MDTypedDict, total=False):
-    """
-    The column definition dictionary for a dataframe column. It is same as the metrics definition
-    dictionary 'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
-
-    Attributes:
-        colname: Column name the definition dictionary describes.
-        sname: Column scope, for example "System" or "CPU0".
-    """
-
-    colname: str
-    sname: str
 
 class TabBuilderBase:
     """

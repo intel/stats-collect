@@ -19,10 +19,24 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
+from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+
+class CDTypedDict(MDTypedDict, total=False):
+    """
+    The column definition dictionary for a dataframe column. It is same as the metrics definition
+    dictionary 'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
+
+    Attributes:
+        colname: Column name the definition dictionary describes.
+        sname: Column scope, for example "System" or "CPU0".
+    """
+
+    colname: str
+    sname: str
 
 def get_fsname(name: str):
     """
@@ -107,7 +121,7 @@ class DTabBuilder:
         # File previews which will be added to the data tab.
         self._fpreviews: list[BuiltTab.BuiltDTabFilePreview] = []
 
-    def add_smrytbl(self, smry_funcs: dict[str, list[str]], cdd: dict[str, dict[str, str]]):
+    def add_smrytbl(self, smry_funcs: dict[str, list[str]], cdd: dict[str, CDTypedDict]):
         """
         Construct the summary table ('SummaryTable' object) to summarize the tab metrics. The table
         typically contains functions like the average, median, and standard deviation for the

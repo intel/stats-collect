@@ -23,7 +23,7 @@ from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
-from statscollectlibs.htmlreport.tabs._TabBuilderBase import CDTypedDict
+from statscollectlibs.htmlreport.tabs._DTabBuilder import CDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
