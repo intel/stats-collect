@@ -311,37 +311,47 @@ class DTabBuilder:
 
     def add_fpreview(self, title: str, paths: dict[str, Path], diff: bool = True):
         """
-        Add file previews to the D-tab. Refer to 'FilePreviewBuilder' for more information.
+        Add file previews to the data tab (D-tab). Refer to 'FilePreviewBuilder' for more details.
 
         Args:
-            title: the file preview title.
-            paths: paths to the files to include to the preview (a dictionary containing the paths
-                   and indexed by report IDs).
-            diff: whether the diff between the files should be generated and added to the file
-                  preview.
+            title: The title of the file preview.
+            paths: A dictionary containing paths to the files to include in the preview, indexed by
+                   report IDs.
+            diff: A boolean indicating whether a diff between the files should be generated and
+                  included in the file preview.
         """
 
         fpbuilder = FilePreviewBuilder.FilePreviewBuilder(self._outdir / "file-previews",
                                                           self._basedir, diff=diff)
         self._fpreviews.append(fpbuilder.build_fpreview(title, paths))
 
-    def add_alert(self, alert):
-        """Add an alert to the data tab."""
+    def add_alert(self, alert: str):
+        """
+        Add an alert to the data tab. Alerts are concise and important messages displayed at the
+        top of the data tab HTML page. For example, an alert may explain the reason for a missing
+        diagram.
+
+        Args:
+            alert: The alert message to be added to the data tab.
+        """
 
         self._alerts.append(alert)
 
-    def build_tab(self):
+    def build_tab(self) -> BuiltTab.BuiltDTab:
         """
-        Build and return a 'BuiltTab.BuiltDTab' instance which contains an aggregate of all of the
-        data 'self._dfs'. Return a 'BuiltTab.BuiltDTab' object that can be used to populate an HTML
-        tab.
+        Build the data tab and return a 'BuiltTab.BuiltDTab' object.
+
+        Returns:
+            BuiltTab.BuiltDTab: An object representing the constructed data tab.
         """
 
-        ppaths = [p.relative_to(self._basedir) for p in self._ppaths]
+        # The relative plot paths.
+        rel_ppaths = [path.relative_to(self._basedir) for path in self._ppaths]
 
         if self._smrytbl is not None:
             smry_path = self._smry_path.relative_to(self._basedir)
         else:
-            smry_path = ""
+            smry_path = None
 
-        return BuiltTab.BuiltDTab(self.tabname, ppaths, smry_path, self._fpreviews, self._alerts)
+        return BuiltTab.BuiltDTab(self.tabname, rel_ppaths, smry_path, self._fpreviews,
+                                  self._alerts)
