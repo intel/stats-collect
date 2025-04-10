@@ -18,24 +18,11 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
+from statscollectlibs.htmlreport._Plot import CDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-class CDTypedDict(MDTypedDict, total=False):
-    """
-    The column definition for a dataframe column. It is same as the metrics definition
-    'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
-
-    Attributes:
-        colname: Column name the definition describes.
-        sname: Column scope, for example "System" or "CPU0".
-    """
-
-    colname: str
-    sname: str
 
 def get_fsname(name: str):
     """

@@ -19,6 +19,20 @@ import plotly
 from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
 from pepclibs.helperlibs import Logging, Human, Trivial
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+class CDTypedDict(MDTypedDict, total=False):
+    """
+    The column definition for a dataframe column. It is same as the metrics definition
+    'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
+
+    Attributes:
+        colname: Column name the definition describes.
+        sname: Column scope, for example "System" or "CPU0".
+    """
+
+    colname: str
+    sname: str
 
 # Default plotly diagram layout configuration.
 

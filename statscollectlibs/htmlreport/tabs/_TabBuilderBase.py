@@ -18,7 +18,7 @@ import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
-from statscollectlibs.htmlreport.tabs._DTabBuilder import CDTypedDict
+from statscollectlibs.htmlreport._Plot import CDTypedDict
 from statscollectlibs.htmlreport.tabs.BuiltTab import BuiltDTab, BuiltCTab
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 

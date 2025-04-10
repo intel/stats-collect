@@ -23,7 +23,7 @@ from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.result import RORawResult
 from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
-from statscollectlibs.htmlreport.tabs._DTabBuilder import CDTypedDict
+from statscollectlibs.htmlreport._Plot import CDTypedDict
 
 class _SPECjbb2015InfoTypedDict(TypedDict, total=False):
     """
