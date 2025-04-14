@@ -177,7 +177,8 @@ class MDCBase:
             if "name" not in md:
                 md["name"] = key
 
-    def _handle_pattern(self, metric: str, md: MDTypedDict) -> MDTypedDict:
+    def _handle_pattern(self, metric: str, md: MDTypedDict) -> tuple[str, MDTypedDict]:
+
         """
         Replace patterns in the metric definition of 'metric'.
 
@@ -186,10 +187,15 @@ class MDCBase:
             md: The metric definition to apply the pattern substitutions to.
 
         Returns:
-            The substituted version of the 'md' metric definition.
+            A tuple containing:
+                - The new metric name after applying pattern substitutions. If no new name is
+                  generated, an empty string is returned.
+                - The substituted metric definition dictionary with patterns replaced based on the
+                  provided metric.
         """
 
         new_md: MDTypedDict = {}
+        new_name = ""
 
         for pattern in md["patterns"]: # type: ignore[typeddict-item]
             mobj = re.fullmatch(pattern, metric)
@@ -206,9 +212,20 @@ class MDCBase:
                                                ("{groups[%d]}" % idx, grp)):
                         text = text.replace(grp_patt, grp_repl)
                     new_md[skey] = text
+
+            if "key_substitute" in new_md: # type: ignore[typeddict-item]
+                # YAML format does not allow for special characters in the key name, so the special
+                # "key_subsitute" key is used to store the new metric name pattern.
+                new_name = new_md["key_substitute"] # type: ignore[typeddict-item]
+                del new_md["key_substitute"] # type: ignore[typeddict-item]
+
+                for idx, grp in enumerate(mobj.groups()):
+                    for grp_patt, grp_repl in (("{GROUPS[%d]}" % idx, grp.upper()),
+                                                ("{groups[%d]}" % idx, grp)):
+                        new_name = new_name.replace(grp_patt, grp_repl)
             break
 
-        return new_md
+        return new_name, new_md
 
     def _handle_patterns(self, metrics: list[str]):
         """
@@ -242,9 +259,12 @@ class MDCBase:
                 continue
 
             for new_metric in actual_metrics:
-                new_md = self._handle_pattern(new_metric, orig_md)
+                new_name, new_md = self._handle_pattern(new_metric, orig_md)
                 if not new_md:
                     continue
+
+                if new_name:
+                    new_metric = new_name
 
                 if orig_metric not in replacements:
                     replacements[orig_metric] = {}
