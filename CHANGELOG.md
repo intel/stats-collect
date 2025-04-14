@@ -8,6 +8,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.56] - 2025-04-14
+### Changed
  - Avoid adding constant metrics to diagram hover text to optimize HTML size.
 
 ## [1.0.55] - 2025-04-07
