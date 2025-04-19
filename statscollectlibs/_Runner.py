@@ -194,7 +194,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
 
     def _run_command(self,
                      tlimit: float | None,
-                     maxlines: int |None = None) -> tuple[str, str, int | None]:
+                     maxlines: int | None = None) -> tuple[str, str, int | None]:
         """
         Run the specified command with an optional time limit.
 
