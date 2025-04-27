@@ -50,7 +50,7 @@ def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
 
         cmd += " wait"
         try:
-            pman.run_verify(cmd, shell=True)
+            pman.run_verify(cmd)
         except Error as err:
             _LOG.warning("Some system statistics were not collected")
             _LOG.debug(str(err))
@@ -59,7 +59,7 @@ def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
         errors = []
         for cmdinfo in cmdinfos:
             try:
-                procs.append(pman.run_async(cmdinfo["cmd"], shell=True))
+                procs.append(pman.run_async(cmdinfo["cmd"]))
             except Error as err:
                 errors.append(str(err))
 

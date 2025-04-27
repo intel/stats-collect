@@ -653,7 +653,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
         if cmd_prefix:
             self._cmd = f"{cmd_prefix} {self._cmd}"
 
-        self._stca = self._pman.run_async(self._cmd, shell=True)
+        self._stca = self._pman.run_async(self._cmd)
         self._fetch_stcagent_socket_path()
 
         if self._pman.is_remote:
