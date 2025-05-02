@@ -425,6 +425,21 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
                     else:
                         val = cfg[stname].get(key, val)
 
+    def _adjust_tool_paths(self):
+        """Adjust the paths to the 'stc-agent-*' statistic collector programs."""
+
+        for agent in (self._inbagent, self._oobagent):
+            if not agent:
+                continue
+
+            for info in agent.stinfo.values():
+                toolpath = info.get("toolpath")
+                if toolpath and not toolpath.startswith("/") and toolpath.startswith("stc-agent-"):
+                    # This is not a full path, but just a name of the execuatble. Resolve it to the
+                    # full path.
+                    info["toolpath"] = ProjectFiles.find_project_helper("stats-collect",
+                                                                        toolpath, self._pman)
+
     # pylint: disable=unused-argument
     def __init__(self, pman, res, local_outdir=None, remote_outdir=None):
         """Same as 'StatsCollect.__init__()'."""
@@ -474,6 +489,7 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
             self.local_outdir = local_outdir
 
         self._apply_config_file()
+        self._adjust_tool_paths()
 
     def close(self):
         """Close the statistics collector."""
