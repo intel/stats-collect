@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix failures when running via 'sudo'.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.57] - 2025-05-06
+### Fixed
+ - Fix failures when running via 'sudo'.
 
 ## [1.0.56] - 2025-04-14
 ### Changed
