@@ -54,8 +54,7 @@ def _build_arguments_parser():
         completer = None
 
     text = "stats-collect - a tool for collecting and visualizing system statistics and telemetry."
-    parser = ArgParse.SSHOptsAwareArgsParser(description=text, prog=ToolInfo.TOOLNAME,
-                                             ver=ToolInfo.VERSION)
+    parser = ArgParse.ArgsParser(description=text, prog=ToolInfo.TOOLNAME, ver=ToolInfo.VERSION)
 
     text = "Force coloring of the text output."
     parser.add_argument("--force-color", action="store_true", help=text)
@@ -84,7 +83,7 @@ def _build_arguments_parser():
             optinfo["kwargs"]["help"] = "The hostname of the system under test (SUT)."
         ssh_options.append(optinfo)
 
-    ArgParse.add_ssh_options(subpars, ssh_options=ssh_options)
+    ArgParse.add_options(subpars, ssh_options)
 
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""
