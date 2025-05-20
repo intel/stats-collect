@@ -17,13 +17,16 @@ except ImportError:
     # We can live without argcomplete, we only lose tab completions.
     argcomplete_imported = False
 
+import typing
 from pathlib import Path
 from typing import Callable
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploy import DeployBase, _DeployPyHelpers, DeployHelpersBase
-from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
