@@ -273,7 +273,7 @@ class InterruptsParser:
             # Sometimes one or more of the last 3 columns are missing. Pad the list with 'None's.
             #
             # TODO: a hack to silence mypy "literal-required" warnings. It might have been fixed in
-            # newer # mypy so that the 'tuple' type is fine to use. Refer to
+            # newer mypy so that the 'tuple' type is fine to use. Refer to
             # https://github.com/python/mypy/issues/7178
             keys: Sequence[Literal["irq_num", "chip_name", "hwirq", "action"]] = \
                                                         ("irq_num", "chip_name", "hwirq", "action")
