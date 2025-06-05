@@ -84,9 +84,10 @@ STINFO = {
                         "average CPU frequency, RAPL data, and more.",
         "paths" : {"stats": "turbostat.raw.txt"},
         "props": {
-            # Do not collect IRQ statistics, there is the a separate "interrupts" statistics
+            # - Enable SW idle statistics, such as "C1" and "C1+".
+            # - Do not collect IRQ statistics, there is the a separate "interrupts" statistics
             # collector for that.
-            "opts": "--hide IRQ"
+            "opts": "--enable swidle --hide IRQ"
         }
     },
     "interrupts" : {
