@@ -10,6 +10,9 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Changed
 
 ## [1.0.59] - 2025-06-06
+### Changed
+  - Workaround for newest pandas not working in CentOS9.
+  - Adjust to turbostat command line options changes.
 
 ## [1.0.58] - 2025-05-27
 ### Changed
