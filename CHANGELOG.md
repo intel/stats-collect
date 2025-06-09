@@ -8,6 +8,8 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Display all turbostat metrics in CPU statistics. For example, display
+   CPU%c6, even though it has core scope, not CPU scope.
 
 ## [1.0.59] - 2025-06-06
 ### Changed

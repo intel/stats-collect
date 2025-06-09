@@ -184,26 +184,6 @@ class TurbostatParser(_ParserBase.ParserBase):
                         continue
                     pkginfo["totals"][metric] = self._summarize_metric(pkginfo, metric, "core")
 
-        # Turbostat adds package level metrics to the first CPU data line of a package.
-        # Remove them, because they are now available in package totals.
-        for pkginfo in tdict["packages"].values():
-            cpuinfo = pkginfo["cpus"][pkginfo["first_cpu"]]
-            for metric in self._ts_totals["package"]:
-                if metric in self._dropped_metrics:
-                    continue
-                del cpuinfo[metric]
-
-        # Turbostat adds core level metrics to the first CPU data line of a core.
-        # Remove them, because they are now available in core totals.
-        for pkginfo in tdict["packages"].values():
-            for coreinfo in pkginfo["cores"].values():
-                for cpuinfo in coreinfo["cpus"].values():
-                    for metric in self._ts_totals["core"]:
-                        if metric in self._dropped_metrics:
-                            continue
-                        del cpuinfo[metric]
-                    break
-
     def _construct_metrics(self, tlines):
         """
         Construct the metrics dictionary, which contains names of metrics for every topology level.
