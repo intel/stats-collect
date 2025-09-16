@@ -115,80 +115,80 @@ def _collect_sysinfo(outdir: Path, when: str, pman: ProcessManagerType):
 
     outfile = outdir / f"sys-cpuidle.{when}.raw.txt"
     cmd = _format_find_cmd("cpuidle", outfile)
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
     # Exclude 'scaling_cpu_freq' files - they are not very interesting.
     cmd = _format_find_cmd("cpufreq", outfile, exclude=".*/scaling_cur_freq")
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"sys-thermal_throttle.{when}.raw.txt"
     cmd = _format_find_cmd("thermal_throttle", outfile)
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"turbostat-d.{when}.raw.txt"
     cmd = f"turbostat -- sleep 1 > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"turbostat-d-c0.{when}.raw.txt"
     cmd = f"turbostat -c 0 -S -- sleep 0.01 > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"dmesg.{when}.raw.txt"
     cmd = f"dmesg --notime > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"x86_energy_perf_policy.{when}.raw.txt"
     cmd = f"x86_energy_perf_policy > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"interrupts.{when}.raw.txt"
     cmd = f"cat /proc/interrupts > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"sysctl-all.{when}.raw.txt"
     cmd = f"sysctl --all > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"pepc_cstates.{when}.raw.txt"
     cmd = f"pepc cstates info > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"pepc_pstates.{when}.raw.txt"
     cmd = f"pepc pstates info > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"pepc_pmqos.{when}.raw.txt"
     cmd = f"pepc pmqos info > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"pepc_aspm.{when}.raw.txt"
     cmd = f"pepc aspm info > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"pepc_topology.{when}.raw.txt"
     cmd = f"pepc topology info > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"pepc_power.{when}.raw.txt"
     cmd = f"pepc power info > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"lspci.{when}.raw.txt"
     cmd = f"lspci > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"lspci-vvv.{when}.raw.txt"
     cmd = f"lspci -vvv > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"lsusb.{when}.raw.txt"
     cmd = f"lsusb > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"lsusb-v.{when}.raw.txt"
     cmd = f"lsusb -v > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     _run_commands(cmdinfos, pman)
 
@@ -219,27 +219,27 @@ def collect_after(outdir: Path, pman: ProcessManagerType):
 
     outfile = outdir / f"proc_cmdline.{when}.raw.txt"
     cmd = f"cat /proc/cmdline > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"uname-a.{when}.raw.txt"
     cmd = f"uname -a > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"dmidecode.{when}.raw.txt"
     cmd = f"dmidecode > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"proc_cpuinfo.{when}.raw.txt"
     cmd = f"cat /proc/cpuinfo > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"lsmod.{when}.raw.txt"
     cmd = f"lsmod > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"lsblk.{when}.raw.txt"
     cmd = f"lsblk > '{outfile}' 2>&1"
-    cmdinfos.append(_CmdInfoTypedDict(cmd=cmd, outfile=outfile))
+    cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     _run_commands(cmdinfos, pman)
 
