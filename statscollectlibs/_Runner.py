@@ -17,19 +17,22 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 import sys
 import time
 import json
+import typing
 import itertools
 from collections import deque
-from typing import Deque
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, Human
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
 from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.mdc import MDCBase
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result._WORawResult import WORawResult
-from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 from statscollectlibs.collector.StatsCollect import StatsCollect
+
+if typing.TYPE_CHECKING:
+    from typing import Deque
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+    from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -236,8 +239,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
         start_time = time.time()
         self._cmd_proc = self._cmd_pman.run_async(self._cmd)
 
-        # Forever loop with 'iteration' counter. The loop will break when the command process finishes or
-        # the time limit is reached.
+        # Forever loop with 'iteration' counter. The loop will break when the command process
+        # finishes or the time limit is reached.
         for iteration in itertools.count():
             if not no_tlimit:
                 wait_time = min(wait_time, tlimit - self._duration)
@@ -248,13 +251,13 @@ class Runner(ClassHelpers.SimpleCloseContext):
                     # Not the first iteration, normal case.
                     pipe_exitcode = self._pipe_wait(wait_time)
                     if pipe_exitcode is None:
-                        # Continue waiting on the pipe process only at the next iteration. Do not wait
-                        # on the command process, just check its status without waiting.
+                        # Continue waiting on the pipe process only at the next iteration. Do not
+                        # wait on the command process, just check its status without waiting.
                         cmd_wait_time = 0.0
                     elif pipe_exitcode == 0:
-                        # The pipe process has finished successfully, which means that the other end of
-                        # the pipe has been closed. The command should have finished writing to the pipe
-                        # and should finish soon. Give it some time to finish.
+                        # The pipe process has finished successfully, which means that the other end
+                        # of the pipe has been closed. The command should have finished writing to
+                        # the pipe and should finish soon. Give it some time to finish.
                         cmd_wait_time = 5.0
                 else:
                     # The first iteration. Here is the prolem this block of code tries to solve: if

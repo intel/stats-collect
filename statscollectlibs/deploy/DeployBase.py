@@ -46,46 +46,49 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 import os
 import time
 import copy
+import typing
 from typing import TypedDict, Literal, cast, Iterator
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ProcessManager, LocalProcessManager
 from pepclibs.helperlibs import ProjectFiles
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import ErrorExists, ErrorNotFound
 
+if typing.TYPE_CHECKING:
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+
+    # The supported installable categories.
+    InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers", "bpfhelpers"]
+
+    class InstallableInfoTypedDict(TypedDict, total=False):
+        """
+        The type of the dictionary that describes an installable.
+
+        Attributes:
+            name: The name of the installable.
+            category: Category name of the installable ("drivers", "shelpers", etc).
+            category_descr: The description of the installable category.
+            minkver: Minimum SUT kernel version required for the installable.
+            deployables: List of deployables this installable provides.
+        """
+
+        name: str
+        category: InstallableCategoriesType
+        category_descr: str
+        minkver: str
+        deployables: tuple[str, ...]
+
+    # The tool deploy information type.
+    class DeployInfoTypedDict(TypedDict):
+        """
+        The deployment description dictionary type.
+
+        Attributes:
+            installables: Dictionary of installables. The key is the installable name, and the value
+                          is the installable information dictionary.
+        """
+        installables: dict[str, InstallableInfoTypedDict]
+
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-# The supported installable categories.
-InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers", "bpfhelpers"]
-
-class InstallableInfoTypedDict(TypedDict, total=False):
-    """
-    The type of the dictionary that describes an installable.
-
-    Attributes:
-        name: The name of the installable.
-        category: Category name of the installable ("drivers", "shelpers", etc).
-        category_descr: The description of the installable category.
-        minkver: Minimum SUT kernel version required for the installable.
-        deployables: List of deployables this installable provides.
-    """
-
-    name: str
-    category: InstallableCategoriesType
-    category_descr: str
-    minkver: str
-    deployables: tuple[str, ...]
-
-# The tool deploy information type.
-class DeployInfoTypedDict(TypedDict):
-    """
-    The deployment description dictionary type.
-
-    Attributes:
-        installables: Dictionary of installables. The key is the installable name, and the value is
-                      the installable information dictionary.
-    """
-    installables: dict[str, InstallableInfoTypedDict]
 
 # The supported installable categories.
 CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers"    : "kernel driver",
