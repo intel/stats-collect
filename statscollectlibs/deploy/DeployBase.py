@@ -10,8 +10,8 @@
 Provide the base class for software deployment sub-classes.
 
 Terminology:
-    * category - type of an installable. Currently, there are 4 categories: drivers, simple helpers
-                 shelpers), python helpers (pyhelpers), and eBPF helpers (bpfhelpers).
+    * category - type of an installable. Currently, there are 3 categories: drivers, simple helpers
+                 shelpers) and python helpers (pyhelpers).
     * installable - a sub-project to install on the SUT (System Under Test). An installable may
                     include one or more deployable. For example, a driver installable may include
                     multiple drivers. A python helper installable may include multiple python helper
@@ -33,10 +33,7 @@ Installable vs Deployable:
 Helper deployable types:
     1. Simple helpers (shelpers) are stand-alone independent programs, which come in the form of a
        single executable file.
-    2. eBPF helpers (bpfhelpers) consist of 2 components: the user-space component and the eBPF
-       component. The user-space component is distributed as source code and must be compiled.
-       The eBPF component is distributed as both source code and binary.
-    3. Python helpers (pyhelpers) are helper programs written in Python. Unlike simple helpers,
+    2. Python helpers (pyhelpers) are helper programs written in Python. Unlike simple helpers,
        they are not totally independent but depend on various Python modules. Deploying a Python
        helper is trickier because all Python modules should also be deployed.
 """
@@ -57,7 +54,7 @@ if typing.TYPE_CHECKING:
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 
     # The supported installable categories.
-    InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers", "bpfhelpers"]
+    InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers"]
 
     class InstallableInfoTypedDict(TypedDict, total=False):
         """
@@ -93,8 +90,7 @@ _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 # The supported installable categories.
 CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers"    : "kernel driver",
                                                     "shelpers"   : "simple helper program",
-                                                    "pyhelpers"  : "python helper program",
-                                                    "bpfhelpers" : "eBPF helper program"}
+                                                    "pyhelpers"  : "python helper program"}
 
 def _get_deploy_cmd(pman: ProcessManagerType, toolname: str) -> str:
     """""
