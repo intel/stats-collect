@@ -31,6 +31,8 @@ def get_pman(args) -> ProcessManagerType:
         username = privkeypath = timeout = None
     else:
         username = args.username
+        if not username:
+            username = "root"
         privkeypath = args.privkey
         timeout = args.timeout
 
