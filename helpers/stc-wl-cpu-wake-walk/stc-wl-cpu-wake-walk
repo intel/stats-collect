@@ -16,29 +16,42 @@ certain wake period (launch distance). Walk through user-specified wake periods.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import sys
-import argparse
-from typing import NamedTuple, IO, Iterator
 import json
 import time
+import typing
+import argparse
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ArgParse, Human, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.helperlibs import ProcHelpers
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollecttools import _HelpersCommon
+from statscollectlibs.helperlibs import ProcHelpers
+
+if typing.TYPE_CHECKING:
+    from typing import IO, Iterator, TypedDict
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+    class _ArgsTypedDict(TypedDict, total=False):
+        """
+        A typed dictionary representing command line arguments.
+
+        Attributes:
+            pipe_path: Path to the named pipe on the SUT where the labels should be written to.
+            ldist: A tuple with the launch distance range in nanoseconds.
+            ldist_step_pct: The launch distance step in percent (0.0 if absolute step is used).
+            ldist_step_ns: The launch distance step in nanoseconds (0 if percent step is used).
+            span: For how long (in seconds) a single launch distance value should be measured.
+            cpu: CPU number to bind the workload to.
+        """
+
+        pipe_path: Path
+        ldist: tuple[int, int]
+        ldist_step_pct: int | float
+        ldist_step_ns: int
+        span: int
+        cpu: int
 
 TOOLNAME = "stc-wl-cpu-wake-walk"
 VERSION = "0.1"
-
-class _ArgsType(NamedTuple):
-    """The "stats-collect start" command-line arguments named tuple type."""
-
-    pipe_path: Path
-    ldist: tuple[int, int]
-    ldist_step_pct: int | float
-    ldist_step_ns: int
-    span: int
-    cpu: int
 
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
@@ -53,9 +66,9 @@ def _build_arguments_parser():
 
     text = f"""This workload sleeps for launch distance milliseconds, wakes up, sleeps again, and
                repeats so for SPAN amount of seconds. Then it increases the launch distance by
-               the LDIST_STEP amount of milliseconds, and repeatats the process until it walks
+               the LDIST_STEP amount of milliseconds, and repeats the process until it walks
                through the entire launch distance range. Specify the launch distance range to go
-               through. The default range is [100us,50ms], but it can be overriden with this option
+               through. The default range is [100us,50ms], but it can be overridden with this option
                by specifying a comma-separated range. The default unit is microseconds, but the
                following unit specifiers can be used: {duration_ns_descr}. For example, '--ldist
                500us,100ms' would be a [0.5, 100] milliseconds range."""
@@ -77,7 +90,7 @@ def _build_arguments_parser():
     text = """CPU number to bind the workload to (CPU 0 by default). """
     parser.add_argument("--cpu", help=text, type=int, default=0)
 
-    text = """Path to the named pipe on the SUT where the lables should be written to."""
+    text = """Path to the named pipe on the SUT where the labels should be written to."""
     parser.add_argument("--pipe-path", help=text, type=Path)
 
     # This is a hidden option for printing paths to dependencies. Required for building a standalone
@@ -86,22 +99,22 @@ def _build_arguments_parser():
 
     return parser
 
-def _format_args(arguments: argparse.Namespace) -> _ArgsType:
+def _format_args(args: argparse.Namespace) -> _ArgsTypedDict:
     """
-    Validate and format the command line arguments, then build and return the arguments named tuple
-    object.
+    Validate and format the command line arguments, then build and return the arguments typed
+    dictionary.
 
     Args:
-        arguments: The input arguments parsed from the command line.
+        args: The input arguments parsed from the command line.
 
     Returns:
-        _ArgsType: A named tuple containing the formatted arguments.
+        _ArgsTypedDict: The formatted arguments.
     """
 
-    if not arguments.pipe_path:
+    if not args.pipe_path:
         raise Error("Please, specify the named pipe path using the '--pipe-path' option")
 
-    pipe_path = Path(arguments.pipe_path)
+    pipe_path = Path(args.pipe_path)
 
     try:
         if not pipe_path:
@@ -110,39 +123,40 @@ def _format_args(arguments: argparse.Namespace) -> _ArgsType:
         errmsg = Error(str(err)).indent(2)
         raise Error(f"Failed to check if the named pipe '{pipe_path}' exists:\n{errmsg}") from None
 
-    ldist = Human.parse_human_range(arguments.ldist, unit="s", target_unit="ns",
+    ldist = Human.parse_human_range(args.ldist, unit="s", target_unit="ns",
                                     what="launch distance")
     if ldist[0] < 0 or ldist[1] < 0:
-        raise Error(f"Bad launch distance range '{arguments.ldist}', values cannot be negative")
+        raise Error(f"Bad launch distance range '{args.ldist}', values cannot be negative")
 
     ldist_step_pct, ldist_step_ns = 0.0, 0
-    if arguments.ldist_step.endswith("%"):
-        ldist_step_pct = Trivial.str_to_num(arguments.ldist_step.rstrip("%"))
+    if args.ldist_step.endswith("%"):
+        ldist_step_pct = Trivial.str_to_num(args.ldist_step.rstrip("%"))
     else:
-        ldist_step_ns = Human.parse_human(arguments.ldist_step, unit="s", target_unit="ns",
+        ldist_step_ns = Human.parse_human(args.ldist_step, unit="s", target_unit="ns",
                                           what="launch distance step")
 
 
-    span = Human.parse_human(arguments.span, unit="s", target_unit="s", what="span")
+    span = Human.parse_human(args.span, unit="s", target_unit="s", what="span")
     if span <= 0:
-        raise Error(f"Bad span value '{arguments.span}', it must be positive")
+        raise Error(f"Bad span value '{args.span}', it must be positive")
     if span < 10:
-        raise Error(f"The span value '{arguments.span}' is too small, min. span value is 10 "
+        raise Error(f"The span value '{args.span}' is too small, min. span value is 10 "
                     f"seconds")
 
-    cpu: int = arguments.cpu
+    cpu: int = args.cpu
     if cpu < 0:
         raise Error(f"Bad CPU number '{cpu}', it must be non-negative")
 
-    return _ArgsType(
-        pipe_path = pipe_path,
-        ldist = (round(ldist[0]), round(ldist[1])),
-        ldist_step_pct = ldist_step_pct,
-        ldist_step_ns = ldist_step_ns,
-        span = span,
-        cpu = cpu)
+    cmdl: _ArgsTypedDict = {}
+    cmdl["pipe_path"] = pipe_path
+    cmdl["ldist"] = round(ldist[0]), round(ldist[1])
+    cmdl["ldist_step_pct"] = ldist_step_pct
+    cmdl["ldist_step_ns"] = ldist_step_ns
+    cmdl["span"] = span
+    cmdl["cpu"] = cpu
+    return cmdl
 
-def _parse_arguments() -> _ArgsType:
+def _parse_arguments() -> _ArgsTypedDict:
     """Parse input arguments."""
 
     parser = _build_arguments_parser()
@@ -155,29 +169,37 @@ def _parse_arguments() -> _ArgsType:
     return _format_args(args)
 
 class _Runner(ClassHelpers.SimpleCloseContext):
-    """TODO"""
+    """
+    Manage and execute a workload that periodically wakes up at configurable intervals,
+    writing progress and metadata to a named pipe.
+    """
 
-    def __init__(self, args: _ArgsType):
-        """TODO"""
+    def __init__(self, cmdl: _ArgsTypedDict):
+        """
+        Initialize a class instance.
 
-        self._pipe_path = args.pipe_path
-        self._ldist = args.ldist
-        self._ldist_step_pct = args.ldist_step_pct
-        self._ldist_step_ns = args.ldist_step_ns
-        self._span = args.span
+        Args:
+            cmdl: The command line arguments typed dictionary.
+        """
+
+        self._pipe_path = cmdl["pipe_path"]
+        self._ldist = cmdl["ldist"]
+        self._ldist_step_pct = cmdl["ldist_step_pct"]
+        self._ldist_step_ns = cmdl["ldist_step_ns"]
+        self._span = cmdl["span"]
 
         self._span_human = Human.duration(self._span)
         self._pipe: IO[str]
 
-        ProcHelpers.bind_pid(Trivial.get_pid(), args.cpu)
+        ProcHelpers.bind_pid(Trivial.get_pid(), cmdl["cpu"])
 
         try:
             # pylint: disable-next=consider-using-with
-            self._pipe = open(args.pipe_path, "w", encoding="utf-8")
-            _LOG.debug(f"Opened the named pipe '{args.pipe_path}' for writing")
+            self._pipe = open(cmdl["pipe_path"], "w", encoding="utf-8")
+            _LOG.debug(f"Opened the named pipe '{cmdl["pipe_path"]}' for writing")
         except OSError as err:
             errmsg = Error(str(err)).indent(2)
-            raise Error(f"Failed to open the named pipe '{args.pipe_path}' for writing:\n"
+            raise Error(f"Failed to open the named pipe '{cmdl["pipe_path"]}' for writing:\n"
                         f"{errmsg}") from None
 
     def close(self):
@@ -206,7 +228,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
 
     def _write_wlinfo(self):
         """
-        Write the workload information lable to the named pipe.
+        Write the workload information label to the named pipe.
         """
 
         mdd: MDTypedDict = {
@@ -304,9 +326,9 @@ class _Runner(ClassHelpers.SimpleCloseContext):
 def main():
     """The tool entry point."""
 
-    args = _parse_arguments()
+    cmdl = _parse_arguments()
 
-    with _Runner(args) as runner:
+    with _Runner(cmdl) as runner:
         runner.run()
 
     return 0
