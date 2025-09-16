@@ -1,6 +1,15 @@
+stats-collect (1.0.60) unstable; urgency=low
+
+  * Fix crashes related to typing changes in pepc.
+  * Display all turbostat metrics in CPU statistics. For example, display
+    CPU%c6, even though it has core scope, not CPU scope.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Tue, 16 Sep 2025 00:00:00 +0200
+
 stats-collect (1.0.59) unstable; urgency=low
 
-
+  * Workaround for newest pandas not working in CentOS9.
+  * Adjust to turbostat command line options changes.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Fri, 06 Jun 2025 00:00:00 +0200
 

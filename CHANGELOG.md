@@ -5,9 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix crashes related to typing changes in pepc.
 ### Added
 ### Removed
+### Changed
+
+## [1.0.60] - 2025-09-16
+### Fixed
+ - Fix crashes related to typing changes in pepc.
 ### Changed
  - Display all turbostat metrics in CPU statistics. For example, display
    CPU%c6, even though it has core scope, not CPU scope.
