@@ -7,80 +7,102 @@
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""This module includes the "start" 'stats-collect' command implementation."""
+"""The 'stats-collect start' command implementation."""
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 import contextlib
-import argparse
 from pathlib import Path
-from typing import NamedTuple
-from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager, ProcessManager
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
 from statscollectlibs import _Runner
 from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
 from statscollectlibs.deploy import _Deploy
-from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.result import RORawResult, _WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
+if typing.TYPE_CHECKING:
+    from typing import TypedDict
+    import argparse
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+    from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
+
+    class _StartCmdlArgsTypedDict(TypedDict, total=False):
+        """
+        Typed dictionary for the "stats-collect start" command-line arguments.
+
+        Args:
+            username: The remote host username.
+            hostname: The remote host name or IP address.
+            privkey: The path to the private key file for SSH authentication.
+            timeout: The SSH connection timeout in seconds.
+            tlimit: The time limit for the command execution in seconds.
+            outdir: The output directory path.
+            reportid: The report ID.
+            stats: The comma-separated list of statistics to collect.
+            list_stats: Whether to list the available statistics and exit.
+            stats_intervals: The comma-separated list of statistics collection intervals.
+            report: Whether to generate the HTML report after the command execution.
+            cmd_local: Whether to run the command locally instead of on the remote host.
+            pipe_path: The path to the named pipe for inter-process communication.
+            pipe_timeout: The timeout for waiting for the named pipe to be opened in seconds.
+            cmd: The command to execute.
+        """
+
+        username: str
+        hostname: str
+        privkey: Path | None
+        timeout: int | float
+        tlimit: float | None
+        outdir: Path
+        reportid: str
+        stats: str | None
+        list_stats: bool
+        stats_intervals: str | None
+        report: bool
+        cmd_local: bool
+        pipe_path: Path | None
+        pipe_timeout: int | float
+        cmd: str
+
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-class _StartCommandArgsType(NamedTuple):
-    """The "stats-collect start" command-line arguments named tuple type."""
-
-    username: str
-    hostname: str
-    privkey: Path | None
-    timeout: int
-    tlimit: float | None
-    outdir: Path
-    reportid: str
-    stats: str | None
-    list_stats: bool
-    stats_intervals: str | None
-    report: bool
-    cmd_local: bool
-    pipe_path: Path | None
-    pipe_timeout: int | float
-    cmd: str
-
-def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
+def _format_args(args: argparse.Namespace) -> _StartCmdlArgsTypedDict:
     """
     Validate and format the 'stats-collect start' tool input command-line arguments, then build and
-    return the arguments named tuple object.
+    return the arguments typed dictionary.
 
     Args:
-        arguments: The input arguments parsed from the command line.
+        args: The input arguments parsed from the command line.
 
     Returns:
-        _StartCommandArgsType: A named tuple containing the formatted arguments.
+        _StartCommandArgsTypedDict: A typed dictionary containing the formatted arguments.
 
     Notes:
-        - If the 'tlimit' argument does not have the unit, assum milliseconds.
+        - If the 'tlimit' argument does not have the unit, assume milliseconds.
         - The 'outdir' argument defaults to a directory named after the 'reportid' if not provided.
     """
 
     # Format the 'tlimit' argument.
-    if arguments.tlimit:
-        tlimit_str = str(arguments.tlimit)
+    if args.tlimit:
+        tlimit_str = str(args.tlimit)
         if Trivial.is_num(tlimit_str):
             tlimit_str = f"{tlimit_str}m"
         tlimit = Human.parse_human(tlimit_str, unit="s", integer=False, what="time limit")
     else:
         tlimit = None
 
-    hostname = arguments.hostname
+    hostname = args.hostname
 
-    if arguments.privkey:
-        privkey = Path(arguments.privkey)
+    if args.privkey:
+        privkey = Path(args.privkey)
     else:
         privkey = None
 
-    reportid = arguments.reportid
+    reportid = args.reportid
 
     if not reportid and hostname != "localhost":
         prefix = hostname
@@ -89,44 +111,44 @@ def _format_args(arguments: argparse.Namespace) -> _StartCommandArgsType:
     reportid = ReportID.format_reportid(prefix=prefix, reportid=reportid,
                                         strftime=f"{ToolInfo.TOOLNAME}-%Y%m%d")
 
-    if arguments.outdir:
-        outdir = Path(arguments.outdir)
+    if args.outdir:
+        outdir = Path(args.outdir)
     else:
         outdir = Path(f"./{reportid}")
 
-    if arguments.pipe_path:
-        pipe_path = Path(arguments.pipe_path)
+    if args.pipe_path:
+        pipe_path = Path(args.pipe_path)
     else:
         pipe_path = None
 
-    pipe_timeout = Human.parse_human(arguments.pipe_timeout, unit="s", what="pipe timeout")
+    pipe_timeout = Human.parse_human(args.pipe_timeout, unit="s", what="pipe timeout")
 
-    return _StartCommandArgsType(
-        username = arguments.username,
-        hostname = hostname,
-        privkey = privkey,
-        timeout = arguments.timeout,
-        tlimit = tlimit,
-        outdir = outdir,
-        reportid = reportid,
-        stats = arguments.stats,
-        list_stats = arguments.list_stats,
-        stats_intervals = arguments.stats_intervals,
-        report = arguments.report,
-        cmd_local = arguments.cmd_local,
-        pipe_path = pipe_path,
-        pipe_timeout = pipe_timeout,
-        cmd = " ".join(arguments.cmd)
-    )
+    cmdl: _StartCmdlArgsTypedDict = {}
+    cmdl["hostname"] = hostname
+    cmdl["username"] = args.username if args.username else "root"
+    cmdl["privkey"] = privkey
+    cmdl["timeout"] = args.timeout if args.timeout else 8
+    cmdl["tlimit"] = tlimit
+    cmdl["outdir"] = outdir
+    cmdl["reportid"] = reportid
+    cmdl["stats"] = args.stats
+    cmdl["list_stats"] = args.list_stats
+    cmdl["stats_intervals"] = args.stats_intervals
+    cmdl["report"] = args.report
+    cmdl["cmd_local"] = args.cmd_local
+    cmdl["pipe_path"] = pipe_path
+    cmdl["pipe_timeout"] = pipe_timeout
+    cmdl["cmd"] = " ".join(args.cmd)
+    return cmdl
 
-def _substitute_cmd_placeholders(args: _StartCommandArgsType,
+def _substitute_cmd_placeholders(cmdl: _StartCmdlArgsTypedDict,
                                  stcoll: StatsCollect.StatsCollect | None,
                                  pipe_path: Path | None) -> str:
     """
     Substitute placeholders in 'args.cmd' with the actual values and return the result.
 
     Args:
-        args: The command-line arguments.
+        cmdl: The command-line arguments.
         stcoll: A 'StatsCollect' that is going to be used for collecting the statistics (to get the
                 list of statistics names).
 
@@ -134,8 +156,8 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
         str: The command string with placeholders replaced by actual values.
     """
 
-    if args.privkey:
-        privkey_str = str(args.privkey)
+    if cmdl["privkey"]:
+        privkey_str = str(cmdl["privkey"])
     else:
         privkey_str = "none"
 
@@ -149,13 +171,13 @@ def _substitute_cmd_placeholders(args: _StartCommandArgsType,
     else:
         pipe_path_str = "none"
 
-    cmd = args.cmd
-    cmd = cmd.replace("{HOSTNAME}", args.hostname)
-    cmd = cmd.replace("{USERNAME}", args.username)
+    cmd = cmdl["cmd"]
+    cmd = cmd.replace("{HOSTNAME}", cmdl["hostname"])
+    cmd = cmd.replace("{USERNAME}", cmdl["username"])
     cmd = cmd.replace("{PRIVKEY}", privkey_str)
-    cmd = cmd.replace("{TIMEOUT}", str(args.timeout))
-    cmd = cmd.replace("{OUTDIR}", str(args.outdir))
-    cmd = cmd.replace("{REPORTID}", args.reportid)
+    cmd = cmd.replace("{TIMEOUT}", str(cmdl["timeout"]))
+    cmd = cmd.replace("{OUTDIR}", str(cmdl["outdir"]))
+    cmd = cmd.replace("{REPORTID}", cmdl["reportid"])
     cmd = cmd.replace("{STATS}", ",".join(stnames_str))
     cmd = cmd.replace("{PIPE_PATH}", pipe_path_str)
 
@@ -207,7 +229,7 @@ class _NamedPipe:
         elif self._ran_mkfifo:
             self._pman.unlink(self.pipe_path)
 
-def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDict):
+def start_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
     """
     Implement the 'stats-collect start' command.
 
@@ -217,31 +239,32 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDic
                      deployment status.
     """
 
-    args = _format_args(arguments)
+    cmdl = _format_args(args)
 
     with contextlib.ExitStack() as stack:
-        pman = _Common.get_pman(args)
+        pman = ProcessManager.get_pman(cmdl["hostname"], username=cmdl["username"],
+                                       privkeypath=cmdl["privkey"], timeout=cmdl["timeout"])
         stack.enter_context(pman)
 
         with _Deploy.DeployCheck("stats-collect", ToolInfo.TOOLNAME, deploy_info,
                                  pman=pman) as depl:
             depl.check_deployment()
 
-        res = _WORawResult.WORawResult(args.reportid, args.outdir)
+        res = _WORawResult.WORawResult(cmdl["reportid"], cmdl["outdir"])
         stack.enter_context(res)
 
-        if not args.stats or args.stats == "none":
+        if not cmdl["stats"] or cmdl["stats"] == "none":
             stcoll = None
             _LOG.warning("No statistics will be collected")
         else:
             stcoll_builder = StatsCollectBuilder.StatsCollectBuilder()
             stack.enter_context(stcoll_builder)
 
-            stcoll_builder.parse_stnames(args.stats)
-            if args.stats_intervals:
-                stcoll_builder.parse_intervals(args.stats_intervals)
+            stcoll_builder.parse_stnames(cmdl["stats"])
+            if cmdl["stats_intervals"]:
+                stcoll_builder.parse_intervals(cmdl["stats_intervals"])
 
-            stcoll = stcoll_builder.build_stcoll(pman, res, local_outdir=args.outdir)
+            stcoll = stcoll_builder.build_stcoll(pman, res, local_outdir=cmdl["outdir"])
             if not stcoll:
                 raise Error("No statistics discovered. Use '--stats=none' to explicitly "
                             "run the tool without statistics collection.")
@@ -251,28 +274,29 @@ def start_command(arguments: argparse.Namespace, deploy_info: DeployInfoTypedDic
 
         _Common.configure_log_file(res.logs_path, ToolInfo.TOOLNAME)
 
-        if not args.cmd_local:
+        if not cmdl["cmd_local"]:
             cmd_pman = pman
         else:
             cmd_pman = LocalProcessManager.LocalProcessManager()
             stack.enter_context(cmd_pman)
 
         pipe_path: Path | None = None
-        if args.pipe_path:
-            pipe = _NamedPipe(args.pipe_path, cmd_pman)
+        if cmdl["pipe_path"]:
+            pipe = _NamedPipe(cmdl["pipe_path"], cmd_pman)
             stack.enter_context(pipe)
             pipe_path = pipe.pipe_path
 
         runner = _Runner.Runner(res, cmd_pman, stcoll, pipe_path=pipe_path,
-                                pipe_timeout=args.pipe_timeout)
+                                pipe_timeout=cmdl["pipe_timeout"])
         stack.enter_context(runner)
 
-        cmd = _substitute_cmd_placeholders(args, stcoll, pipe_path)
+        cmd = _substitute_cmd_placeholders(cmdl, stcoll, pipe_path)
 
-        runner.run(cmd, args.tlimit)
+        runner.run(cmd, cmdl["tlimit"])
 
-    if args.report:
+    if cmdl["report"]:
         ro_res = RORawResult.RORawResult(res.dirpath, res.reportid)
-        rep = _StatsCollectHTMLReport.StatsCollectHTMLReport([ro_res], args.outdir / "html-report")
+        rep = _StatsCollectHTMLReport.StatsCollectHTMLReport([ro_res],
+                                                             cmdl["outdir"] / "html-report")
         rep.copy_raw = False
         rep.generate()
