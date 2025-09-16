@@ -13,16 +13,19 @@ Build and populate the turbostat statistics tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import Any, cast
 from pepclibs.helperlibs import Trivial, Human
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.parsers import TurbostatParser
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
-from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
+
+if typing.TYPE_CHECKING:
+    from typing import Any
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+    from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
 
 class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability of populating the turbostat statistics tab."""
@@ -108,7 +111,7 @@ class TurbostatTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
                 return []
             categories = categories[cat]
 
-        return cast(list[str], categories)
+        return list(categories)
 
     def _get_hover_colnames(self, metric: str, sname: str) -> list[str]:
         """

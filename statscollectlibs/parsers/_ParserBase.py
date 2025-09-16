@@ -12,10 +12,12 @@ The base class for parsers.
 
 from __future__ import annotations  # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import IO, Generator, Iterator
-
 from pepclibs.helperlibs.Exceptions import Error
+
+if typing.TYPE_CHECKING:
+    from typing import IO, Generator, Iterator, cast
 
 class ParserBase:
     """The base class for parsers."""
@@ -43,8 +45,8 @@ class ParserBase:
                 # pylint: disable=consider-using-with
                 self._lines = open(path, "r", encoding="utf-8")
             except OSError as err:
-                msg = Error(err).indent(2)
-                raise Error(f"Failed to open '{path}':\n{msg}") from err
+                errmsg = Error(str(err)).indent(2)
+                raise Error(f"Failed to open '{path}':\n{errmsg}") from err
 
     def _next(self) -> Generator[dict, None, None]: # pylint: disable=no-self-use
         """
@@ -65,5 +67,9 @@ class ParserBase:
         """
 
         yield from self._next()
-        if isinstance(self._lines, IO):
-            self._lines.close()
+        if hasattr(self._lines, "close"):
+            if typing.TYPE_CHECKING:
+                io_lines = cast(IO[str], self._lines)
+            else:
+                io_lines = self._lines
+            io_lines.close()

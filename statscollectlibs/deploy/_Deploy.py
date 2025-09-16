@@ -19,12 +19,12 @@ except ImportError:
 
 import typing
 from pathlib import Path
-from typing import Callable
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploy import DeployBase, _DeployPyHelpers, DeployHelpersBase
 
 if typing.TYPE_CHECKING:
+    from typing import Callable
     from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 

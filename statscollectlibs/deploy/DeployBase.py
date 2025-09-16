@@ -44,7 +44,6 @@ import os
 import time
 import copy
 import typing
-from typing import TypedDict, Literal, cast, Iterator
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ProcessManager, LocalProcessManager
 from pepclibs.helperlibs import ProjectFiles
@@ -52,6 +51,7 @@ from pepclibs.helperlibs.Exceptions import ErrorExists, ErrorNotFound
 
 if typing.TYPE_CHECKING:
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+    from typing import TypedDict, Literal, cast, Iterator
 
     # The supported installable categories.
     InstallableCategoriesType = Literal["drivers", "shelpers", "pyhelpers"]
@@ -191,7 +191,12 @@ def _get_insts_cats(deploy_info: DeployInfoTypedDict) -> \
     cats: dict[str, dict[str, InstallableInfoTypedDict]] = {cat: {} for cat in CATEGORIES}
 
     for name, info in deploy_info["installables"].items():
-        info = cast(InstallableInfoTypedDict, copy.deepcopy(info))
+        _info = copy.deepcopy(info)
+        if typing.TYPE_CHECKING:
+            info = cast(InstallableInfoTypedDict, _info)
+        else:
+            info = _info
+
         info["name"] = name
 
         # Add category description to the installable information dictionary.

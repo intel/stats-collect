@@ -12,28 +12,33 @@ Provide a class representing a loaded statistic.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import TypedDict
+import typing
 import json
 from pathlib import Path
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
-from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+if typing.TYPE_CHECKING:
+    from typing import TypedDict, Final
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+    class LoadedLablesTypedDict(TypedDict, total=False):
+        """
+        Type for a dictionary for storing loaded labels.
+
+        Attributes:
+            name: The name of the label.
+            ts: The time-stamp of the label.
+            metrics: The metrics the lable defines.
+        """
+
+        ts: int
+        name: str
+        metrics: dict[str, str]
+
+_ALLOWED_LABEL_KEYS: Final[set[str]] = {"name", "ts", "metrics"}
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-class LoadedLablesTypedDict(TypedDict, total=False):
-    """
-    Type for a dictionary for storing loaded labels.
-
-    Attributes:
-        name: The name of the label.
-        ts: The time-stamp of the label.
-        metrics: The metrics the lable defines.
-    """
-
-    ts: int
-    name: str
-    metrics: dict[str, str]
 
 class LoadedLabels:
     """The loaded lables file class."""
@@ -51,7 +56,7 @@ class LoadedLabels:
         self.ldd: dict[str, MDTypedDict] = {}
         self.labels: list[LoadedLablesTypedDict] = []
 
-        self._allowed_label_keys = set(LoadedLablesTypedDict.__annotations__.keys())
+        self._allowed_label_keys = _ALLOWED_LABEL_KEYS
 
         if not self._lpath.exists():
             raise Error(f"Labels file '{lpath}' does not exist")

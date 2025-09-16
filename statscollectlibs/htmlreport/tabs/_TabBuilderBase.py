@@ -13,14 +13,17 @@ Provide the base class and common logic for tab builder classes.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
-from statscollectlibs.htmlreport._Plot import CDTypedDict
 from statscollectlibs.htmlreport.tabs.BuiltTab import BuiltDTab, BuiltCTab
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.htmlreport._Plot import CDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

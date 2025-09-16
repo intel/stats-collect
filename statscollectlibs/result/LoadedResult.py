@@ -12,13 +12,17 @@ Provide a class representing a loaded version of the raw test result.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.result.LoadedLabels import LoadedLabels
-from statscollectlibs.result.LoadedStatistic import LoadedStatsitic, TimeStampLimitsTypedDict
+from statscollectlibs.result.LoadedStatistic import LoadedStatsitic
 from statscollectlibs.result import RORawResult
-from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+    from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

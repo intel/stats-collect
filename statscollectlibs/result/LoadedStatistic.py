@@ -12,7 +12,7 @@ Provide a class representing a loaded statistic.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import Any, Union, TypedDict
+import typing
 import pandas
 import numpy
 from pepclibs.helperlibs import Logging
@@ -21,35 +21,38 @@ from statscollectlibs.dfbuilders import _TurbostatDFBuilder, _InterruptsDFBuilde
 from statscollectlibs.dfbuilders import _IPMIDFBuilder
 from statscollectlibs.result.RORawResult import RORawResult
 from statscollectlibs.result.LoadedLabels import LoadedLabels
-from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+if typing.TYPE_CHECKING:
+    from typing import Any, Union, TypedDict
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+    class TimeStampLimitsTypedDict(TypedDict, total=False):
+        """
+        Type for a dictionary for storing the time-stamp range for valid or interesting measurement
+        data.
+
+        Attributes:
+            begin: The start time-stamp for measurements. Data collected before this time are not
+                   valid or interesting, and should be discarded.
+            end: The end time-stamp for measurements. Data collected after this time are not valid
+                 or interesting and should be discarded.
+            absolute: Whether 'begin' and 'end' are absolute or relative time-stamp values. If True,
+                      the values are absolute time since the epoch. If False, the values are
+                      relative to the start of the measurements in seconds. For example, if 'begin'
+                      is 5, it means data collected during the first 5 seconds from the start of the
+                      measurements are not valid or interesting and should be discarded.
+        """
+
+        begin: float
+        end: float
+        absolute: bool
+
+    DFBuilderType = Union[_TurbostatDFBuilder.TurbostatDFBuilder,
+                          _InterruptsDFBuilder.InterruptsDFBuilder,
+                          _ACPowerDFBuilder.ACPowerDFBuilder,
+                          _IPMIDFBuilder.IPMIDFBuilder]
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-class TimeStampLimitsTypedDict(TypedDict, total=False):
-    """
-    Type for a dictionary for storing the time-stamp range for valid or interesting measurement
-    data.
-
-    Attributes:
-        begin: The start time-stamp for measurements. Data collected before this time are not valid
-               or interesting, and should be discarded.
-        end: The end time-stamp for measurements. Data collected after this time are not valid or
-             interesting and should be discarded.
-        absolute: Whether 'begin' and 'end' are absolute or relative time-stamp values. If True, the
-                  values are absolute time since the epoch. If False, the values are relative to the
-                  start of the measurements in seconds. For example, if 'begin' is 5, it means data
-                  collected during the first 5 seconds from the start of the measurements are not
-                  valid or interesting and should be discarded.
-    """
-
-    begin: float
-    end: float
-    absolute: bool
-
-DFBuilderType = Union[_TurbostatDFBuilder.TurbostatDFBuilder,
-                      _InterruptsDFBuilder.InterruptsDFBuilder,
-                      _ACPowerDFBuilder.ACPowerDFBuilder,
-                      _IPMIDFBuilder.IPMIDFBuilder]
 
 class LoadedStatsitic:
     """

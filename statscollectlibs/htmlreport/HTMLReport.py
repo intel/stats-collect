@@ -17,12 +17,10 @@ Terminology.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import dataclasses
 import json
+import typing
+import dataclasses
 from pathlib import Path
-from typing import TypedDict, Any
-import plotly # type: ignore[import-untyped]
-from packaging import version
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
@@ -32,6 +30,34 @@ from statscollectlibs.htmlreport.tabs.stats._StatsTabBuilder import _StatsTabBui
 from statscollectlibs.htmlreport.tabs.sysinfo._SysInfoTabBuilder import SysInfoTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollecttools import ToolInfo
+
+if typing.TYPE_CHECKING:
+    from typing import TypedDict, Any
+
+    class _JSReportInfo(TypedDict, total=False):
+        """
+        A dictionary containing information for generating the 'report_info.json' file, which is the
+        top level JSON file describing the report as a whole and read by the Javascript code of the
+        HTML report.
+
+        Args:
+            title: The title of the report.
+            descr: A description of the report (no description if not provided).
+            toolname: The name of the tool used to generate the report.
+            toolver: The version of the tool used to generate the report.
+            logpath: The path to the log file from the tool that generated the report (e.g., from
+                     'stats-collect report').
+            intro_tbl: The path to the introduction table JSON file.
+            tab_file: The path to the tabs JSON file (contains information about every tab).
+        """
+
+        title: str
+        descr: str | None
+        toolname: str
+        toolver: str
+        logpath: Path | None
+        intro_tbl: Path | None
+        tab_file: Path
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -86,16 +112,6 @@ def _dump_json(obj: Any, path: Path, descr: str):
         raise Error(f"Could not generate report: failed to JSON dump '{descr}' to '{path}':\n"
                     f"{errmsg}") from None
 
-def _check_plotly_ver():
-    """Warn if plotly version is too old."""
-
-    plotly_ver = plotly.__version__
-    preferred_ver = "5.18.0"
-    if version.parse(plotly_ver) < version.parse(preferred_ver):
-        _LOG.warning("Generating a report with 'plotly v%s' can cause time stamps in plots to "
-                     "appear as 'undefined', upgrade the 'plotly' package to 'v%s' or higher "
-                     "to resolve this issue", plotly_ver, preferred_ver)
-
 def validate_outdir(outdir: Path):
     """
     Validate that 'outdir' is suitable to be used as the HTML report output directory.
@@ -115,31 +131,6 @@ def validate_outdir(outdir: Path):
         if index_path.exists():
             raise ErrorExists(f"Cannot use path '{outdir}' as the output directory, it already "
                               f"contains '{index_path.name}'")
-
-class _JSReportInfo(TypedDict, total=False):
-    """
-    A dictionary containing information for generating the 'report_info.json' file, which is the top
-    level JSON file describing the report as a whole and read by the Javascript code of the HTML
-    report.
-
-    Args:
-        title: The title of the report.
-        descr: A description of the report (no description if not provided).
-        toolname: The name of the tool used to generate the report.
-        toolver: The version of the tool used to generate the report.
-        logpath: The path to the log file from the tool that generated the report (e.g., from
-                 'stats-collect report').
-        intro_tbl: The path to the introduction table JSON file.
-        tab_file: The path to the tabs JSON file (contains information about every tab).
-    """
-
-    title: str
-    descr: str | None
-    toolname: str
-    toolver: str
-    logpath: Path | None
-    intro_tbl: Path | None
-    tab_file: Path
 
 class HTMLReport:
     """
@@ -200,7 +191,6 @@ class HTMLReport:
         self._stats_tbldr: _StatsTabBuilder | None = None
         self._sysinfo_tbldr: SysInfoTabBuilder | None = None
 
-        _check_plotly_ver()
         validate_outdir(outdir)
 
     def _init_tab_builders(self):

@@ -13,17 +13,20 @@ Provide the base class and common logic for tab builder classes.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import cast
+import typing
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.htmlreport.tabs import _TabBuilderBase
-from statscollectlibs.htmlreport._Plot import CDTypedDict
+
+if typing.TYPE_CHECKING:
+    from typing import cast
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+    from statscollectlibs.htmlreport._Plot import CDTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -184,7 +187,11 @@ class StatTabBuilderBase(_TabBuilderBase.TabBuilderBase):
         # Build a metrics definition dictionary describing all columns in the dataframe.
         for colname in colnames:
             sname, metric = _DFHelpers.split_colname(colname)
-            cd = cdd[colname] = cast(CDTypedDict, mdd[metric].copy())
+            _cd = mdd[metric].copy()
+            if typing.TYPE_CHECKING:
+                cd = cdd[colname] = cast(CDTypedDict, _cd)
+            else:
+                cd = cdd[colname] = _cd
             cd["colname"] = colname
             if sname:
                 cd["sname"] = sname

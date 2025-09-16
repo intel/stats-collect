@@ -10,9 +10,12 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 from statscollectlibs.mdc import MDCBase
-from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class TurbostatMDC(MDCBase.MDCBase):
     """

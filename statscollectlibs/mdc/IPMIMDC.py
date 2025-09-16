@@ -11,11 +11,14 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import Any
+import typing
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.mdc import MDCBase
-from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+if typing.TYPE_CHECKING:
+    from typing import Any
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
 
 class IPMIMDC(MDCBase.MDCBase):
     """

@@ -12,25 +12,28 @@ Collect system information statistics.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import TypedDict
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+
+if typing.TYPE_CHECKING:
+    from typing import TypedDict
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+
+    class _CmdInfoTypedDict(TypedDict, total=False):
+        """
+        A dictionary that describes the commands to be run on the SUT to collect system information.
+
+        Attributes:
+            cmd: The command to run.
+            outfile: Path to the output file to redirect the command's output.
+        """
+
+        cmd: str
+        outfile: Path
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-class _CmdInfoTypedDict(TypedDict, total=False):
-    """
-    A dictionary that describes the commands to be run on the SUT to collect system information.
-
-    Attributes:
-        cmd: The command to run.
-        outfile: Path to the output file to redirect the command's output.
-    """
-
-    cmd: str
-    outfile: Path
 
 def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
     """

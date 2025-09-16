@@ -13,10 +13,13 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import sys
+import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ProcessManager
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from pepclibs.helperlibs.Exceptions import Error
+
+if typing.TYPE_CHECKING:
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 
 def get_pman(args) -> ProcessManagerType:
     """

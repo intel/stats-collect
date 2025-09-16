@@ -12,8 +12,8 @@ Provide the tab builder for the SPECjbb2015 workload.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import TypedDict
 import pandas
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
@@ -22,30 +22,33 @@ from statscollectlibs.htmlreport.tabs import _TabBuilderBase
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.result import RORawResult
-from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
-from statscollectlibs.htmlreport._Plot import CDTypedDict
 
-class _SPECjbb2015InfoTypedDict(TypedDict, total=False):
-    """
-    A dictionary containing SPECjbb2015 information.
+if typing.TYPE_CHECKING:
+    from typing import TypedDict
+    from statscollectlibs.result.LoadedStatistic import TimeStampLimitsTypedDict
+    from statscollectlibs.htmlreport._Plot import CDTypedDict
 
-    Attributes:
-        max_jops: The maximum jOPS value.
-        crit_jops: The critical jOPS value.
-        hbir: The high-bound injection rate (HBIR).
-        first_level: The first level number in the RT-curve.
-        last_level: The last level number in the RT-curve.
-        first_level_ts: The time-stamp of the first level in the RT-curve.
-        last_level_ts: The time-stamp of the last level in the RT-curve.
-    """
+    class _SPECjbb2015InfoTypedDict(TypedDict, total=False):
+        """
+        A dictionary containing SPECjbb2015 information.
 
-    max_jops: int
-    crit_jops: int
-    hbir: int
-    first_level: int
-    last_level: int
-    first_level_ts: float
-    last_level_ts: float
+        Attributes:
+            max_jops: The maximum jOPS value.
+            crit_jops: The critical jOPS value.
+            hbir: The high-bound injection rate (HBIR).
+            first_level: The first level number in the RT-curve.
+            last_level: The last level number in the RT-curve.
+            first_level_ts: The time-stamp of the first level in the RT-curve.
+            last_level_ts: The time-stamp of the last level in the RT-curve.
+        """
+
+        max_jops: int
+        crit_jops: int
+        hbir: int
+        first_level: int
+        last_level: int
+        first_level_ts: float
+        last_level_ts: float
 
 # SPECjbb2015 metrics definition dictionary.
 _SPECJBB_MDD: dict[str, CDTypedDict] = {

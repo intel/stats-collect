@@ -9,14 +9,17 @@
 
 """
 Provide several dataclasses representing built tabs and tab components. These classes eventually get
-serialised into JSON, which is read and interpreted by the JavaScript side of the HTML report.
+serialized into JSON, which is read and interpreted by the JavaScript side of the HTML report.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from dataclasses import dataclass, field
-from typing import Dict, List
 from pathlib import Path
+
+if typing.TYPE_CHECKING:
+    from typing import Dict, List
 
 @dataclass
 class BuiltDTabFilePreview:

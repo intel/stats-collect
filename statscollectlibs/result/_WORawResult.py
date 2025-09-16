@@ -11,17 +11,20 @@
 # TODO: finish adding type hints to this module.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import contextlib
 import os
-import shutil
 import time
+import typing
+import shutil
+import contextlib
 from pathlib import Path
-from typing import Any
 from pepclibs.helperlibs import Logging, Trivial, YAML, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.result import _RawResultBase
-from statscollectlibs.result._RawResultBase import RawResultInfoTypedDict, RawResultWLInfoTypedDict
 from statscollecttools import ToolInfo
+
+if typing.TYPE_CHECKING:
+    from typing import Any, cast
+    from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -41,9 +44,9 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         if not override and key in self.info:
             raise Error(f"BUG: Key '{key}' already exists in the 'info' dictionary")
 
-        if key not in RawResultInfoTypedDict.__annotations__:
+        if key not in _RawResultBase.RAW_RESULT_INFO_KEYS_SET:
             _LOG.warning(f"Unsupported key '{key}' for 'info.yml' file. Run with '-d' and report "
-                         f"this along with the stactrace")
+                         f"this along with the stacktrace")
             _LOG.debug_print_stacktrace()
 
         self.info[key] = value # type: ignore
@@ -59,7 +62,7 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
         """
 
         for key in wlinfo:
-            if key not in RawResultWLInfoTypedDict.__annotations__:
+            if key not in _RawResultBase.RAW_RESULT_WLINFO_KEYS_SET:
                 _LOG.warning(f"Unsupported key '{key}' for 'wlinfo' in 'info.yml' file. Run with "
                              f"'-d' and report this along with the stactrace")
                 _LOG.debug_print_stacktrace()
@@ -75,7 +78,11 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
     def write_info(self):
         """Write the 'self.info' dictionary to the 'info.yml' file."""
 
-        YAML.dump(self.info, self.info_path)
+        if typing.TYPE_CHECKING:
+            _info = cast(dict[str, Any], self.info)
+        else:
+            _info = self.info
+        YAML.dump(_info, self.info_path)
         self.remove_outdir_on_close = False
 
     def _init_outdir(self):
@@ -101,8 +108,8 @@ class WORawResult(_RawResultBase.RawResultBase, ClassHelpers.SimpleCloseContext)
                 raise Error(f"failed to create directory '{self.dirpath}':\n{msg}") from None
 
         # Create empty log and statistics directories in advance.
-        paths = (self.logs_path, self.stats_path)
-        for path in paths:
+        assert self.stats_path is not None
+        for path in (self.logs_path, self.stats_path):
             try:
                 path.mkdir()
                 self._created_paths.append(path)

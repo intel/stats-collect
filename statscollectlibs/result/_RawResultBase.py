@@ -19,80 +19,87 @@ A raw result class is a class representing a raw result directory and its conten
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import TypedDict, Literal
+import typing
 from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+if typing.TYPE_CHECKING:
+    from typing import TypedDict, Literal, Final
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+
+    # The supported keys in the 'stinfo.name.paths' dictionary of the 'info.yml' files. These are
+    # paths to the raw statistics file and the labels file.
+    RawResultSTInfoPathsType = Literal["stats", "labels"]
+    class RawResultSTInfoTypedDict(TypedDict, total=False):
+        """
+        A typed dictionary representing the statistics information from of the 'info.yml' file.
+
+        Attributes:
+            interval: The interval between statistics snapshots, seconds.
+            inband: Whether the statistics were collected in-band (the collector tool was running on
+                    the SUT, e.g., turbostat) or out-of-band (the collector tool was running on the
+                    controlling machine, e.g., ipmi-oob statistics collected by 'ipmitool' running
+                    on the controller and reading SUT data over the network from SUT's BMC).
+            toolpath: The file path to the tool used for data collection on the SUT in case of an
+                      in-band collector, and on the controller in case of an out-of-band collector.
+            description: A brief description of the statistics data.
+            paths: A dictionary containing paths to raw statistics data files.
+        """
+
+        interval: float
+        inband: bool
+        toolpath: Path
+        description: str
+        paths: dict[RawResultSTInfoPathsType, Path]
+
+    class RawResultWLInfoTypedDict(TypedDict, total=False):
+        """
+        A typed dictionary representing workload information in the 'info.yml' file of a raw test
+        result. This information is applicable only for certain workloads supported by this project.
+
+        Attributes:
+            wldata_path: The file system path to the workload data directory.
+            wlname: The name of the workload.
+            MDD: The Metrics Definition Dictionary (MDD) for the workload-specific metrics.
+        """
+
+        wldata_path: Path
+        wlname: str
+        MDD: dict[str, MDTypedDict]
+
+    # TODO: Not all fields are typed yet. Add all of them eventually, and make sure every write goes
+    # via 'WORawResult.add_info()'.
+    class RawResultInfoTypedDict(TypedDict, total=False):
+        """
+        A type representing contents of the 'info.yml' file of a raw test result.
+
+        Attributes:
+            toolname: The name of the tool used to generate the raw test result.
+            toolver: The version of the tool.
+            reportid: A unique identifier for the raw test result, also referred to as "report ID".
+            stdout: Path to the file containing the standard output of the test command.
+            stderr: Path to the file containing the standard error of the test command.
+            duration: For how long the test ran, time in human readable format (e.g., "1h 2m 3s").
+            wlinfo: Workload information associated with the raw test result. Applicable only for
+                    certain workloads supported by this project. None of unsupported ("generic")
+                    workloads.
+        """
+
+        toolname: str
+        toolver: str
+        reportid: str
+        stdout: Path
+        stderr: Path
+        duration: str
+        stinfo: dict[str, RawResultSTInfoTypedDict]
+        wlinfo: RawResultWLInfoTypedDict
+
+RAW_RESULT_INFO_KEYS_SET: Final[set[str]] = {"toolname", "toolver", "reportid", "stdout", "stderr",
+                                             "duration", "stinfo", "wlinfo" }
+RAW_RESULT_WLINFO_KEYS_SET: Final[set[str]] = {"wldata_path", "wlname", "MDD"}
 
 # The latest supported raw results directory format version.
-FORMAT_VERSION = "1.3"
-
-# The supported keys in the 'stinfo.name.paths' dictionary of the 'info.yml' files. These are paths
-# to the raw statistics file and the labels file.
-RawResultSTInfoPathsType = Literal["stats", "labels"]
-class RawResultSTInfoTypedDict(TypedDict, total=False):
-    """
-    A typed dictionary representing the statistics information from of the 'info.yml' file.
-
-    Attributes:
-        interval: The interval between statistics snapshots, seconds.
-        inband: Whether the statistics were collected in-band (the collector tool was running on the
-                SUT, e.g., turbostat) or out-of-band (the collector tool was running on the
-                controlling machine, e.g., ipmi-oob statistics collected by 'ipmitool' running on
-                the controller and reading SUT data over the network from SUT's BMC).
-        toolpath: The file path to the tool used for data collection on the SUT in case of an
-                  in-band collector, and on the controller in case of an out-of-band collector.
-        description: A brief description of the statistics data.
-        paths: A dictionary containing paths to raw statistics data files.
-    """
-
-    interval: float
-    inband: bool
-    toolpath: Path
-    description: str
-    paths: dict[RawResultSTInfoPathsType, Path]
-
-class RawResultWLInfoTypedDict(TypedDict, total=False):
-    """
-    A typed dictionary representing workload information in the 'info.yml' file of a raw test
-    result. This information is applicable only for certain workloads supported by this project.
-
-    Attributes:
-        wldata_path: The file system path to the workload data directory.
-        wlname: The name of the workload.
-        MDD: The Metrics Definition Dictionary (MDD) for the workload-specific metrics.
-    """
-
-    wldata_path: Path
-    wlname: str
-    MDD: dict[str, MDTypedDict]
-
-# TODO: Not all fields are typed yet. Add all of them eventually, and make sure every write goes via
-# 'WORawResult.add_info()'.
-class RawResultInfoTypedDict(TypedDict, total=False):
-    """
-    A type representing contents of the 'info.yml' file of a raw test result.
-
-    Attributes:
-        toolname: The name of the tool used to generate the raw test result.
-        toolver: The version of the tool.
-        reportid: A unique identifier for the raw test result, also referred to as "report ID".
-        stdout: Path to the file containing the standard output of the test command.
-        stderr: Path to the file containing the standard error of the test command.
-        duration: For how long the test ran, time in human readable format (e.g., "1h 2m 3s").
-        wlinfo: Workload information associated with the raw test result. Applicable only for
-                certain workloads supported by this project. None of unsupported ("generic")
-                workloads.
-    """
-
-    toolname: str
-    toolver: str
-    reportid: str
-    stdout: Path
-    stderr: Path
-    duration: str
-    stinfo: dict[str, RawResultSTInfoTypedDict]
-    wlinfo: RawResultWLInfoTypedDict
+FORMAT_VERSION: Final[str] = "1.3"
 
 class RawResultBase:
     """Base class for raw test result classes."""

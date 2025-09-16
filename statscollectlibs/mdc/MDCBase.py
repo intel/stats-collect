@@ -22,40 +22,47 @@ Terminology:
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import re
+import typing
 from pathlib import Path
-from typing import TypedDict, Literal, Sequence, NoReturn, Any
 from pepclibs.helperlibs import YAML, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 
-# The maximum MDD keys lenght.
-MAX_KEY_LEN = 64
+if typing.TYPE_CHECKING:
+    from typing import TypedDict, Literal, Sequence, NoReturn, Any, Final
+
+    class MDTypedDict(TypedDict, total=False):
+        """
+        The metric definition, describing a single metric.
+
+        Attributes:
+            name: Metric name.
+            title: Capitalized metric title, short and human-readable.
+            descr: A longer metric description.
+            type: the type of the key (e.g., "int", "float").
+            unit: The unit of the metric (full name, singular, like "second"). This key is optional.
+            short_unit: A short form of the unit of measurement (e.g., "s" instead of "second").
+                        This key is optional.
+            scope: The scope of the metric (e.g., "package"). This key is optional.
+            categories: A list of categories that the metric belongs to. This key is optional.
+        """
+
+        name: str
+        title: str
+        descr: str
+        type: str
+        unit: str
+        short_unit: str
+        scope: str
+        categories: list[str]
+
+# The maximum MDD keys length.
+MAX_KEY_LEN: Final[int] = 64
 # The maximum string MDD values length.
-MAX_VAL_LEN = 2048
+MAX_VAL_LEN: Final[int] = 2048
 
-class MDTypedDict(TypedDict, total=False):
-    """
-    The metric definition, describing a single metric.
-
-    Attributes:
-        name: Metric name.
-        title: Capitalized metric title, short and human-readable.
-        descr: A longer metric description.
-        type: the type of the key (e.g., "int", "float").
-        unit: The unit of the metric (full name, singular, like "second"). This key is optional.
-        short_unit: A short form of the unit of measurement (e.g., "s" instead of "second"). This
-                    key is optional.
-        scope: The scope of the metric (e.g., "package"). This key is optional.
-        categories: A list of categories that the metric belongs to. This key is optional.
-    """
-
-    name: str
-    title: str
-    descr: str
-    type: str
-    unit: str
-    short_unit: str
-    scope: str
-    categories: list[str]
+# The 'MDTypedDict' allowed keys.
+_ALLOWED_KEYS: Final[set[str]] = {"name", "title", "descr", "type", "unit", "short_unit",
+                                 "scope", "categories"}
 
 def validate_mdd(mdd: dict[str, MDTypedDict], mdd_src: str | None = None):
     """
@@ -118,9 +125,8 @@ def validate_mdd(mdd: dict[str, MDTypedDict], mdd_src: str | None = None):
 
     list_keys = ("categories",)
     for metric, md in mdd.items():
-        allowed_keys = MDTypedDict.__annotations__
         for key, val in md.items():
-            if key not in allowed_keys:
+            if key not in _ALLOWED_KEYS:
                 _raise(f"Unknown key '{key}' for metric '{metric}'")
 
             if key not in list_keys:
@@ -163,9 +169,6 @@ class MDCBase:
         if yaml_path and mdd:
             raise Error("BUG: 'yaml_path' and 'mdd' are mutually exclusive")
 
-        # TODO: a hack to silence mypy "literal-required" warnings. It might have been fixed in
-        # newer mypy versions so that the 'tuple' type is fine to use. Refer to
-        # https://github.com/python/mypy/issues/7178
         self._mangle_subkeys: Sequence[Literal["title", "descr"]] = ("title", "descr")
 
         what = f"the '{yaml_path}' metrics definition file"
@@ -215,7 +218,7 @@ class MDCBase:
 
             if "key_substitute" in new_md: # type: ignore[typeddict-item]
                 # YAML format does not allow for special characters in the key name, so the special
-                # "key_subsitute" key is used to store the new metric name pattern.
+                # "key_substitute" key is used to store the new metric name pattern.
                 new_name = new_md["key_substitute"] # type: ignore[typeddict-item]
                 del new_md["key_substitute"] # type: ignore[typeddict-item]
 

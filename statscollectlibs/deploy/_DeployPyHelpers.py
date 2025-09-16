@@ -14,13 +14,16 @@ Provide API for deploying Python helpers (non-driver installables and deployable
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, ProjectFiles
 from pepclibs.helperlibs import ToolChecker
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from statscollectlibs.deploy import DeployHelpersBase
-from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
+
+if typing.TYPE_CHECKING:
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+    from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

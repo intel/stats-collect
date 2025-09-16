@@ -12,6 +12,7 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import sys
+import typing
 from pathlib import Path
 
 try:
@@ -24,9 +25,11 @@ except ImportError:
 from pepclibs.helperlibs import Logging, ArgParse
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploy import _Deploy
-from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 from statscollectlibs.collector import StatsCollectBuilder
 from statscollecttools import ToolInfo
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 
 _STC_DEPLOY_INFO: DeployInfoTypedDict = {
     "installables": {

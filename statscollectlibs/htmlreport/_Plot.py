@@ -12,34 +12,37 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import Union, Any
+import typing
 from pathlib import Path
 import pandas
 import plotly
 from pandas.core.dtypes.common import is_numeric_dtype, is_datetime64_any_dtype
 from pepclibs.helperlibs import Logging, Human, Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 
-class CDTypedDict(MDTypedDict, total=False):
-    """
-    The column definition for a dataframe column. It is same as the metrics definition
-    'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
+if typing.TYPE_CHECKING:
+    from typing import Union, Any
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
 
-    Attributes:
-        colname: Column name the definition describes.
-        sname: Column scope, for example "System" or "CPU0".
-    """
+    class CDTypedDict(MDTypedDict, total=False):
+        """
+        The column definition for a dataframe column. It is same as the metrics definition
+        'MDTypedDict', but describes a dataframe column, like "CPU0-PkgPower".
 
-    colname: str
-    sname: str
+        Attributes:
+            colname: Column name the definition describes.
+            sname: Column scope, for example "System" or "CPU0".
+        """
+
+        colname: str
+        sname: str
+
+    _PlotlyGraphObjectType = Union[plotly.graph_objs.Scatter, plotly.graph_objs.Histogram]
 
 # Default plotly diagram layout configuration.
-
 _FONTFMT = {"family": "Arial, sans-serif",
             "size": 18,
             "color": "black"}
-
 _AXIS = {"hoverformat": ".3s",
          "showline": True,
          "showgrid": True,
@@ -52,7 +55,6 @@ _AXIS = {"hoverformat": ".3s",
          "zeroline": True,
          "zerolinewidth": 1,
          "zerolinecolor": "black"}
-
 _LEGEND = {"font": {"size" : 14},
            "bgcolor": "#E2E2E2",
            "borderwidth": 2,
@@ -64,8 +66,6 @@ _LEGEND = {"font": {"size" : 14},
            "y": 1}
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-_PlotlyGraphObjectType = Union[plotly.graph_objs.Scatter, plotly.graph_objs.Histogram]
 
 class Plot:
     """Base class for Plotly diagrams used in HTML reports."""

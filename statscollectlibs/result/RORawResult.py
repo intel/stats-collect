@@ -10,19 +10,23 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.parsers import SPECjbb2015CtrlOutParser, SPECjbb2015CtrlLogParser
 from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.result import _RawResultBase
-from statscollectlibs.result._RawResultBase import RawResultSTInfoTypedDict
-from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 from statscollectlibs.mdc import MDCBase
+
+if typing.TYPE_CHECKING:
+    from typing import Final
+    from statscollectlibs.result._RawResultBase import RawResultSTInfoTypedDict
+    from statscollectlibs.result._RawResultBase import RawResultWLInfoTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-KNOWN_WORKLOADS = {
+KNOWN_WORKLOADS: Final[dict[str, str]] = {
     "specjbb2015": "SPECjbb2015 benchmark"
 }
 

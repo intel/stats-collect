@@ -12,26 +12,29 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import TypedDict
 import pandas
 import plotly
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.htmlreport import _Plot
 
-class XBinsTypedDict(TypedDict, total=False):
-    """
-    The typed dictionary for histogram bin configuration.
+if typing.TYPE_CHECKING:
+    from typing import TypedDict
 
-    Attributes:
-        start: The starting value for the bins.
-        end: The end value for the bins.
-        size: The size of each bin.
-    """
+    class XBinsTypedDict(TypedDict, total=False):
+        """
+        The typed dictionary for histogram bin configuration.
 
-    start: int | float
-    end: int | float
-    size: int | float
+        Attributes:
+            start: The starting value for the bins.
+            end: The end value for the bins.
+            size: The size of each bin.
+        """
+
+        start: int | float
+        end: int | float
+        size: int | float
 
 class Histogram(_Plot.Plot):
     """Provide functionality for generating Plotly histograms."""

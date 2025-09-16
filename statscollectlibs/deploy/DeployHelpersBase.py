@@ -14,15 +14,20 @@ docstring for terminology reference.
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import os
+import typing
+from typing import cast
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ProjectFiles, ToolChecker
 from pepclibs.helperlibs.Exceptions import Error
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 from statscollectlibs.deploy import DeployInstallableBase
-from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
 
-HELPERS_DEPLOY_SUBDIR = Path(".local")
-HELPERS_SRC_SUBDIR = Path("helpers")
+if typing.TYPE_CHECKING:
+    from typing import Final
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+    from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
+
+HELPERS_DEPLOY_SUBDIR: Final[Path] = Path(".local")
+HELPERS_SRC_SUBDIR: Final[Path] = Path("helpers")
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -89,13 +94,14 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
 
         envar = ProjectFiles.get_project_helpers_envar("stats-collect")
         stdout, _ = self._spman.run_verify(f"echo ${envar}")
-        helpers_path = stdout.strip()
+        helpers_path: str | Path = cast(str, stdout).strip()
         if not helpers_path:
-            helpers_path = os.environ.get(envar)
-        if not helpers_path:
-            homedir = self._spman.get_envar("HOME")
-            if homedir:
-                helpers_path =  Path(homedir) / HELPERS_DEPLOY_SUBDIR / "bin"
+            if envar in os.environ:
+                helpers_path = os.environ[envar]
+            else:
+                homedir = self._spman.get_envar("HOME")
+                if homedir:
+                    helpers_path =  Path(homedir) / HELPERS_DEPLOY_SUBDIR / "bin"
         return Path(helpers_path)
 
     def deploy(self, insts_info: dict[str, InstallableInfoTypedDict]):
@@ -147,7 +153,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
 
             cmd = f"make -C '{sinstpath}' install PREFIX='{installable_dstdir}'"
             stdout, stderr = self._spman.run_verify(cmd)
-            self._log_cmd_output(stdout, stderr)
+            self._log_cmd_output(cast(str, stdout), cast(str, stderr))
 
             self._spman.rsync(str(installable_dstdir) + "/bin/", deploy_path,
                               remotesrc=self._spman.is_remote,

@@ -13,9 +13,12 @@ terminology reference.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, ToolChecker
-from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+
+if typing.TYPE_CHECKING:
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

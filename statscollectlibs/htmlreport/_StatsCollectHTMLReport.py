@@ -11,13 +11,16 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import cast
 from pepclibs.helperlibs import Logging
 from statscollectlibs.htmlreport import HTMLReport, IntroTable
 from statscollectlibs.htmlreport.tabs import _CapturedOutputTabBuilder, _SPECjbb2015TabBuilder
 from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.result import RORawResult, LoadedResult
+
+if typing.TYPE_CHECKING:
+    from typing import cast
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -181,7 +184,11 @@ class StatsCollectHTMLReport:
         if wlname == "specjbb2015":
             specjbb_bldr = _SPECjbb2015TabBuilder.SPECjbb2015TabBuilder(self._lrsts, tabdir,
                                                                         basedir=self.outdir)
-            ctab = cast(BuiltTab.BuiltCTab, specjbb_bldr.build_tab())
+            _ctab = specjbb_bldr.build_tab()
+            if typing.TYPE_CHECKING:
+                ctab = cast(BuiltTab.BuiltCTab, _ctab)
+            else:
+                ctab = _ctab
         else:
             capout_bldr = _CapturedOutputTabBuilder.CapturedOutputTabBuilder(self._lrsts, tabdir,
                                                                              basedir=self.outdir)

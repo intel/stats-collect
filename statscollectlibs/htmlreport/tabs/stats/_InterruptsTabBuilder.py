@@ -12,13 +12,16 @@ Provide the capability to populate the interrupts statistics tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from statscollectlibs.mdc.MDCBase import MDTypedDict
 from statscollectlibs.result.LoadedResult import LoadedResult
 from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.htmlreport.tabs.stats import _StatTabBuilderBase
-from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
 from statscollectlibs.htmlreport.tabs._TabConfig import CTabConfig, DTabConfig
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.mdc.MDCBase import MDTypedDict
+    from statscollectlibs.htmlreport.tabs.stats._StatTabBuilderBase import CDTypedDict
 
 class InterruptsTabBuilder(_StatTabBuilderBase.StatTabBuilderBase):
     """Provide the capability to populate the interrupts statistics tab."""

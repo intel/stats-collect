@@ -15,8 +15,8 @@ results and creating plots, histograms, tables, and more.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import Union, Type
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound, ErrorBadFormat
 from statscollectlibs.htmlreport.tabs import BuiltTab
@@ -25,17 +25,20 @@ from statscollectlibs.htmlreport.tabs.stats import _ACPowerTabBuilder, _IPMITabB
 from statscollectlibs.htmlreport.tabs.sysinfo import _SysInfoTabBuilder
 from statscollectlibs.result.LoadedResult import LoadedResult
 
+if typing.TYPE_CHECKING:
+    from typing import Union, Type
+
+    _TabBuilderClassType = Union[Type[_TurbostatTabBuilder.TurbostatTabBuilder],
+                                 Type[_InterruptsTabBuilder.InterruptsTabBuilder],
+                                 Type[_ACPowerTabBuilder.ACPowerTabBuilder],
+                                 Type[_IPMITabBuilder.IPMITabBuilder]]
+
+    _TabBuilderType = Union[_TurbostatTabBuilder.TurbostatTabBuilder,
+                            _InterruptsTabBuilder.InterruptsTabBuilder,
+                            _ACPowerTabBuilder.ACPowerTabBuilder,
+                            _IPMITabBuilder.IPMITabBuilder]
+
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-_TabBuilderClassType = Union[Type[_TurbostatTabBuilder.TurbostatTabBuilder],
-                             Type[_InterruptsTabBuilder.InterruptsTabBuilder],
-                             Type[_ACPowerTabBuilder.ACPowerTabBuilder],
-                             Type[_IPMITabBuilder.IPMITabBuilder]]
-
-_TabBuilderType = Union[_TurbostatTabBuilder.TurbostatTabBuilder,
-                        _InterruptsTabBuilder.InterruptsTabBuilder,
-                        _ACPowerTabBuilder.ACPowerTabBuilder,
-                        _IPMITabBuilder.IPMITabBuilder]
 
 class _StatsTabBuilder:
     """

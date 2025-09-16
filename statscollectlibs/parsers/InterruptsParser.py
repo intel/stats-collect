@@ -13,50 +13,52 @@ contents separated by "timestamp: <time_since_epoch>" lines.
 
 from __future__ import annotations  # Remove when switching to Python 3.10+.
 
-import itertools
 import re
 import os
+import typing
+import itertools
 from pathlib import Path
-from typing import IO, Generator, Iterator, TypedDict, Sequence, Literal
-
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 
+if typing.TYPE_CHECKING:
+    from typing import IO, Generator, Iterator, TypedDict, Sequence, Literal, Pattern, Final, cast
+
+    class IRQInfoTypedDict(TypedDict, total=False):
+        """
+        The IRQ information dictionary type.
+
+        Attributes:
+            irq_num: The interrupt number or special name, such as "NMI".
+            chip_name: The interrupt chip name.
+            hwirq: The platform-specific HW interrupt information, on x86 it is the HW interrupt
+                   number and type.
+            action: The interrupt handler name.
+        """
+
+        irq_num: int | str
+        chip_name: str | None
+        hwirq: str | None
+        action: str | None
+
+    class DataSetTypedDict(TypedDict, total=False):
+        """
+        The data set dictionary type yielded by the '_InterruptsParser' parser.
+
+        Attributes:
+            timestamp: Time since epoch when the '/proc/interrupts' snapshot was taken.
+            cpu2irqs: A dictionary indexed by CPU numbers, where the values are dictionaries indexed
+                      by IRQ names with the interrupt counts as values.
+            irq_info: A dictionary indexed by IRQ names, where the values are dictionaries of type
+                      'IRQInfoTypedDict'.
+        """
+
+        timestamp: float
+        cpu2irqs: dict[int, dict[str, int]]
+        irq_info: dict[str, IRQInfoTypedDict]
+
 # Regular expression to match timestamp lines in the input data.
-_TIMESTAMP_REGEX = re.compile(r"^timestamp: (\d+\.\d+)$")
-
-class IRQInfoTypedDict(TypedDict, total=False):
-    """
-    The IRQ information dictionary type.
-
-    Attributes:
-        irq_num: The interrupt number or special name, such as "NMI".
-        chip_name: The interrupt chip name.
-        hwirq: The platform-specific HW interrupt information, on x86 it is the HW interrupt number
-               and type.
-        action: The interrupt handler name.
-    """
-
-    irq_num: int | str
-    chip_name: str | None
-    hwirq: str | None
-    action: str | None
-
-class DataSetTypedDict(TypedDict, total=False):
-    """
-    The data set dictionary type yielded by the '_InterruptsParser' parser.
-
-    Attributes:
-        timestamp: Time since epoch when the '/proc/interrupts' snapshot was taken.
-        cpu2irqs: A dictionary indexed by CPU numbers, where the values are dictionaries indexed by
-                  IRQ names with the interrupt counts as values.
-        irq_info: A dictionary indexed by IRQ names, where the values are dictionaries of type
-                  'IRQInfoTypedDict'.
-    """
-
-    timestamp: float
-    cpu2irqs: dict[int, dict[str, int]]
-    irq_info: dict[str, IRQInfoTypedDict]
+_TIMESTAMP_REGEX: Final[Pattern] = re.compile(r"^timestamp: (\d+\.\d+)$")
 
 class InterruptsParser:
     """
@@ -82,8 +84,6 @@ class InterruptsParser:
         if path:
             if not isinstance(path, Path):
                 raise Error("Please provide a Path object for 'path'")
-        elif not isinstance(lines, Iterator):
-            raise Error("Please provide an iterator for 'lines'")
 
         self._path = path
         self._lines = lines
@@ -216,7 +216,10 @@ class InterruptsParser:
 
             if not self._dataset:
                 # This is the very first dataset.
-                self._dataset = DataSetTypedDict(timestamp=self._timestamp)
+                if typing.TYPE_CHECKING:
+                    self._dataset = DataSetTypedDict(timestamp=self._timestamp)
+                else:
+                    self._dataset = {"timestamp": self._timestamp}
                 return
 
             self._finalise_dataset()
@@ -225,7 +228,10 @@ class InterruptsParser:
             self._last_yielded_dataset = self._dataset
             self._yielded_cnt += 1
 
-            self._dataset = DataSetTypedDict(timestamp=self._timestamp)
+            if typing.TYPE_CHECKING:
+                self._dataset = DataSetTypedDict(timestamp=self._timestamp)
+            else:
+                self._dataset = {"timestamp": self._timestamp}
             self._cpu2irqs = {}
             self._irq_info = {}
         else:
@@ -271,18 +277,14 @@ class InterruptsParser:
                 irq_infos.append(val)
 
             # Sometimes one or more of the last 3 columns are missing. Pad the list with 'None's.
-            #
-            # TODO: a hack to silence mypy "literal-required" warnings. It might have been fixed in
-            # newer mypy so that the 'tuple' type is fine to use. Refer to
-            # https://github.com/python/mypy/issues/7178
             keys: Sequence[Literal["irq_num", "chip_name", "hwirq", "action"]] = \
                                                         ("irq_num", "chip_name", "hwirq", "action")
             for _ in range(len(keys) - len(irq_infos)):
                 irq_infos.append(None)
 
             self._irq_info[irq_name] = {}
-            for key, val in zip(keys, irq_infos):
-                self._irq_info[irq_name][key] = val
+            for key, _val in zip(keys, irq_infos):
+                self._irq_info[irq_name][key] = _val
 
     def _next(self, lines: Iterator[str] | IO[str]) -> Generator[DataSetTypedDict, None, None]:
         """
@@ -365,28 +367,38 @@ class InterruptsParser:
             Datasets of type 'DataSetTypedDict' containing the parsed '/proc/interrupts' snapshot.
         """
 
-        if self._path:
-            try:
-                # pylint: disable=consider-using-with
-                self._lines = open(self._path, "r", encoding="utf-8")
-            except OSError as err:
-                msg = Error(err).indent(2)
-                raise Error(f"Failed to open '{self._path}':\n{msg}") from err
-        elif not isinstance(self._lines, Iterator):
-            raise Error("Please provide an iterator or a file path")
-
+        opened = False
         try:
-            yield from self._next(self._lines)
-        except OSError as err:
-            msg = "An error occurred"
             if self._path:
-                msg += f" while parsing file '{self._path}'"
-            msg += f":\n{Error(err).indent(2)}"
-            raise Error(msg) from err
+                try:
+                    # pylint: disable=consider-using-with
+                    self._lines = open(self._path, "r", encoding="utf-8")
+                    opened = True
+                except OSError as err:
+                    errmsg = Error(str(err)).indent(2)
+                    raise Error(f"Failed to open '{self._path}':\n{errmsg}") from err
 
-        if isinstance(self._lines, IO):
-            self._lines.close()
-            self._lines = None
+            if typing.TYPE_CHECKING:
+                _lines = cast(Iterator[str], self._lines)
+            else:
+                _lines = self._lines
+
+            try:
+                yield from self._next(_lines)
+            except OSError as err:
+                errmsg = "An error occurred"
+                if self._path:
+                    errmsg += f" while parsing file '{self._path}'"
+                errmsg += f":\n{Error(str(err)).indent(2)}"
+                raise Error(errmsg) from err
+        finally:
+            if opened:
+                if typing.TYPE_CHECKING:
+                    io_lines = cast(IO[str], self._lines)
+                else:
+                    io_lines = self._lines
+                io_lines.close()
+                self._lines = None
 
     def _locate_last_snapshot(self, fobj: IO[str], max_pos: int | None = None) -> int:
         """
@@ -476,19 +488,19 @@ class InterruptsParser:
             # pylint: disable=consider-using-with
             fobj = open(self._path, "r", encoding="utf-8")
         except OSError as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"Failed to open '{self._path}':\n{errmsg}") from err
 
         try:
             pos = self._locate_last_snapshot(fobj)
         except OSError as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"I/O error on file '{self._path}':\n{errmsg}") from err
 
         try:
             fobj.seek(pos)
         except OSError as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"Cannot set file position to {pos} for file "
                         f"'{self._path}':\n{errmsg}") from err
 
@@ -509,13 +521,13 @@ class InterruptsParser:
         try:
             pos = self._locate_last_snapshot(fobj, max_pos=pos)
         except OSError as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"I/O error on file '{self._path}':\n{errmsg}") from err
 
         try:
             fobj.seek(pos)
         except OSError as err:
-            errmsg = Error(err).indent(2)
+            errmsg = Error(str(err)).indent(2)
             raise Error(f"Cannot set file position to {pos} for file "
                         f"'{self._path}':\n{errmsg}") from err
 

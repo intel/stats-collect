@@ -13,6 +13,7 @@ Provide the 'DTabBuider' class that builds an HTML report data tab (D-tab).
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging
@@ -20,8 +21,10 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import DFSummary
 from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
-from statscollectlibs.htmlreport._Plot import CDTypedDict
-from statscollectlibs.htmlreport._Histogram import XBinsTypedDict
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.htmlreport._Plot import CDTypedDict
+    from statscollectlibs.htmlreport._Histogram import XBinsTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 

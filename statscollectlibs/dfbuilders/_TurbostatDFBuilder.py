@@ -13,13 +13,16 @@ Provide the capability of building 'pandas.DataFrames' out of raw turbostat stat
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from typing import Any
+import typing
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
 from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.parsers import TurbostatParser
 from statscollectlibs.mdc import TurbostatMDC
+
+if typing.TYPE_CHECKING:
+    from typing import Any
 
 class TurbostatDFBuilder:
     """

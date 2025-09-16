@@ -13,33 +13,36 @@ Provide the base class for data tabs in the "SysInfo" container tab.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
-from typing import TypedDict
 from pepclibs.helperlibs import Logging
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
 from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.htmlreport.tabs import _DTabBuilder
 
+if typing.TYPE_CHECKING:
+    from typing import TypedDict
+
+    class FilePreviewInfoTypedDict(TypedDict):
+        """
+        A dictionary containing information about a file preview. A file preview is an element of a
+        D-tab that displays the contents of a file for each raw result, and possibly a diff between
+        the files. For example, the "pepc" D-tab of the "SysInfo" tab includes file previews for
+        "pepc cstates info", "pepc pstates info", and so on. Each file preview includes the "pepc
+        <something> info" output, and when multiple results are included in a single report, each
+        preview will include multiple files, and possibly a diff between them.
+
+        Attributes:
+            title: The title of the file preview.
+            path: The path to the file preview file relative to the raw result path.
+            diff: Whether a diff should be generated.
+        """
+
+        title: str
+        path: Path
+        diff: bool
+
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
-
-class FilePreviewInfoTypedDict(TypedDict):
-    """
-    A dictionary containing information about a file preview. A file preview is an element of a
-    D-tab that displays the contents of a file for each raw result, and possibly a diff between
-    the files. For example, the "pepc" D-tab of the "SysInfo" tab includes file previews for
-    "pepc cstates info", "pepc pstates info", and so on. Each file preview includes the "pepc
-    <something> info" output, and when multiple results are included in a single report, each
-    preview will include multiple files, and possibly a diff between them.
-
-    Attributes:
-        title: The title of the file preview.
-        path: The path to the file preview file relative to the raw result path.
-        diff: Whether a diff should be generated.
-    """
-
-    title: str
-    path: Path
-    diff: bool
 
 class SysInfoDTabBuilderBase(_DTabBuilder.DTabBuilder):
     """

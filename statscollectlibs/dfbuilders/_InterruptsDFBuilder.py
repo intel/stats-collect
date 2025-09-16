@@ -12,14 +12,17 @@ Parse raw interrupt statistics file and build a dataframe.
 
 from __future__ import annotations  # Remove when switching to Python 3.10+.
 
+import typing
 from pathlib import Path
 import pandas
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.dfbuilders import _DFHelpers
 from statscollectlibs.parsers import InterruptsParser
-from statscollectlibs.parsers.InterruptsParser import DataSetTypedDict
 from statscollectlibs.mdc import InterruptsMDC
+
+if typing.TYPE_CHECKING:
+    from statscollectlibs.parsers.InterruptsParser import DataSetTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
