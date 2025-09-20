@@ -58,8 +58,6 @@ def _build_arguments_parser():
     text = "stats-collect - a tool for collecting and visualizing system statistics and telemetry."
     parser = ArgParse.ArgsParser(description=text, prog=ToolInfo.TOOLNAME, ver=ToolInfo.VERSION)
 
-    text = "Force coloring of the text output."
-    parser.add_argument("--force-color", action="store_true", help=text)
     subparsers = parser.add_subparsers(title="commands", dest="a command")
     subparsers.required = True
 
