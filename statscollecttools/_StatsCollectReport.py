@@ -8,14 +8,13 @@
 #          Adam Hawley <adam.james.hawley@intel.com>
 
 """
-The 'stats-collect report' command implementation.
+Implement the 'stats-collect report' command.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import argparse
+import typing
 from pathlib import Path
-from typing import NamedTuple
 from pepclibs.helperlibs import Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import ReportID
@@ -23,34 +22,48 @@ from statscollectlibs.result import RORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 from statscollecttools import ToolInfo, _Common
 
-class _ReportCommandArgsType(NamedTuple):
-    """The "stats-collect report" command-line arguments named tuple type."""
+if typing.TYPE_CHECKING:
+    import argparse
+    from typing import TypedDict
 
-    outdir: Path
-    reportids: list[str]
-    copy_raw: bool
-    respaths: list[Path]
-    cpus: list[int] | None
+    class _ReportCmdlArgsTypedDict(TypedDict, total=False):
+        """
+        Typed dictionary for the "stats-collect start" command-line arguments.
 
-def _open_raw_results(args: _ReportCommandArgsType) -> list[RORawResult.RORawResult]:
+        Attributes:
+            outdir: The output directory path.
+            reportids: Report IDs to assign to the raw test results.
+            copy_raw: Whether to copy the raw test results to the HTML report directory.
+            respaths: Paths to the raw test results.
+            cpus: CPU numbers to use for generating CPU-specific charts. By default, use CPUs
+                  numbers found in the raw test results.
+        """
+
+        outdir: Path
+        reportids: list[str]
+        copy_raw: bool
+        respaths: list[Path]
+        cpus: list[int] | None
+
+def _open_raw_results(cmdl: _ReportCmdlArgsTypedDict) -> list[RORawResult.RORawResult]:
     """
-    Open the input raw test results and return a list of 'RORawResult' objects.
+    Open the raw test results and return a list of 'RORawResult' objects.
 
     Args:
-        args: The command-line arguments.
+        cmdl: The command-line arguments.
 
     Returns:
         list[RORawResult.RORawResult]: List of 'RORawResult' objects.
     """
 
-    rids = list(args.reportids)
+    rids = list(cmdl["reportids"])
 
     # Append the required amount of empty strings to make the 'rids' list be of the same length as #
     # the 'respaths' list.
-    rids += [""] * (len(args.respaths) - len(rids))
+    rids += [""] * (len(cmdl["respaths"]) - len(rids))
 
     rsts = []
-    for respath, reportid in zip(args.respaths, rids):
+    for respath, reportid in zip(cmdl["respaths"], rids):
         if reportid:
             ReportID.validate_reportid(reportid)
 
@@ -65,67 +78,67 @@ def _open_raw_results(args: _ReportCommandArgsType) -> list[RORawResult.RORawRes
 
     return rsts
 
-def _format_args(arguments: argparse.Namespace) -> _ReportCommandArgsType:
+def _format_args(args: argparse.Namespace) -> _ReportCmdlArgsTypedDict:
     """
     Validate and format the 'stats-collect report' tool input command-line arguments, then build and
     return the arguments named tuple object.
 
     Args:
-        arguments: The input arguments parsed from the command line.
+        args: The command-line arguments.
 
     Returns:
-        _ReportCommandArgsType: A named tuple containing the formatted arguments.
+        _ReportCmdlTypedDict: A typed dictionary containing the formatted arguments.
     """
 
-    if len(arguments.respaths) == 0:
+    if len(args.respaths) == 0:
         # This should have been ensured by the command line parser.
         raise Error("BUG: no raw results paths provided")
 
-    if not arguments.outdir:
-        outdir = arguments.respaths[0] / "html-report"
+    if not args.outdir:
+        outdir = args.respaths[0] / "html-report"
     else:
-        outdir = arguments.outdir
+        outdir = args.outdir
 
     reportids: list[str] = []
-    if arguments.reportids:
-        reportids = Trivial.split_csv_line(arguments.reportids)
+    if args.reportids:
+        reportids = Trivial.split_csv_line(args.reportids)
 
     respaths: list[Path] = []
-    if arguments.respaths:
-        respaths = arguments.respaths
+    if args.respaths:
+        respaths = args.respaths
 
     if len(reportids) > len(respaths):
-        raise Error(f"There are {len(reportids)} report IDs to assign to {len(respaths)} input "
+        raise Error(f"There are {len(reportids)} report IDs to assign to {len(respaths)} raw "
                     f"test results. Please, provide {len(respaths)} or fewer report IDs.")
 
     cpus: list[int] | None = []
-    if arguments.cpus:
-        cpus = Trivial.split_csv_line_int(arguments.cpus, what="--cpus argument")
+    if args.cpus:
+        cpus = Trivial.split_csv_line_int(args.cpus, what="--cpus argument")
 
-    return _ReportCommandArgsType(
-        outdir = outdir,
-        reportids = reportids,
-        copy_raw = arguments.copy_raw,
-        respaths = respaths,
-        cpus = cpus,
-    )
+    cmdl: _ReportCmdlArgsTypedDict = {}
+    cmdl["outdir"] = outdir
+    cmdl["reportids"] = reportids
+    cmdl["copy_raw"] = args.copy_raw
+    cmdl["respaths"] = respaths
+    cmdl["cpus"] = cpus
+    return cmdl
 
-def report_command(arguments):
+def report_command(args: argparse.Namespace):
     """
     Implements the 'report' command.
 
     Args:
-        arguments: The command-line arguments.
+        args: The command-line arguments.
     """
 
-    args = _format_args(arguments)
+    cmdl = _format_args(args)
 
-    rsts = _open_raw_results(args)
+    rsts = _open_raw_results(cmdl)
 
-    logpath = _Common.configure_log_file(args.outdir, ToolInfo.TOOLNAME)
-    logpath = Path(logpath).relative_to(args.outdir)
+    logpath = _Common.configure_log_file(cmdl["outdir"], ToolInfo.TOOLNAME)
+    logpath = Path(logpath).relative_to(cmdl["outdir"])
 
-    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, args.outdir, cpus=args.cpus,
+    rep = _StatsCollectHTMLReport.StatsCollectHTMLReport(rsts, cmdl["outdir"], cpus=cmdl["cpus"],
                                                          logpath=logpath)
-    rep.copy_raw = args.copy_raw
+    rep.copy_raw = cmdl["copy_raw"]
     rep.generate()

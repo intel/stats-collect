@@ -1021,8 +1021,8 @@ def handle_client(client, stc_agent):
 
     raise ExitCommand()
 
-def main():
-    """Script entry point."""
+def _main():
+    """Implement main logic."""
 
     if PID == 1:
         # We are the 'init' process, set up signal handlers.
@@ -1056,13 +1056,17 @@ def main():
     _LOG.debug("exiting")
     return 0
 
-# The script entry point.
-if __name__ == "__main__":
-    try:
-        _exitcode = main()
-    except KeyboardInterrupt:
-        _LOG.error_out("interrupted, exiting")
-    except Error as error:
-        _LOG.error_out(error, print_tb=True)
+def main():
+    """Script entry point."""
 
-    sys.exit(_exitcode)
+    try:
+        return _main()
+    except KeyboardInterrupt:
+        _LOG.info("\nInterrupted, exiting")
+    except Error as err:
+        _LOG.error_out(err)
+
+    return -1
+
+if __name__ == "__main__":
+    raise SystemExit(main())

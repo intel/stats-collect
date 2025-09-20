@@ -52,8 +52,8 @@ def print_module_paths():
 
         print(path)
 
-def main():
-    """Script entry point."""
+def _main():
+    """Implement main logic."""
 
     args = parse_arguments()
 
@@ -102,11 +102,19 @@ def main():
     finally:
         fobj.close()
 
-# The very first script entry point."""
-if __name__ == "__main__":
+    return 0
+
+def main():
+    """Script entry point."""
+
     try:
-        sys.exit(main())
+        return _main()
     except KeyboardInterrupt:
-        _LOG.error_out("interrupted, exiting")
+        _LOG.info("\nInterrupted, exiting")
     except Error as err:
-        _LOG.error_out(err, print_tb=True)
+        _LOG.error_out(err)
+
+    return -1
+
+if __name__ == "__main__":
+    raise SystemExit(main())

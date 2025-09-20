@@ -324,23 +324,19 @@ class _Runner(ClassHelpers.SimpleCloseContext):
             self._run_iteration(ldist)
 
 def main():
-    """The tool entry point."""
+    """Implement main logic."""
 
-    cmdl = _parse_arguments()
-
-    with _Runner(cmdl) as runner:
-        runner.run()
+    try:
+        cmdl = _parse_arguments()
+        with _Runner(cmdl) as runner:
+            runner.run()
+    except KeyboardInterrupt:
+        _LOG.info("\nInterrupted, exiting")
+        return -1
+    except Error as err:
+        _LOG.error_out(err)
 
     return 0
 
-# The script entry point.
 if __name__ == "__main__":
-    try:
-        exitcode = main()
-    except KeyboardInterrupt:
-        _LOG.error_out("interrupted, exiting")
-    except Error as error:
-        print_tb = _LOG.getEffectiveLevel() == Logging.DEBUG
-        _LOG.error_out(error, print_tb=print_tb)
-
-    sys.exit(exitcode)
+    raise SystemExit(main())

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2024 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""The 'stats-collect start' command implementation."""
+"""
+Implement the 'stats-collect start' command.
+"""
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
@@ -15,6 +17,7 @@ import typing
 import contextlib
 from pathlib import Path
 from pepclibs.helperlibs import Logging, Trivial, Human, LocalProcessManager, ProcessManager
+from pepclibs.helperlibs import ArgParse
 from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
 from statscollectlibs import _Runner
@@ -25,20 +28,18 @@ from statscollectlibs.result import RORawResult, _WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
 
 if typing.TYPE_CHECKING:
-    from typing import TypedDict
     import argparse
+    from typing import cast
+    from pepclibs.helperlibs.ArgParse import SSHArgsTypedDict
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
     from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 
-    class _StartCmdlArgsTypedDict(TypedDict, total=False):
+    class _StartCmdlArgsTypedDict(SSHArgsTypedDict, total=False):
         """
         Typed dictionary for the "stats-collect start" command-line arguments.
 
-        Args:
-            username: The remote host username.
-            hostname: The remote host name or IP address.
-            privkey: The path to the private key file for SSH authentication.
-            timeout: The SSH connection timeout in seconds.
+        Attributes:
+            (All attributes from 'SSHArgsTypedDict')
             tlimit: The time limit for the command execution in seconds.
             outdir: The output directory path.
             reportid: The report ID.
@@ -52,10 +53,6 @@ if typing.TYPE_CHECKING:
             cmd: The command to execute.
         """
 
-        username: str
-        hostname: str
-        privkey: Path | None
-        timeout: int | float
         tlimit: float | None
         outdir: Path
         reportid: str
@@ -76,15 +73,20 @@ def _format_args(args: argparse.Namespace) -> _StartCmdlArgsTypedDict:
     return the arguments typed dictionary.
 
     Args:
-        args: The input arguments parsed from the command line.
+        args: The command-line arguments.
 
     Returns:
-        _StartCommandArgsTypedDict: A typed dictionary containing the formatted arguments.
+        _StartCmdlArgsTypedDict: A typed dictionary containing the formatted arguments.
 
     Notes:
         - If the 'tlimit' argument does not have the unit, assume milliseconds.
         - The 'outdir' argument defaults to a directory named after the 'reportid' if not provided.
     """
+
+    if typing.TYPE_CHECKING:
+        cmdl = cast(_StartCmdlArgsTypedDict, ArgParse.format_ssh_args(args))
+    else:
+        cmdl = ArgParse.format_ssh_args(args)
 
     # Format the 'tlimit' argument.
     if args.tlimit:
@@ -95,17 +97,10 @@ def _format_args(args: argparse.Namespace) -> _StartCmdlArgsTypedDict:
     else:
         tlimit = None
 
-    hostname = args.hostname
-
-    if args.privkey:
-        privkey = Path(args.privkey)
-    else:
-        privkey = None
-
     reportid = args.reportid
 
-    if not reportid and hostname != "localhost":
-        prefix = hostname
+    if not reportid and cmdl["hostname"] != "localhost":
+        prefix = cmdl["hostname"]
     else:
         prefix = None
     reportid = ReportID.format_reportid(prefix=prefix, reportid=reportid,
@@ -123,11 +118,6 @@ def _format_args(args: argparse.Namespace) -> _StartCmdlArgsTypedDict:
 
     pipe_timeout = Human.parse_human(args.pipe_timeout, unit="s", what="pipe timeout")
 
-    cmdl: _StartCmdlArgsTypedDict = {}
-    cmdl["hostname"] = hostname
-    cmdl["username"] = args.username if args.username else "root"
-    cmdl["privkey"] = privkey
-    cmdl["timeout"] = args.timeout if args.timeout else 8
     cmdl["tlimit"] = tlimit
     cmdl["outdir"] = outdir
     cmdl["reportid"] = reportid
@@ -234,7 +224,7 @@ def start_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
     Implement the 'stats-collect start' command.
 
     Args:
-        arguments: The command-line arguments passed to the 'start' command.
+        args: The command-line arguments.
         deploy_info: The 'stats-collect' tool deployment information, used for checking the
                      deployment status.
     """
