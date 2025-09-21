@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Adam Hawley <adam.james.hawley@linux.intel.com>
 
 """
-This module provides constants for information about the 'stats-collect' tool, such as version and
-toolname.
+Provide constants for information about the 'stats-collect' tool, such as its
+name and version.
 """
 
-VERSION = "1.0.60"
-TOOLNAME = "stats-collect"
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+import typing
+
+if typing.TYPE_CHECKING:
+    from typing import Final
+
+VERSION: Final[str] = "1.0.60"
+TOOLNAME: Final[str] = "stats-collect"
