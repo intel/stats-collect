@@ -21,10 +21,10 @@ def get_version(filename):
 
     with open(filename, "r", encoding="utf-8") as fobj:
         for line in fobj:
-            matchobj = re.match(r'^VERSION = "(\d+.\d+.\d+)"$', line)
+            matchobj = re.match(r'^VERSION([^=]*)= "(\d+.\d+.\d+)"$', line)
             if matchobj:
-                return matchobj.group(1)
-    return None
+                return matchobj.group(2)
+    raise Exception("Failed to fine version number")
 
 def get_data_files(installdir, subdir, exclude=None):
     """
