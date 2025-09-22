@@ -72,10 +72,9 @@ setup(
                               "helpers/stc-wl-cpu-wake-walk", exclude=_PYTHON_HELPERS),
     scripts=_TOOLNAMES + _PYTHON_HELPERS,
     packages=find_packages(),
-    # - Desired 'plotly' version is '>=5.18.0' as earlier versions contain a non-critical bug.
-    # - The 'numpy' and 'pyarrow' packages are requred for the 'pandas' package.
-    # - pandas 2.3.0 had a deploy issue in CentOS9, so temporarily force the earler version.
-    install_requires=["pepc>=1.6.5", "plotly>=4", "pandas>=2.1.0,<2.3.0", "Pyarrow", "numpy", "pyyaml", "colorama"],
+    # The 'numpy' and 'pyarrow' packages are requred for the 'pandas' package.
+    install_requires=["Pyarrow", "numpy", "pyyaml", "colorama",
+                      "pepc>=1.6.5", "plotly>=5.18.0", "pandas>=2.1.0"],
     long_description="""This package provides stats-collect - a Linux command-line tool which
                         collects and visualizes system statistics and telemetry.""",
     classifiers=[
