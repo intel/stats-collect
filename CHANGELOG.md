@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Adapt to pepc API changes.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.61] - 2025-09-22
+### Fixed
+ - Adapt to pepc API changes.
 
 ## [1.0.60] - 2025-09-16
 ### Fixed
