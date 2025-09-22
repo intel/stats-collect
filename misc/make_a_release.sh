@@ -13,6 +13,7 @@ BASEDIR="$(readlink -ev -- ${0%/*}/..)"
 
 # Regular expression matching stats-collect version.
 VERSION_REGEX='\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)'
+VERSION_VAR_REGEX="^VERSION\([^=]*\)= \"$VERSION_REGEX\"$"
 
 # File paths containing the version number that we'll have to adjust.
 STCOLL_FILE="$BASEDIR/statscollecttools/_StatsCollect.py"
@@ -75,9 +76,8 @@ if [ $# -eq 1 ]; then
            fatal "please, provide new version in X.Y.Z format"
 elif [ $# -eq 0 ]; then
     # The new version was not provided, increment the current version number.
-    sed_regex="^VERSION = \"$VERSION_REGEX\"$"
-    ver_start="$(sed -n -e "s/$sed_regex/\1.\2./p" "$STCOLL_VER_FILE")"
-    ver_end="$(sed -n -e "s/$sed_regex/\3/p" "$STCOLL_VER_FILE")"
+    ver_start="$(sed -n -e "s/$VERSION_VAR_REGEX/\2.\3./p" "$STCOLL_VER_FILE")"
+    ver_end="$(sed -n -e "s/$VERSION_VAR_REGEX/\4/p" "$STCOLL_VER_FILE")"
     ver_end="$(($ver_end+1))"
     new_ver="$ver_start$ver_end"
 else
