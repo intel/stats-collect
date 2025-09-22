@@ -119,7 +119,7 @@ sed -i -e "s/^\(\s\+pepc\s*(>=\s*\)$VERSION_REGEX)/\1$pepc_ver)/g" "$BASEDIR/deb
                           -e "artem.bityutskiy@intel.com" "$CHANGELOG_FILE"
 
 # Change the tool version.
-sed -i -e "s/^VERSION = \"$VERSION_REGEX\"$/VERSION = \"$new_ver\"/" "$STCOLL_VER_FILE"
+sed -i -e "s/$VERSION_VAR_REGEX/VERSION\1= \"$new_ver\"/" "$STCOLL_VER_FILE"
 # Change RPM package version.
 sed -i -e "s/^Version:\(\s\+\)$VERSION_REGEX$/Version:\1$new_ver/" "$SPEC_FILE"
 
