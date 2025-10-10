@@ -8,6 +8,7 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+ - Reduce scatter plots more aggressively.
 
 ## [1.0.62] - 2025-09-22
 ### Fixed

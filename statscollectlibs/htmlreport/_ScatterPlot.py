@@ -106,8 +106,8 @@ class ScatterPlot(_Plot.Plot):
                 return df[colname].map(num_rmap)
             return df[colname]
 
-        lo_thresh = 20
-        hi_thresh = 200
+        lo_thresh = 10
+        hi_thresh = 100
         bins_cnt = 100
 
         _LOG.info("Reducing density for report ID '%s', diagram '%s vs %s'",

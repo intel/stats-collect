@@ -197,7 +197,6 @@ class Plot:
                 # Format percentage values with the specified decimal places.
                 val = f"{row[colname]:.{decp}f}"
             else:
-                # Convert numeric values to SI format with the specified unit and decimal places.
                 val = Human.num2si(row[colname], unit=short_unit, decp=decp)
 
             template += f"{hover_cd['name']}: {val}<br>"
