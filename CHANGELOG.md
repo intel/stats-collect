@@ -5,9 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix crashes on older pythons.
 ### Added
 ### Removed
+### Changed
+
+## [1.0.63] - 2025-10-22
+### Fixed
+ - Fix crashes on older pythons.
 ### Changed
  - Reduce scatter plots more aggressively.
 

@@ -1,3 +1,10 @@
+stats-collect (1.0.63) unstable; urgency=low
+
+  * Fix crashes on older pythons.
+  * Reduce scatter plots more aggressively.
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 22 Oct 2025 00:00:00 +0200
+
 stats-collect (1.0.62) unstable; urgency=low
 
   * Fix version number detection.
