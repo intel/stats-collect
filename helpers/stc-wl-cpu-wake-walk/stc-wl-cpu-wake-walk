@@ -196,10 +196,10 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         try:
             # pylint: disable-next=consider-using-with
             self._pipe = open(cmdl["pipe_path"], "w", encoding="utf-8")
-            _LOG.debug(f"Opened the named pipe '{cmdl["pipe_path"]}' for writing")
+            _LOG.debug(f"Opened the named pipe '{cmdl['pipe_path']}' for writing")
         except OSError as err:
             errmsg = Error(str(err)).indent(2)
-            raise Error(f"Failed to open the named pipe '{cmdl["pipe_path"]}' for writing:\n"
+            raise Error(f"Failed to open the named pipe '{cmdl['pipe_path']}' for writing:\n"
                         f"{errmsg}") from None
 
     def close(self):
