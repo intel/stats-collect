@@ -185,7 +185,7 @@ class ScatterPlot(_Plot.Plot):
 
         # Determine marker size and symbol based on whether the X and Y columns are scalar.
         if self._is_numeric(df, self.xcolname) and self._is_numeric(df, self.ycolname):
-            marker_size = 4
+            marker_size = 6
             marker_symbol = next(self._markers)
         else:
             marker_size = 30
