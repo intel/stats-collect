@@ -209,7 +209,14 @@ class DTabBuilder:
                     self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                     break
             else:
+                if not hover_cds:
+                    # Check if there are multiple Y values for the same X value (i.e., the dataframe
+                    # contains duplicate X values). In that case, average the Y values for each X
+                    # value.
+                    df = df[[xcolname, ycolname]].groupby(xcolname, as_index=False).mean()
+
                 reduced_df = s.reduce_df_density(df, reportid)
+
                 if hover_cds:
                     hover_templates = s.create_hover_templates(hover_cds, reduced_df)
                 else:
