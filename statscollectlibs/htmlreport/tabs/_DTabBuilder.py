@@ -46,7 +46,7 @@ def get_fsname(name: str):
 
     name = name.replace("%", "Percent")
     name = name.replace("+", "Plus")
-    name = name.replace("-", "Minus")
+    name = name.replace("-", "_")
 
     # Filter out any remaining non-alphanumeric characters.
     name = "".join([c for c in name if c.isalnum()])
@@ -209,11 +209,14 @@ class DTabBuilder:
                     self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                     break
             else:
+                # Reduce the dataframe to only the necessary columns.
+                df = df[[xcolname, ycolname]]
+
                 if not hover_cds:
                     # Check if there are multiple Y values for the same X value (i.e., the dataframe
                     # contains duplicate X values). In that case, average the Y values for each X
                     # value.
-                    df = df[[xcolname, ycolname]].groupby(xcolname, as_index=False).mean()
+                    df = df.groupby(xcolname, as_index=False).mean()
 
                 reduced_df = s.reduce_df_density(df, reportid)
 
@@ -221,7 +224,12 @@ class DTabBuilder:
                     hover_templates = s.create_hover_templates(hover_cds, reduced_df)
                 else:
                     hover_templates = None
+
                 s.add_df(reduced_df, reportid, hover_templates)
+
+                # Save a CSV version of the data alongside the HTML plot.
+                outpath = self._outdir / f"{Path(fname).stem}-{reportid}.csv"
+                reduced_df.to_csv(outpath, index=False, mode='a')
 
         s.generate()
         self._ppaths.append(s_path)
