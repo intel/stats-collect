@@ -1,5 +1,52 @@
-[tool.ruff.lint]
+[project]
+name = "stats-collect"
+version = "1.0.63"
+description = "A tool for collecting and visualizing system statistics and telemetry."
+authors = [
+    { name = "Artem Bityutskiy", email = "dedekind@gmail.com" }
+]
+requires-python = ">=3.9"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.md"]
+readme = "README.md"
+keywords = ["linux", "power", "performance", "C-state", "P-state"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: System :: Hardware",
+    "Topic :: System :: Operating System Kernels :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+]
 
+dependencies = [
+    "argcomplete",
+    "colorama",
+    "pyyaml",
+    "Pyarrow",
+    "numpy",
+    "pandas>=2.1.0",
+    "pepc>=1.6.10",
+    "plotly>=5.18.0",
+]
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "misc*"]
+
+[tool.setuptools.package-data]
+statscollectdata = ["**"]
+
+[project.scripts]
+stats-collect = "statscollecttools._StatsCollect:main"
+
+[project.urls]
+Documentation = "https://github.com/intel/stats-collect/blob/main/README.md"
+Repository = "https://github.com/intel/stats-collect"
+Changelog = "https://github.com/intel/stats-collect/blob/main/CHANGELOG.md"
+
+[tool.uv]
+package = false
+
+[tool.ruff.lint]
 # F401 = unused-import, disable because pylint checks for this too, and it is
 # more convenient to add exceptions for pylint than for ruff.
 ignore = ["F401"]
