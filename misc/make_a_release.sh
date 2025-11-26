@@ -16,25 +16,25 @@ VERSION_REGEX='\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\)'
 VERSION_VAR_REGEX="^VERSION\([^=]*\)= \"$VERSION_REGEX\"$"
 
 # File paths containing the version number that we'll have to adjust.
-STCOLL_FILE="$BASEDIR/statscollecttools/_StatsCollect.py"
 STCOLL_VER_FILE="$BASEDIR/statscollecttools/ToolInfo.py"
 SPEC_FILE="$BASEDIR/rpm/stats-collect.spec"
+
+# The python packaging file.
+PYPROJECT_TOML="$BASEDIR/pyproject.toml"
 
 # The CHANGELOG.md file path.
 CHANGELOG_FILE="$BASEDIR/CHANGELOG.md"
 
 # Documentation directory and files.
-STCOLL_MAN_DIR="$BASEDIR/docs/man1"
-STCOLL_RST_FILES="$BASEDIR/docs/stats-collect-deploy.rst
-                  $BASEDIR/docs/stats-collect-start.rst
-                  $BASEDIR/docs/stats-collect-report.rst"
+MAN_DIR="$BASEDIR/statscollectdata/man/man1"
+RST_FILES="$BASEDIR/docs/stats-collect-deploy.rst
+           $BASEDIR/docs/stats-collect-start.rst
+           $BASEDIR/docs/stats-collect-report.rst"
 
-# Path to 'pepc' project sources.
-PEPC_SRC_PATH="$BASEDIR/../pepc"
 # Path to the script converting CHANGELOG.md into debian changelog.
-CHANGELOG_MD_TO_DEBIAN="$PEPC_SRC_PATH/misc/changelog_md_to_debian"
+CHANGELOG_MD_TO_DEBIAN="$BASEDIR/misc/changelog_md_to_debian"
 # Path to the script that prepares CHANGELOG.md for the release.
-PREPARE_CHENGELOG_MD="$PEPC_SRC_PATH/misc/prepare_changelog_md"
+PREPARE_CHENGELOG_MD="$BASEDIR/misc/prepare_changelog_md"
 
 fatal() {
         printf "$PROG: error: %s\n" "$1" >&2
@@ -73,7 +73,7 @@ if [ $# -eq 1 ]; then
     new_ver="$1"; shift
     # Validate the new version.
     printf "%s" "$new_ver" | grep -q -x "$VERSION_REGEX" ||
-           fatal "please, provide new version in X.Y.Z format"
+           fatal "Provide new version in X.Y.Z format"
 elif [ $# -eq 0 ]; then
     # The new version was not provided, increment the current version number.
     ver_start="$(sed -n -e "s/$VERSION_VAR_REGEX/\2.\3./p" "$STCOLL_VER_FILE")"
@@ -88,7 +88,7 @@ echo "New stats-collect version: $new_ver"
 
 # Validate the new version.
 printf "%s" "$new_ver" | grep -q -x "$VERSION_REGEX" ||
-         fatal "please, provide new version in X.Y.Z format"
+         fatal "Provide new version in X.Y.Z format"
 
 pepc_ver="$(sed -n -e "s/.*pepc\s*>=\s*\($VERSION_REGEX\).*/\1/p" "$BASEDIR/setup.py")"
 
@@ -96,12 +96,12 @@ echo "Dependency: pepc version >= $pepc_ver"
 
 # Validate 'pepc' version.
 printf "%s" "$pepc_ver" | grep -q -x "$VERSION_REGEX" ||
-         fatal "bad 'pepc' version '$pepc_ver' in '$BASEDIR/setup.py'"
+         fatal "Bad 'pepc' version '$pepc_ver' in '$BASEDIR/setup.py'"
 
 # Make sure that the current branch is 'main' or 'release'.
 current_branch="$(git -C "$BASEDIR" branch | sed -n -e '/^*/ s/^* //p')"
 if [ "$current_branch" != "main" -a "$current_branch" != "release" ]; then
-	fatal "current branch is '$current_branch' but must be 'main' or 'release'"
+	fatal "Current branch is '$current_branch' but must be 'main' or 'release'"
 fi
 
 # Remind the maintainer about various important things.
@@ -120,12 +120,13 @@ sed -i -e "s/^\(\s\+pepc\s*(>=\s*\)$VERSION_REGEX)/\1$pepc_ver)/g" "$BASEDIR/deb
 
 # Change the tool version.
 sed -i -e "s/$VERSION_VAR_REGEX/VERSION\1= \"$new_ver\"/" "$STCOLL_VER_FILE"
+sed -i -e "s/^version = \"$VERSION_REGEX\"$/version = \"$new_ver\"/" "$PYPROJECT_TOML"
 # Change RPM package version.
 sed -i -e "s/^Version:\(\s\+\)$VERSION_REGEX$/Version:\1$new_ver/" "$SPEC_FILE"
 
 # Update the man pages.
-for file in $STCOLL_RST_FILES; do
-    manfile="${STCOLL_MAN_DIR}/$(basename "$file" ".rst").1"
+for file in $RST_FILES; do
+    manfile="${MAN_DIR}/$(basename "$file" ".rst").1"
     pandoc -f rst -s "$file" -t man -o "$manfile"
     git add "$manfile"
 done
