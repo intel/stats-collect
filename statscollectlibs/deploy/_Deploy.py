@@ -10,15 +10,16 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-try:
-    import argcomplete
-    argcomplete_imported = True
-except ImportError:
-    # We can live without argcomplete, we only lose tab completions.
-    argcomplete_imported = False
-
 import typing
 from pathlib import Path
+
+try:
+    import argcomplete
+    _ARGCOMPLETE_IMPORTED = True
+except ImportError:
+    # We can live without argcomplete, we only lose tab completions.
+    _ARGCOMPLETE_IMPORTED = False
+
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.Exceptions import ErrorNotFound
 from statscollectlibs.deploy import DeployBase, _DeployPyHelpers, DeployHelpersBase
@@ -45,7 +46,7 @@ def add_deploy_cmdline_args(toolname: str,
         The argparse parser for the 'deploy' command.
     """
 
-    if argcomplete_imported:
+    if _ARGCOMPLETE_IMPORTED:
         completer = argcomplete.completers.DirectoriesCompleter()
     else:
         completer = None
