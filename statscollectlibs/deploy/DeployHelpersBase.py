@@ -15,7 +15,6 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import os
 import typing
-from typing import cast
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ProjectFiles, ToolChecker
 from pepclibs.helperlibs.Exceptions import Error
@@ -93,8 +92,8 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
         """
 
         envar = ProjectFiles.get_project_helpers_envar("stats-collect")
-        stdout, _ = self._spman.run_verify(f"echo ${envar}")
-        helpers_path: str | Path = cast(str, stdout).strip()
+        stdout, _ = self._spman.run_verify_join(f"echo ${envar}")
+        helpers_path: str | Path = stdout.strip()
         if not helpers_path:
             if envar in os.environ:
                 helpers_path = os.environ[envar]
@@ -152,8 +151,8 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
                                   remotesrc=self._bpman.is_remote, remotedst=self._spman.is_remote)
 
             cmd = f"make -C '{sinstpath}' install PREFIX='{installable_dstdir}'"
-            stdout, stderr = self._spman.run_verify(cmd)
-            self._log_cmd_output(cast(str, stdout), cast(str, stderr))
+            stdout, stderr = self._spman.run_verify_join(cmd)
+            self._log_cmd_output(stdout, stderr)
 
             self._spman.rsync(str(installable_dstdir) + "/bin/", deploy_path,
                               remotesrc=self._spman.is_remote,
