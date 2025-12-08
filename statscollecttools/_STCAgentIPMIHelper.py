@@ -9,8 +9,9 @@
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This is a wrapper over the ipmitool utility which helps collecting the IPMI statistics. This wrapper
-periodically makes a snapshot of the IPMI statistics and prints them to the standard output.
+stc-agent-ipmi-helper - a wrapper over the 'ipmitool' utility for collecting the IPMI statistics.
+This is an internal sub-tool of the 'stats-collect' tool, not intended to be used directly by end
+users.
 """
 
 # pylint: disable=invalid-name
@@ -145,6 +146,3 @@ def main():
         _LOG.error_out(err)
 
     return -1
-
-if __name__ == "__main__":
-    raise SystemExit(main())

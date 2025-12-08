@@ -10,6 +10,7 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import sys
 import typing
 from pathlib import Path
 
@@ -140,7 +141,6 @@ class Deploy(DeployBase.DeployBase):
             deploy_info: A dictionary describing what should be deployed.
             pman: The process manager object that defines the SUT to deploy to (local host by
                   default).
-            lbuild: If 'True', build everything on the local host.
             tmpdir_path: Path to use as a temporary directory (a random temporary directory is
                          created by default).
             keep_tmpdir: If 'False', remove the temporary directory when finished. If 'True', do not
@@ -150,8 +150,8 @@ class Deploy(DeployBase.DeployBase):
         Refer to 'DeployBase' class constructor docstring for more information.
         """
 
-        super().__init__("stats-collect", toolname, deploy_info, pman=pman, tmpdir_path=tmpdir_path,
-                         keep_tmpdir=keep_tmpdir, debug=debug)
+        super().__init__("stats-collect", toolname, deploy_info, pman=pman, lbuild=True,
+                         tmpdir_path=tmpdir_path, keep_tmpdir=keep_tmpdir, debug=debug)
 
         # Python helpers need to be deployed only to a remote host. The local host should already
         # have them:
@@ -173,7 +173,10 @@ class Deploy(DeployBase.DeployBase):
                                               self._spman, self._bpman, stmpdir,
                                               btmpdir, cpman=self._cpman, ctmpdir=ctmpdir,
                                               debug=self._debug) as depl:
-            depl.deploy(self._cats["pyhelpers"])
+            # The base directory of python helpers is the same as the directory containing the
+            # running script.
+            insts_basedir = Path(sys.argv[0]).absolute().parent
+            depl.deploy(self._cats["pyhelpers"], insts_basedir=insts_basedir)
 
     def deploy(self):
         """Deploy all the installables to the SUT."""

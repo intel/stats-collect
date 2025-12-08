@@ -18,10 +18,11 @@ import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ClassHelpers, LocalProcessManager, ProjectFiles
 from pepclibs.helperlibs import ToolChecker
-from pepclibs.helperlibs.Exceptions import Error, ErrorNotFound
+from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploy import DeployHelpersBase
 
 if typing.TYPE_CHECKING:
+    from typing import cast
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
     from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
 
@@ -64,12 +65,11 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
         super().__init__(prjname, toolname, what, spman, bpman, stmpdir, btmpdir, cpman=cpman,
                          ctmpdir=ctmpdir, btchk=btchk, debug=debug)
 
-    def _find_deployable_src(self, installable: str, deployable: str) -> Path:
+    def _find_deployable_src(self, deployable: str) -> Path:
         """
         Find and return the path to a Python helper deployable on the local host.
 
         Args:
-            installable: The name of the Python helpers installable the deoployable belongs to.
             deployable: The name of the Python helper deployable to find.
 
         Returns:
@@ -77,20 +77,8 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
         """
 
         with LocalProcessManager.LocalProcessManager() as lpman:
-            try:
-                subpath = DeployHelpersBase.HELPERS_SRC_SUBDIR / installable / deployable
-                what = f"the '{deployable}' python program"
-                deployable_path = ProjectFiles.find_project_data(self._prjname, subpath, what=what,
-                                                                 pman=lpman)
-            except ErrorNotFound as err1:
-                _LOG.debug(str(err1))
-
-                try:
-                    deployable_path = ProjectFiles.find_project_helper(self._prjname, deployable,
-                                                                       pman=lpman)
-                except ErrorNotFound as err2:
-                    errmsg = str(err1).capitalize() + "\n" + str(err2).capitalize()
-                    raise Error(errmsg) from err2
+            deployable_path = ProjectFiles.find_project_helper(self._prjname, deployable,
+                                                               pman=lpman)
 
             deployable_path = lpman.abspath(deployable_path)
 
@@ -179,7 +167,11 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
 
             # Make 'zipobj' raises exceptions of type 'Error', so that we do not have to wrap every
             # 'zipobj' operation into 'try/except'.
-            zipobj = ClassHelpers.WrapExceptions(zipobj)
+            wrapped_zipobj = ClassHelpers.WrapExceptions(zipobj)
+            if typing.TYPE_CHECKING:
+                zipobj = cast(zipfile.ZipFile, wrapped_zipobj)
+            else:
+                zipobj = wrapped_zipobj
 
             # Put the deployable to the archive under the '__main__.py' name.
             zipobj.write(deployable_path, arcname="./__main__.py")
@@ -229,38 +221,44 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             standalone_path.chmod(mode)
         except OSError as err:
             msg = Error(str(err)).indent(2)
-            raise Error(f"cannot change '{standalone_path}' file mode to {oct(mode)}:\n"
+            raise Error(f"Cannot change '{standalone_path}' file mode to {oct(mode)}:\n"
                         f"{msg}") from err
 
-    def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], installables_basedir: Path):
+        # And rename to get rid of the '.standalone' suffix.
+        final_standalone_path = outdir / deployable
+        try:
+            # Remove the '.standalone' suffix.
+            standalone_path.rename(final_standalone_path)
+        except OSError as err:
+            msg = Error(str(err)).indent(2)
+            raise Error(f"Cannot rename '{standalone_path}' to "
+                        f"'{final_standalone_path}':\n{msg}") from err
+
+    def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], insts_basedir: Path):
         """
         Build and prepare installables for deployment.
 
         Args:
             insts_info: The installables information dictionary.
-            installables_basedir: Path to the base directory that contains the installables on the
-                                  controller.
+            installs_basedir: Path to the base directory that contains the installables on the
+                              controller.
         """
 
         # Copy Python helpers to the temporary directory on the controller.
-        for installable in insts_info:
-            srcdir = installables_basedir / installable
-            _LOG.debug("Copying Python helpers installable %s:\n  '%s' -> '%s'",
-                       installable, srcdir, self._ctmpdir)
-            self._cpman.rsync(srcdir, self._ctmpdir, remotesrc=False, remotedst=False)
+        for installable, inst_info in insts_info.items():
+            dstdir = self._ctmpdir / installable
+            self._cpman.mkdir(dstdir, parents=True)
 
-        # Build stand-alone version of every Python helper.
+            for deployable in inst_info["deployables"]:
+                srcpath = insts_basedir / deployable
+                _LOG.debug("Copying Python deployable %s:\n  '%s' -> '%s'",
+                           deployable, srcpath, dstdir)
+                self._cpman.rsync(srcpath, dstdir, remotesrc=False, remotedst=False)
+
+        # Build stand-alone version of every Python deployable.
         for installable, inst_info in insts_info.items():
             _LOG.info("Building a stand-alone version of the '%s' installable", installable)
-            basedir = self._ctmpdir / installable
+            outdir = self._ctmpdir / installable
             for deployable in inst_info["deployables"]:
-                deployable_path = self._find_deployable_src(installable, deployable)
-                self._create_standalone_deployable(deployable_path, basedir)
-
-        # And copy the "standalone-ized" version of Python helpers to the SUT.
-        if self._spman.is_remote:
-            for installable in insts_info:
-                srcdir = self._ctmpdir / installable
-                _LOG.debug("Copying Python helpers installable '%s' to %s:\n  '%s' -> '%s'",
-                           installable, self._spman.hostname, srcdir, self._stmpdir)
-                self._spman.rsync(srcdir, self._stmpdir, remotesrc=False, remotedst=True)
+                deployable_path = self._find_deployable_src(deployable)
+                self._create_standalone_deployable(deployable_path, outdir)

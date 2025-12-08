@@ -9,7 +9,9 @@
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Collect interrupts statistics by making a periodic snapshot of the '/proc/interrups' file.
+stc-agent-proc-interrupts-helper - collect interrupts statistics by making a periodic snapshot of
+the '/proc/interrupts' file. This is an internal sub-tool of the 'stats-collect' tool, not intended
+to be used directly by end users.
 """
 
 import re
@@ -115,6 +117,3 @@ def main():
         _LOG.error_out(err)
 
     return -1
-
-if __name__ == "__main__":
-    raise SystemExit(main())

@@ -68,14 +68,14 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
         super().__init__(prjname, toolname, spman, bpman, stmpdir, btmpdir, cpman=cpman,
                          ctmpdir=ctmpdir, btchk=btchk, debug=debug)
 
-    def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], installables_basedir: Path):
+    def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], insts_basedir: Path):
         """
         Build and prepare installables for deployment.
 
         Args:
             insts_info: The installables information dictionary.
-            installables_basedir: Path to the base directory that contains the installables on the
-                                  controller.
+            insts_basedir: Path to the base directory that contains the installables on the
+                           controller (local host).
 
         Raises:
             NotImplementedError: The method is not implemented by the subclass.
@@ -103,30 +103,36 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
                     helpers_path =  Path(homedir) / HELPERS_DEPLOY_SUBDIR / "bin"
         return Path(helpers_path)
 
-    def deploy(self, insts_info: dict[str, InstallableInfoTypedDict]):
+    def deploy(self, insts_info: dict[str, InstallableInfoTypedDict],
+               insts_basedir: Path | None = None):
         """
         Deploy installables to the System Under Test (SUT).
 
         Args:
             insts_info: The installables information dictionary.
+            insts_basedir: Path to the base directory that contains the installables on the
+                           controller (local host).
         """
 
-        # Find the installables base directory. We assume all installables are located in the same
-        # base directory.
-        some_installable = next(iter(insts_info))
-        some_installable_path = HELPERS_SRC_SUBDIR/f"{some_installable}"
-        what = f"sources of {self._what}"
-        some_installable_path = ProjectFiles.find_project_data(self._prjname, some_installable_path,
-                                                               what=what)
-        installables_basedir = some_installable_path.parent
+        if not insts_basedir:
+            # Find the installables base directory. We assume all installables are located in the
+            # same base directory.
+            some_installable = next(iter(insts_info))
+            some_installable_path = HELPERS_SRC_SUBDIR/f"{some_installable}"
+            what = f"sources of {self._what}"
+            some_installable_path = ProjectFiles.find_project_data(self._prjname,
+                                                                   some_installable_path,
+                                                                   what=what)
+            insts_basedir = some_installable_path.parent
 
-        # Make sure all helpers are available.
-        for installable in insts_info:
-            installabledir = installables_basedir / installable
-            if not installabledir.is_dir():
-                raise Error(f"Path '{installabledir}' does not exist or it is not a directory")
+            # Make sure all helpers are available.
+            for installable in insts_info:
+                installabledir = insts_basedir / installable
+                if not installabledir.is_dir():
+                    raise Error(f"Path '{installabledir}' does not exist or it is not a directory")
 
-        self._prepare(insts_info, installables_basedir)
+        assert insts_basedir is not None
+        self._prepare(insts_info, insts_basedir)
 
         deploy_path = self._get_deploy_path()
 
@@ -137,12 +143,11 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
         _LOG.info("Deploying %s to '%s'%s", self._what, deploy_path, self._spman.hostmsg)
 
         for installable in insts_info:
-            installable_dstdir = self._stmpdir / f"{installable}-deployed"
-            _LOG.debug("deploying helper installable helper '%s' to '%s'%s",
-                       installable, installable_dstdir, self._spman.hostmsg)
-
             binstpath = f"{self._btmpdir}/{installable}"
             sinstpath = f"{self._stmpdir}/{installable}"
+
+            _LOG.debug("Deploying installable '%s' to '%s'%s",
+                       installable, deploy_path, self._spman.hostmsg)
 
             if not self._bpman.is_remote and self._spman.is_remote:
                 # The installables were built locally (in 'self._prepare()), but they should be
@@ -150,10 +155,23 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
                 self._spman.rsync(str(binstpath) + "/", sinstpath,
                                   remotesrc=self._bpman.is_remote, remotedst=self._spman.is_remote)
 
-            cmd = f"make -C '{sinstpath}' install PREFIX='{installable_dstdir}'"
-            stdout, stderr = self._spman.run_verify_join(cmd)
-            self._log_cmd_output(stdout, stderr)
+            if self._spman.exists(f"{sinstpath}/Makefile"):
+                inst_dstdir = self._stmpdir / f"{installable}-deployed"
+                # Install by running 'make install'.
+                cmd = f"make -C '{sinstpath}' install PREFIX='{inst_dstdir}'"
+                stdout, stderr = self._spman.run_verify_join(cmd)
+                self._log_cmd_output(stdout, stderr)
 
-            self._spman.rsync(str(installable_dstdir) + "/bin/", deploy_path,
-                              remotesrc=self._spman.is_remote,
-                              remotedst=self._spman.is_remote)
+                self._spman.rsync(str(inst_dstdir) + "/bin/", deploy_path,
+                                  remotesrc=self._spman.is_remote,
+                                  remotedst=self._spman.is_remote)
+            else:
+                # Just copy the deployable files.
+                for deployable in insts_info[installable]["deployables"]:
+                    _LOG.debug("Deploying '%s' to '%s'%s",
+                               deployable, deploy_path, self._spman.hostmsg)
+                    srcpath = f"{sinstpath}/{deployable}"
+                    dstpath = deploy_path / deployable
+                    self._spman.rsync(srcpath, dstpath,
+                                      remotesrc=self._spman.is_remote,
+                                      remotedst=self._spman.is_remote)

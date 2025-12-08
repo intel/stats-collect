@@ -9,11 +9,8 @@
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-Statistics collection agent (stc-agent) as a service for collecting statistics. Clients connect to
-the service, then configure and run statistics collectors by sending commands.
-
-This program is designed to work in a local network and may require root privileges. Please, do not
-use it in production environment, use it only in isolated debugging/research setups.
+stc-agent - the statistics collection agent, a service for collecting statistics. This is an
+internal sub-tool of the 'stats-collect' tool, not intended to be used directly by end users.
 """
 
 # pylint: disable=no-member
@@ -1067,6 +1064,3 @@ def main():
         _LOG.error_out(err)
 
     return -1
-
-if __name__ == "__main__":
-    raise SystemExit(main())

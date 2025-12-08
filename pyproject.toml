@@ -37,6 +37,10 @@ statscollectdata = ["**"]
 
 [project.scripts]
 stats-collect = "statscollecttools._StatsCollect:main"
+stc-agent = "statscollecttools._STCAgent:main"
+stc-agent-ipmi-helper = "statscollecttools._STCAgentIPMIHelper:main"
+stc-agent-proc-interrupts-helper = "statscollecttools._STCAgentProcInterruptsHelper:main"
+stc-wl-cpu-wake-walk = "statscollecttools._STCWLCPUWakeWalk:main"
 
 [project.urls]
 Documentation = "https://github.com/intel/stats-collect/blob/main/README.md"

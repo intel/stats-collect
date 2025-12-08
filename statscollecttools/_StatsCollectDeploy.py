@@ -61,7 +61,7 @@ def _format_args(args: argparse.Namespace) -> _DeployCmdlArgsTypedDict:
         cmdl2 = ArgParse.format_ssh_args(args)
         cmdl = cmdl1 | cmdl2
 
-    cmdl["tmpdir_path"] = args.tmpdir_path
+    cmdl["tmpdir_path"] = Path(args.tmpdir_path) if args.tmpdir_path else None
     cmdl["keep_tmpdir"] = args.keep_tmpdir
     return cmdl
 
