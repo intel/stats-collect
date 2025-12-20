@@ -96,7 +96,7 @@ echo "Dependency: pepc version >= $pepc_ver"
 
 # Validate 'pepc' version.
 printf "%s" "$pepc_ver" | grep -q -x "$VERSION_REGEX" ||
-         fatal "Bad 'pepc' version '$pepc_ver' in '$BASEDIR/setup.py'"
+         fatal "Bad 'pepc' version '$pepc_ver' in '$BASEDIR/pyproject.toml'"
 
 # Make sure that the current branch is 'main' or 'release'.
 current_branch="$(git -C "$BASEDIR" branch | sed -n -e '/^*/ s/^* //p')"
