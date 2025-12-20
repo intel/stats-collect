@@ -6,10 +6,15 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
- - Generate CSV files along with plots.
- - Modernize packaging: get rid of setup.py.
 ### Removed
 ### Changed
+
+## [1.0.64] - 2025-12-20
+
+## [1.0.64] - 2025-12-20
+### Added
+ - Generate CSV files along with plots.
+ - Modernize packaging: get rid of setup.py.
 
 ## [1.0.63] - 2025-10-22
 ### Fixed
