@@ -1,6 +1,12 @@
+stats-collect (1.0.65) unstable; urgency=low
+
+
+
+ -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Wed, 31 Dec 2025 00:00:00 +0200
+
 stats-collect (1.0.64) unstable; urgency=low
 
-
+  * Addres JavaScript dependabot complaint.
 
  -- Artem Bityutskiy <artem.bityutskiy@intel.com>  Sat, 20 Dec 2025 00:00:00 +0200
 

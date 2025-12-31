@@ -1,6 +1,6 @@
 [project]
 name = "stats-collect"
-version = "1.0.64"
+version = "1.0.65"
 description = "A tool for collecting and visualizing system statistics and telemetry."
 authors = [
     { name = "Artem Bityutskiy", email = "dedekind@gmail.com" }

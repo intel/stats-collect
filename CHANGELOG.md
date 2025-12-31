@@ -9,7 +9,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.65] - 2025-12-31
+
 ## [1.0.64] - 2025-12-20
+ - Addres JavaScript dependabot complaint.
 
 ## [1.0.64] - 2025-12-20
 ### Added
