@@ -127,16 +127,18 @@ def _format_args(args: argparse.Namespace) -> _ArgsTypedDict:
                                     what="launch distance")
     if ldist[0] < 0 or ldist[1] < 0:
         raise Error(f"Bad launch distance range '{args.ldist}', values cannot be negative")
+    if ldist[0] >= ldist[1]:
+        raise Error(f"Bad launch distance range '{args.ldist}', the min. value must be less than "
+                    "the max. value")
 
     ldist_step_pct, ldist_step_ns = 0.0, 0
     if args.ldist_step.endswith("%"):
         ldist_step_pct = Trivial.str_to_num(args.ldist_step.rstrip("%"))
     else:
-        ldist_step_ns = Human.parse_human(args.ldist_step, unit="s", target_unit="ns",
-                                          what="launch distance step")
+        ldist_step_ns = Human.parse_human_int(args.ldist_step, unit="s", target_unit="ns",
+                                              what="launch distance step")
 
-
-    span = Human.parse_human(args.span, unit="s", target_unit="s", what="span")
+    span = Human.parse_human_int(args.span, unit="s", target_unit="s", what="span")
     if span <= 0:
         raise Error(f"Bad span value '{args.span}', it must be positive")
     if span < 10:
@@ -144,6 +146,8 @@ def _format_args(args: argparse.Namespace) -> _ArgsTypedDict:
                     f"seconds")
 
     cpu: int = args.cpu
+    if not Trivial.is_int(cpu):
+        raise Error(f"Bad CPU number '{cpu}', it must be an integer")
     if cpu < 0:
         raise Error(f"Bad CPU number '{cpu}', it must be non-negative")
 
@@ -205,7 +209,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Uninitialize the object."""
 
-        if hasattr(self, "_pipe") and self._pipe:
+        if getattr(self, "_pipe", False):
             self._pipe.close()
 
     def _write_json(self, json_str: str):
