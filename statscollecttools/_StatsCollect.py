@@ -44,6 +44,10 @@ _STC_DEPLOY_INFO: DeployInfoTypedDict = {
             "category": "pyhelpers",
             "deployables": ("stc-wl-cpu-wake-walk",),
         },
+        "stc-wl-cpu-freq-walk": {
+            "category": "pyhelpers",
+            "deployables": ("stc-wl-cpu-freq-walk",),
+        },
     },
 }
 
