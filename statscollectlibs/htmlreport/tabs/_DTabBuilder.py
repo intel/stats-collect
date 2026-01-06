@@ -190,7 +190,7 @@ class DTabBuilder:
             xcd: The column definition for the X-axis.
             ycd: The column definition for the Y-axis.
             hover_cds: A list of column definitions to include in the hover text of the scatter
-                       plots. Defaults to 'None'.
+                       plots.
         """
 
         xcolname = xcd["colname"]
@@ -210,10 +210,13 @@ class DTabBuilder:
                     self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                     break
             else:
-                if not hover_cds:
+                # Ignore hover columns if X column has non-unique values. Prefer making them unique
+                # instead.
+                if not hover_cds or not df[xcolname].is_unique:
                     # Check if there are multiple Y values for the same X value (i.e., the dataframe
                     # contains duplicate X values). In that case, average the Y values for each X
                     # value.
+                    hover_cds = []
                     df = df[[xcolname, ycolname]]
                     df = df.groupby(xcolname, as_index=False).mean()
 
