@@ -21,7 +21,7 @@ from pepclibs.helperlibs import Logging, Human, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 
 if typing.TYPE_CHECKING:
-    from typing import Union, Any
+    from typing import Union, Any, Sequence
     from statscollectlibs.mdc.MDCBase import MDTypedDict
 
     class CDTypedDict(MDTypedDict, total=False):
@@ -204,7 +204,7 @@ class Plot:
         return template
 
     def create_hover_templates(self,
-                               hover_cds: list[CDTypedDict],
+                               hover_cds: Sequence[CDTypedDict],
                                df: pandas.DataFrame) -> pandas.Series[str]:
         """
         Create and return a list of Plotly-compatible hover template strings.

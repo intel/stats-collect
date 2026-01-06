@@ -23,6 +23,7 @@ from statscollectlibs.htmlreport import _Histogram, _ScatterPlot, _SummaryTable
 from statscollectlibs.htmlreport.tabs import BuiltTab, FilePreviewBuilder
 
 if typing.TYPE_CHECKING:
+    from typing import Sequence
     from statscollectlibs.htmlreport._Plot import CDTypedDict
     from statscollectlibs.htmlreport._Histogram import XBinsTypedDict
 
@@ -181,7 +182,7 @@ class DTabBuilder:
     def _add_scatter(self,
                      xcd: CDTypedDict,
                      ycd: CDTypedDict,
-                     hover_cds: list[CDTypedDict] | None = None):
+                     hover_cds: Sequence[CDTypedDict] = ()):
         """
         Add a scatter plot to the data tab.
 
@@ -209,13 +210,11 @@ class DTabBuilder:
                     self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                     break
             else:
-                # Reduce the dataframe to only the necessary columns.
-                df = df[[xcolname, ycolname]]
-
                 if not hover_cds:
                     # Check if there are multiple Y values for the same X value (i.e., the dataframe
                     # contains duplicate X values). In that case, average the Y values for each X
                     # value.
+                    df = df[[xcolname, ycolname]]
                     df = df.groupby(xcolname, as_index=False).mean()
 
                 reduced_df = s.reduce_df_density(df, reportid)
@@ -316,35 +315,28 @@ class DTabBuilder:
         return False
 
     def add_plots(self,
-                  plot_axes: list[tuple[CDTypedDict, CDTypedDict]] | None,
-                  hist: list[CDTypedDict] | None = None,
-                  chist: list[CDTypedDict] | None = None,
-                  hover_mds: list[CDTypedDict] | None = None):
+                  plot_axes: Sequence[tuple[CDTypedDict, CDTypedDict]] = (),
+                  hist: Sequence[CDTypedDict] = (),
+                  chist: Sequence[CDTypedDict] = (),
+                  hover_mds: Sequence[CDTypedDict] = ()):
         """
         Add various types of plots to the data tab.
 
         Args:
-            plot_axes: Specifies the X and Y axes metrics for the scatter plots to be added. A list
-                       of tuples, where each tuple contains two column definitions (CDTypedDict)
-                       representing the X and Y axes for a scatter plot. Each scatter plot will
-                       include data from all dataframes.
-            hist: Specifies the metrics for the histograms. A list of column definitions
+            plot_axes: Specifies the X and Y axes metrics for the scatter plots to be added. A
+                       sequence of tuples, where each tuple contains two column definitions
+                       (CDTypedDict) representing the X and Y axes for a scatter plot. Each scatter
+                       plot will include data from all dataframes.
+            hist: Specifies the metrics for the histograms. A sequence of column definitions
                   (CDTypedDict), where each definition corresponds to a histogram.
-            chist: Specifies the metrics for the cumulative histograms. A list of column definitions
-                  (CDTypedDict), where each definition corresponds to a cumulative histogram.
-            hover_mds: Specifies the metrics to include in the hover text of the scatter plots.  A
-                       list of column definitions (CDTypedDict).
+            chist: Specifies the metrics for the cumulative histograms. A sequence of column
+                   definitions (CDTypedDict), where each definition corresponds to a cumulative
+                   histogram.
+            hover_mds: The metrics to include in the hover text of the scatter plots
         """
 
-        if plot_axes is None and hist is None and chist is None:
+        if not plot_axes and not hist and not chist:
             raise Error("BUG: No arguments provided for 'add_plots()', unable to generate plots")
-
-        if plot_axes is None:
-            plot_axes = []
-        if hist is None:
-            hist = []
-        if chist is None:
-            chist = []
 
         for xcd, ycd in plot_axes:
             if not self._skip_metric_plot("scatter plot", xcd, ycd):
