@@ -390,7 +390,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         """
 
         human_freq = Human.num2si(freq, unit="Hz")
-        _LOG.info(f"Setting CPU frequency to {human_freq}, interval {self._interval}s")
+        _LOG.info(f"Setting CPU {self._cpu} frequency to {human_freq}, interval {self._interval}s")
 
         self._pobj.set_cpu_prop("max_freq", freq, self._cpu, mnames=("sysfs",))
         self._pobj.set_cpu_prop("min_freq", freq, self._cpu, mnames=("sysfs",))
@@ -407,8 +407,8 @@ class _Runner(ClassHelpers.SimpleCloseContext):
 
         self._write_wlinfo()
 
-        _LOG.info("Walking through the CPU frequency range %s - %s",
-                  Human.num2si(self._freq_range[0], unit="Hz"),
+        _LOG.info("Walking through the CPU %s frequency range %s - %s",
+                  self._cpu, Human.num2si(self._freq_range[0], unit="Hz"),
                   Human.num2si(self._freq_range[1], unit="Hz"))
 
         for freq in self._get_freq():
