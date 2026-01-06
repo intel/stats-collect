@@ -9,10 +9,6 @@
 
 """
 API for generating 'stats-collect' statistics tab in HTML report.
-
-Terminology.
-  * assets - static files/directories which are included as part of every HTML report (copied to the
-             HTML report output directory). Example: javascript libraries, license files.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -21,9 +17,9 @@ import json
 import typing
 import dataclasses
 from pathlib import Path
-from pepclibs.helperlibs import Logging
+from pepclibs.helperlibs import Logging, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
-from statscollectlibs.helperlibs import FSHelpers, ProjectFiles
+from statscollectlibs.helperlibs import FSHelpers
 from statscollectlibs.htmlreport import IntroTable
 from statscollectlibs.htmlreport.tabs import BuiltTab
 from statscollectlibs.htmlreport.tabs.stats._StatsTabBuilder import _StatsTabBuilder
@@ -59,40 +55,74 @@ if typing.TYPE_CHECKING:
         intro_tbl: Path | None
         tab_file: Path
 
-_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.{ToolInfo.TOOLNAME}.{__name__}")
 
+def get_project_web_assets_envar(prjname):
+    """
+    Return the name of the environment variable that points to the web assets location of project
+    'prjname'.
+    """
+
+    name = prjname.replace("-", "_").upper()
+    return f"{name}_WEB_ASSETS_PATH"
+
+def find_project_web_assets(prjname, datadir, pman=None, what=None):
+    """
+    Search for project 'prjname' web assets. The arguments are as follows:
+      * prjname - name of the project the web-asset belongs to.
+      * datadir - the sub-path of the web-asset in the web-asset project installation base
+                  directory.
+      * datadir - name of the sub-directory containing the web asset. This method basically
+                  searches for 'datadir' in a set of pre-defined paths (see below).
+      * pman - the process manager object for the host to find the web-asset on (local host by
+               default).
+      * what - human-readable description of 'subpath' (or what is searched for), which will be used
+               in the error message if an error occurs.
+
+    The web-assets are searched for in the 'datadir' directory (or sub-path) of the following
+    directories (and in the following order).
+      * in the directory the of the running program.
+      * in the directory specified by the '<prjname>_WEB_ASSETS_PATH' environment variable.
+      * in '$HOME/.local/share/javascript/<prjname>/', if it exists.
+      * in '$HOME/share/javascript/<prjname>/', if it exists.
+      * in '$VIRTUAL_ENV/share/javascript/<prjname>/', if the variable is defined and the directory
+            it exists.
+      * in '/usr/local/share/javascript/<prjname>/', if it exists.
+      * in '/usr/share/javascript/<prjname>/', if it exists.
+    """
+
+    return next(ProjectFiles.search_project_data("statscollectdata", datadir, pman=pman, what=what,
+                                    envars=(get_project_web_assets_envar(prjname),)))
 def _copy_assets(outdir: Path):
     """
-    Copy necessary assets to the specified output directory.
+    Copy necessary web assets to the specified output directory.
 
     Args:
         outdir: The output directory where the assets will be copied.
     """
 
-    # This list defines the assets which should be copied into the output directory. Items in the
-    # list are tuples in the format: (asset_description, path_to_asset, path_of_copied_asset).
-    js_assets = [
-        ("bundled JavaScript", "js/dist/main.js", outdir / "js/dist/main.js"),
-        ("bundled CSS", "js/dist/main.css", outdir / "js/dist/main.css"),
-        ("bundled dependency licenses", "js/dist/main.js.LICENSE.txt",
-         outdir / "js/dist/main.js.LICENSE.txt"),
-    ]
+    js_assets = [("bundled JavaScript", "main.js"),
+                 ("bundled CSS", "main.css"),
+                 ("bundled dependency licenses", "main.js.LICENSE.txt")]
 
-    for asset in js_assets:
-        asset_path = ProjectFiles.find_project_web_assets("stats-collect", asset[1], what=asset[0])
-        FSHelpers.copy(asset_path, asset[2], exist_ok=True)
+    for name, fname in js_assets:
+        subpath = f"js/dist/{fname}"
+        src_path = ProjectFiles.find_project_data(ToolInfo.TOOLNAME, subpath, what=name)
+        dst_path = outdir / "js/dist" / fname
+        FSHelpers.copy(src_path, dst_path, exist_ok=True)
 
     misc_assets = [
-        ("root HTML page of the report.", "js/index.html", outdir / "index.html"),
-        ("script to serve report directories.", "misc/servedir/serve_directory.py",
+        ("root HTML page of the report", "js/index.html",
+         outdir / "index.html"),
+        ("script to serve report directories", "servedir/serve_directory.py",
          outdir / "serve_directory.py"),
-        ("README file for local viewing scripts", "misc/servedir/README.md",
+        ("README file for local viewing scripts", "servedir/README.md",
          outdir / "README.md"),
     ]
 
-    for asset in misc_assets:
-        asset_path = ProjectFiles.find_project_data("stats-collect", asset[1], what=asset[0])
-        FSHelpers.copy(asset_path, asset[2], exist_ok=True)
+    for name, src, dst in misc_assets:
+        src_path = ProjectFiles.find_project_data(ToolInfo.TOOLNAME, src, what=name)
+        FSHelpers.copy(src_path, dst, exist_ok=True)
 
 def _dump_json(obj: Any, path: Path, descr: str):
     """
