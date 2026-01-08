@@ -18,5 +18,5 @@ import typing
 if typing.TYPE_CHECKING:
     from typing import Final
 
-VERSION: Final[str] = "1.0.65"
+VERSION: Final[str] = "1.0.66"
 TOOLNAME: Final[str] = "stats-collect"

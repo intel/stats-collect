@@ -6,9 +6,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
 ### Added
- - Add new built-in workload for walking CPU frequencies.
 ### Removed
 ### Changed
+
+## [1.0.66] - 2026-01-08
+### Added
+ - Add new built-in workload for walking CPU frequencies.
 
 ## [1.0.65] - 2025-12-31
  - Addres JavaScript dependabot complaint.
