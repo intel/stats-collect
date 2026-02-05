@@ -263,7 +263,7 @@ def main():
     """Script entry point."""
 
     try:
-        main()
+        do_main()
     except KeyboardInterrupt:
         _LOG.info("\nInterrupted, exiting")
         return -1
