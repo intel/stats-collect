@@ -30,6 +30,7 @@ from statscollecttools import ToolInfo
 
 if typing.TYPE_CHECKING:
     from typing import Sequence, Any
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
     from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 
 _STC_DEPLOY_INFO: DeployInfoTypedDict = {
@@ -241,17 +242,26 @@ def _report_command(args):
 
     _StatsCollectReport.report_command(args)
 
+def do_main(_: ProcessManagerType | None = None):
+    """
+    Implement the tool.
+
+    Args:
+        _: Ignored.
+    """
+
+    args = parse_arguments()
+
+    if not getattr(args, "func", None):
+        raise Error(f"Please, run '{ToolInfo.TOOLNAME} -h' for help")
+
+    args.func(args)
+
 def main():
     """Script entry point."""
 
     try:
-        args = parse_arguments()
-
-        if not getattr(args, "func", None):
-            _LOG.error("Please, run '%s -h' for help", ToolInfo.TOOLNAME)
-            return -1
-
-        args.func(args)
+        main()
     except KeyboardInterrupt:
         _LOG.info("\nInterrupted, exiting")
         return -1
