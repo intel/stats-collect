@@ -242,14 +242,16 @@ def _report_command(args):
 
     _StatsCollectReport.report_command(args)
 
-def do_main(_: ProcessManagerType | None = None):
+def do_main(pman: ProcessManagerType | None = None):
     """
     Implement the tool.
 
     Args:
-        _: Ignored.
+        pman: Optional process manager object. If specified, the tool will use this process
+              manager instead of creating its own. Used for testing purposes.
     """
 
+    assert pman is None
     args = parse_arguments()
 
     if not getattr(args, "func", None):
