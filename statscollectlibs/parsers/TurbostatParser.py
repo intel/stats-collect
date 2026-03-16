@@ -635,10 +635,12 @@ class TurbostatParser(_ParserBase.ParserBase):
         * multiplier - the number of times the TDP to compare the 'colname' values against.
         """
 
-        if "TDP" not in tdict["nontable"]:
-            return True
+        if "TDP" in tdict["nontable"]:
+            tdp = tdict["nontable"]["TDP"]
+        else:
+            # Just assume a very big number.
+            tdp = 1000
 
-        tdp = tdict["nontable"]["TDP"]
         for package in tdict["packages"].values():
             if metric not in package["totals"]:
                 return True
