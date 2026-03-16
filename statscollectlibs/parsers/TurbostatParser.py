@@ -672,7 +672,10 @@ class TurbostatParser(_ParserBase.ParserBase):
             raise ErrorBadFormat(f"more than {self._max_consecutive_invalid_tables} "
                                  f"consecutive turbostat lines contain invalid data")
 
-        if self._invalid_tables > self._tables_cnt / 2:
+        # Start checks only when there are enough tables to make a conclusion about the percentage
+        # of invalid tables.
+        if self._tables_cnt > self._max_consecutive_invalid_tables and \
+            self._invalid_tables > self._tables_cnt / 2:
             pcnt = int((self._invalid_tables / self._tables_cnt) * 100)
             raise ErrorBadFormat(f"more than ({pcnt}%) of the turbostat lines contain "
                                  f"invalid data")
