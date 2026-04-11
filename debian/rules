@@ -1,8 +1,0 @@
-#!/usr/bin/make -f
-
-%:
-	dh $@ --with python3 --buildsystem=pybuild
-
-override_dh_auto_test:
-	cp -r stats-collect defs js misc $(shell realpath --relative-to=. .pybuild/*python*/build/statscollecttools)
-	dh_auto_test

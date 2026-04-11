@@ -17,7 +17,6 @@ VERSION_VAR_REGEX="^VERSION\([^=]*\)= \"$VERSION_REGEX\"$"
 
 # File paths containing the version number that we'll have to adjust.
 STCOLL_VER_FILE="$BASEDIR/statscollecttools/ToolInfo.py"
-SPEC_FILE="$BASEDIR/rpm/stats-collect.spec"
 
 # The python packaging file.
 PYPROJECT_TOML="$BASEDIR/pyproject.toml"
@@ -31,8 +30,6 @@ RST_FILES="$BASEDIR/docs/stats-collect-deploy.rst
            $BASEDIR/docs/stats-collect-start.rst
            $BASEDIR/docs/stats-collect-report.rst"
 
-# Path to the script converting CHANGELOG.md into debian changelog.
-CHANGELOG_MD_TO_DEBIAN="$BASEDIR/../pepc/misc/changelog_md_to_debian"
 # Path to the script that prepares CHANGELOG.md for the release.
 PREPARE_CHENGELOG_MD="$BASEDIR/../pepc/misc/prepare_changelog_md"
 
@@ -108,21 +105,12 @@ fi
 ask_question "Did you run tests"
 ask_question "Did you update 'CHANGELOG.md'"
 
-# Update 'pepc' version.
-sed -i -e "s/\(pepc\s*>=\s*\)$VERSION_REGEX/\1$pepc_ver/g" "$BASEDIR/rpm/stats-collect.spec"
-sed -i -e "s/^\(\s\+pepc\s*(>=\s*\)$VERSION_REGEX)/\1$pepc_ver)/g" "$BASEDIR/debian/control"
-
 # Update CHANGELOG.md.
 "$PREPARE_CHENGELOG_MD" "$new_ver" "$CHANGELOG_FILE"
-# Update debian changelog.
-"$CHANGELOG_MD_TO_DEBIAN" -o "$BASEDIR/debian/changelog" -p "stats-collect" -n "Artem Bityutskiy" \
-                          -e "artem.bityutskiy@intel.com" "$CHANGELOG_FILE"
 
 # Change the tool version.
 sed -i -e "s/$VERSION_VAR_REGEX/VERSION\1= \"$new_ver\"/" "$STCOLL_VER_FILE"
 sed -i -e "s/^version = \"$VERSION_REGEX\"$/version = \"$new_ver\"/" "$PYPROJECT_TOML"
-# Change RPM package version.
-sed -i -e "s/^Version:\(\s\+\)$VERSION_REGEX$/Version:\1$new_ver/" "$SPEC_FILE"
 
 # Update the man pages.
 for file in $RST_FILES; do
