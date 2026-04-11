@@ -26,9 +26,7 @@ CHANGELOG_FILE="$BASEDIR/CHANGELOG.md"
 
 # Documentation directory and files.
 MAN_DIR="$BASEDIR/statscollectdata/man/man1"
-RST_FILES="$BASEDIR/docs/stats-collect-deploy.rst
-           $BASEDIR/docs/stats-collect-start.rst
-           $BASEDIR/docs/stats-collect-report.rst"
+MD_DIR="$BASEDIR/docs/man"
 
 # Path to the script that prepares CHANGELOG.md for the release.
 PREPARE_CHENGELOG_MD="$BASEDIR/../pepc/misc/prepare_changelog_md"
@@ -113,9 +111,12 @@ sed -i -e "s/$VERSION_VAR_REGEX/VERSION\1= \"$new_ver\"/" "$STCOLL_VER_FILE"
 sed -i -e "s/^version = \"$VERSION_REGEX\"$/version = \"$new_ver\"/" "$PYPROJECT_TOML"
 
 # Update the man pages.
-for file in $RST_FILES; do
-    manfile="${MAN_DIR}/$(basename "$file" ".rst").1"
-    pandoc -f rst -s "$file" -t man -o "$manfile"
+for file in "$MD_DIR"/*.md; do
+    stem="$(basename "$file" ".md")"
+    manfile="${MAN_DIR}/${stem}.1"
+    pandoc -f markdown_strict+definition_lists -s \
+           -M title="$(echo "$stem" | tr '[:lower:]' '[:upper:]')" \
+           -M section=1 "$file" -t man -o "$manfile"
     git add "$manfile"
 done
 
