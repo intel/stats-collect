@@ -10,6 +10,10 @@
 """
 Provide API for deploying Python helpers (non-driver installables and deployables). Refer to the
 'DeployBase' module docstring for more information.
+
+TODO: pepc provides PythonPrjInstaller now, which has the standalone functionality that does not
+require prograns to print their dependencies (which is fragile because some imports may be behind
+run-time ifs).
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
