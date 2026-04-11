@@ -13,7 +13,7 @@ stc-wl-cpu-wake-walk - a stats-collect workload for measuring an idle CPU which 
 certain wake period (launch distance). Walk through user-specified wake periods.
 """
 
-from statscollecttools._STCWLCPUWakeWalk import main
+from stcworkloads._STCWLCPUWakeWalk import main
 
 if __name__ == "__main__":
     raise SystemExit(main())

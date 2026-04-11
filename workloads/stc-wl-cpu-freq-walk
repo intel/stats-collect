@@ -13,7 +13,7 @@ stc-wl-cpu-freq-walk - a stats-collect workload for measuring the system while l
 at different levels.
 """
 
-from statscollecttools._STCWLCPUFreqWalk import main
+from stcworkloads._STCWLCPUFreqWalk import main
 
 if __name__ == "__main__":
     raise SystemExit(main())

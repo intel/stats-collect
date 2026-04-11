@@ -254,7 +254,7 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             self._cpman.mkdir(dstdir, parents=True)
 
             for deployable in inst_info["deployables"]:
-                srcpath = insts_basedir / deployable
+                srcpath = self._find_deployable_src(deployable)
                 _LOG.debug("Copying Python deployable %s:\n  '%s' -> '%s'",
                            deployable, srcpath, dstdir)
                 self._cpman.rsync(srcpath, dstdir, remotesrc=False, remotedst=False)
