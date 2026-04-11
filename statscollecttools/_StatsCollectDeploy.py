@@ -77,7 +77,7 @@ def deploy_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
     cmdl = _format_args(args)
 
     with ProcessManager.get_pman(cmdl["hostname"], username=cmdl["username"],
-                                 privkeypath=cmdl["privkey"], timeout=cmdl["timeout"]) as pman:
+                                 privkeypath=cmdl["privkey"]) as pman:
         with _Deploy.Deploy(ToolInfo.TOOLNAME, deploy_info, pman, cmdl["tmpdir_path"],
                             cmdl["keep_tmpdir"], cmdl["debug"]) as depl:
             depl.deploy()

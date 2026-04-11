@@ -3,7 +3,7 @@
 .TH "START" "" "25\-03\-2024" ""
 .SH Command \f[I]\[aq]start\[aq]\f[R]
 usage: stats\-collect start [\-h] [\-q] [\-d] [\-H HOSTNAME] [\-U
-USERNAME] [\-K PRIVKEY] [\-T TIMEOUT] [\-\-time\-limit LIMIT] [\-o
+USERNAME] [\-K PRIVKEY] [\-\-time\-limit LIMIT] [\-o
 OUTDIR] [\-\-reportid REPORTID] [\-\-stats STATS] [\-\-stats\-intervals
 STATS_INTERVALS] [\-\-list\-stats] [\-\-report] COMMAND
 .PP
@@ -17,7 +17,6 @@ host over SSH.
 * {PRIVKEY}: Path to the private SSH key that should be used for logging
 into the remote host.
 Defaults to \[dq]none\[dq].
-* {TIMEOUT}: SSH connect timeout in seconds.
 * {CPUS}: The list of CPUs to measure.
 Defaults to \[dq]none\[dq].
 * {OUTDIR}: The output directory where the result will be stored.
@@ -47,9 +46,6 @@ Path to the private SSH key that should be used for logging into the
 remote host.
 By default the key is automatically found from standard paths like
 \[aq]\[ti]/.ssh\[aq].
-.TP
-\f[B]\-T\f[R] \f[I]TIMEOUT\f[R], \f[B]\-\-timeout\f[R] \f[I]TIMEOUT\f[R]
-SSH connect timeout in seconds, default is 8.
 .TP
 \f[B]\-\-time\-limit\f[R] \f[I]LIMIT\f[R]
 The time limit for statistics collection, after which the collection

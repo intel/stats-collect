@@ -165,7 +165,6 @@ def _substitute_cmd_placeholders(cmdl: _StartCmdlArgsTypedDict,
     cmd = cmd.replace("{HOSTNAME}", cmdl["hostname"])
     cmd = cmd.replace("{USERNAME}", cmdl["username"])
     cmd = cmd.replace("{PRIVKEY}", privkey_str)
-    cmd = cmd.replace("{TIMEOUT}", str(cmdl["timeout"]))
     cmd = cmd.replace("{OUTDIR}", str(cmdl["outdir"]))
     cmd = cmd.replace("{REPORTID}", cmdl["reportid"])
     cmd = cmd.replace("{STATS}", ",".join(stnames_str))
@@ -233,7 +232,7 @@ def start_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
 
     with contextlib.ExitStack() as stack:
         pman = ProcessManager.get_pman(cmdl["hostname"], username=cmdl["username"],
-                                       privkeypath=cmdl["privkey"], timeout=cmdl["timeout"])
+                                       privkeypath=cmdl["privkey"])
         stack.enter_context(pman)
 
         with _Deploy.DeployCheck("stats-collect", ToolInfo.TOOLNAME, deploy_info,

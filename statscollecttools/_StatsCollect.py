@@ -166,7 +166,7 @@ def _build_arguments_parser():
               the tool will run the command on that host (unless '--cmd-local' was specified).
               Otherwise the tool will run the command on 'localhost'. The command may include
               placeholders in "{}" braces, which will be replaced with actual values. The supported
-              placeholders are "{HOSTNAME}", "{USERNAME}", "{PRIVKEY}", "{TIMEOUT}", "{CPUS}",
+              placeholders are "{HOSTNAME}", "{USERNAME}", "{PRIVKEY}", "{CPUS}",
               "{OUTDIR}", "{REPORTID}", "{STATS}", "{PIPE_PATH}". They will be substituted with the
               actual values of the corresponding options."""
 

@@ -13,7 +13,7 @@ Command *'start'*
 =================
 
 usage: stats-collect start [-h] [-q] [-d] [-H HOSTNAME] [-U USERNAME]
-[-K PRIVKEY] [-T TIMEOUT] [--time-limit LIMIT] [-o OUTDIR]
+[-K PRIVKEY] [--time-limit LIMIT] [-o OUTDIR]
 [--reportid REPORTID] [--stats STATS] [--stats-intervals STATS_INTERVALS]
 [--list-stats] [--report] COMMAND
 
@@ -24,7 +24,6 @@ following placeholders are supported:
  * {USERNAME}: The name of the user to use for logging into the remote host over SSH.
  * {PRIVKEY}: Path to the private SSH key that should be used for logging into the remote host.
               Defaults to "none".
- * {TIMEOUT}: SSH connect timeout in seconds.
  * {CPUS}: The list of CPUs to measure. Defaults to "none".
  * {OUTDIR}: The output directory where the result will be stored.
  * {REPORTID}: The Report ID of the result.
@@ -53,9 +52,6 @@ General options
    Path to the private SSH key that should be used for logging into the
    remote host. By default the key is automatically found from standard
    paths like '~/.ssh'.
-
-**-T** *TIMEOUT*, **--timeout** *TIMEOUT*
-   SSH connect timeout in seconds, default is 8.
 
 **--time-limit** *LIMIT*
    The time limit for statistics collection, after which the collection
