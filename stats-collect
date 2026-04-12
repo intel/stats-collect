@@ -11,6 +11,18 @@
 
 """stats-collect - a tool for collecting and visualizing system statistics and telemetry."""
 
+import sys
+from pathlib import Path
+
+try:
+    # pylint: disable-next=unused-import
+    import pepclibs  # noqa: F401
+except ImportError:
+    # 'pepclibs' is not installed. It may be in the sibling 'pepc' source directory.
+    _pepcroot = Path(__file__).parent / "pepc"
+    sys.path.insert(0, str(_pepcroot))
+    sys.modules.pop("pepclibs", None)
+
 from statscollecttools._StatsCollect import main
 
 if __name__ == "__main__":

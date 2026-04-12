@@ -13,6 +13,18 @@ stc-agent - the statistics collection agent, a service for collecting statistics
 internal sub-tool of the 'stats-collect' tool, not intended to be used directly by end users.
 """
 
+import sys
+from pathlib import Path
+
+try:
+    # pylint: disable-next=unused-import
+    import pepclibs  # noqa: F401
+except ImportError:
+    # 'pepclibs' is not installed. It may be in the sibling 'pepc' source directory.
+    _pepcroot = Path(__file__).parent / "pepc"
+    sys.path.insert(0, str(_pepcroot))
+    sys.modules.pop("pepclibs", None)
+
 from statscollecttools._STCAgent import main
 
 if __name__ == "__main__":
