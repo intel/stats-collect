@@ -1,26 +1,29 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #          Adam Hawley <adam.james.hawley@intel.com>
 
-"""stats-collect - a tool for collecting and visualizing system statistics and telemetry."""
+"""
+stats-collect - a tool for collecting and visualizing system statistics and telemetry.
+"""
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import types
 import typing
 import argparse
 from pathlib import Path
 
 try:
+    argcomplete: types.ModuleType | None
     import argcomplete
-    _ARGCOMPLETE_AVAILABLE = True
 except ImportError:
     # We can live without argcomplete, we only lose tab completions.
-    _ARGCOMPLETE_AVAILABLE = False
+    argcomplete = None
 
 from pepclibs.helperlibs import Logging, ArgParse, ProjectFiles
 from pepclibs.helperlibs.Exceptions import Error
@@ -70,11 +73,11 @@ class _PrintManPathAction(argparse.Action):
         _LOG.info("%s", manpath)
         parser.exit()
 
-def _build_arguments_parser():
+def _build_arguments_parser() -> ArgParse.ArgsParser:
     """Build and return the arguments parser object."""
 
-    if _ARGCOMPLETE_AVAILABLE:
-        completer = argcomplete.completers.DirectoriesCompleter()
+    if argcomplete is not None:
+        completer = getattr(getattr(argcomplete, "completers"), "DirectoriesCompleter")()
     else:
         completer = None
 
@@ -204,13 +207,18 @@ def _build_arguments_parser():
               would mean CPUs 1 to 4, CPUs 7, 8, and 10 to 12."""
     subpars.add_argument("--cpus", help=text)
 
-    if _ARGCOMPLETE_AVAILABLE:
-        argcomplete.autocomplete(parser)
+    if argcomplete is not None:
+        getattr(argcomplete, "autocomplete")(parser)
 
     return parser
 
-def parse_arguments():
-    """Parse input arguments."""
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse the command-line arguments.
+
+    Returns:
+        argparse.Namespace: The parsed arguments.
+    """
 
     parser = _build_arguments_parser()
     return parser.parse_args()
@@ -259,16 +267,20 @@ def do_main(pman: ProcessManagerType | None = None):
 
     args.func(args)
 
-def main():
-    """Script entry point."""
+def main() -> int:
+    """
+    The entry point of the tool.
+
+    Returns:
+        int: The program exit code.
+    """
 
     try:
         do_main()
     except KeyboardInterrupt:
         _LOG.info("\nInterrupted, exiting")
-        return -1
     except Error as err:
-        _LOG.error_out(err)
+        _LOG.error_out(str(err))
 
     return 0
 
