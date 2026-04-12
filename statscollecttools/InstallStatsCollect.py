@@ -9,8 +9,9 @@
 """
 Implement the 'install-stats-collect' tool and provide a public 'install_stats_collect()' API.
 
-The 'install_stats_collect()' function installs 'pepc' first (a required dependency), then
-'stats-collect', both into the same virtual environment.
+The 'install_stats_collect()' function installs 'stats-collect' into a virtual environment.
+'pepc' must be installed into the same virtual environment first, since 'stats-collect' depends
+on it. Use 'InstallPepc.install_pepc()' for that.
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -56,7 +57,6 @@ if typing.TYPE_CHECKING:
 
         install_path: Path
         src_path: str
-        pepc_src_path: str
         no_pkg_install: bool
         no_rcfile: bool
         force_sudo_alias: bool
@@ -105,12 +105,6 @@ def _build_arguments_parser() -> ArgParse.ArgsParser:
     text = f"""Installation source: a local directory path or a Git URL
                (default: '{STC_GIT_INSTALL_SRC}')."""
     parser.add_argument("-s", "--src-path", help=text)
-
-    text = f"""Installation source for 'pepc', which 'stats-collect' depends on: a local
-               directory path or a Git URL. By default, if '--src-path' is a local path, the
-               pepc sources are expected at '<src-path>/../pepc'. Otherwise, the canonical pepc
-               URL '{InstallPepc.PEPC_GIT_INSTALL_SRC}' is used."""
-    parser.add_argument("--pepc-src-path", help=text)
 
     text = """Do not install missing OS packages required for 'stats-collect' to work."""
     parser.add_argument("--no-pkg-install", action="store_true", help=text)
@@ -178,25 +172,6 @@ def _get_cmdline_args(args: argparse.Namespace) -> _CmdlineArgsTypedDict:
     src_path = args.src_path
     cmdl["src_path"] = src_path if src_path else STC_GIT_INSTALL_SRC
 
-    # Resolve the pepc installation source using the three-case logic:
-    #   1. Explicit --pepc-src-path always wins.
-    #   2. If stats-collect src is a local path, derive pepc as the sibling 'pepc' directory.
-    #   3. Otherwise (URL), use the canonical pepc Git URL.
-    pepc_src_path = args.pepc_src_path
-    if pepc_src_path:
-        cmdl["pepc_src_path"] = pepc_src_path
-    elif not cmdl["src_path"].startswith(("git+", "http://", "https://")):
-        derived = Path(cmdl["src_path"]).parent / "pepc"
-        if not derived.is_dir():
-            raise Error(f"Expected to find pepc sources at '{derived}', but the directory does "
-                        f"not exist. Use '--pepc-src-path' to specify the pepc source path.")
-        cmdl["pepc_src_path"] = str(derived)
-    else:
-        if cmdl["src_path"] != STC_GIT_INSTALL_SRC:
-            _LOG.info("No '--pepc-src-path' specified for a custom URL. Using the default pepc "
-                      "source: '%s'.", InstallPepc.PEPC_GIT_INSTALL_SRC)
-        cmdl["pepc_src_path"] = InstallPepc.PEPC_GIT_INSTALL_SRC
-
     cmdl["no_pkg_install"] = args.no_pkg_install
     cmdl["no_rcfile"] = args.no_rcfile
     cmdl["force_sudo_alias"] = args.force_sudo_alias
@@ -222,7 +197,6 @@ def _get_cmdline_args(args: argparse.Namespace) -> _CmdlineArgsTypedDict:
 
 def install_stats_collect(pman: ProcessManagerType,
                           src: str,
-                          pepc_src: str = InstallPepc.PEPC_GIT_INSTALL_SRC,
                           install_path: Path = PythonPrjInstaller.DEFAULT_INSTALL_PATH,
                           no_pkg_install: bool = False,
                           no_rcfile: bool = False,
@@ -230,15 +204,14 @@ def install_stats_collect(pman: ProcessManagerType,
                           no_sudo_alias: bool = False,
                           sudo_alias_style: SudoAliasStyle = "refresh") -> None:
     """
-    Install 'pepc' and 'stats-collect' on the target host into a Python virtual environment.
+    Install 'stats-collect' on the target host into a Python virtual environment.
 
-    Installs 'pepc' first, since 'stats-collect' depends on it, and both must share the same
-    virtual environment for pip to resolve the dependency from the local install.
+    Note: 'pepc' must be installed into the same virtual environment first, since 'stats-collect'
+    depends on it. Use 'InstallPepc.install_pepc()' for that.
 
     Args:
         pman: The process manager object that defines the target host.
         src: Installation source for 'stats-collect': a local directory path or a Git URL.
-        pepc_src: Installation source for 'pepc': a local directory path or a Git URL.
         install_path: Installation directory on the target host.
         no_pkg_install: Do not install missing OS packages.
         no_rcfile: Do not modify the user's shell RC file.
@@ -246,15 +219,6 @@ def install_stats_collect(pman: ProcessManagerType,
         no_sudo_alias: Prevent adding a 'sudo' alias to the RC file.
         sudo_alias_style: The style of the 'sudo' alias ('refresh' or 'wrap').
     """
-
-    _LOG.info("Installing 'pepc' (required dependency of 'stats-collect')%s", pman.hostmsg)
-
-    InstallPepc.install_pepc(pman, pepc_src, install_path=install_path,
-                             no_pkg_install=no_pkg_install,
-                             no_rcfile=no_rcfile,
-                             force_sudo_alias=force_sudo_alias,
-                             no_sudo_alias=no_sudo_alias,
-                             sudo_alias_style=sudo_alias_style)
 
     installer = PythonPrjInstaller.PythonPrjInstaller("stats-collect", src, pman=pman,
                                                       install_path=install_path,
@@ -285,7 +249,24 @@ def _main(pman: ProcessManagerType, cmdl: _CmdlineArgsTypedDict):
         cmdl: The command-line arguments description dictionary.
     """
 
-    install_stats_collect(pman, cmdl["src_path"], pepc_src=cmdl["pepc_src_path"],
+    _LOG.info("Installing 'pepc' (required dependency of 'stats-collect')%s", pman.hostmsg)
+
+    src_path = cmdl["src_path"]
+    if src_path.startswith(("git+", "http://", "https://")):
+        pepc_src = InstallPepc.PEPC_GIT_INSTALL_SRC
+    else:
+        pepc_src = str(Path(src_path).parent / "pepc")
+
+    InstallPepc.install_pepc(pman, pepc_src, install_path=cmdl["install_path"],
+                             no_pkg_install=cmdl["no_pkg_install"],
+                             no_rcfile=cmdl["no_rcfile"],
+                             force_sudo_alias=cmdl["force_sudo_alias"],
+                             no_sudo_alias=cmdl["no_sudo_alias"],
+                             sudo_alias_style=cmdl["sudo_alias_style"])
+
+    _LOG.info("Installing 'stats-collect'%s", pman.hostmsg)
+
+    install_stats_collect(pman, cmdl["src_path"],
                           install_path=cmdl["install_path"],
                           no_pkg_install=cmdl["no_pkg_install"],
                           no_rcfile=cmdl["no_rcfile"],
@@ -295,8 +276,8 @@ def _main(pman: ProcessManagerType, cmdl: _CmdlineArgsTypedDict):
 
 def main():
     """
-    The 'install-stats-collect' tool entry point. Parse command-line arguments and install
-    'pepc' and 'stats-collect'.
+    The 'install-stats-collect' tool entry point. Parse command-line arguments, install 'pepc',
+    then install 'stats-collect'.
 
     Returns:
         The program exit code.

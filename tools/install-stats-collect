@@ -12,7 +12,34 @@
 install-stats-collect - install 'stats-collect' on the local or remote host.
 """
 
-from statscollecttools import InstallStatsCollect
+import sys
+from pathlib import Path
+
+try:
+    from statscollecttools import InstallStatsCollect
+except ImportError:
+    # The script may be run directly from source. Add the stats-collect and pepc project roots
+    # to the module search path and retry.
+    _prjroot = Path(__file__).parent.parent.resolve()
+
+    # The 'pepc' project sources are expected to be in the same parent directory as 'stats-collect'.
+    _pepcroot = _prjroot.parent / "pepc"
+    if not _pepcroot.is_dir():
+        print(f"Error: Could not find the 'pepc' project directory at '{_pepcroot}'",
+              file=sys.stderr)
+        # pylint: disable-next=raise-missing-from
+        raise SystemExit(1)
+
+    sys.path.insert(0, str(_pepcroot))
+    sys.path.insert(0, str(_prjroot))
+
+    # There may be a situation where the system-installed 'statscollecttools' is a different version
+    # than the one in the source tree. It just did not have the 'InstallStatsCollect' module, but
+    # the 'statscollecttools' package was still cached. Remove it to force re-importing the package
+    # from the updated 'sys.path', picking up the source tree instead.
+    sys.modules.pop("statscollecttools", None)
+
+    from statscollecttools import InstallStatsCollect
 
 if __name__ == "__main__":
     raise SystemExit(InstallStatsCollect.main())
