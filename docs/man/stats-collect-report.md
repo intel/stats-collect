@@ -26,7 +26,9 @@ Create an HTML report for one or multiple test results.
 
 **--debug-modules** *MODNAME[,MODNAME1,...]*
 
-:   Print debugging information only from the specified modules.
+:   The '-d' option enables all debug messages. This option limits them to the specified
+    modules. For example, '-d --debug-modules MSR' will only show debug messages from the
+    'MSR' module.
 
 **--force-color**
 

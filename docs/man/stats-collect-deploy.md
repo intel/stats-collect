@@ -26,26 +26,18 @@ Deploy stats-collect helpers to a remote SUT (System Under Test).
 
 **--debug-modules** *MODNAME[,MODNAME1,...]*
 
-:   Print debugging information only from the specified modules.
+:   The '-d' option enables all debug messages. This option limits them to the specified
+    modules. For example, '-d --debug-modules MSR' will only show debug messages from the
+    'MSR' module.
 
 **--force-color**
 
 :   Force colorized output even if the output stream is not a terminal (adds ANSI escape codes).
 
-**--tmpdir-path** *TMPDIR_PATH*
-
-:   When 'stats-collect' is deployed, a random temporary directory is used. Use this option to
-    provide a custom path instead. It will be used as a temporary directory on both local and
-    remote hosts. This option is meant for debugging purposes.
-
-**--keep-tmpdir**
-
-:   Do not remove the temporary directories created while deploying 'stats-collect'. This option
-    is meant for debugging purposes.
-
 **-H** *HOSTNAME*, **--host** *HOSTNAME*
 
-:   Host name or IP address of the remote host to deploy to over SSH. Defaults to local host.
+:   Host name or IP address of the SUT to deploy to over SSH. If not specified, the helpers are
+    deployed to the local host.
 
 **-U** *USERNAME*, **--username** *USERNAME*
 
@@ -58,3 +50,16 @@ Deploy stats-collect helpers to a remote SUT (System Under Test).
     configured for the host in SSH configuration files (e.g. `~/.ssh/config`) are used. If no
     keys are configured there, standard key files (e.g. `~/.ssh/id_rsa`) and the SSH agent are
     tried.
+
+## Deploy options
+
+**--tmpdir-path** *TMPDIR_PATH*
+
+:   When 'stats-collect' is deployed, a random temporary directory is used. Use this option to
+    provide a custom path instead. It will be used as a temporary directory on both local and
+    remote hosts. This option is meant for debugging purposes.
+
+**--keep-tmpdir**
+
+:   Do not remove the temporary directories created while deploying 'stats-collect'. This option
+    is meant for debugging purposes.

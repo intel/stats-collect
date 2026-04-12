@@ -22,7 +22,10 @@ Be quiet (print only important messages like warnings).
 Print debugging information.
 .TP
 \f[B]\-\-debug\-modules\f[R] \f[I]MODNAME[,MODNAME1,...]\f[R]
-Print debugging information only from the specified modules.
+The \[aq]\-d\[aq] option enables all debug messages.
+This option limits them to the specified modules.
+For example, \[aq]\-d \-\-debug\-modules MSR\[aq] will only show debug
+messages from the \[aq]MSR\[aq] module.
 .TP
 \f[B]\-\-force\-color\f[R]
 Force colorized output even if the output stream is not a terminal (adds

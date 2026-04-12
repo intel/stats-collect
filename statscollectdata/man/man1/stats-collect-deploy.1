@@ -15,27 +15,18 @@ Be quiet (print only important messages like warnings).
 Print debugging information.
 .TP
 \f[B]\-\-debug\-modules\f[R] \f[I]MODNAME[,MODNAME1,...]\f[R]
-Print debugging information only from the specified modules.
+The \[aq]\-d\[aq] option enables all debug messages.
+This option limits them to the specified modules.
+For example, \[aq]\-d \-\-debug\-modules MSR\[aq] will only show debug
+messages from the \[aq]MSR\[aq] module.
 .TP
 \f[B]\-\-force\-color\f[R]
 Force colorized output even if the output stream is not a terminal (adds
 ANSI escape codes).
 .TP
-\f[B]\-\-tmpdir\-path\f[R] *TMPDIR_PATH*
-When \[aq]stats\-collect\[aq] is deployed, a random temporary directory
-is used.
-Use this option to provide a custom path instead.
-It will be used as a temporary directory on both local and remote hosts.
-This option is meant for debugging purposes.
-.TP
-\f[B]\-\-keep\-tmpdir\f[R]
-Do not remove the temporary directories created while deploying
-\[aq]stats\-collect\[aq].
-This option is meant for debugging purposes.
-.TP
 \f[B]\-H\f[R] \f[I]HOSTNAME\f[R], \f[B]\-\-host\f[R] \f[I]HOSTNAME\f[R]
-Host name or IP address of the remote host to deploy to over SSH.
-Defaults to local host.
+Host name or IP address of the SUT to deploy to over SSH.
+If not specified, the helpers are deployed to the local host.
 .TP
 \f[B]\-U\f[R] \f[I]USERNAME\f[R], \f[B]\-\-username\f[R] \f[I]USERNAME\f[R]
 Name of the user to use for logging into the remote host over SSH.
@@ -49,3 +40,16 @@ files (e.g.
 \f[CR]\[ti]/.ssh/config\f[R]) are used.
 If no keys are configured there, standard key files (e.g.
 \f[CR]\[ti]/.ssh/id_rsa\f[R]) and the SSH agent are tried.
+.SS Deploy options
+.TP
+\f[B]\-\-tmpdir\-path\f[R] *TMPDIR_PATH*
+When \[aq]stats\-collect\[aq] is deployed, a random temporary directory
+is used.
+Use this option to provide a custom path instead.
+It will be used as a temporary directory on both local and remote hosts.
+This option is meant for debugging purposes.
+.TP
+\f[B]\-\-keep\-tmpdir\f[R]
+Do not remove the temporary directories created while deploying
+\[aq]stats\-collect\[aq].
+This option is meant for debugging purposes.
