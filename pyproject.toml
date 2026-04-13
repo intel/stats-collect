@@ -71,3 +71,4 @@ mypy_path = "../pepc"
 [tool.pyright]
 # Disable the warning that makes it very hard working with typed dicts.
 reportTypedDictNotRequiredAccess = false
+extraPaths = ["../pepc"]
