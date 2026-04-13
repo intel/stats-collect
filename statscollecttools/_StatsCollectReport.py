@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2025 Intel Corporation
+# Copyright (C) 2022-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -28,7 +28,7 @@ if typing.TYPE_CHECKING:
 
     class _ReportCmdlArgsTypedDict(TypedDict, total=False):
         """
-        Typed dictionary for the "stats-collect start" command-line arguments.
+        Typed dictionary for the "stats-collect report" command-line arguments.
 
         Attributes:
             outdir: The output directory path.
@@ -53,12 +53,12 @@ def _open_raw_results(cmdl: _ReportCmdlArgsTypedDict) -> list[RORawResult.RORawR
         cmdl: The command-line arguments.
 
     Returns:
-        list[RORawResult.RORawResult]: List of 'RORawResult' objects.
+        A list of 'RORawResult' objects.
     """
 
     rids = list(cmdl["reportids"])
 
-    # Append the required amount of empty strings to make the 'rids' list be of the same length as #
+    # Append the required amount of empty strings to make the 'rids' list be of the same length as
     # the 'respaths' list.
     rids += [""] * (len(cmdl["respaths"]) - len(rids))
 
@@ -81,13 +81,13 @@ def _open_raw_results(cmdl: _ReportCmdlArgsTypedDict) -> list[RORawResult.RORawR
 def _format_args(args: argparse.Namespace) -> _ReportCmdlArgsTypedDict:
     """
     Validate and format the 'stats-collect report' tool input command-line arguments, then build and
-    return the arguments named tuple object.
+    return the arguments typed dictionary.
 
     Args:
         args: The command-line arguments.
 
     Returns:
-        _ReportCmdlTypedDict: A typed dictionary containing the formatted arguments.
+        A typed dictionary containing the formatted arguments.
     """
 
     if len(args.respaths) == 0:
@@ -111,7 +111,7 @@ def _format_args(args: argparse.Namespace) -> _ReportCmdlArgsTypedDict:
         raise Error(f"There are {len(reportids)} report IDs to assign to {len(respaths)} raw "
                     f"test results. Please, provide {len(respaths)} or fewer report IDs.")
 
-    cpus: list[int] | None = []
+    cpus: list[int] | None = None
     if args.cpus:
         cpus = Trivial.split_csv_line_int(args.cpus, what="--cpus argument")
 
@@ -125,7 +125,7 @@ def _format_args(args: argparse.Namespace) -> _ReportCmdlArgsTypedDict:
 
 def report_command(args: argparse.Namespace):
     """
-    Implements the 'report' command.
+    Implement the 'stats-collect report' command.
 
     Args:
         args: The command-line arguments.

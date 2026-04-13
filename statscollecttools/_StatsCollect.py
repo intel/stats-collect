@@ -245,7 +245,7 @@ def _start_command(args):
         StatsCollect.list_stats()
         return
 
-    _StatsCollectStart.start_command(args, _STC_DEPLOY_INFO)
+    _StatsCollectStart.start_command(args)
 
 def _report_command(args):
     """Implements the 'stats-collect report' command."""

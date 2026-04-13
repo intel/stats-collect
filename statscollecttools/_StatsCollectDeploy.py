@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -33,7 +33,6 @@ if typing.TYPE_CHECKING:
             (All attributes from 'SSHArgsTypedDict')
             tmpdir_path: Path to the temporary directory to use instead of a random one.
             keep_tmpdir: Whether to keep the temporary directory after the deployment is done.
-            debug: Whether to enable debug output.
         """
 
         tmpdir_path: Path | None
@@ -78,6 +77,7 @@ def deploy_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
 
     with ProcessManager.get_pman(cmdl["hostname"], username=cmdl["username"],
                                  privkeypath=cmdl["privkey"]) as pman:
-        with _Deploy.Deploy(ToolInfo.TOOLNAME, deploy_info, pman, cmdl["tmpdir_path"],
-                            cmdl["keep_tmpdir"], cmdl["debug"]) as depl:
+        with _Deploy.Deploy(ToolInfo.TOOLNAME, deploy_info, pman=pman,
+                            tmpdir_path=cmdl["tmpdir_path"], keep_tmpdir=cmdl["keep_tmpdir"],
+                            debug=cmdl["debug"]) as depl:
             depl.deploy()

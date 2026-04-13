@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2025 Intel Corporation
+# Copyright (C) 2022-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -22,7 +22,6 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollecttools import _Common, ToolInfo
 from statscollectlibs import _Runner
 from statscollectlibs.collector import StatsCollectBuilder, StatsCollect
-from statscollectlibs.deploy import _Deploy
 from statscollectlibs.helperlibs import ReportID
 from statscollectlibs.result import RORawResult, _WORawResult
 from statscollectlibs.htmlreport import _StatsCollectHTMLReport
@@ -32,7 +31,6 @@ if typing.TYPE_CHECKING:
     from typing import cast
     from pepclibs.helperlibs.ArgParse import SSHArgsTypedDict
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
-    from statscollectlibs.deploy.DeployBase import DeployInfoTypedDict
 
     class _StartCmdlArgsTypedDict(SSHArgsTypedDict, total=False):
         """
@@ -76,7 +74,7 @@ def _format_args(args: argparse.Namespace) -> _StartCmdlArgsTypedDict:
         args: The command-line arguments.
 
     Returns:
-        _StartCmdlArgsTypedDict: A typed dictionary containing the formatted arguments.
+        A typed dictionary containing the formatted arguments.
 
     Notes:
         - If the 'tlimit' argument does not have the unit, assume milliseconds.
@@ -141,6 +139,7 @@ def _substitute_cmd_placeholders(cmdl: _StartCmdlArgsTypedDict,
         cmdl: The command-line arguments.
         stcoll: A 'StatsCollect' that is going to be used for collecting the statistics (to get the
                 list of statistics names).
+        pipe_path: The path to the named pipe, or 'None' if not used.
 
     Returns:
         str: The command string with placeholders replaced by actual values.
@@ -174,7 +173,7 @@ def _substitute_cmd_placeholders(cmdl: _StartCmdlArgsTypedDict,
 
 class _NamedPipe:
     """
-    A class representing a named pipe. Enacpsulates the named pipe creation and removal, depending
+    A class representing a named pipe. Encapsulates the named pipe creation and removal, depending
     on the user input.
 
     Use the user-provided named pipe path or create a unique temporary named pipe if necessary. In
@@ -197,7 +196,7 @@ class _NamedPipe:
         self._ran_mkfifo = False
 
     def __enter__(self):
-        """Create a uniqu named pipe if necessary."""
+        """Create a unique named pipe if necessary."""
 
         if self.pipe_path == Path("auto"):
             self._tmpdir = self._pman.mkdtemp(prefix="stats-collect-pipe-dir")
@@ -218,14 +217,12 @@ class _NamedPipe:
         elif self._ran_mkfifo:
             self._pman.unlink(self.pipe_path)
 
-def start_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
+def start_command(args: argparse.Namespace):
     """
     Implement the 'stats-collect start' command.
 
     Args:
         args: The command-line arguments.
-        deploy_info: The 'stats-collect' tool deployment information, used for checking the
-                     deployment status.
     """
 
     cmdl = _format_args(args)
@@ -234,10 +231,6 @@ def start_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
         pman = ProcessManager.get_pman(cmdl["hostname"], username=cmdl["username"],
                                        privkeypath=cmdl["privkey"])
         stack.enter_context(pman)
-
-        with _Deploy.DeployCheck("stats-collect", ToolInfo.TOOLNAME, deploy_info,
-                                 pman=pman) as depl:
-            depl.check_deployment()
 
         res = _WORawResult.WORawResult(cmdl["reportid"], cmdl["outdir"])
         stack.enter_context(res)
@@ -258,8 +251,7 @@ def start_command(args: argparse.Namespace, deploy_info: DeployInfoTypedDict):
                 raise Error("No statistics discovered. Use '--stats=none' to explicitly "
                             "run the tool without statistics collection.")
 
-            if stcoll:
-                stack.enter_context(stcoll)
+            stack.enter_context(stcoll)
 
         _Common.configure_log_file(res.logs_path, ToolInfo.TOOLNAME)
 

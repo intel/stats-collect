@@ -26,7 +26,7 @@ if typing.TYPE_CHECKING:
     from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
 
 HELPERS_DEPLOY_SUBDIR: Final[Path] = Path(".local")
-HELPERS_SRC_SUBDIR: Final[Path] = Path("helpers")
+HELPERS_SRC_SUBDIR: Final[Path] = Path(".")
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
