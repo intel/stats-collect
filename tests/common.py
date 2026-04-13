@@ -11,27 +11,24 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import os
-import typing
 from pathlib import Path
-from pepclibs.helperlibs import TestRunner
-from statscollecttools import _StatsCollect, ToolInfo
 
-if typing.TYPE_CHECKING:
-    from pepclibs.helperlibs.Exceptions import ExceptionType
-
-def run_stats_collect(arguments: str, exp_exc: ExceptionType | None = None):
+def get_prj_src_path() -> Path:
     """
-    Run 'stats-collect' command and verify the outcome.
+    Return the path to the stats-collect project source tree root directory.
 
-    Args:
-      arguments: The arguments to run the command with.
-      exp_exc: The expected exception. By default, any exception is considered to be a failure. If
-               set, the test is considered to be a failure if the command did not raise the expected
-               exception.
+    Returns:
+        Path to the project source tree root directory.
     """
 
-    # Set the environment variable to force the tester to use the data files of
-    # the 'stats-collect' installation being tested.
-    os.environ["STATS_COLLECT_DATA_PATH"] = str(Path(__file__).parents[1])
-    TestRunner.run_tool(_StatsCollect, ToolInfo.TOOLNAME, arguments, exp_exc=exp_exc)
+    return Path(__file__).parent.parent.resolve()
+
+def get_test_data_base() -> Path:
+    """
+    Return the path to the test data base directory.
+
+    Returns:
+        Path to the test data base directory.
+    """
+
+    return get_prj_src_path() / "tests" / "data"

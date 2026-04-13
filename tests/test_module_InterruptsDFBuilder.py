@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-"""Tests for the 'InterruptsParser' module."""
+"""Tests for the 'InterruptsDFBuilder' module."""
 
-from pathlib import Path
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+from tests import common
 from statscollectlibs.result import RORawResult, LoadedResult
 
-_TEST_RESULTS_DIR = Path("tests/data/test_module_InterruptsDFBuilder/results/")
+_TEST_RESULTS_DIR = common.get_test_data_base() / "test_module_InterruptsDFBuilder" / "results"
 
-def _is_valid_cpu_scope(scope) -> bool:
+def _is_valid_cpu_scope(scope: str) -> bool:
     """
     Check if the given scope is a valid CPU scope.
 
     Args:
-        scope: The scope to check.
+        scope: The scope string to check.
 
     Returns:
-        True if the scope is a valid CPU scope, False otherwise.
+        'True' if the scope is a valid CPU scope, 'False' otherwise.
     """
 
     if not scope.startswith("CPU"):
@@ -40,10 +42,9 @@ def test_good_results():
     """
 
     for dirpath in _TEST_RESULTS_DIR.iterdir():
+        cpus = [0, 1]
         res = RORawResult.RORawResult(dirpath)
-        lres = LoadedResult.LoadedResult(res, cpus=[0,1])
-
-        cpus = [0,1]
+        lres = LoadedResult.LoadedResult(res, cpus=cpus)
 
         pfx = f"DataFrame for '{dirpath}'"
         lst = lres.load_stat("interrupts")
@@ -59,9 +60,8 @@ def test_good_results():
         # The test results in '_TEST_RESULTS_DIR' are crafted to have many "LOC" interrupts, check
         # the corresponding column names.
         scopes = ["System"]
-        if cpus is not None:
-            for cpu in cpus:
-                scopes.append(f"CPU{cpu}")
+        for cpu in cpus:
+            scopes.append(f"CPU{cpu}")
 
         for scope in scopes:
             colname = f"{scope}-LOC"
@@ -81,8 +81,8 @@ def test_good_results():
                    f"{pfx}: Column name '{colname}' does not follow the 'Scope-Metric' format"
 
             scope = split[0]
-            if scope != "System" and not _is_valid_cpu_scope(scope):
-                assert False, f"{pfx}: Invalid scope '{scope}' in column name '{colname}'"
+            assert scope == "System" or _is_valid_cpu_scope(scope), \
+                   f"{pfx}: Invalid scope '{scope}' in column name '{colname}'"
 
         # Ensure that interrupt count metrics have corresponding interrupt rate metrics.
         for colname in df.columns:

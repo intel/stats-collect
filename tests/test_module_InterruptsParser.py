@@ -1,19 +1,29 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """Tests for the 'InterruptsParser' module."""
 
-from pathlib import Path
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
+import typing
+from tests import common
 from pepclibs.helperlibs.Exceptions import ErrorBadFormat
 from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import InterruptsParser
 
-_TEST_FILES_DIR = Path("tests/data/test_module_InterruptsParser/files")
+if typing.TYPE_CHECKING:
+    from typing import TypedDict
+
+    class _GoodInputEntry(TypedDict):
+        yield_cnt: int
+        input: str
+
+_TEST_FILES_DIR = common.get_test_data_base() / "test_module_InterruptsParser" / "files"
 
 def test_cut_files():
     """
@@ -34,13 +44,13 @@ def test_cut_files():
                f"{pfx}: Expected increasing timestamps, but got '{first_snapshot['timestamp']}'" \
                f" followed by '{last_snapshot['timestamp']}'"
 
-        assert "cpu2irqs" in first_snapshot, f"{pfx}: Missing 'cpus' in first snapshot"
-        assert "cpu2irqs" in last_snapshot, f"{pfx}: Missing 'cpus' in last snapshot"
+        assert "cpu2irqs" in first_snapshot, f"{pfx}: Missing 'cpu2irqs' in first snapshot"
+        assert "cpu2irqs" in last_snapshot, f"{pfx}: Missing 'cpu2irqs' in last snapshot"
 
         assert len(first_snapshot["cpu2irqs"]) == len(last_snapshot["cpu2irqs"]), \
                f"{pfx}: Expected the same number of CPUs, but got " \
-               f"{Trivial.rangify(first_snapshot['cpus'])} and " \
-               f"{Trivial.rangify(last_snapshot['cpus'])}"
+               f"{Trivial.rangify(list(first_snapshot['cpu2irqs']))} and " \
+               f"{Trivial.rangify(list(last_snapshot['cpu2irqs']))}"
 
         assert len(first_snapshot["irq_info"]) == len(last_snapshot["irq_info"]), \
                f"{pfx}: Expected the same number of IRQs, but got " \
@@ -50,7 +60,7 @@ def test_cut_files():
         if "-cut" not in test_file.name:
             continue
 
-        pfx = f"{test_file}"
+        pfx = str(test_file)
         parser = InterruptsParser.InterruptsParser(path=test_file)
         generator = parser.next()
 
@@ -100,7 +110,7 @@ def test_complete_files():
                 assert "hwirq" in info, f"Missing 'hwirq' for '{name}'"
                 assert "action" in info, f"Missing 'action' for '{name}'"
 
-_BAD_INPUT = {
+_BAD_INPUT: dict[str, str] = {
     "Too short input #1": "timestamp: 1234567890",
 
     "Too short input #2": "timestamp: 1234567890\nCPU1 CPU2",
@@ -141,7 +151,7 @@ def test_bad_input():
 
         assert False, f"Did not get 'ErrorBadFormat' with the following bad input: '{name}'"
 
-_GOOD_INPUT = {
+_GOOD_INPUT: dict[str, _GoodInputEntry] = {
     "Good input #1": {
         "yield_cnt": 1,
         "input": r"""timestamp: 1234567890.1
@@ -200,7 +210,7 @@ def test_good_input():
             for _ in parser.next():
                 cnt += 1
         except ErrorBadFormat:
-            assert False, f"got 'ErrorBadFormat' with the following good input: '{name}'"
+            assert False, f"Got 'ErrorBadFormat' with the following good input: '{name}'"
 
         assert cnt == good_input["yield_cnt"], \
-               f"did not get the expected number of yields with the following good input: '{name}'"
+               f"Did not get the expected number of yields with good input: '{name}'"

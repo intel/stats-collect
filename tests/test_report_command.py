@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2023-2025 Intel Corporation
+# Copyright (C) 2023-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Adam Hawley <adam.james.hawley@intel.com>
@@ -10,10 +10,12 @@
 """Tests for 'pepc report' command."""
 
 from pathlib import Path
-import common
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.helperlibs import TestRunner
+from statscollecttools import _StatsCollect
+from tests import common
 
-_TEST_FILES_DIR = Path("tests/data/results")
+_TEST_FILES_DIR = common.get_test_data_base() / "results"
 
 def test_report_command_good(tmp_path: Path):
     """
@@ -25,7 +27,7 @@ def test_report_command_good(tmp_path: Path):
     for resdir in results_dir.iterdir():
         outdir = tmp_path / resdir.name
         args = f"report -o {outdir} {resdir}"
-        common.run_stats_collect(args)
+        TestRunner.run_tool(_StatsCollect, "stats-collect", args)
 
 def test_report_command_bad(tmp_path: Path):
     """
@@ -37,4 +39,4 @@ def test_report_command_bad(tmp_path: Path):
     for resdir in results_dir.iterdir():
         outdir = tmp_path / resdir.name
         args = f"report -o {outdir} {resdir}"
-        common.run_stats_collect(args, Error)
+        TestRunner.run_tool(_StatsCollect, "stats-collect", args, exp_exc=Error)
