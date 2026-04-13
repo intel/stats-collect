@@ -66,6 +66,9 @@ if typing.TYPE_CHECKING:
             category_descr: The description of the installable category.
             minkver: Minimum SUT kernel version required for the installable.
             deployables: List of deployables this installable provides.
+            subdir: Optional sub-directory under the project helpers search roots where the
+                    deployables reside (e.g. 'workloads'). An empty string or a missing key means
+                    the deployables are located directly under the search root.
         """
 
         name: str
@@ -73,6 +76,7 @@ if typing.TYPE_CHECKING:
         category_descr: str
         minkver: str
         deployables: tuple[str, ...]
+        subdir: str
 
     # The tool deploy information type.
     class DeployInfoTypedDict(TypedDict):

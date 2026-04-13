@@ -69,12 +69,15 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
         super().__init__(prjname, toolname, what, spman, bpman, stmpdir, btmpdir, cpman=cpman,
                          ctmpdir=ctmpdir, btchk=btchk, debug=debug)
 
-    def _find_deployable_src(self, deployable: str) -> Path:
+    def _find_deployable_src(self, deployable: str, subdir: str = "") -> Path:
         """
         Find and return the path to a Python helper deployable on the local host.
 
         Args:
             deployable: The name of the Python helper deployable to find.
+            subdir: Optional sub-directory under the project helpers search roots where the
+                    deployable resides. By default, the deployable is located directly under the
+                    search root.
 
         Returns:
             The absolute path to the Python helper deployable.
@@ -82,7 +85,7 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
 
         with LocalProcessManager.LocalProcessManager() as lpman:
             deployable_path = ProjectFiles.find_project_helper(self._prjname, deployable,
-                                                               pman=lpman)
+                                                               tpath=subdir, pman=lpman)
 
             deployable_path = lpman.abspath(deployable_path)
 
@@ -254,7 +257,7 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             self._cpman.mkdir(dstdir, parents=True)
 
             for deployable in inst_info["deployables"]:
-                srcpath = self._find_deployable_src(deployable)
+                srcpath = self._find_deployable_src(deployable, subdir=inst_info.get("subdir", ""))
                 _LOG.debug("Copying Python deployable %s:\n  '%s' -> '%s'",
                            deployable, srcpath, dstdir)
                 self._cpman.rsync(srcpath, dstdir, remotesrc=False, remotedst=False)
@@ -264,5 +267,6 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
             _LOG.info("Building a stand-alone version of the '%s' installable", installable)
             outdir = self._ctmpdir / installable
             for deployable in inst_info["deployables"]:
-                deployable_path = self._find_deployable_src(deployable)
+                deployable_path = self._find_deployable_src(deployable,
+                                                            subdir=inst_info.get("subdir", ""))
                 self._create_standalone_deployable(deployable_path, outdir)

@@ -438,7 +438,8 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
                     # This is not a full path, but just a name of the execuatble. Resolve it to the
                     # full path.
                     info["toolpath"] = ProjectFiles.find_project_helper("stats-collect",
-                                                                        toolpath, self._pman)
+                                                                        toolpath,
+                                                                        pman=self._pman)
 
     # pylint: disable=unused-argument
     def __init__(self, pman, res, local_outdir=None, remote_outdir=None):
@@ -475,7 +476,7 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         #   'local_outdir', and the out-of-band 'stc-agent' is not used at all, so there is no
         #   "remote output directory.
 
-        inb_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent", pman)
+        inb_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent", pman=pman)
         self._inbagent = _STCAgent.InBandCollector(pman, stca_path=inb_stca_path)
         if pman.is_remote:
             # Do not create the out-of-band collector if 'pman' represents the local host.
