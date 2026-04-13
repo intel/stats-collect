@@ -32,7 +32,7 @@ it.
 
 'stats-collect' is available on Fedora 38 and Fedora 39. To install 'stats-collect', run
 
-```
+```bash
 sudo dnf install stats-collect
 ```
 
