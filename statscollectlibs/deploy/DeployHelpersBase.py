@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2025 Intel Corporation
+# Copyright (C) 2022-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -21,12 +21,8 @@ from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.deploy import DeployInstallableBase
 
 if typing.TYPE_CHECKING:
-    from typing import Final
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType
     from statscollectlibs.deploy.DeployBase import InstallableInfoTypedDict
-
-HELPERS_DEPLOY_SUBDIR: Final[Path] = Path(".local")
-HELPERS_SRC_SUBDIR: Final[Path] = Path(".")
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -44,6 +40,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
                  cpman: ProcessManagerType | None = None,
                  ctmpdir: Path | None = None,
                  btchk: ToolChecker.ToolChecker | None = None,
+                 deploy_path: Path | None = None,
                  debug: bool = False):
         """
         Initialize a class instance.
@@ -51,26 +48,31 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
         Args:
             prjname: Name of the project the helpers and 'toolname' belong to.
             toolname: Name of the tool the helpers belong to.
+            what: Human-readable description of the helpers being deployed, used in log messages.
             spman: A process manager object associated with the SUT (System Under Test).
             bpman: A process manager object associated with the build host (the host where the
                    helper should be built).
-            stmpdir: A temporary directory on the SUT.
+            stmpdir: Path to a temporary directory on the SUT.
             btmpdir: Path to a temporary directory on the build host.
             cpman: A process manager object associated with the controller (local host). Defaults to
                    'spman'.
             ctmpdir: Path to a temporary directory on the controller. Defaults to 'stmpdir'.
-            btchk: An instance of 'ToolChecker' that can be used for checking the availability of
-                   various tools on the build host. Will be created if not provided.
-            debug: A boolean variable for enabling additional debugging messages.
+            btchk: An instance of 'ToolChecker' for checking the availability of various tools on
+                   the build host. Created if not provided.
+            deploy_path: The path on the SUT where the helpers should be deployed. If not provided,
+                         the path is resolved in the following order: the project helpers
+                         environment variable if set, otherwise '$HOME/.local/bin'.
+            debug: If 'True', be more verbose.
         """
 
         self._what = what
+        self._deploy_path = deploy_path
         super().__init__(prjname, toolname, spman, bpman, stmpdir, btmpdir, cpman=cpman,
                          ctmpdir=ctmpdir, btchk=btchk, debug=debug)
 
     def _prepare(self, insts_info: dict[str, InstallableInfoTypedDict], insts_basedir: Path):
         """
-        Build and prepare installables for deployment.
+        Prepare installables for deployment. Must be implemented by subclasses.
 
         Args:
             insts_info: The installables information dictionary.
@@ -78,32 +80,41 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
                            controller (local host).
 
         Raises:
-            NotImplementedError: The method is not implemented by the subclass.
+            NotImplementedError: The method must be implemented by the subclass.
         """
 
         raise NotImplementedError()
 
     def _get_deploy_path(self) -> Path:
         """
-        Return the path to the directory where the helper deployables should be deployed.
+        Return the path to the directory where the helper programs should be deployed.
 
         Returns:
-            Path: The path to the directory where the helper programs should be deployed.
+            The path to the directory where the helper programs should be deployed.
         """
 
-        envar = ProjectFiles.get_project_helpers_envar("stats-collect")
+        if self._deploy_path:
+            return self._deploy_path
+
+        envar = ProjectFiles.get_project_helpers_envar(self._prjname)
         stdout, _ = self._spman.run_verify_join(f"echo ${envar}")
         helpers_path: str | Path = stdout.strip()
+
         if not helpers_path:
             if envar in os.environ:
                 helpers_path = os.environ[envar]
             else:
                 homedir = self._spman.get_envar("HOME")
-                if homedir:
-                    helpers_path =  Path(homedir) / HELPERS_DEPLOY_SUBDIR / "bin"
+                if not homedir:
+                    raise Error(f"Cannot determine the helpers deployment path"
+                                f"{self._spman.hostmsg}: Neither the '{envar}' environment "
+                                f"variable nor the 'HOME' environment variable are set")
+                helpers_path = Path(homedir) / ".local" / "bin"
+
         return Path(helpers_path)
 
-    def deploy(self, insts_info: dict[str, InstallableInfoTypedDict],
+    def deploy(self,
+               insts_info: dict[str, InstallableInfoTypedDict],
                insts_basedir: Path | None = None):
         """
         Deploy installables to the System Under Test (SUT).
@@ -118,7 +129,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
             # Find the installables base directory. We assume all installables are located in the
             # same base directory.
             some_installable = next(iter(insts_info))
-            some_installable_path = HELPERS_SRC_SUBDIR/f"{some_installable}"
+            some_installable_path = Path(some_installable)
             what = f"sources of {self._what}"
             some_installable_path = ProjectFiles.find_project_data(self._prjname,
                                                                    some_installable_path,
@@ -136,7 +147,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
 
         deploy_path = self._get_deploy_path()
 
-        # Make sure the the destination deployment directory exists.
+        # Make sure the destination deployment directory exists.
         self._spman.mkdir(deploy_path, parents=True, exist_ok=True)
 
         # Deploy all helpers.
@@ -150,7 +161,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
                        installable, deploy_path, self._spman.hostmsg)
 
             if not self._bpman.is_remote and self._spman.is_remote:
-                # The installables were built locally (in 'self._prepare()), but they should be
+                # The installables were built locally (in '_prepare()'), but they should be
                 # installed on the SUT. Copy them to the SUT first.
                 self._spman.rsync(str(binstpath) + "/", sinstpath,
                                   remotesrc=self._bpman.is_remote, remotedst=self._spman.is_remote)

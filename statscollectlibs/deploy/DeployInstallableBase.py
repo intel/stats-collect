@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2022-2025 Intel Corporation
+# Copyright (C) 2022-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -23,9 +23,7 @@ if typing.TYPE_CHECKING:
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
-    """
-    Base class for deploying installables.
-    """
+    """Base class for deploying installables."""
 
     def __init__(self,
                  prjname: str,
@@ -47,14 +45,14 @@ class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
             spman: A process manager object associated with the SUT (System Under Test).
             bpman: A process manager object associated with the build host (the host where the
                    installable should be built).
-            stmpdir: A temporary directory on the SUT.
+            stmpdir: Path to a temporary directory on the SUT.
             btmpdir: Path to a temporary directory on the build host.
             cpman: A process manager object associated with the controller (local host). Defaults to
                    'spman'.
             ctmpdir: Path to a temporary directory on the controller. Defaults to 'stmpdir'.
-            btchk: An instance of 'ToolChecker' that can be used for checking the availability of
-                   various tools on the build host. Will be created if not provided.
-            debug: A boolean variable for enabling additional debugging messages.
+            btchk: An instance of 'ToolChecker' for checking the availability of various tools on
+                   the build host. Created if not provided.
+            debug: If 'True', be more verbose.
         """
 
         if not cpman:
@@ -78,9 +76,8 @@ class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Uninitialize the object."""
 
-        close_attrs=("_btchk", )
-        unref_attrs=("_spman", "_bpman", "_cpman")
-        ClassHelpers.close(self, close_attrs=close_attrs, unref_attrs=unref_attrs)
+        ClassHelpers.close(self, close_attrs=("_btchk",),
+                           unref_attrs=("_spman", "_bpman", "_cpman"))
 
     def _log_cmd_output(self, stdout: str, stderr: str):
         """
@@ -98,7 +95,7 @@ class DeployInstallableBase(ClassHelpers.SimpleCloseContext):
                 _LOG.log(Logging.ERRINFO, stderr)
 
     def _get_btchk(self):
-        """Return a 'ToolChecker' instance."""
+        """Return a 'ToolChecker' instance, creating one if it was not provided at construction."""
 
         if self._btchk:
             return self._btchk

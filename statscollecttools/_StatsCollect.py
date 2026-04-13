@@ -57,7 +57,7 @@ _STC_DEPLOY_INFO: DeployInfoTypedDict = {
     },
 }
 
-_LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=ToolInfo.TOOLNAME)
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect")
 
 class _PrintManPathAction(argparse.Action):
     """
@@ -280,6 +280,7 @@ def main() -> int:
     """
 
     try:
+        _LOG.configure(prefix=ToolInfo.TOOLNAME)
         do_main()
     except KeyboardInterrupt:
         _LOG.info("\nInterrupted, exiting")
