@@ -120,12 +120,14 @@ def _build_arguments_parser() -> ArgParse.ArgsParser:
 
     text = """The time limit for statistics collection, after which the collection will stop if the
               command 'cmd' (given as a positional argument) has not finished executing."""
-    subpars.add_argument("--time-limit", help=text, dest="tlimit", metavar="LIMIT", default=None)
-    subpars.add_argument("-o", "--outdir",
-                         type=Path).completer = completer # type: ignore[attr-defined]
+    subpars.add_argument("--time-limit", help=text, dest="tlimit", metavar="LIMIT")
+
+    text = """The directory to store the statistics collection results in."""
+    outdir_arg = subpars.add_argument("-o", "--outdir", type=Path, help=text)
+    outdir_arg.completer = completer # type: ignore[attr-defined]
 
     text = """Report ID which will serve as an identifier for this run. By default report ID is
-              the current date, prefixed with the remote host name in case the '-H' option was 
+              the current date, prefixed with the remote host name in case the '-H' option was
               used. """ + man_msg
     subpars.add_argument("--reportid", help=text)
 
@@ -165,7 +167,7 @@ def _build_arguments_parser() -> ArgParse.ArgsParser:
                'PIPE_TIMEOUT'. The default is 5 minutes. Specify time value in minutes, or use one
                of the following specifiers: {duration_descr}. For example, '--pipe-timeout=1m 20s'
                would mean mean 1 minute and 20 seconds."""
-    subpars.add_argument("--pipe-timeout", help=text, type=Path, default="5m")
+    subpars.add_argument("--pipe-timeout", help=text, default="5m")
 
     text = """Command to run on the during statistics collection. If 'HOSTNAME' is provided,
               the tool will run the command on that host (unless '--cmd-local' was specified).
