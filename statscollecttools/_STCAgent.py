@@ -521,26 +521,17 @@ class _ACPowerCollector(_BaseCollector):
 
 class _STCAgent:
     """
-    The the statistics collection agent class, which implements all the statistics collecting
-    functionality.
+    The statistics collection agent class implementing all statistics collection functionality.
 
-    Public methods overview.
+    Public methods overview:
 
-    1. Create the statistics collector objects for the statistics names in the 'stnames' list.
-       * 'create()'
-    2. Set a property of the statistics collection agent.
-       * 'set_property()'
-    3. Set a property of one or multiple statistic collectors. This function handles the
-       'set-collector-property' command.
-       * 'set_collector_property()'
-    4. Configure collectors.
-       * 'configure()'
-    5. Add a label.
-       * 'add_label()'
-    6. Start collecting the statistics.
-       * 'start()'
-    7. Stop collecting the statistics.
-       * 'stop()'
+    - 'create()': create the statistics collector objects.
+    - 'set_property()': set a property of the statistics collection agent.
+    - 'set_collector_property()': set a property of one or multiple statistic collectors.
+    - 'configure()': configure the collectors.
+    - 'add_label()': add a label.
+    - 'start()': start collecting the statistics.
+    - 'stop()': stop collecting the statistics.
     """
 
     def __init__(self):
@@ -823,14 +814,17 @@ class _STCAgent:
 class _Client(ClassHelpers.SimpleCloseContext):
     """The statistics collection agent network client."""
 
-    def __init__(self, sock, clientid):
+    def __init__(self, sock: socket.socket, clientid: str):
         """
-        The class constructor. The 'sock' argument is the client connection socket and 'clientid' is
-        a printable client ID string (used in messages).
+        Initialize the client.
+
+        Args:
+            sock: The client connection socket.
+            clientid: A printable client ID string used in log messages.
         """
 
-        self._sock = sock
-        self.clientid = clientid
+        self._sock: socket.socket = sock
+        self.clientid: str = clientid
 
     def close(self):
         """Close the client connection."""
@@ -840,13 +834,18 @@ class _Client(ClassHelpers.SimpleCloseContext):
                 self._sock.shutdown(socket.SHUT_RDWR)
                 self._sock.close()
 
-    def respond(self, msg):
-        """Respond to the client by sending it a message."""
+    def respond(self, msg: str):
+        """
+        Respond to the client by sending it a message.
+
+        Args:
+            msg: The message to send.
+        """
 
         _LOG.debug("Sending the following response to client '%s': %s", self.clientid, msg)
 
-        buf = (msg + _DELIMITER + "\n").encode("utf-8")
-        total = 0
+        buf: bytes = (msg + _DELIMITER + "\n").encode("utf-8")
+        total: int = 0
 
         while total < len(buf):
             sent = self._sock.send(buf[total:])
@@ -855,15 +854,21 @@ class _Client(ClassHelpers.SimpleCloseContext):
                                           f"the following message: {msg}")
             total += sent
 
-    def get_command(self):
-        """Receive and return client command."""
+    def get_command(self) -> str:
+        """
+        Receive and return the next client command.
 
-        _LOG.debug("Waiting for a command from client '%s", self.clientid)
-        bufs = []
-        cmd = None
-        msg = bytes()
+        Returns:
+            The command string received from the client.
+        """
 
-        while cmd is None:
+        _LOG.debug("Waiting for a command from client '%s'", self.clientid)
+
+        bufs: list[bytes] = []
+        cmd: bytes = bytes()
+        msg: bytes = bytes()
+
+        while not cmd:
             buf = self._sock.recv(1)
             if not buf:
                 raise _ClientDisconnected(f"Client '{self.clientid}' disconnected, failed to "
@@ -876,21 +881,21 @@ class _Client(ClassHelpers.SimpleCloseContext):
             bufs = []
             # Handle both Linux and Windows newlines.
             for delim in (_DELIMITER + "\n", _DELIMITER + "\r\n"):
-                delim = delim.encode("utf-8")
-                if msg.endswith(delim):
-                    cmd = msg[:-len(delim)]
+                delim_bytes = delim.encode("utf-8")
+                if msg.endswith(delim_bytes):
+                    cmd = msg[:-len(delim_bytes)]
                     break
 
         try:
-            cmd = cmd.decode("utf-8").strip()
+            cmd_str = cmd.decode("utf-8").strip()
         except UnicodeError as err:
             self.respond("Failed to decode the command from UTF-8")
             errmsg = Error(str(err)).indent(2)
             raise _ClientDisconnected(f"Failed to decode the command from UTF-8 from client "
-                                      f"'{self.clientid}:\n{errmsg}") from err
+                                      f"'{self.clientid}':\n{errmsg}") from err
 
-        _LOG.debug("Received command from client '%s':\n%s", self.clientid, cmd)
-        return cmd
+        _LOG.debug("Received command from client '%s':\n%s", self.clientid, cmd_str)
+        return cmd_str
 
 class _Server(ClassHelpers.SimpleCloseContext):
     """
