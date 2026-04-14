@@ -53,6 +53,8 @@ if typing.TYPE_CHECKING:
 TOOLNAME = "stc-wl-cpu-wake-walk"
 VERSION = "0.1"
 
+# Configure the root 'main' logger, not a child logger, so that debug messages from pepclibs
+# ('main.pepc.*') are also captured.
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
 def _build_arguments_parser():

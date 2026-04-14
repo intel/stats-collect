@@ -32,6 +32,8 @@ from statscollectlibs.helperlibs import ProcHelpers
 TOOLNAME = "stc-wl-cpu-freq-walk"
 VERSION = "0.1"
 
+# Configure the root 'main' logger, not a child logger, so that debug messages from pepclibs
+# ('main.pepc.*') are also captured.
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=TOOLNAME)
 
 if typing.TYPE_CHECKING:

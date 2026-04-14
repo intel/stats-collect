@@ -66,8 +66,10 @@ if typing.TYPE_CHECKING:
 _VERSION: Final[str] = "0.1"
 _TOOLNAME: Final[str] = "install-stats-collect"
 
-# Note, logger name is the project name, not the tool name.
-_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect").configure(prefix=_TOOLNAME)
+# Configure the root 'main' logger, not the child 'main.stats-collect', so that debug messages
+# from pepclibs ('main.pepc.*') are also captured.
+_LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect")
+Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=_TOOLNAME)
 
 # The upstream 'stats-collect' project Git URL and branch.
 STC_GIT_INSTALL_SRC: Final[str] = "git+https://github.com/intel/stats-collect.git@release"

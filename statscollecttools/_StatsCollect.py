@@ -280,7 +280,9 @@ def main() -> int:
     """
 
     try:
-        _LOG.configure(prefix=ToolInfo.TOOLNAME)
+        # Configure the root 'main' logger, not the child 'main.stats-collect', so that debug
+        # messages from pepclibs ('main.pepc.*') are also captured.
+        Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=ToolInfo.TOOLNAME)
         do_main()
     except KeyboardInterrupt:
         _LOG.info("\nInterrupted, exiting")

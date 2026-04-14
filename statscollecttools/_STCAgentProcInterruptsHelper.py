@@ -41,6 +41,8 @@ if typing.TYPE_CHECKING:
 _VERSION: Final[str] = ToolInfo.VERSION
 _TOOLNAME: Final[str] = "stc-agent-proc-interrupts-helper"
 
+# Configure the root 'main' logger, not a child logger, so that debug messages from pepclibs
+# ('main.pepc.*') are also captured.
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=_TOOLNAME)
 
 def _build_arguments_parser() -> ArgParse.ArgsParser:
