@@ -93,8 +93,7 @@ def _build_arguments_parser():
     text = """Path to the named pipe on the SUT where the labels should be written to."""
     parser.add_argument("--pipe-path", help=text, type=Path)
 
-    # This is a hidden option for printing paths to dependencies. Required for building a standalone
-    # version of this script.
+    # Hidden option: print paths to 'stc-wl-cpu-wake-walk' module dependencies and exit.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
 
     return parser

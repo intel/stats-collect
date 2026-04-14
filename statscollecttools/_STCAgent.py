@@ -97,8 +97,7 @@ def parse_arguments():
               automatically created Unix socket file name."""
     parser.add_argument("--sut-name", dest="sutname", help=text)
 
-    # This is a hidden option for printing paths to dependencies. Required for building a standalone
-    # version of this script.
+    # Hidden option: print paths to 'stc-agent' module dependencies and exit.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
 
