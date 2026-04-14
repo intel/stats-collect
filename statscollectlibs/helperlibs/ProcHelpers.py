@@ -111,7 +111,7 @@ def kill_pids(pids, sig="SIGTERM", kill_children=False, must_die=False, pman=Non
             for pid in pids:
                 children, _, exitcode = wpman.run(f"pgrep -P {pid}", join=False)
                 if exitcode != 0:
-                    _LOG.debug("PID %d was not found, skipping")
+                    _LOG.debug("PID %d was not found, skipping", pid)
                     continue
                 pids += [child.strip() for child in children]
 
