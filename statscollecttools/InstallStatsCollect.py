@@ -255,7 +255,7 @@ def _main(pman: ProcessManagerType, cmdl: _CmdlineArgsTypedDict):
     if src_path.startswith(("git+", "http://", "https://")):
         pepc_src = InstallPepc.PEPC_GIT_INSTALL_SRC
     else:
-        pepc_src = str(Path(src_path).parent / "pepc")
+        pepc_src = str(Path(src_path).resolve().parent / "pepc")
 
     InstallPepc.install_pepc(pman, pepc_src, install_path=cmdl["install_path"],
                              no_pkg_install=cmdl["no_pkg_install"],
