@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -13,8 +13,6 @@ stc-agent-ipmi-helper - a wrapper over the 'ipmitool' utility for collecting the
 This is an internal sub-tool of the 'stats-collect' tool, not intended to be used directly by end
 users.
 """
-
-# pylint: disable=invalid-name
 
 import sys
 import time
@@ -55,7 +53,8 @@ def parse_arguments():
     text = "IPMI interface (will be passed to 'ipmitool -I'). Default is 'lanplus'."
     parser.add_argument("-I", "--interface", help=text, default="lanplus")
 
-    # This is a hidden option which makes 'stc-agent-ipmi-helper' print paths to its dependencies and exit.
+    # This is a hidden option which makes 'stc-agent-ipmi-helper' print paths to its dependencies
+    # and exit.
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
 

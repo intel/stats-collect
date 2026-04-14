@@ -15,31 +15,34 @@ install-stats-collect - install 'stats-collect' on the local or remote host.
 import sys
 from pathlib import Path
 
-try:
-    from statscollecttools import InstallStatsCollect
-except ImportError:
-    # The script may be run directly from source. Add the stats-collect and pepc project roots
-    # to the module search path and retry.
-    _prjroot = Path(__file__).parent.parent.resolve()
+_prjroot = Path(__file__).parent.parent.resolve()
 
-    # The 'pepc' project sources are expected to be in the same parent directory as 'stats-collect'.
+# This script can be run in two ways:
+#   1. From a source tree - 'statscollecttools' resides in the project root, and the 'pepc' project
+#      is in the sibling directory next to the project root.
+#   2. From an installation - the script is installed (e.g., under '/usr/bin'), and both
+#      'statscollecttools' and 'pepclibs' are installed as regular Python packages.
+#
+# In case 1, we need to add the project root and the sibling 'pepc' directory to 'sys.path' before
+# importing anything, so that Python resolves both 'statscollecttools' and 'pepclibs' from the
+# source tree. This must be done upfront - before any import - to prevent Python from finding and
+# partially importing a system-installed version first, and then mixing it with the source version.
+if (_prjroot / "statscollecttools").is_dir():
     _pepcroot = _prjroot.parent / "pepc"
     if not _pepcroot.is_dir():
-        print(f"Error: Could not find the 'pepc' project directory at '{_pepcroot}'",
-              file=sys.stderr)
-        # pylint: disable-next=raise-missing-from
+        print(f"Error: 'statscollecttools' source found at '{_prjroot}' but the sibling "
+              f"'pepc' directory was not found at '{_pepcroot}'", file=sys.stderr)
         raise SystemExit(1)
-
     sys.path.insert(0, str(_pepcroot))
     sys.path.insert(0, str(_prjroot))
 
-    # There may be a situation where the system-installed 'statscollecttools' is a different version
-    # than the one in the source tree. It just did not have the 'InstallStatsCollect' module, but
-    # the 'statscollecttools' package was still cached. Remove it to force re-importing the package
-    # from the updated 'sys.path', picking up the source tree instead.
-    sys.modules.pop("statscollecttools", None)
-
+try:
     from statscollecttools import InstallStatsCollect
+except ImportError as err:
+    print(f"Error: Cannot import 'statscollecttools': {err}", file=sys.stderr)
+    print("Make sure 'statscollecttools' is installed, or run the script from its source tree",
+          file=sys.stderr)
+    raise SystemExit(1) from None
 
 if __name__ == "__main__":
     raise SystemExit(InstallStatsCollect.main())

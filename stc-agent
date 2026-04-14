@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2025 Intel Corporation
+# Copyright (C) 2019-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -16,16 +16,34 @@ internal sub-tool of the 'stats-collect' tool, not intended to be used directly 
 import sys
 from pathlib import Path
 
-try:
-    # pylint: disable-next=unused-import
-    import pepclibs  # noqa: F401
-except ImportError:
-    # 'pepclibs' is not installed. It may be in the sibling 'pepc' source directory.
-    _pepcroot = Path(__file__).parent / "pepc"
-    sys.path.insert(0, str(_pepcroot))
-    sys.modules.pop("pepclibs", None)
+_prjroot = Path(__file__).parent
 
-from statscollecttools._STCAgent import main
+# This script can be run in two ways:
+#   1. From a source tree - the script resides in the project root alongside the 'statscollecttools'
+#      directory. The 'pepc' project is expected to be checked out next to the project root.
+#   2. From an installation - the script is installed (e.g., under '/usr/bin'), and both
+#      'statscollecttools' and 'pepclibs' are installed as regular Python packages.
+#
+# In case 1, we need to add the project root and the 'pepc' project directory to 'sys.path' before
+# importing anything, so that Python resolves both 'statscollecttools' and 'pepclibs' from the
+# source tree. This must be done upfront - before any import - to prevent Python from finding and
+# partially importing a system-installed version first, and then mixing it with the source version.
+if (_prjroot / "statscollecttools").is_dir():
+    _pepcroot = _prjroot.parent / "pepc"
+    if not _pepcroot.is_dir():
+        print(f"Error: 'statscollecttools' source found at '{_prjroot}' but the 'pepc' project "
+              f"directory was not found at '{_pepcroot}'", file=sys.stderr)
+        raise SystemExit(1)
+    sys.path.insert(0, str(_pepcroot))
+    sys.path.insert(0, str(_prjroot))
+
+try:
+    from statscollecttools._STCAgent import main
+except ImportError as err:
+    print(f"Error: Cannot import 'statscollecttools': {err}", file=sys.stderr)
+    print("Make sure 'statscollecttools' is installed, or run the script from its source tree",
+          file=sys.stderr)
+    raise SystemExit(1) from None
 
 if __name__ == "__main__":
     raise SystemExit(main())
