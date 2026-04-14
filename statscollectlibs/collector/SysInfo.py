@@ -126,12 +126,8 @@ def _collect_sysinfo(outdir: Path, when: str, pman: ProcessManagerType):
     cmd = _format_find_cmd("thermal_throttle", outfile)
     cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
-    outfile = outdir / f"turbostat-d.{when}.raw.txt"
+    outfile = outdir / f"turbostat.{when}.raw.txt"
     cmd = f"turbostat -- sleep 1 > '{outfile}' 2>&1"
-    cmdinfos.append({"cmd": cmd, "outfile": outfile})
-
-    outfile = outdir / f"turbostat-d-c0.{when}.raw.txt"
-    cmd = f"turbostat -c 0 -S -- sleep 0.01 > '{outfile}' 2>&1"
     cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"dmesg.{when}.raw.txt"
