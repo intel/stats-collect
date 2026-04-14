@@ -9,7 +9,7 @@
 
 """
 Parse raw IPMI statistics, which may contain multiple snapshots of 'ipmitool' output (data sets),
-separated with the "timestamp | <time_since_epoch>" lines.
+separated with the "Timestamp | <time_since_epoch>" lines.
 """
 
 import re
@@ -24,8 +24,8 @@ class IPMIParser(_ParserBase.ParserBase):
         """Yield entries from raw IPMI statistics."""
 
         # Example of a line with the timestamp format:
-        # timestamp | 1705672515.054093
-        ts_regex = re.compile(r"^(timestamp) \| (\d+\.\d+)$")
+        # Timestamp | 1705672515.054093
+        ts_regex = re.compile(r"^(Timestamp) \| (\d+\.\d+)$")
         entry_regex = re.compile(r"^(.+)\|(.+)\|(.+)$")
         get_ts = Trivial.str_to_num
 
@@ -33,7 +33,7 @@ class IPMIParser(_ParserBase.ParserBase):
         match = re.match(ts_regex, ts_line)
         if not match:
             raise ErrorBadFormat(f"unrecognized raw IPMI statistics file format.\nExpected to find "
-                                 f"the time-stamp (example: 'timestamp | 1705672515.054093'), got: "
+                                 f"the time-stamp (example: 'Timestamp | 1705672515.054093'), got: "
                                  f"'{ts_line}'")
         yield (match[1].strip(), get_ts(match[2].strip()), "")
 
@@ -62,9 +62,9 @@ class IPMIParser(_ParserBase.ParserBase):
             return
 
         if self._first_ts is None:
-            self._first_ts = data_set["timestamp"]
+            self._first_ts = data_set["Timestamp"]
 
-        data_set["TimeElapsed"] = (data_set["timestamp"][0] - self._first_ts[0], self._first_ts[1])
+        data_set["TimeElapsed"] = (data_set["Timestamp"][0] - self._first_ts[0], self._first_ts[1])
 
     def _next(self):
         """Yield a dictionary corresponding to one snapshot of ipmitool output at a time."""
@@ -74,7 +74,7 @@ class IPMIParser(_ParserBase.ParserBase):
 
         for entry in self._next_entry():
             key = entry[0]
-            if key != "timestamp":
+            if key != "Timestamp":
                 # IPMI records are not necessarily unique.
                 if key in duplicates:
                     duplicates[key] += 1

@@ -169,7 +169,7 @@ def _parse_arguments() -> _ArgsTypedDict:
 
     if args.print_module_paths:
         _Common.print_module_paths()
-        sys.exit(0)
+        raise SystemExit(0)
 
     return _format_args(args)
 

@@ -1,4 +1,4 @@
-timestamp | 1737461880.5292444
+Timestamp | 1737461880.5292444
 Temp             | 26 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -39,7 +39,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461885.540607
+Timestamp | 1737461885.540607
 Temp             | 27 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok

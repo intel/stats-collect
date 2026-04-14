@@ -146,7 +146,7 @@ def _main() -> int:
 
     if args.print_module_paths:
         _Common.print_module_paths()
-        sys.exit(0)
+        raise SystemExit(0)
 
     cmdl = _get_cmdline_args(args)
 

@@ -1,4 +1,4 @@
-timestamp | 1737461916.832656
+Timestamp | 1737461916.832656
 Temp             | 28 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -39,7 +39,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461921.83326
+Timestamp | 1737461921.83326
 Temp             | 29 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -80,7 +80,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461926.8044038
+Timestamp | 1737461926.8044038
 Temp             | 29 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -121,7 +121,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461931.8523624
+Timestamp | 1737461931.8523624
 Temp             | 29 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -162,7 +162,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461936.787409
+Timestamp | 1737461936.787409
 Temp             | 28 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -203,7 +203,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461941.82612
+Timestamp | 1737461941.82612
 Temp             | 28 degrees C      | ok
 Temp             | 26 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -244,7 +244,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461946.8212419
+Timestamp | 1737461946.8212419
 Temp             | 28 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -285,7 +285,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461951.8014827
+Timestamp | 1737461951.8014827
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -326,7 +326,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461956.7964742
+Timestamp | 1737461956.7964742
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -367,7 +367,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461961.830778
+Timestamp | 1737461961.830778
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -408,7 +408,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461966.7946541
+Timestamp | 1737461966.7946541
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -449,7 +449,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461971.8407345
+Timestamp | 1737461971.8407345
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -490,7 +490,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461976.819753
+Timestamp | 1737461976.819753
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -531,7 +531,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461981.7954164
+Timestamp | 1737461981.7954164
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -572,7 +572,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461986.8155854
+Timestamp | 1737461986.8155854
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -613,7 +613,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461991.8445559
+Timestamp | 1737461991.8445559
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -654,7 +654,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737461996.83266
+Timestamp | 1737461996.83266
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -695,7 +695,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462001.8586965
+Timestamp | 1737462001.8586965
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -736,7 +736,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462006.8675072
+Timestamp | 1737462006.8675072
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -777,7 +777,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462011.9091792
+Timestamp | 1737462011.9091792
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -818,7 +818,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462016.8666356
+Timestamp | 1737462016.8666356
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -859,7 +859,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462021.8417144
+Timestamp | 1737462021.8417144
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -900,7 +900,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462026.86265
+Timestamp | 1737462026.86265
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -941,7 +941,7 @@ Fan7A            | disabled          | ns
 Fan8A            | disabled          | ns
 Fan9A            | disabled          | ns
 
-timestamp | 1737462031.8386538
+Timestamp | 1737462031.8386538
 Temp             | 27 degrees C      | ok
 Temp             | 25 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok

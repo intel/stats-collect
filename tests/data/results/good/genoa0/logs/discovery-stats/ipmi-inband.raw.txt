@@ -1,4 +1,4 @@
-timestamp | 1737461897.6272616
+Timestamp | 1737461897.6272616
 Temp             | 49 degrees C      | ok
 Temp             | 47 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -35,7 +35,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.12 Volts        | ok
 
-timestamp | 1737461902.225303
+Timestamp | 1737461902.225303
 Temp             | 48 degrees C      | ok
 Temp             | 46 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok

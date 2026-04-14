@@ -1,4 +1,4 @@
-timestamp: 1737461846.86642
+Timestamp: 1737461846.86642
            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
   0:        102          0          0          0          0          0          0          0 IR-IO-APIC   2-edge      timer
   4:          0          0          0       6200          0          0          0          0 IR-IO-APIC   4-edge      ttyS0
@@ -44,7 +44,7 @@ PIN:          0          0          0          0          0          0          
 NPI:          0          0          0          0          0          0          0          0   Nested posted-interrupt event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 
-timestamp: 1737461851.8665645
+Timestamp: 1737461851.8665645
            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
   0:        102          0          0          0          0          0          0          0 IR-IO-APIC   2-edge      timer
   4:          0          0          0       6200          0          0          0          0 IR-IO-APIC   4-edge      ttyS0
@@ -90,7 +90,7 @@ PIN:          0          0          0          0          0          0          
 NPI:          0          0          0          0          0          0          0          0   Nested posted-interrupt event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 
-timestamp: 1737461856.8666875
+Timestamp: 1737461856.8666875
            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
   0:        102          0          0          0          0          0          0          0 IR-IO-APIC   2-edge      timer
   4:          0          0          0       6200          0          0          0          0 IR-IO-APIC   4-edge      ttyS0
@@ -136,7 +136,7 @@ PIN:          0          0          0          0          0          0          
 NPI:          0          0          0          0          0          0          0          0   Nested posted-interrupt event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 
-timestamp: 1737461861.8668025
+Timestamp: 1737461861.8668025
            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
   0:        102          0          0          0          0          0          0          0 IR-IO-APIC   2-edge      timer
   4:          0          0          0       6200          0          0          0          0 IR-IO-APIC   4-edge      ttyS0

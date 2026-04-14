@@ -41,7 +41,7 @@ def test_cut_files():
         assert "timestamp" in last_snapshot, f"{pfx}: Missing 'timestamp' in last snapshot"
 
         assert first_snapshot["timestamp"] < last_snapshot["timestamp"], \
-               f"{pfx}: Expected increasing timestamps, but got '{first_snapshot['timestamp']}'" \
+               f"{pfx}: Expected increasing timestamps, but got '{first_snapshot['timestamp']}'"\
                f" followed by '{last_snapshot['timestamp']}'"
 
         assert "cpu2irqs" in first_snapshot, f"{pfx}: Missing 'cpu2irqs' in first snapshot"
@@ -164,7 +164,7 @@ CPU1 CPU2
         "input": r"""timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3
-timestamp: 1234567890.2""",
+Timestamp | 1234567890.2""",
     },
 
     "Good input #3": {
@@ -172,7 +172,7 @@ timestamp: 1234567890.2""",
         "input": r"""timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3
-timestamp: 1234567890.2
+Timestamp | 1234567890.2
 CPU1 CPU2""",
     },
 
@@ -181,7 +181,7 @@ CPU1 CPU2""",
         "input": r"""timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3
-timestamp: 1234567890.2
+Timestamp | 1234567890.2
 CPU1 CPU2
 stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
     },
@@ -191,7 +191,7 @@ stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
         "input": r"""timestamp: 1234567890.1
 CPU1
 1: 1
-timestamp: 1234567890.2
+Timestamp | 1234567890.2
 CPU1
 1: 2
 stc-agent-proc-interrupts-helper: error: interrupted, exiting""",

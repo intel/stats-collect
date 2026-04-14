@@ -8,7 +8,7 @@
 
 """
 Parse raw interrupts statistics, which may contain multiple snapshots of the "/proc/interrupts" file
-contents separated by "timestamp: <time_since_epoch>" lines.
+contents separated by "Timestamp | <time_since_epoch>" lines.
 """
 
 from __future__ import annotations  # Remove when switching to Python 3.10+.
@@ -58,12 +58,12 @@ if typing.TYPE_CHECKING:
         irq_info: dict[str, IRQInfoTypedDict]
 
 # Regular expression to match timestamp lines in the input data.
-_TIMESTAMP_REGEX: Final[Pattern] = re.compile(r"^timestamp: (\d+\.\d+)$")
+_TIMESTAMP_REGEX: Final[Pattern] = re.compile(r"^Timestamp: (\d+\.\d+)$")
 
 class InterruptsParser:
     """
     Parser for raw interrupts statistics, which may contain multiple snapshots of the
-    "/proc/interrupts" file contents separated by "timestamp: <time_since_epoch>" lines.
+    "/proc/interrupts" file contents separated by "Timestamp: <time_since_epoch>" lines.
     """
 
     def __init__(self, path: Path | None = None, lines: Iterator[str] | IO[str] | None = None):
@@ -342,7 +342,7 @@ class InterruptsParser:
 
         if self._yielded_cnt == 0:
             if not self._dataset.get("timestamp"):
-                raise ErrorBadFormat("No 'timestamp:' lines found")
+                raise ErrorBadFormat("No 'Timestamp:' lines found")
             if not self._cpu2irqs:
                 raise ErrorBadFormat("No '/proc/interrupts' snapshots found")
 

@@ -1,4 +1,4 @@
-timestamp | 1737462137.2919183
+Timestamp | 1737462137.2919183
 System Airflow   | 6 CFM             | ok
 BB Inlet Temp    | 21 degrees C      | ok
 HSBP Temp        | 15 degrees C      | ok
@@ -34,7 +34,7 @@ BB +12.0V        | 11.83 Volts       | ok
 BB +3.0V VBAT    | 2.88 Volts        | ok
 MTT CPU1         | no reading        | ns
 
-timestamp | 1737462138.5696297
+Timestamp | 1737462138.5696297
 System Airflow   | 6 CFM             | ok
 BB Inlet Temp    | 21 degrees C      | ok
 HSBP Temp        | 15 degrees C      | ok

@@ -95,7 +95,7 @@ def _main() -> int:
 
     if args.print_module_paths:
         _Common.print_module_paths()
-        sys.exit(0)
+        raise SystemExit(0)
 
     cmdl = _get_cmdline_args(args)
 
@@ -126,7 +126,7 @@ def _main() -> int:
             # Shrink it by removing the extra white-spaces.
             new_contents = re.sub(regex, " ", contents).rstrip()
 
-            _LOG.info("Timestamp | %s", time.time())
+            _LOG.info("Timestamp: %s", time.time())
             _LOG.info(new_contents)
 
             elapsed = time.time() - start

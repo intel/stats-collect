@@ -40,7 +40,7 @@ class IPMIDFBuilder:
         self.mdo: IPMIMDC.IPMIMDC | None = None
 
         # Name of the dataframe column containing the time since the epoch time-stamps.
-        self.ts_colname = "timestamp"
+        self.ts_colname = "Timestamp"
         # Name of the dataframe column containing the time elapsed since the beginning of the
         # measurements.
         self.time_colname = "TimeElapsed"

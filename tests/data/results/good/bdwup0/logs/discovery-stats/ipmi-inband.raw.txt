@@ -1,4 +1,4 @@
-timestamp | 1737461815.165736
+Timestamp | 1737461815.165736
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -34,7 +34,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.88 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461820.539886
+Timestamp | 1737461820.539886
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok

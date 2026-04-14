@@ -1,4 +1,4 @@
-timestamp | 1737462124.7542188
+Timestamp | 1737462124.7542188
 System Airflow   | 6 CFM             | ok
 BB Inlet Temp    | 21 degrees C      | ok
 HSBP Temp        | 15 degrees C      | ok

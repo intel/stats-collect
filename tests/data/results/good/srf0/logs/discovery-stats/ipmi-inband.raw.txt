@@ -1,4 +1,4 @@
-timestamp | 1737461880.3183794
+Timestamp | 1737461880.3183794
 CPU1 North VR Ou | 0 Amps            | ok
 CPU1 PVCCA EHV I | 0.14 Amps         | ok
 CPU1 PVCCA EHV O | 0.78 Amps         | ok

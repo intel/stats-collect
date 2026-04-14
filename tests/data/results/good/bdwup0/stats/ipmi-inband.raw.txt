@@ -1,4 +1,4 @@
-timestamp | 1737461849.451402
+Timestamp | 1737461849.451402
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -34,7 +34,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461854.586829
+Timestamp | 1737461854.586829
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -70,7 +70,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461859.5707934
+Timestamp | 1737461859.5707934
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -106,7 +106,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461864.5258605
+Timestamp | 1737461864.5258605
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -142,7 +142,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461869.783588
+Timestamp | 1737461869.783588
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -178,7 +178,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461874.7878683
+Timestamp | 1737461874.7878683
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -214,7 +214,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461879.6190214
+Timestamp | 1737461879.6190214
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -250,7 +250,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461884.8208313
+Timestamp | 1737461884.8208313
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -286,7 +286,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461889.6099303
+Timestamp | 1737461889.6099303
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -322,7 +322,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461894.4798677
+Timestamp | 1737461894.4798677
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -358,7 +358,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461899.6765723
+Timestamp | 1737461899.6765723
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -394,7 +394,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461904.6069417
+Timestamp | 1737461904.6069417
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -430,7 +430,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461909.611976
+Timestamp | 1737461909.611976
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -466,7 +466,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461914.7029345
+Timestamp | 1737461914.7029345
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -502,7 +502,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461919.48185
+Timestamp | 1737461919.48185
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -538,7 +538,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461924.4818242
+Timestamp | 1737461924.4818242
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -574,7 +574,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461929.5918534
+Timestamp | 1737461929.5918534
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -610,7 +610,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461934.5558686
+Timestamp | 1737461934.5558686
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -646,7 +646,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461939.4610968
+Timestamp | 1737461939.4610968
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -682,7 +682,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461944.4957414
+Timestamp | 1737461944.4957414
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -718,7 +718,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461949.546153
+Timestamp | 1737461949.546153
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -754,7 +754,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461954.5016294
+Timestamp | 1737461954.5016294
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -790,7 +790,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461959.4830463
+Timestamp | 1737461959.4830463
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok
@@ -826,7 +826,7 @@ BB +1.35V MEM    | 1.32 Volts        | ok
 BB +12.0V V1     | 11.83 Volts       | ok
 P1 MTT           | 0 percent         | ok
 
-timestamp | 1737461964.5115638
+Timestamp | 1737461964.5115638
 System Airflow   | 22 CFM            | ok
 BB EDGE Temp     | 18 degrees C      | ok
 Front Panel Temp | 17 degrees C      | ok

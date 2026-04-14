@@ -158,7 +158,7 @@ def _parse_arguments() -> _ArgsTypedDict:
         except Error:
             pass
         _Common.print_module_paths()
-        sys.exit(0)
+        raise SystemExit(0)
 
     return _format_args(args)
 

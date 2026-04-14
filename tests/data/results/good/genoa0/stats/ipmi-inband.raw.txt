@@ -1,4 +1,4 @@
-timestamp | 1737461939.444906
+Timestamp | 1737461939.444906
 Temp             | 50 degrees C      | ok
 Temp             | 49 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -35,7 +35,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.12 Volts        | ok
 
-timestamp | 1737461945.0237906
+Timestamp | 1737461945.0237906
 Temp             | 51 degrees C      | ok
 Temp             | 50 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -72,7 +72,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.12 Volts        | ok
 
-timestamp | 1737461949.409235
+Timestamp | 1737461949.409235
 Temp             | 52 degrees C      | ok
 Temp             | 50 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -109,7 +109,7 @@ VCCIN VR         | 0.91 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.90 Volts        | ok
 
-timestamp | 1737461954.2002094
+Timestamp | 1737461954.2002094
 Temp             | 52 degrees C      | ok
 Temp             | 50 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -146,7 +146,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.11 Volts        | ok
 
-timestamp | 1737461960.138238
+Timestamp | 1737461960.138238
 Temp             | 52 degrees C      | ok
 Temp             | 50 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -183,7 +183,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737461966.392055
+Timestamp | 1737461966.392055
 Temp             | 52 degrees C      | ok
 Temp             | 50 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -220,7 +220,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737461972.641332
+Timestamp | 1737461972.641332
 Temp             | 53 degrees C      | ok
 Temp             | 51 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -257,7 +257,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737461978.9345443
+Timestamp | 1737461978.9345443
 Temp             | 53 degrees C      | ok
 Temp             | 52 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -294,7 +294,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737461985.1741886
+Timestamp | 1737461985.1741886
 Temp             | 54 degrees C      | ok
 Temp             | 52 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -331,7 +331,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.11 Volts        | ok
 
-timestamp | 1737461991.4354079
+Timestamp | 1737461991.4354079
 Temp             | 54 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -368,7 +368,7 @@ VCCIN VR         | 0.80 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737461997.7012436
+Timestamp | 1737461997.7012436
 Temp             | 55 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -405,7 +405,7 @@ VCCIN VR         | 0.80 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.11 Volts        | ok
 
-timestamp | 1737462002.1351898
+Timestamp | 1737462002.1351898
 Temp             | 55 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -442,7 +442,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462006.886028
+Timestamp | 1737462006.886028
 Temp             | 55 degrees C      | ok
 Temp             | 54 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -479,7 +479,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462011.8003018
+Timestamp | 1737462011.8003018
 Temp             | 55 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -516,7 +516,7 @@ VCCIN VR         | 0.81 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462016.8033323
+Timestamp | 1737462016.8033323
 Temp             | 54 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -553,7 +553,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462022.1213057
+Timestamp | 1737462022.1213057
 Temp             | 54 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -590,7 +590,7 @@ VCCIN VR         | 0.91 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462026.7942812
+Timestamp | 1737462026.7942812
 Temp             | 54 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -627,7 +627,7 @@ VCCIN VR         | 1.11 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462031.5259757
+Timestamp | 1737462031.5259757
 Temp             | 55 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -664,7 +664,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462036.6273663
+Timestamp | 1737462036.6273663
 Temp             | 55 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -701,7 +701,7 @@ VCCIN VR         | 1.11 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462041.649236
+Timestamp | 1737462041.649236
 Temp             | 54 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -738,7 +738,7 @@ VCCIN VR         | 1.12 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 1.11 Volts        | ok
 
-timestamp | 1737462046.9560618
+Timestamp | 1737462046.9560618
 Temp             | 54 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok
@@ -775,7 +775,7 @@ VCCIN VR         | 1.11 Volts        | ok
 VDDIO VR         | 1.09 Volts        | ok
 HV VR            | 0.80 Volts        | ok
 
-timestamp | 1737462051.5743413
+Timestamp | 1737462051.5743413
 Temp             | 55 degrees C      | ok
 Temp             | 53 degrees C      | ok
 Inlet Temp       | 18 degrees C      | ok

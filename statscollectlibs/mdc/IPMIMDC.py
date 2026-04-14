@@ -78,9 +78,9 @@ class IPMIMDC(MDCBase.MDCBase):
         category: str | None
 
         # The IPMI metrics definition file includes only category names, except for "TimeElapsed"
-        # and "timestamp", which are metric names.
+        # and "Timestamp", which are metric names.
         for category in self.mdd:
-            if category in ("TimeElapsed", "timestamp"):
+            if category in ("TimeElapsed", "Timestamp"):
                 # Put time-stamp metrics to the "Timestamp" category.
                 category = "Timestamp"
             if category in self.categories:
@@ -94,7 +94,7 @@ class IPMIMDC(MDCBase.MDCBase):
 
             category = self._get_category(unit)
             if not category:
-                if metric in ("TimeElapsed", "timestamp"):
+                if metric in ("TimeElapsed", "Timestamp"):
                     md = self.mdd.get(metric)
                     category = "Timestamp"
                 else:

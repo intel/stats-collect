@@ -1,4 +1,4 @@
-timestamp | 1737462017.7187722
+Timestamp | 1737462017.7187722
 CPU Temp         | 51 degrees C      | ok
 System Temp      | 28 degrees C      | ok
 Peripheral Temp  | 34 degrees C      | ok
@@ -26,7 +26,7 @@ PVNN_NAC         | 0.85 Volts        | ok
 PVPP             | 2.58 Volts        | ok
 Chassis Intru    | 0x01              | ok
 
-timestamp | 1737462022.7612443
+Timestamp | 1737462022.7612443
 CPU Temp         | 51 degrees C      | ok
 System Temp      | 28 degrees C      | ok
 Peripheral Temp  | 33 degrees C      | ok
