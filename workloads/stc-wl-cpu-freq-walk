@@ -20,29 +20,29 @@ _prjroot = Path(__file__).parent.parent
 
 # This script can be run in two ways:
 #   1. From a source tree - the script resides in the 'workloads' subdirectory of the project root,
-#      which contains the 'stcworkloads' directory. The 'pepc' project is expected to be checked
+#      which contains the 'statscollectwls' directory. The 'pepc' project is expected to be checked
 #      out next to the project root.
 #   2. From an installation - the script is installed (e.g., under '/usr/bin'), and both
-#      'stcworkloads' and 'pepclibs' are installed as regular Python packages.
+#      'statscollectwls' and 'pepclibs' are installed as regular Python packages.
 #
 # In case 1, we need to add the project root and the 'pepc' project directory to 'sys.path' before
-# importing anything, so that Python resolves both 'stcworkloads' and 'pepclibs' from the source
+# importing anything, so that Python resolves both 'statscollectwls' and 'pepclibs' from the source
 # tree. This must be done upfront - before any import - to prevent Python from finding and
 # partially importing a system-installed version first, and then mixing it with the source version.
-if (_prjroot / "stcworkloads").is_dir():
+if (_prjroot / "statscollectwls").is_dir():
     _pepcroot = _prjroot.parent / "pepc"
     if not _pepcroot.is_dir():
-        print(f"Error: 'stcworkloads' source found at '{_prjroot}' but the 'pepc' project "
+        print(f"Error: 'statscollectwls' source found at '{_prjroot}' but the 'pepc' project "
               f"directory was not found at '{_pepcroot}'", file=sys.stderr)
         raise SystemExit(1)
     sys.path.insert(0, str(_pepcroot))
     sys.path.insert(0, str(_prjroot))
 
 try:
-    from stcworkloads._STCWLCPUFreqWalk import main
+    from statscollectwls._STCWLCPUFreqWalk import main
 except ImportError as err:
-    print(f"Error: Cannot import 'stcworkloads': {err}", file=sys.stderr)
-    print("Make sure 'stcworkloads' is installed, or run the script from its source tree",
+    print(f"Error: Cannot import 'statscollectwls': {err}", file=sys.stderr)
+    print("Make sure 'statscollectwls' is installed, or run the script from its source tree",
           file=sys.stderr)
     raise SystemExit(1) from None
 

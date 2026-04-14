@@ -48,7 +48,7 @@ jobs:
 #        run: |
 #            nproc=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || echo 1)
 #            [ "$nproc" -le 16 ] || nproc=16
-#            pytest -v --numprocesses "$nproc" --cov=statscollectlibs --cov=statscollecttools --cov=stcworkloads --cov-append
+#            pytest -v --numprocesses "$nproc" --cov=statscollectlibs --cov=statscollecttools --cov=statscollectwls --cov-append
       - name: "Install dependencies"
         run: |
             python -m pip install --upgrade pip
