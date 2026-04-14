@@ -11,10 +11,11 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import typing
-from tests import common
 from pepclibs.helperlibs.Exceptions import ErrorBadFormat
 from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import InterruptsParser
+
+from tests import common
 
 if typing.TYPE_CHECKING:
     from typing import TypedDict

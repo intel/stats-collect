@@ -31,7 +31,7 @@ from statscollectlibs.helperlibs import ProcHelpers
 from statscollecttools import ToolInfo, _Common
 
 if typing.TYPE_CHECKING:
-    from typing import Final, TypedDict
+    from typing import Any, Final, IO, TypedDict, cast
 
     class _CmdlineArgsTypedDict(TypedDict, total=False):
         """
@@ -47,18 +47,122 @@ if typing.TYPE_CHECKING:
         port: int
         sutname: str
 
+    class _BasePropsTypedDict(TypedDict, total=False):
+        """
+        Base properties shared by the statistics collection agent and all statistics collectors.
+
+        Attributes:
+            outdir: The output directory.
+        """
+
+        outdir: str
+
+    class _BaseCollectorPropsTypedDict(_BasePropsTypedDict, total=False):
+        """
+        Base properties shared by all statistics collectors.
+
+        Attributes:
+            fallible: Whether the collector is allowed to fail without causing an error.
+            logdir: The directory for collector standard error output.
+            interval: The statistics collection interval.
+        """
+
+        fallible: bool
+        logdir: str
+        interval: str
+
+    class _TurbostatPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
+        """
+        Properties for the turbostat statistics collector.
+
+        Attributes:
+            toolpath: Path to the turbostat binary.
+            opts: Extra command-line options to pass to turbostat.
+        """
+
+        toolpath: str
+        opts: str
+
+    class _InterruptsPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
+        """
+        Properties for the interrupts statistics collector.
+
+        Attributes:
+            toolpath: Path to the interrupts helper binary.
+        """
+
+        toolpath: str
+
+    class _IPMIPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
+        """
+        Base properties for IPMI statistics collectors.
+
+        Attributes:
+            toolpath: Path to the IPMI helper binary.
+            retries: Number of retries for IPMI commands.
+            count: Number of IPMI readings per interval.
+        """
+
+        toolpath: str
+        retries: int
+        count: int
+
+    class _IPMIOOBPropsTypedDict(_IPMIPropsTypedDict, total=False):
+        """
+        Properties for the out-of-band IPMI statistics collector.
+
+        Attributes:
+            host: The remote host to collect IPMI data from.
+            user: The IPMI user name.
+            pwdfile: Path to the file containing the IPMI password.
+            interface: The IPMI interface to use.
+        """
+
+        host: str
+        user: str
+        pwdfile: str
+        interface: str
+
+    class _ACPowerPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
+        """
+        Properties for the AC power statistics collector.
+
+        Attributes:
+            toolpath: Path to the yokotool binary.
+            devnode: The power meter device node.
+            pmtype: The power meter type.
+        """
+
+        toolpath: str
+        devnode: str
+        pmtype: str
+
+    class _UninitializedTypedDict(TypedDict):
+        """
+        Sentinel values indicating uninitialized statistics collector properties.
+
+        Attributes:
+            str: Sentinel for an optional string property.
+            int: Sentinel for an optional integer property.
+            required_str: Sentinel for a required string property.
+            required_int: Sentinel for a required integer property.
+        """
+
+        str: str
+        int: int
+        required_str: str
+        required_int: int
+
+
 _VERSION: Final[str] = ToolInfo.VERSION
 _TOOLNAME: Final[str] = "stc-agent"
 
-# The values for statistics collector properties which mean that the property was not initialized.
-# If the property is required to be initialize, the key name starts with "required-".
-_UNINITIALIZED = {
-    # Not required to be initialized.
-    "str" : "<not configured>",
-    "int" : -1000000000000,
-    # Non-optional property, required to be initialized.
-    "required-str" : "<must be configured>",
-    "required-int" : -9999999999999,
+# Sentinel values for uninitialized statistics collector properties.
+_UNINITIALIZED: Final[_UninitializedTypedDict] = {
+    "str": "<not configured>",
+    "int": -1000000000000,
+    "required_str": "<must be configured>",
+    "required_int": -9999999999999,
 }
 
 # The messages delimiter prefix. Every time it appears following a newline, it marks the end of
@@ -183,15 +287,15 @@ class _BaseCollector:
 
         # The collector properties that can be changed directly, but any change requires the
         # 'configure()' method to be executed for the changes to take the effect.
-        self.props = {}
+        self.props: _BaseCollectorPropsTypedDict = {}
         # Whether this collector is allowed to fail without causing an error.
         self.props["fallible"] = False
         # The output directory where the statistics will be stored.
-        self.props["outdir"] = _UNINITIALIZED["required-str"]
+        self.props["outdir"] = _UNINITIALIZED["required_str"]
         # The log directory where may put their standard error output.
-        self.props["logdir"] = _UNINITIALIZED["required-str"]
+        self.props["logdir"] = _UNINITIALIZED["required_str"]
         # The statistics collection interval.
-        self.props["interval"] = _UNINITIALIZED["required-str"]
+        self.props["interval"] = _UNINITIALIZED["required_str"]
 
         # The local process manager object.
         self._pman = LocalProcessManager.LocalProcessManager()
@@ -283,7 +387,7 @@ class _BaseCollector:
 
         # Validate that all of the mandatory properties have been set.
         for prop, val in self.props.items():
-            if val in (_UNINITIALIZED["required-str"], _UNINITIALIZED["required-int"]):
+            if val in (_UNINITIALIZED["required_str"], _UNINITIALIZED["required_int"]):
                 self._error("Please configure '%s' first", prop)
 
         self._handle_dirs()
@@ -467,7 +571,7 @@ class _IPMIOOBCollector(_IPMICollector):
         """Initialize a class instance."""
 
         super().__init__("ipmi-oob")
-        self.props["host"] = _UNINITIALIZED["required-str"]
+        self.props["host"] = _UNINITIALIZED["required_str"]
         self.props["user"] = _UNINITIALIZED["str"]
         self.props["pwdfile"] = _UNINITIALIZED["str"]
         self.props["interface"] = _UNINITIALIZED["str"]
@@ -496,7 +600,7 @@ class _ACPowerCollector(_BaseCollector):
 
         super().__init__("acpower")
         self.props["toolpath"] = "yokotool"
-        self.props["devnode"] = _UNINITIALIZED["required-str"]
+        self.props["devnode"] = _UNINITIALIZED["required_str"]
         self.props["pmtype"] = _UNINITIALIZED["str"]
         self._signal = signal.SIGINT
 
@@ -537,19 +641,20 @@ class _STCAgent:
     def __init__(self):
         """Initialize a class instance."""
 
-        self._started = False
-        self._collectors = {}
-        self.failed_collectors = set()
+        self._started: bool = False
+        self._collectors: dict[str, _BaseCollector] = {}
+        self.failed_collectors: set[str] = set()
+        self.name: str = "STCAgent"
 
         # The labels file object.
-        self._lfobj = None
+        self._lfobj: IO[str] | None = None
 
         # Statistics collection agent properties.
-        self.props = {}
+        self.props: _BasePropsTypedDict = {}
         # The output directory where data like labels will be stored.
         self.props["outdir"] = _UNINITIALIZED["str"]
 
-    def _execute_collectors_methods(self, methods):
+    def _execute_collectors_methods(self, methods: list[str]):
         """Execute collector object methods defined by the 'methods' list of strings."""
 
         for method in methods:
@@ -565,16 +670,16 @@ class _STCAgent:
                     getattr(collector, method)()
                 except Error as err:
                     self.failed_collectors.add(collector.name)
-                    msg = f"The '{method}' method of the {collector.name} collector failed:\n" \
-                          f"{err.indent(2)}"
+                    errmsg = f"The '{method}' method of the {collector.name} collector failed:\n" \
+                             f"{err.indent(2)}"
                     if collector.props["fallible"]:
-                        _LOG.debug(msg)
+                        _LOG.debug(errmsg)
                     else:
-                        raise Error(msg) from err
+                        raise Error(errmsg) from err
                 else:
                     _LOG.debug("'%s' method of the %s collector succeeded", method, collector.name)
 
-    def create(self, stnames):
+    def create(self, stnames: list[str]):
         """
         Create the statistics collector objects for the statistics names in the 'stnames' list.
         """
@@ -598,6 +703,7 @@ class _STCAgent:
         for name in stnames:
             try:
                 _LOG.debug("Creating the %s collector", name)
+                collector: _BaseCollector
                 if name == "turbostat":
                     collector = _TurbostatCollector()
                 elif name == "interrupts":
@@ -618,24 +724,33 @@ class _STCAgent:
         _LOG.debug("Created the collectors")
 
     @staticmethod
-    def _set_obj_property(obj, name, value):
+    def _set_obj_property(obj: _BaseCollector | _STCAgent, name: str, value: str):
         """Set a property in object 'obj' (e.g., a statistics collector)."""
 
-        the_type = type(obj.props[name])
+        if not hasattr(obj, "props"):
+            raise Error(f"Object '{obj}' has no 'props' attribute")
+
+        if typing.TYPE_CHECKING:
+            props = cast(dict[str, Any], obj.props)
+        else:
+            props = obj.props
+
+        if name not in props:
+            raise Error(f"Object '{obj}' has no property '{name}'")
 
         try:
             # Since 'bool("False")' is 'True', boolean props require a special case.
-            if the_type == bool:
+            if isinstance(props[name], bool):
                 if value not in ("True", "False"):
                     raise TypeError
-                obj.props[name] = (value == "True")
+                props[name] = (value == "True")
             else:
-                obj.props[name] = the_type(value)
+                props[name] = type(props[name])(value)
         except TypeError as err:
-            raise Error(f"Type conversion error for property '{name}' {obj.name}':\nstring "
-                        f"'{value}' cannot be converted to '{the_type}'") from err
+            raise Error(f"Type conversion error for property '{name}' of '{obj.name}':\nString "
+                        f"'{value}' cannot be converted to '{type(props[name])}'") from err
 
-    def set_collector_property(self, args):
+    def set_collector_property(self, args: str):
         """Set a property of a statistic collector."""
 
         if not self._collectors:
@@ -670,7 +785,7 @@ class _STCAgent:
                    collector.name, args[1], args[2])
 
     @staticmethod
-    def _set_outdir(path):
+    def _set_outdir(path: str):
         """Set 'stc-agent' output directory."""
 
         if not os.path.isabs(path):
@@ -686,7 +801,7 @@ class _STCAgent:
             except OSError as err:
                 raise Error(f"Cannot create 'stc-agent' output directory '{path}':\n{err}") from err
 
-    def set_property(self, args):
+    def set_property(self, args: str):
         """Set an stc-agent property."""
 
         if len(args.split()) != 2:
@@ -717,7 +832,7 @@ class _STCAgent:
         self._execute_collectors_methods(("configure", "kill_stale"))
         _LOG.debug("Configured the collectors")
 
-    def add_label(self, args):
+    def add_label(self, args: str):
         """
         Add a label. The 'args' argument is expected to be a JSON-serialized dictionary. It must
         include the "name" key for the label name, and any number of other keys.
