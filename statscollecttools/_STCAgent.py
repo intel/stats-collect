@@ -17,6 +17,7 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import os
 import sys
+import json
 import time
 import typing
 import socket
@@ -31,7 +32,7 @@ from statscollectlibs.helperlibs import ProcHelpers
 from statscollecttools import ToolInfo, _Common
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Final, IO, TypedDict, cast
+    from typing import Any, Callable, Final, IO, Iterable, Sequence, TypedDict, cast
 
     class _CmdlineArgsTypedDict(TypedDict, total=False):
         """
@@ -392,8 +393,8 @@ class _BaseCollector:
 
         # Validate that all of the mandatory properties have been set.
         for prop, val in self.props.items():
-            if val in (_UNINITIALIZED["required_str"], _UNINITIALIZED["required_int"],
-                       _UNINITIALIZED["required_path"]):
+            if any(val is s for s in (_UNINITIALIZED["required_str"], _UNINITIALIZED["required_int"],
+                                      _UNINITIALIZED["required_path"])):
                 self._error("Please configure '%s' first", prop)
 
         self._handle_dirs()
@@ -507,7 +508,7 @@ class _TurbostatCollector(_BaseCollector):
         self._command = f"{self.props['toolpath']} --enable Time_Of_Day_Seconds " \
                         f"--interval '{self.props['interval']}'"
 
-        if self.props["opts"] != _UNINITIALIZED["str"]:
+        if self.props["opts"] is not _UNINITIALIZED["str"]:
             self._command += " " + self.props["opts"]
 
         toolname = os.path.basename(self.props["toolpath"])
@@ -546,9 +547,9 @@ class _IPMICollector(_BaseCollector):
         super().configure()
 
         self._command = f"{self.props['toolpath']} --interval '{self.props['interval']}'"
-        if self.props["retries"] != _UNINITIALIZED["int"]:
+        if self.props["retries"] is not _UNINITIALIZED["int"]:
             self._command += f" --retries '{self.props['retries']}'"
-        if self.props["count"] != _UNINITIALIZED["int"]:
+        if self.props["count"] is not _UNINITIALIZED["int"]:
             self._command += f" --count '{self.props['count']}'"
 
         self._stale_search = f"{os.path.basename(self.props['toolpath'])} --interval "
@@ -589,11 +590,11 @@ class _IPMIOOBCollector(_IPMICollector):
 
         hostopt = f" --host '{self.props['host']}'"
         self._command += hostopt
-        if self.props["user"] != _UNINITIALIZED["str"]:
+        if self.props["user"] is not _UNINITIALIZED["str"]:
             self._command += f" --user '{self.props['user']}'"
-        if self.props["pwdfile"] != _UNINITIALIZED["path"]:
+        if self.props["pwdfile"] is not _UNINITIALIZED["path"]:
             self._command += f" --password-file '{self.props['pwdfile']}'"
-        if self.props["interface"] != _UNINITIALIZED["str"]:
+        if self.props["interface"] is not _UNINITIALIZED["str"]:
             self._command += f" -I '{self.props['interface']}'"
 
         self._stale_search += f".*{hostopt}"
@@ -617,7 +618,7 @@ class _ACPowerCollector(_BaseCollector):
 
         devnode = self.props['devnode']
         cmd = f"{self.props['toolpath']} {devnode}"
-        if self.props["pmtype"] != _UNINITIALIZED["str"]:
+        if self.props["pmtype"] is not _UNINITIALIZED["str"]:
             cmd += f" --pmtype {self.props['pmtype']}"
 
         self._stale_search = f"{os.path.basename(self.props['toolpath'])} {devnode}"
@@ -660,8 +661,18 @@ class _STCAgent:
         # The output directory where data like labels will be stored.
         self.props["outdir"] = _UNINITIALIZED["path"]
 
-    def _execute_collectors_methods(self, methods: list[str]):
-        """Execute collector object methods defined by the 'methods' list of strings."""
+    def _execute_collectors_methods(self, methods: Iterable[str]):
+        """
+        Execute a sequence of methods on all statistics collectors.
+
+        Args:
+            methods: Names of the collector methods to call, in order.
+
+        Notes:
+            - Collectors that have previously failed are skipped.
+            - If a method raises an 'Error' and the collector is fallible, the error is logged and
+              execution continues. Otherwise it is re-raised.
+        """
 
         for method in methods:
             for collector in self._collectors.values():
@@ -681,13 +692,17 @@ class _STCAgent:
                     if collector.props["fallible"]:
                         _LOG.debug(errmsg)
                     else:
-                        raise Error(errmsg) from err
+                        raise type(err)(errmsg) from err
                 else:
                     _LOG.debug("'%s' method of the %s collector succeeded", method, collector.name)
 
-    def create(self, stnames: list[str]):
+    def create(self, stnames: Sequence[str]):
         """
-        Create the statistics collector objects for the statistics names in the 'stnames' list.
+        Create statistics collector objects for the given statistics names.
+
+        Args:
+            stnames: Names of the statistics to collect. Must be a non-empty list of names from
+                     '_SUPPORTED_STATS'.
         """
 
         if not stnames:
@@ -697,35 +712,30 @@ class _STCAgent:
 
         _LOG.debug("Creating the following collectors: %s", ",".join(stnames))
 
-        # First close the previously initialized collectors.
+        # Delete collectors one by one to explicitly trigger their '__del__()' methods, which close
+        # open file objects and process managers.
         for name in list(self._collectors):
             del self._collectors[name]
         self.failed_collectors = set()
 
-        for stname in stnames:
-            if stname not in _SUPPORTED_STATS:
-                raise Error(f"Unknown statistics name '{stname}'")
+        _collector_map: dict[str, Callable[[], _BaseCollector]] = {
+            "turbostat":   _TurbostatCollector,
+            "interrupts":  _InterruptsCollector,
+            "ipmi-oob":    _IPMIOOBCollector,
+            "ipmi-inband": _IPMIInBandCollector,
+            "acpower":     _ACPowerCollector,
+        }
 
         for name in stnames:
+            if name not in _collector_map:
+                supported = ", ".join(_SUPPORTED_STATS)
+                raise Error(f"Unknown statistics name '{name}', use one of:\n{supported}")
             try:
                 _LOG.debug("Creating the %s collector", name)
-                collector: _BaseCollector
-                if name == "turbostat":
-                    collector = _TurbostatCollector()
-                elif name == "interrupts":
-                    collector = _InterruptsCollector()
-                elif name == "ipmi-oob":
-                    collector = _IPMIOOBCollector()
-                elif name == "ipmi-inband":
-                    collector = _IPMIInBandCollector()
-                elif name == "acpower":
-                    collector = _ACPowerCollector()
-                else:
-                    raise Error(f"Unsupported collector '{name}'")
-
-                self._collectors[name] = collector
+                self._collectors[name] = _collector_map[name]()
             except Error as err:
-                raise Error(f"Failed to create the {name} collector:\n{err.indent(2)}") from err
+                raise type(err)(f"Failed to create the {name} collector:\n"
+                                f"{err.indent(2)}") from err
 
         _LOG.debug("Created the collectors")
 
@@ -734,14 +744,15 @@ class _STCAgent:
         """
         Set property 'name' of object 'obj' to 'value'.
 
-        Property values arrive as raw strings from external clients over the network socket, but
-        properties are typed ('bool', 'int', 'str'). This method converts 'value' to the correct
-        type by inspecting the existing property value.
-
         Args:
             obj: The object whose property to set.
             name: The property name.
             value: The new property value as a string.
+
+        Notes:
+            - Property values arrive as raw strings from external clients over the network socket,
+              but properties are typed ('bool', 'int', 'str', 'Path'). 'value' is converted to the
+              correct type by inspecting the existing property value.
         """
 
         if not hasattr(obj, "props"):
@@ -755,27 +766,31 @@ class _STCAgent:
         if name not in props:
             raise Error(f"Object '{obj}' has no property '{name}'")
 
-        try:
-            # Since 'bool("False")' is 'True', boolean props require a special case.
-            if isinstance(props[name], bool):
-                if value not in ("True", "False"):
-                    raise TypeError
-                props[name] = value == "True"
-            else:
+        # Since 'bool("False")' is 'True', boolean props require a special case.
+        if isinstance(props[name], bool):
+            if value not in ("True", "False"):
+                raise Error(f"Type conversion error for property '{name}' of '{obj.name}':\n"
+                            f"String '{value}' cannot be converted to 'bool'")
+            props[name] = value == "True"
+        else:
+            try:
                 props[name] = type(props[name])(value)
-        except TypeError as err:
-            raise Error(f"Type conversion error for property '{name}' of '{obj.name}':\nString "
-                        f"'{value}' cannot be converted to '{type(props[name])}'") from err
+            except (TypeError, ValueError) as err:
+                raise Error(f"Type conversion error for property '{name}' of '{obj.name}':\n"
+                            f"String '{value}' cannot be converted to "
+                            f"'{type(props[name]).__name__}'") from err
 
     def set_collector_property(self, args: str):
         """
         Set a property of a statistics collector.
 
-        The 'args' argument comes from an external client and is validated before use.
-
         Args:
             args: A space-separated string in the format '<stat_name> <property_name>
                   <property_value>'.
+
+        Notes:
+            - 'args' arrives as a raw string from an external client over the network socket and is
+              validated before use.
         """
 
         if not self._collectors:
@@ -791,8 +806,9 @@ class _STCAgent:
                         f"format:\n<stat_name> <property_name> <property_value>")
 
         if arg_list[0] not in self._collectors:
-            all_stats = ", ".join(_SUPPORTED_STATS)
-            raise Error(f"Unknown collector name '{arg_list[0]}', use one of:\n{all_stats}")
+            active = ", ".join(self._collectors)
+            raise Error(f"Collector '{arg_list[0]}' is not active, active collectors are:\n"
+                        f"{active}")
 
         collector = self._collectors[arg_list[0]]
 
@@ -810,30 +826,49 @@ class _STCAgent:
                    collector.name, arg_list[1], arg_list[2])
 
     @staticmethod
-    def _set_outdir(path: str):
-        """Set 'stc-agent' output directory."""
+    def _set_outdir(path: Path):
+        """
+        Validate and create the 'stc-agent' output directory.
 
-        if not os.path.isabs(path):
+        Args:
+            path: Absolute path to the output directory to create.
+        """
+
+        if not path.is_absolute():
             raise Error(f"The 'stc-agent' output directory path '{path}' is not absolute")
-        if os.path.exists(path):
-            if not os.path.isdir(path):
-                raise Error(f"The 'stc-agent' output directory path '{path}' already exists and it is "
-                            f"not a directory")
+
+        if path.exists():
+            if not path.is_dir():
+                raise Error(f"The 'stc-agent' output directory path '{path}' already exists "
+                            f"and is not a directory")
         else:
             _LOG.debug("Creating 'stc-agent' output directory '%s'", path)
             try:
-                os.mkdir(path)
+                path.mkdir()
             except OSError as err:
                 raise Error(f"Cannot create 'stc-agent' output directory '{path}':\n{err}") from err
 
     def set_property(self, args: str):
-        """Set an stc-agent property."""
+        """
+        Set a property of the statistics collection agent.
 
-        if len(args.split()) != 2:
+        Args:
+            args: A space-separated string in the format '<property_name> <property_value>'.
+
+        Notes:
+            - 'args' arrives as a raw string from an external client over the network socket and is
+              validated before use.
+        """
+
+        if self._started:
+            raise Error("Statistics collection has been started, cannot change properties")
+
+        arg_list = args.split(maxsplit=1)
+        if len(arg_list) < 2:
             raise Error(f"Incorrect 'stc-agent' property argument '{args}'\nIt must be in the "
                         f"following format:\n<property_name> <property_value>")
 
-        pname, pval = args.split()
+        pname, pval = arg_list
         if pname not in self.props:
             supported = ", ".join(self.props)
             raise Error(f"Unsupported 'stc-agent' property '{pname}', supported properties are: "
@@ -841,12 +876,12 @@ class _STCAgent:
 
         self._set_obj_property(self, pname, pval)
         if pname == "outdir":
-            self._set_outdir(pval)
+            self._set_outdir(Path(pval))
 
         _LOG.debug("Set 'stc-agent' property '%s' to value '%s'", pname, pval)
 
     def configure(self):
-        """Configure the statistic collectors."""
+        """Configure the statistics collectors."""
 
         if not self._collectors:
             raise Error("No statistics collectors selected")
@@ -859,19 +894,31 @@ class _STCAgent:
 
     def add_label(self, args: str):
         """
-        Add a label. The 'args' argument is expected to be a JSON-serialized dictionary. It must
-        include the "name" key for the label name, and any number of other keys.
+        Add a label to the labels file.
+
+        Args:
+            args: A JSON-serialized dictionary. Must include the 'name' key for the label name,
+                  and may include any number of additional keys.
+
+        Notes:
+            - Labels are a mechanism for synchronizing workload stages with collected statistics.
+              Each label is a JSON object written as a single line to 'labels.txt', with at minimum
+              a 'name' and a 'ts' (Unix timestamp) key. Report tools match labels to statistics
+              data points by timestamp, so a label can mark workload stages such as warmup or the
+              main measurement phase.
+            - 'args' arrives as a raw string from an external client over the network socket and is
+              validated before use.
+            - The 'ts' key is reserved and must not be present in 'args'; it is added automatically
+              with the current timestamp.
         """
 
         if not self._collectors:
             raise Error("No statistics collectors selected")
 
-        if self.props["outdir"] == _UNINITIALIZED["path"]:
+        if self.props["outdir"] is _UNINITIALIZED["path"]:
             raise Error("Cannot add 'stc-agent' label: The output directory was not set")
 
         _LOG.debug("Adding label '%s'", args)
-
-        import json # pylint: disable=import-outside-toplevel
 
         try:
             label = json.loads(args)
@@ -879,39 +926,38 @@ class _STCAgent:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"Failed to parse label JSON:\n{errmsg}") from err
 
-        # Sanity check: make sure the 'name' key is present and make sense.
-        name = label.get("name")
+        # Validate that the 'name' key is present and contains only alphanumeric characters.
+        name: str = label.get("name")
         if not name:
             raise Error(f"No label name provided in '{args}'")
         if not name.isalnum():
             raise Error(f"Bad label name '{name}': Must be alphanumeric")
 
-        # Sanity check: there should be no 'ts' key, stc-agent is supposed to add it.
+        # The 'ts' key is reserved for the timestamp added below.
         if "ts" in label:
-            raise Error(f"Found reserved key 'ts' in label '{args}")
+            raise Error(f"Found reserved key 'ts' in label '{args}'")
 
         if not self._lfobj:
+            path = self.props["outdir"] / "labels.txt"
             try:
-                path = self.props["outdir"] / "labels.txt"
                 # pylint: disable=consider-using-with
                 self._lfobj = open(path, "w", encoding="utf-8")
             except OSError as err:
                 errmsg = Error(str(err)).indent(2)
-                raise Error(f"Failed to create file '{path}:\n{errmsg}") from err
+                raise Error(f"Failed to create file '{path}':\n{errmsg}") from err
 
             # The first line provides the list of collectors the labels file covers.
-            names = ",".join(self._collectors)
-            self._lfobj.write(f"# {names}\n")
+            self._lfobj.write(f"# {','.join(self._collectors)}\n")
 
         label["ts"] = time.time()
 
         try:
-            label = json.dumps(label)
+            label_str = json.dumps(label)
         except ValueError as err:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"Failed to serialize label JSON:\n{errmsg}") from err
 
-        self._lfobj.write(f"{label}\n")
+        self._lfobj.write(f"{label_str}\n")
 
     def start(self):
         """Start collecting the statistics."""
@@ -938,18 +984,19 @@ class _STCAgent:
         finally:
             self._started = False
 
+            if self._lfobj:
+                try:
+                    self._lfobj.flush()
+                    os.fsync(self._lfobj.fileno())
+                except OSError as err:
+                    errmsg = Error(str(err)).indent(2)
+                    raise Error(f"Failed to synchronize 'stc-agent' labels file:\n"
+                                f"{errmsg}") from err
+                finally:
+                    self._lfobj.close()
+                    self._lfobj = None
+
         _LOG.debug("Stopped the collectors")
-
-        if self._lfobj:
-            try:
-                self._lfobj.flush()
-                os.fsync(self._lfobj.fileno())
-            except OSError as err:
-                errmsg = Error(str(err)).indent(2)
-                raise Error(f"Failed to synchronize 'stc-agent' labels file:\n{errmsg}") from err
-
-            self._lfobj.close()
-            self._lfobj = None
 
 class _Client(ClassHelpers.SimpleCloseContext):
     """The statistics collection agent network client."""
