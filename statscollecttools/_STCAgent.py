@@ -55,7 +55,7 @@ if typing.TYPE_CHECKING:
             outdir: The output directory.
         """
 
-        outdir: str
+        outdir: Path
 
     class _BaseCollectorPropsTypedDict(_BasePropsTypedDict, total=False):
         """
@@ -80,7 +80,7 @@ if typing.TYPE_CHECKING:
             opts: Extra command-line options to pass to turbostat.
         """
 
-        toolpath: str
+        toolpath: Path
         opts: str
 
     class _InterruptsPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
@@ -91,7 +91,7 @@ if typing.TYPE_CHECKING:
             toolpath: Path to the interrupts helper binary.
         """
 
-        toolpath: str
+        toolpath: Path
 
     class _IPMIPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
         """
@@ -103,7 +103,7 @@ if typing.TYPE_CHECKING:
             count: Number of IPMI readings per interval.
         """
 
-        toolpath: str
+        toolpath: Path
         retries: int
         count: int
 
@@ -120,7 +120,7 @@ if typing.TYPE_CHECKING:
 
         host: str
         user: str
-        pwdfile: str
+        pwdfile: Path
         interface: str
 
     class _ACPowerPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
@@ -133,7 +133,7 @@ if typing.TYPE_CHECKING:
             pmtype: The power meter type.
         """
 
-        toolpath: str
+        toolpath: Path
         devnode: str
         pmtype: str
 
@@ -144,15 +144,18 @@ if typing.TYPE_CHECKING:
         Attributes:
             str: Sentinel for an optional string property.
             int: Sentinel for an optional integer property.
+            path: Sentinel for an optional path property.
             required_str: Sentinel for a required string property.
             required_int: Sentinel for a required integer property.
+            required_path: Sentinel for a required path property.
         """
 
         str: str
         int: int
+        path: Path
         required_str: str
         required_int: int
-
+        required_path: Path
 
 _VERSION: Final[str] = ToolInfo.VERSION
 _TOOLNAME: Final[str] = "stc-agent"
@@ -161,21 +164,23 @@ _TOOLNAME: Final[str] = "stc-agent"
 _UNINITIALIZED: Final[_UninitializedTypedDict] = {
     "str": "<not configured>",
     "int": -1000000000000,
+    "path": Path("<not configured>"),
     "required_str": "<must be configured>",
     "required_int": -9999999999999,
+    "required_path": Path("<must be configured>"),
 }
 
 # The messages delimiter prefix. Every time it appears following a newline, it marks the end of
 # the message.
-_DELIMITER = "--"
+_DELIMITER: Final[str] = "--"
 
 # Names of the supported statistics.
-_SUPPORTED_STATS = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband", "acpower")
+_SUPPORTED_STATS: Final[tuple[str, ...]] = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband",
+                                            "acpower")
 
+# Configure the root 'main' logger, not a child logger, so that debug messages from pepclibs
+# ('main.pepc.*') are also captured.
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=_TOOLNAME)
-
-# Our own process ID.
-_PID = Trivial.get_pid()
 
 class _ClientDisconnected(Exception):
     """Raise when a client disconnects."""
@@ -291,7 +296,7 @@ class _BaseCollector:
         # Whether this collector is allowed to fail without causing an error.
         self.props["fallible"] = False
         # The output directory where the statistics will be stored.
-        self.props["outdir"] = _UNINITIALIZED["required_str"]
+        self.props["outdir"] = _UNINITIALIZED["required_path"]
         # The log directory where may put their standard error output.
         self.props["logdir"] = _UNINITIALIZED["required_str"]
         # The statistics collection interval.
@@ -387,7 +392,8 @@ class _BaseCollector:
 
         # Validate that all of the mandatory properties have been set.
         for prop, val in self.props.items():
-            if val in (_UNINITIALIZED["required_str"], _UNINITIALIZED["required_int"]):
+            if val in (_UNINITIALIZED["required_str"], _UNINITIALIZED["required_int"],
+                       _UNINITIALIZED["required_path"]):
                 self._error("Please configure '%s' first", prop)
 
         self._handle_dirs()
@@ -490,7 +496,7 @@ class _TurbostatCollector(_BaseCollector):
         """Initialize a class instance."""
 
         super().__init__("turbostat")
-        self.props["toolpath"] = "turbostat"
+        self.props["toolpath"] = Path("turbostat")
         self.props["opts"] = _UNINITIALIZED["str"]
 
     def configure(self):
@@ -521,7 +527,7 @@ class _InterruptsCollector(_BaseCollector):
 
         super().__init__("interrupts")
 
-        self.props["toolpath"] = "stc-agent-proc-interrupts-helper"
+        self.props["toolpath"] = Path("stc-agent-proc-interrupts-helper")
         self._signal = signal.SIGINT
 
     def configure(self):
@@ -551,7 +557,7 @@ class _IPMICollector(_BaseCollector):
         """Initialize a class instance."""
 
         super().__init__(name)
-        self.props["toolpath"] = "stc-agent-ipmi-helper"
+        self.props["toolpath"] = Path("stc-agent-ipmi-helper")
         self.props["retries"] = _UNINITIALIZED["int"]
         self.props["count"] = _UNINITIALIZED["int"]
         self._valid_start = b"timestamp | "
@@ -573,7 +579,7 @@ class _IPMIOOBCollector(_IPMICollector):
         super().__init__("ipmi-oob")
         self.props["host"] = _UNINITIALIZED["required_str"]
         self.props["user"] = _UNINITIALIZED["str"]
-        self.props["pwdfile"] = _UNINITIALIZED["str"]
+        self.props["pwdfile"] = _UNINITIALIZED["path"]
         self.props["interface"] = _UNINITIALIZED["str"]
 
     def configure(self):
@@ -585,7 +591,7 @@ class _IPMIOOBCollector(_IPMICollector):
         self._command += hostopt
         if self.props["user"] != _UNINITIALIZED["str"]:
             self._command += f" --user '{self.props['user']}'"
-        if self.props["pwdfile"] != _UNINITIALIZED["str"]:
+        if self.props["pwdfile"] != _UNINITIALIZED["path"]:
             self._command += f" --password-file '{self.props['pwdfile']}'"
         if self.props["interface"] != _UNINITIALIZED["str"]:
             self._command += f" -I '{self.props['interface']}'"
@@ -599,7 +605,7 @@ class _ACPowerCollector(_BaseCollector):
         """Initialize a class instance."""
 
         super().__init__("acpower")
-        self.props["toolpath"] = "yokotool"
+        self.props["toolpath"] = Path("yokotool")
         self.props["devnode"] = _UNINITIALIZED["required_str"]
         self.props["pmtype"] = _UNINITIALIZED["str"]
         self._signal = signal.SIGINT
@@ -652,7 +658,7 @@ class _STCAgent:
         # Statistics collection agent properties.
         self.props: _BasePropsTypedDict = {}
         # The output directory where data like labels will be stored.
-        self.props["outdir"] = _UNINITIALIZED["str"]
+        self.props["outdir"] = _UNINITIALIZED["path"]
 
     def _execute_collectors_methods(self, methods: list[str]):
         """Execute collector object methods defined by the 'methods' list of strings."""
@@ -860,7 +866,7 @@ class _STCAgent:
         if not self._collectors:
             raise Error("No statistics collectors selected")
 
-        if self.props["outdir"] == _UNINITIALIZED["str"]:
+        if self.props["outdir"] == _UNINITIALIZED["path"]:
             raise Error("Cannot add 'stc-agent' label: The output directory was not set")
 
         _LOG.debug("Adding label '%s'", args)
@@ -886,7 +892,7 @@ class _STCAgent:
 
         if not self._lfobj:
             try:
-                path = Path(self.props["outdir"]) / "labels.txt"
+                path = self.props["outdir"] / "labels.txt"
                 # pylint: disable=consider-using-with
                 self._lfobj = open(path, "w", encoding="utf-8")
             except OSError as err:
@@ -1242,7 +1248,7 @@ def _handle_client(client: _Client, stc_agent: _STCAgent):
 def _main() -> int:
     """Implement main logic."""
 
-    if _PID == 1:
+    if Trivial.get_pid() == 1:
         # When 'stc-agent' runs as PID 1 inside a new PID namespace (e.g., launched via
         # 'unshare --pid'), the kernel does not set up default signal handlers for it. Install
         # explicit handlers so that 'SIGINT' and 'SIGTERM' cause a clean exit.
