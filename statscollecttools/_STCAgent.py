@@ -27,19 +27,18 @@ import contextlib
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ArgParse, LocalProcessManager, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
-from statscollecttools import _HelpersCommon
 
 try:
     # pylint: disable=ungrouped-imports
     from statscollectlibs.helperlibs import ProcHelpers
-    from statscollecttools import ToolInfo
+    from statscollecttools import ToolInfo, _Common
 except ImportError:
     # The project was not installed, and the program was executed from the sources. Insert the
     # project root directory path to the modules search list.
     ownpath = Path(sys.argv[0]).parent.resolve()
     sys.path.append(f"{ownpath}/../../")
     from statscollectlibs.helperlibs import ProcHelpers
-    from statscollecttools import ToolInfo
+    from statscollecttools import ToolInfo, _Common
 
 VERSION = ToolInfo.VERSION
 TOOLNAME = "stc-agent"
@@ -1029,7 +1028,7 @@ def _main():
     args = parse_arguments()
 
     if args.print_module_paths:
-        _HelpersCommon.print_module_paths()
+        _Common.print_module_paths()
         return 0
 
     if args.port is not None and args.unix is not None:

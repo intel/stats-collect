@@ -19,7 +19,7 @@ import time
 import argparse
 from pepclibs.helperlibs import Logging, ArgParse, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
-from statscollecttools import ToolInfo
+from statscollecttools import ToolInfo, _Common
 
 VERSION = ToolInfo.VERSION
 TOOLNAME = "stc-agent-ipmi-helper"
@@ -58,23 +58,6 @@ def parse_arguments():
     parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
 
-def print_module_paths():
-    """
-    Print paths to all modules other than standard.
-    """
-
-    for mobj in sys.modules.values():
-        path = getattr(mobj, "__file__", None)
-        if not path:
-            continue
-
-        if not path.endswith(".py"):
-            continue
-        if not "pepclibs/" in path:
-            continue
-
-        print(path)
-
 def _main():
     """Implement main logic."""
 
@@ -84,7 +67,7 @@ def _main():
         raise Error("please, specify the host: '--user' and '--password-file' require '--host'")
 
     if args.print_module_paths:
-        print_module_paths()
+        _Common.print_module_paths()
         return 0
 
     if args.host and not args.user:

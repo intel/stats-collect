@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Authors: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
@@ -21,11 +21,11 @@ def configure_log_file(outdir: Path, toolname: str) -> Path:
     Configure the logger to mirror all the standard output and standard error a log file.
 
     Args:
-        outdir: the log file directory.
-        toolname: name of the tool to use in the log file name.
+        outdir: The log file directory.
+        toolname: Name of the tool to use in the log file name.
 
     Returns:
-        Path: the path to the log file.
+        The path to the log file.
     """
 
     try:
@@ -40,3 +40,24 @@ def configure_log_file(outdir: Path, toolname: str) -> Path:
     logger.configure_log_file(logpath, contents=contents)
 
     return logpath
+
+def print_module_paths():
+    """
+    Print paths to the 'pepc' and 'stats-collect' project modules that have been imported.
+    """
+
+    for name, mobj in sys.modules.items():
+        path = getattr(mobj, "__file__", "")
+        if not path:
+            continue
+
+        if not path.endswith(".py"):
+            continue
+
+        # Use the top-level package name to identify the project. For a module like
+        # 'pepclibs.helperlibs.Trivial', the top-level package is 'pepclibs'.
+        toplevel = name.split(".")[0]
+        if not toplevel.startswith(("pepc", "statscollect")):
+            continue
+
+        print(path)

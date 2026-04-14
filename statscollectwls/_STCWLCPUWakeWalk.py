@@ -23,7 +23,7 @@ import argparse
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ArgParse, Human, Trivial, ClassHelpers
 from pepclibs.helperlibs.Exceptions import Error
-from statscollecttools import _HelpersCommon
+from statscollecttools import _Common
 from statscollectlibs.helperlibs import ProcHelpers
 
 if typing.TYPE_CHECKING:
@@ -167,7 +167,7 @@ def _parse_arguments() -> _ArgsTypedDict:
     args = parser.parse_args()
 
     if args.print_module_paths:
-        _HelpersCommon.print_module_paths()
+        _Common.print_module_paths()
         sys.exit(0)
 
     return _format_args(args)

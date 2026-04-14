@@ -26,7 +26,7 @@ from pathlib import Path
 from pepclibs import PStates, CPUInfo
 from pepclibs.helperlibs import Logging, ArgParse, ClassHelpers, Human, Trivial, LocalProcessManager
 from pepclibs.helperlibs.Exceptions import Error
-from statscollecttools import _HelpersCommon
+from statscollecttools import _Common
 from statscollectlibs.helperlibs import ProcHelpers
 
 TOOLNAME = "stc-wl-cpu-freq-walk"
@@ -156,7 +156,7 @@ def _parse_arguments() -> _ArgsTypedDict:
             pobj.get_cpu_prop_int("min_freq", 0, mnames=("sysfs",))
         except Error:
             pass
-        _HelpersCommon.print_module_paths()
+        _Common.print_module_paths()
         sys.exit(0)
 
     return _format_args(args)
