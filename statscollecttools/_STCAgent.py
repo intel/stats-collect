@@ -725,7 +725,18 @@ class _STCAgent:
 
     @staticmethod
     def _set_obj_property(obj: _BaseCollector | _STCAgent, name: str, value: str):
-        """Set a property in object 'obj' (e.g., a statistics collector)."""
+        """
+        Set property 'name' of object 'obj' to 'value'.
+
+        Property values arrive as raw strings from external clients over the network socket, but
+        properties are typed ('bool', 'int', 'str'). This method converts 'value' to the correct
+        type by inspecting the existing property value.
+
+        Args:
+            obj: The object whose property to set.
+            name: The property name.
+            value: The new property value as a string.
+        """
 
         if not hasattr(obj, "props"):
             raise Error(f"Object '{obj}' has no 'props' attribute")
@@ -743,7 +754,7 @@ class _STCAgent:
             if isinstance(props[name], bool):
                 if value not in ("True", "False"):
                     raise TypeError
-                props[name] = (value == "True")
+                props[name] = value == "True"
             else:
                 props[name] = type(props[name])(value)
         except TypeError as err:
@@ -751,7 +762,15 @@ class _STCAgent:
                         f"'{value}' cannot be converted to '{type(props[name])}'") from err
 
     def set_collector_property(self, args: str):
-        """Set a property of a statistic collector."""
+        """
+        Set a property of a statistics collector.
+
+        The 'args' argument comes from an external client and is validated before use.
+
+        Args:
+            args: A space-separated string in the format '<stat_name> <property_name>
+                  <property_value>'.
+        """
 
         if not self._collectors:
             raise Error("No statistics collectors selected")
@@ -759,30 +778,30 @@ class _STCAgent:
         if self._started:
             raise Error("Statistics collection has been started, cannot change properties")
 
-        if len(args.split()) < 3:
+        # Split into at most 3 parts. Fewer means the argument is malformed.
+        arg_list = args.split(maxsplit=2)
+        if len(arg_list) < 3:
             raise Error(f"Incorrect argument '{args}'\nThe argument must be in the following "
                         f"format:\n<stat_name> <property_name> <property_value>")
 
-        args = args.split(maxsplit=2)
-        print(args)
-        if args[0] not in self._collectors:
+        if arg_list[0] not in self._collectors:
             all_stats = ", ".join(_SUPPORTED_STATS)
-            raise Error(f"Unknown collector name '{args[0]}', use one of:\n{all_stats}")
+            raise Error(f"Unknown collector name '{arg_list[0]}', use one of:\n{all_stats}")
 
-        collector = self._collectors[args[0]]
+        collector = self._collectors[arg_list[0]]
 
         if collector.name in self.failed_collectors:
             # Ignore failed collectors.
             return
 
-        if args[1] not in collector.props:
-            raise Error(f"The '{collector.name}' collector does not support the '{args[1]}' "
+        if arg_list[1] not in collector.props:
+            raise Error(f"The '{collector.name}' collector does not support the '{arg_list[1]}' "
                         f"property")
 
-        self._set_obj_property(collector, args[1], args[2])
+        self._set_obj_property(collector, arg_list[1], arg_list[2])
 
         _LOG.debug("Set collector '%s' property '%s' to value '%s'",
-                   collector.name, args[1], args[2])
+                   collector.name, arg_list[1], arg_list[2])
 
     @staticmethod
     def _set_outdir(path: str):
