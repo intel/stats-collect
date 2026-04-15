@@ -14,12 +14,12 @@ statistics collection.
 from pepclibs.helperlibs import Logging, ClassHelpers, ProjectFiles, ToolChecker
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs import _StatsConfig
-from statscollectlibs.collector import _STCAgent
+from statscollectlibs.collector import _Collectors
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The statistics description dictionary.
-STINFO = _STCAgent.STINFO
+STINFO = _Collectors.STINFO
 
 def get_stnames():
     """Return all specific statistic names."""
@@ -477,12 +477,12 @@ class SpecStatsCollect(ClassHelpers.SimpleCloseContext):
         #   "remote output directory.
 
         inb_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent", pman=pman)
-        self._inbagent = _STCAgent.InBandCollector(pman, stca_path=inb_stca_path)
+        self._inbagent = _Collectors.InBandCollector(pman, stca_path=inb_stca_path)
         if pman.is_remote:
             # Do not create the out-of-band collector if 'pman' represents the local host.
             # Out-of-band collectors by definition run on a host different to the SUT.
             oob_stca_path = ProjectFiles.find_project_helper("stats-collect", "stc-agent")
-            self._oobagent = _STCAgent.OutOfBandCollector(pman.hostname, outdir=local_outdir,
+            self._oobagent = _Collectors.OutOfBandCollector(pman.hostname, outdir=local_outdir,
                                                           stca_path=oob_stca_path)
             self.local_outdir = self._oobagent.outdir
             self.remote_outdir = self._inbagent.outdir

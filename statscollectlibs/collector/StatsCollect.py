@@ -13,7 +13,7 @@ This module provides API for collecting SUT statistics.
 import copy
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
-from statscollectlibs.collector import _STCAgent, _SpecStatsCollect
+from statscollectlibs.collector import _Collectors, _SpecStatsCollect
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -34,7 +34,7 @@ _AGGR_STINFO = {
 }
 
 # The statistics description dictionary.
-_STINFO = { **_AGGR_STINFO, **_STCAgent.STINFO}
+_STINFO = { **_AGGR_STINFO, **_Collectors.STINFO}
 
 def get_stnames(include_aggregate=True):
     """
@@ -45,7 +45,7 @@ def get_stnames(include_aggregate=True):
 
     if include_aggregate:
         return list(_STINFO)
-    return list(_STCAgent.STINFO)
+    return list(_Collectors.STINFO)
 
 def get_stinfo(stname):
     """Return information about statistic 'stname'."""

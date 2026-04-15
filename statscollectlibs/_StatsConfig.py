@@ -13,7 +13,7 @@ This module provides the API for parsing and reading statistics collection confi
 from pathlib import Path
 from pepclibs.helperlibs import Logging, YAML
 from pepclibs.helperlibs.Exceptions import Error, ErrorNotSupported
-from statscollectlibs.collector import _STCAgent
+from statscollectlibs.collector import _Collectors
 
 _SYSTEM_CFG_FILE = "/etc/stats-collect.conf"
 _USER_CFG_FILE_NAME = ".stats-collect.conf"
@@ -58,13 +58,13 @@ class StatsConfig:
 
         if subcfg is None:
             raise Error(f"\"collectors\" section specified without configuring any collectors. "
-                        f"Configurable collector names are:\n  '{', '.join(_STCAgent.STINFO)}'")
+                        f"Configurable collector names are:\n  '{', '.join(_Collectors.STINFO)}'")
 
         for stname, stinfo in subcfg.items():
-            if stname not in _STCAgent.STINFO:
+            if stname not in _Collectors.STINFO:
                 raise ErrorNotSupported(f"config file specified unsupported statistics collector "
                                         f"'{stname}'. Configurable collector names are:\n  "
-                                        f"'{', '.join(_STCAgent.STINFO)}'")
+                                        f"'{', '.join(_Collectors.STINFO)}'")
 
             if stinfo is None:
                 raise Error(f"statistics collector '{stname}' specified without specifying any "
