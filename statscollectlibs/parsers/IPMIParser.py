@@ -25,7 +25,8 @@ class IPMIParser(_ParserBase.ParserBase):
 
         # Example of a line with the timestamp format:
         # Timestamp | 1705672515.054093
-        ts_regex = re.compile(r"^(Timestamp) \| (\d+\.\d+)$")
+        # TODO: Remove 'timestamp' support in 2027.
+        ts_regex = re.compile(r"^(Timestamp|timestamp) \| (\d+\.\d+)$")
         entry_regex = re.compile(r"^(.+)\|(.+)\|(.+)$")
         get_ts = Trivial.str_to_num
 

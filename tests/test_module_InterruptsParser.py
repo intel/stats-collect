@@ -112,11 +112,11 @@ def test_complete_files():
                 assert "action" in info, f"Missing 'action' for '{name}'"
 
 _BAD_INPUT: dict[str, str] = {
-    "Too short input #1": "timestamp: 1234567890",
+    "Too short input #1": "Timestamp: 1234567890",
 
-    "Too short input #2": "timestamp: 1234567890\nCPU1 CPU2",
+    "Too short input #2": "Timestamp: 1234567890\nCPU1 CPU2",
 
-    "Too short input #3": """timestamp: 1234567890.1
+    "Too short input #3": """Timestamp: 1234567890.1
 CPU1 CPU2
 stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
 
@@ -124,15 +124,15 @@ stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
 
     "Too short input #5": "  # comment",
 
-    "Bad timestamp": r"""timestamp: K1
+    "Bad timestamp": r"""Timestamp: K1
 CPU1 CPU2
 1: 1 1""",
 
-    "Bad CPU number": r"""timestamp: 1234567890.1
+    "Bad CPU number": r"""Timestamp: 1234567890.1
 CPU-1 CPU2
 1: x""",
 
-    "Bad interrupts count value": r"""timestamp: 1234567890.1
+    "Bad interrupts count value": r"""Timestamp: 1234567890.1
 CPU1 CPU2
 1: x""",
 }
@@ -155,44 +155,44 @@ def test_bad_input():
 _GOOD_INPUT: dict[str, _GoodInputEntry] = {
     "Good input #1": {
         "yield_cnt": 1,
-        "input": r"""timestamp: 1234567890.1
+        "input": r"""Timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3""",
     },
 
     "Good input #2": {
         "yield_cnt": 1,
-        "input": r"""timestamp: 1234567890.1
+        "input": r"""Timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3
-Timestamp | 1234567890.2""",
+Timestamp: 1234567890.2""",
     },
 
     "Good input #3": {
         "yield_cnt": 1,
-        "input": r"""timestamp: 1234567890.1
+        "input": r"""Timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3
-Timestamp | 1234567890.2
+Timestamp: 1234567890.2
 CPU1 CPU2""",
     },
 
     "Good input #4": {
         "yield_cnt": 1,
-        "input": r"""timestamp: 1234567890.1
+        "input": r"""Timestamp: 1234567890.1
 CPU1 CPU2
 1: 1 3
-Timestamp | 1234567890.2
+Timestamp: 1234567890.2
 CPU1 CPU2
 stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
     },
 
     "Good input #5": {
         "yield_cnt": 2,
-        "input": r"""timestamp: 1234567890.1
+        "input": r"""Timestamp: 1234567890.1
 CPU1
 1: 1
-Timestamp | 1234567890.2
+Timestamp: 1234567890.2
 CPU1
 1: 2
 stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
@@ -215,3 +215,27 @@ def test_good_input():
 
         assert cnt == good_input["yield_cnt"], \
                f"Did not get the expected number of yields with good input: '{name}'"
+
+# TODO: Remove this test in 2027 when old 'timestamp:' format support is dropped.
+def test_old_timestamp_format():
+    """
+    Test that 'InterruptsParser' accepts the old lowercase 'timestamp:' format.
+    """
+
+    old_format_input = """timestamp: 1234567890.1
+CPU1 CPU2
+1: 1 3
+timestamp: 1234567890.2
+CPU1 CPU2
+1: 2 4
+stc-agent-proc-interrupts-helper: error: interrupted, exiting"""
+
+    parser = InterruptsParser.InterruptsParser(lines=iter(old_format_input.splitlines()))
+    cnt = 0
+    try:
+        for _ in parser.next():
+            cnt += 1
+    except ErrorBadFormat:
+        assert False, "Got 'ErrorBadFormat' with old-format 'timestamp:' input"
+
+    assert cnt == 2, f"Expected 2 datasets from old-format input, got {cnt}"

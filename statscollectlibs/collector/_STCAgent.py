@@ -584,7 +584,6 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         while time.time() - start_time <= timeout:
             _LOG.debug("trying to connect to localhost:%s", self._ssht_port)
-            # pylint: disable=no-member
             stdout, stderr, exitcode = self._ssht.wait(timeout=1, capture_output=True)
 
             if exitcode is not None:

@@ -58,7 +58,8 @@ if typing.TYPE_CHECKING:
         irq_info: dict[str, IRQInfoTypedDict]
 
 # Regular expression to match timestamp lines in the input data.
-_TIMESTAMP_REGEX: Final[Pattern] = re.compile(r"^Timestamp: (\d+\.\d+)$")
+# TODO: Remove 'timestamp' support in 2027.
+_TIMESTAMP_REGEX: Final[Pattern] = re.compile(r"^[Tt]imestamp: (\d+\.\d+)$")
 
 class InterruptsParser:
     """
