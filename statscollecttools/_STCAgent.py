@@ -172,16 +172,15 @@ _UNINITIALIZED: Final[_UninitializedTypedDict] = {
     "required_path": Path("<must be configured>"),
 }
 
-# The messages delimiter prefix. Every time it appears following a newline, it marks the end of
-# the message.
+# TCP streams have no message boundaries, so this delimiter is appended to every sent message
+# to let the receiver detect where a complete message ends.
 _DELIMITER: Final[str] = "--"
 
 # Names of the supported statistics.
 _SUPPORTED_STATS: Final[tuple[str, ...]] = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband",
                                             "acpower")
 
-# Configure the root 'main' logger, not a child logger, so that debug messages from pepclibs
-# ('main.pepc.*') are also captured.
+# Configure the root 'main' logger, not a child logger, to also capture 'main.pepc.*' messages.
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=_TOOLNAME)
 
 class _ClientDisconnected(Exception):
@@ -196,7 +195,7 @@ class _BaseCollector:
 
     Public methods overview:
 
-    - 'configure()': configure the collector; must be called after every property change.
+    - 'configure()': configure the collector, must be called after every property change.
     - 'kill_stale()': kill stale collector processes that might still be running.
     - 'start()': start collecting the statistics.
     - 'end()': signal the collector process to stop.
@@ -217,8 +216,7 @@ class _BaseCollector:
 
         self.name = name
 
-        # The collector properties that can be changed directly, but any change requires the
-        # 'configure()' method to be executed for the changes to take the effect.
+        # The collector properties that require 'configure()' to be called after any change.
         self.props: _BaseCollectorPropsTypedDict = {}
         # Whether this collector is allowed to fail without causing an error.
         self.props["fallible"] = False
@@ -237,10 +235,8 @@ class _BaseCollector:
         # These attributes are internal to this base class.
         #
 
-        # The output file where subprocess redirects its stdout and stderr streams. The file is
-        # opened with no buffering ('buffering=0') as a paranoid measure to minimize the
-        # probability of data loss. And to disable buffering, the file must be opened in binary
-        # mode.
+        # The output file for the subprocess stdout and stderr. Opened in binary mode with no
+        # buffering ('buffering=0') to minimize data loss if the process is terminated.
         self._fobj: IO[bytes] | None = None
         # The statistics collector process.
         self._proc: LocalProcessManager.LocalProcess | None = None
@@ -254,8 +250,8 @@ class _BaseCollector:
         #
         self._outfile: str = f"{name}.raw.txt"
         self._command: str = ""
-        # Optional byte patterns the base class 'validate()' checks against the start and end of
-        # the output file. Set by subclasses, empty bytes means no validation should be performed.
+        # Byte patterns for 'validate()' to check the start and end of the output file.
+        # Set by subclasses. Empty bytes means no validation should be performed.
         self._valid_start: bytes = b""
         self._valid_end: bytes = b""
         self._signal: signal.Signals = signal.SIGTERM
@@ -318,6 +314,8 @@ class _BaseCollector:
     def configure(self):
         """Configure the statistics collector."""
 
+        self._configured = False
+
         # Validate that all of the mandatory properties have been set.
         for prop, val in self.props.items():
             if any(val is s for s in (_UNINITIALIZED["required_str"],
@@ -339,7 +337,7 @@ class _BaseCollector:
         except OSError as err:
             self._error("Failed to open '%s':\n%s", self._outpath, err)
 
-        # Ensure the newly created output file is flushed to disk.
+        # Paranoid sync to minimise the chance of data loss if the process is terminated.
         self._sync()
         self._configured = True
 
@@ -397,10 +395,9 @@ class _BaseCollector:
         if self._proc is None:
             self._error("BUG: The collector is not running")
 
-        # Make sure the process has exited. The reason it is done in 'save()' is a hacky
-        # optimization: all processes are signaled first without waiting (in 'end()'), and only once
-        # all are signaled does checking begin. This approach helps having the collectors stop
-        # "more simultaneously".
+        # Make sure the process has exited.
+        # Hacky optimization: all processes are first signaled in 'end()' without waiting.
+        # Checking begins here once all are signaled, making collectors stop more simultaneously.
         try:
             _, _, exitcode = self._proc.wait(timeout=10, capture_output=False)
             if exitcode is None:
@@ -696,8 +693,7 @@ class _STCAgent:
 
         _LOG.debug("Creating the following collectors: %s", ",".join(stnames))
 
-        # Delete collectors one by one to explicitly trigger their '__del__()' methods, which close
-        # open file objects and process managers.
+        # Delete collectors one by one to explicitly trigger their '__del__()' methods.
         for name in list(self._collectors):
             del self._collectors[name]
         self.failed_collectors = set()
@@ -892,7 +888,7 @@ class _STCAgent:
               main measurement phase.
             - 'args' arrives as a raw string from an external client over the network socket and is
               validated before use.
-            - The 'ts' key is reserved and must not be present in 'args'; it is added automatically
+            - The 'ts' key is reserved and must not be present in 'args', it is added automatically
               with the current timestamp.
         """
 
@@ -1036,8 +1032,8 @@ class _Client(ClassHelpers.SimpleCloseContext):
         _LOG.debug("Waiting for a command from client '%s'", self.clientid)
 
         bufs: list[bytes] = []
-        cmd: bytes = bytes()
-        msg: bytes = bytes()
+        cmd: bytes = b""
+        msg: bytes = b""
 
         while not cmd:
             buf = self._sock.recv(1)
@@ -1045,7 +1041,7 @@ class _Client(ClassHelpers.SimpleCloseContext):
                 raise _ClientDisconnected(f"Client '{self.clientid}' disconnected, failed to "
                                           f"receive a command from it")
             bufs.append(buf)
-            if buf != "\n".encode("utf-8"):
+            if buf != b"\n":
                 continue
 
             msg += b"".join(bufs)
@@ -1095,8 +1091,8 @@ class _Server(ClassHelpers.SimpleCloseContext):
         self._sutname: str = sutname
         self._is_unix: bool = port == -1
         self._sock: socket.socket | None = None
-        # Whether to remove the Unix socket file on 'close()'. 'True' means the path was
-        # created internally. User-provided paths are left alone.
+        # Whether to remove the Unix socket file on 'close()'.
+        # 'True' means the path was created internally, user-provided paths are left alone.
         self._remove_unix: bool = False
 
         if self._port != -1 and self._unix is not None:
@@ -1223,27 +1219,20 @@ def _handle_command(cmd: str, stc_agent: _STCAgent) -> str:
 
     try:
         if cmd == "set-stats":
-            # Create the statistics collectors without initializing them.
             stc_agent.create([stname.strip() for stname in args.split(",")])
         elif cmd == "set-agent-property":
-            # Set a property of 'stc-agent'.
             stc_agent.set_property(args)
         elif cmd == "set-collector-property":
-            # Set a property of a statistics collector.
             stc_agent.set_collector_property(args)
         elif cmd == "configure":
-            # Once all the properties had been set, configure the collectors.
             stc_agent.configure()
         elif cmd == "start":
-            # Start collecting the statistics.
             stc_agent.start()
         elif cmd == "stop":
-            # Stop collecting the statistics.
             stc_agent.stop()
         elif cmd == "add_label":
             stc_agent.add_label(args)
         elif cmd == "get-failed-collectors":
-            # Get the list of failed collectors.
             response += f" {','.join(stc_agent.failed_collectors)}"
         elif cmd == "exit":
             pass
@@ -1338,10 +1327,7 @@ def _get_cmdline_args(args: argparse.Namespace) -> _CmdlineArgsTypedDict:
     return cmdl
 
 def _sighandler(sig, _):
-    """
-    In case 'stc-agent' is started in a PID namespace and it is PID 1, the default signal handlers
-    are not set up, and this handler is installed to exit on 'SIGTERM' and 'SIGINT' signals.
-    """
+    """Exit on SIGTERM and SIGINT when 'stc-agent' runs as PID 1 in a new PID namespace."""
 
     _LOG.debug("Received signal '%d', exiting", sig)
     raise SystemExit(sig)
@@ -1350,9 +1336,8 @@ def _main() -> int:
     """Implement main logic."""
 
     if Trivial.get_pid() == 1:
-        # When 'stc-agent' runs as PID 1 inside a new PID namespace (e.g., launched via
-        # 'unshare --pid'), the kernel does not set up default signal handlers for it. Install
-        # explicit handlers so that 'SIGINT' and 'SIGTERM' cause a clean exit.
+        # The kernel does not set up default signal handlers for PID 1 in a new PID namespace.
+        # Install explicit handlers so that 'SIGINT' and 'SIGTERM' cause a clean exit.
         signal.signal(signal.SIGINT, _sighandler)
         signal.signal(signal.SIGTERM, _sighandler)
 
