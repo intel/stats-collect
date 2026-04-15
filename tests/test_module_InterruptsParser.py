@@ -15,7 +15,7 @@ from pepclibs.helperlibs.Exceptions import ErrorBadFormat
 from pepclibs.helperlibs import Trivial
 from statscollectlibs.parsers import InterruptsParser
 
-from tests import common
+from tests import _Common
 
 if typing.TYPE_CHECKING:
     from typing import TypedDict
@@ -24,7 +24,7 @@ if typing.TYPE_CHECKING:
         yield_cnt: int
         input: str
 
-_TEST_FILES_DIR = common.get_test_data_base() / "test_module_InterruptsParser" / "files"
+_TEST_FILES_DIR = _Common.get_test_data_base() / "test_module_InterruptsParser" / "files"
 
 def test_cut_files():
     """

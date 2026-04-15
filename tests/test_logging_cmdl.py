@@ -12,13 +12,13 @@ from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import re
 from pathlib import Path
-from tests import common
-from statscollectlibs.helperlibs import TestRunner
 from pepclibs.helperlibs.Exceptions import Error
+from statscollectlibs.helperlibs import TestRunner
 from statscollecttools import _StatsCollect, ToolInfo
+from tests import _Common
 
 # Path to a test result directory used as the test vehicle for 'stats-collect report'.
-_RESULT_DIR: Path = common.get_test_data_base() / "results" / "good" / "adl0"
+_RESULT_DIR: Path = _Common.get_test_data_base() / "results" / "good" / "adl0"
 
 # Debug messages use the default prefix: [timestamp] [time] [module,lineno].
 # Example: "[1745987654.12] [12:34:56] [HTMLReport,226] ..."

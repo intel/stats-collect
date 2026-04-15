@@ -10,8 +10,11 @@
 This module provides two statistic collector classes: 'InBandCollector' and 'OutOfBandCollector'.
 """
 
+from __future__ import annotations # Remove when switching to Python 3.10+.
+
 import copy
 import time
+import typing
 import socket
 import contextlib
 from pathlib import Path
@@ -21,10 +24,14 @@ from statscollectlibs.collector import SysInfo
 from statscollectlibs.deploy import DeployHelpersBase
 from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
+if typing.TYPE_CHECKING:
+    from typing import Final
+
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
-# The message delimiter used by 'stc-agent'.
-_DELIMITER = "--\n".encode("utf-8")
+# TCP streams have no message boundaries, so this delimiter is appended to every sent message
+# to let the receiver detect where a complete message ends.
+DELIMITER: Final[bytes] = b"--\n"
 
 # The default statistics information. This dictionary is used by the '_STCAgent' class by default,
 # but users can provide a custom dictionary of similar structure to override the defaults.
@@ -185,7 +192,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
     def _send_msg(self, msg):
         """Send a message to 'stc-agent'."""
 
-        buf = msg.encode("utf-8") + _DELIMITER
+        buf = msg.encode("utf-8") + DELIMITER
         total = 0
 
         while total < len(buf):
@@ -210,8 +217,8 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
             # This inefficient, but good enough for our small messages.
             msg += buf
-            if msg[-len(_DELIMITER):] == _DELIMITER:
-                return msg[:-len(_DELIMITER)].decode("utf-8")
+            if msg[-len(DELIMITER):] == DELIMITER:
+                return msg[:-len(DELIMITER)].decode("utf-8")
 
         raise Error(f"time out waiting for the 'stc-agent' response at {self._stca_id}")
 
@@ -473,7 +480,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             # because when the PID 1 process of the namespace is killed, all other processes get
             # automatically killed. This helps to easily and reliably clean up processes upon exit.
             # But creating a PID namespace requires 'root'.
-            self._unshare_path = self._pman.which("unshare", must_find=False)
+            self._unshare_path = self._pman.which_or_none("unshare")
             if not self._unshare_path:
                 _LOG.warning("the 'unshare' tool is missing%s, it is recommended to have it "
                              "installed. This tool is part of the 'util-linux' project",
@@ -483,7 +490,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             # We are trying to run 'stc-agent' with high priority, because we want the statistics to
             # be collected at steady intervals. The 'nice' tool helps changing the priority of the
             # process.
-            self._nice_path = self._pman.which("nice", must_find=False)
+            self._nice_path = self._pman.which_or_none("nice")
             if not self._nice_path:
                 _LOG.warning("the 'nice' tool is missing%s, it is recommended to have it "
                              "installed. This tool is part of the 'coreutils' project",

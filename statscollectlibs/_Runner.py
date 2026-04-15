@@ -175,7 +175,7 @@ class Runner(ClassHelpers.SimpleCloseContext):
         assert self._pipe_proc is not None
 
         _LOG.debug("Waiting for the named pipe reader process for %s seconds", wait_time)
-        pipe_res = self._pipe_proc.wait(timeout=wait_time, lines=(1,0), join=False)
+        pipe_res = self._pipe_proc.wait_nojoin(timeout=wait_time, lines=(1, 0))
         _LOG.debug("Got something from the named pipe reader process")
         if pipe_res.exitcode not in (None, 0):
             # The pipe process has finished with an error.
@@ -271,8 +271,8 @@ class Runner(ClassHelpers.SimpleCloseContext):
                     cmd_wait_time = 1.0
 
             _LOG.debug("Waiting for the command process for %s seconds", cmd_wait_time)
-            cmd_res = self._cmd_proc.wait(timeout=cmd_wait_time,
-                                          output_fobjs=(sys.stdout, sys.stderr), join=False)
+            cmd_res = self._cmd_proc.wait_nojoin(timeout=cmd_wait_time,
+                                             output_fobjs=(sys.stdout, sys.stderr))
             self._duration = time.time() - start_time
 
             stdout_lines.extend(cmd_res.stdout)

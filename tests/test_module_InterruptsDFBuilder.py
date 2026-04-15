@@ -10,10 +10,10 @@
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-from tests import common
+from tests import _Common
 from statscollectlibs.result import RORawResult, LoadedResult
 
-_TEST_RESULTS_DIR = common.get_test_data_base() / "test_module_InterruptsDFBuilder" / "results"
+_TEST_RESULTS_DIR = _Common.get_test_data_base() / "test_module_InterruptsDFBuilder" / "results"
 
 def _is_valid_cpu_scope(scope: str) -> bool:
     """

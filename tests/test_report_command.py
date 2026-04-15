@@ -13,9 +13,9 @@ from pathlib import Path
 from pepclibs.helperlibs.Exceptions import Error
 from statscollectlibs.helperlibs import TestRunner
 from statscollecttools import _StatsCollect
-from tests import common
+from tests import _Common
 
-_TEST_FILES_DIR = common.get_test_data_base() / "results"
+_TEST_FILES_DIR = _Common.get_test_data_base() / "results"
 
 def test_report_command_good(tmp_path: Path):
     """
