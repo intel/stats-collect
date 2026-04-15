@@ -180,6 +180,9 @@ _DELIMITER: Final[str] = "--"
 _SUPPORTED_STATS: Final[tuple[str, ...]] = ("turbostat", "interrupts", "ipmi-oob", "ipmi-inband",
                                             "acpower")
 
+# Idle time in seconds after which 'stc-agent' exits if no client connects.
+_NO_CLIENT_TIMEOUT: Final[int] = 3600
+
 # Configure the root 'main' logger, not a child logger, to also capture 'main.pepc.*' messages.
 _LOG = Logging.getLogger(Logging.MAIN_LOGGER_NAME).configure(prefix=_TOOLNAME)
 
@@ -188,6 +191,9 @@ class _ClientDisconnected(Exception):
 
 class _ExitCommand(Exception):
     """Raise to signal that the agent should exit."""
+
+class _NoClientTimeout(Exception):
+    """Raise when no client connects within '_NO_CLIENT_TIMEOUT' seconds."""
 
 class _BaseCollector:
     """
@@ -1168,6 +1174,9 @@ class _Server(ClassHelpers.SimpleCloseContext):
 
             msg = f"Listening on TCP port {self._port}"
 
+        # Timeout so the server exits if no client connects within the configured period.
+        self._sock.settimeout(_NO_CLIENT_TIMEOUT)
+
         _LOG.debug(msg)
         _LOG.info(msg)
 
@@ -1184,6 +1193,9 @@ class _Server(ClassHelpers.SimpleCloseContext):
 
         try:
             client_sock, _ = self._sock.accept()
+        except socket.timeout as err:
+            raise _NoClientTimeout(f"No client connected for {_NO_CLIENT_TIMEOUT} seconds, "
+                                   f"exiting") from err
         except (OSError, socket.error) as err:
             errmsg = Error(str(err)).indent(2)
             raise Error(f"Error while accepting a client connection:\n{errmsg}") from err
@@ -1255,6 +1267,12 @@ def _handle_client(client: _Client, stc_agent: _STCAgent):
 
     Raises:
         _ExitCommand: The client sent the 'exit' command.
+
+    Notes:
+        - The connection is maintained for the full session: 'start', 'stop', and 'exit' are
+          all sent over the same connection.
+        - If the client disconnects unexpectedly, the caller logs it and waits for the next
+          connection; any in-progress data collection continues in the background.
     """
 
     cmd = None
@@ -1356,13 +1374,17 @@ def _main() -> int:
         _LOG.debug("Commands delimiter is '\\n%s'", _DELIMITER)
 
         while True:
-            with server.wait_for_client() as client:
-                try:
-                    _handle_client(client, stc_agent)
-                except _ClientDisconnected as err:
-                    _LOG.debug(err)
-                except _ExitCommand:
-                    break
+            try:
+                with server.wait_for_client() as client:
+                    try:
+                        _handle_client(client, stc_agent)
+                    except _ClientDisconnected as err:
+                        _LOG.debug(err)
+                    except _ExitCommand:
+                        break
+            except _NoClientTimeout as err:
+                _LOG.info(str(err))
+                break
 
     _LOG.debug("Exiting")
     return 0
