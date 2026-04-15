@@ -262,12 +262,12 @@ def find_processes(regex, pman=None):
 
         procs = []
         for line in stdout[1:]:
-            pid, comm = line.strip().split(" ", 1)
-            pid = int(pid)
+            pid_str, comm = line.strip().split(" ", 1)
+            pid = int(pid_str)
             if wpman.hostname == "localhost" and pid == Trivial.get_pid():
                 continue
             if re.search(regex, comm):
-                procs.append((int(pid), comm))
+                procs.append((pid, comm))
 
     return procs
 
