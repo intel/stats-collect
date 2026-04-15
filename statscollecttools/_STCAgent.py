@@ -32,7 +32,7 @@ from statscollectlibs.helperlibs import ProcHelpers
 from statscollecttools import ToolInfo, _Common
 
 if typing.TYPE_CHECKING:
-    from typing import Any, Callable, Final, IO, Iterable, Sequence, TypedDict, cast
+    from typing import Any, Callable, Final, IO, Iterable, Sequence, TypedDict, cast, NoReturn
 
     class _CmdlineArgsTypedDict(TypedDict, total=False):
         """
@@ -69,7 +69,7 @@ if typing.TYPE_CHECKING:
         """
 
         fallible: bool
-        logdir: str
+        logdir: Path
         interval: str
 
     class _TurbostatPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
@@ -189,104 +189,29 @@ class _ClientDisconnected(Exception):
 class _ExitCommand(Exception):
     """Raise to signal that the agent should exit."""
 
-def _build_arguments_parser() -> ArgParse.ArgsParser:
-    """Build and return the arguments parser object."""
-
-    text = sys.modules[__name__].__doc__
-    parser = ArgParse.ArgsParser(description=text, prog=_TOOLNAME, ver=_VERSION)
-
-    text = f"""The local unix socket path to wait for incoming clients connections on. By default,
-               '{_TOOLNAME}' creates a socket node with a random name in the temporary directory and
-               prints its path to the standard output. The socket file name, however, will include
-               SUT name, if it was specified with '--sut-name'. E.g., '--sut-name=myhost' would
-               result in socket file name like 'stc-agent-myhost-abracadabra', where 'abracadabra'
-               is the random part of the name."""
-    parser.add_argument("-u", "--unix", default="", help=text)
-
-    text = f"""TCP port number to listen for incoming client connections on. If port value is 0,
-               '{_TOOLNAME}' allocates an available port and prints its value to the standard
-               output. WARNING! Using a TCP port may be dangerous because there is no
-               authentication. It is more secure to use a unix socket and let the remote client
-               authenticate and connect via a secure protocol like SSH."""
-    parser.add_argument("-p", "--port", type=int, default=-1, help=text)
-
-    text = """System Under Test (SUT) name. This option affects only the messages and the
-              automatically created Unix socket file name."""
-    parser.add_argument("--sut-name", dest="sutname", default="", help=text)
-
-    # Hidden option: print paths to 'stc-agent' module dependencies and exit.
-    parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
-    return parser
-
-def _parse_arguments() -> argparse.Namespace:
-    """
-    Parse the command-line arguments.
-
-    Returns:
-        The parsed arguments namespace.
-    """
-
-    parser = _build_arguments_parser()
-    return parser.parse_args()
-
-def _get_cmdline_args(args: argparse.Namespace) -> _CmdlineArgsTypedDict:
-    """
-    Format command-line arguments into a typed dictionary.
-
-    Args:
-        args: Command-line arguments namespace.
-
-    Returns:
-        A typed dictionary containing the validated and formatted command-line arguments.
-    """
-
-    cmdl: _CmdlineArgsTypedDict = {}
-    cmdl["unix"] = Path(args.unix) if args.unix else None
-    cmdl["port"] = args.port
-    cmdl["sutname"] = args.sutname
-
-    if cmdl["port"] != -1 and cmdl["unix"] is not None:
-        raise Error("'--port' and '--unix' options are mutually exclusive")
-
-    return cmdl
-
-def _sighandler(sig, _):
-    """
-    In case 'satsd' is started in a PID namespace and it is PID1, the default signal handlers are
-    not set up, and this handler is installed to exit on 'SIGTERM' and 'SIGINT' signals.
-    """
-
-    _LOG.debug("Received signal '%d', exiting", sig)
-    raise SystemExit(sig)
-
 class _BaseCollector:
     """
-    The base class for statistics collectors. Here is the methods overview.
+    The base class for statistics collectors.
 
-    1. '__init__()' - the object constructor, performs basic initialization. The collector is not
-       usable yet, because it has not been configured yet (e.g., the output directory was not yet
-       set).
-    2. 'configure()' - must be called every time a collector property have been changed (e.g., the
-       output directory).
-    4. 'start()' - start collecting the statistics
-    5. 'stop()' - stop collecting the statistics
-    6. 'save()' - save the results to the output directory, synchronize all the stats and flush all
-                  the buffers.
-    7. 'validate()' - validate the collected data to make sure it is sane
+    Public methods overview:
 
-    Once the collector is initialized, the usage sequence is as follows.
-      * Set various collector properties like 'outdir'
-      * 'configure()
-      * start()
-      * stop()
-      * save()
-      * validate()
-    The sequence can be repeated many times.
+    - 'configure()': configure the collector; must be called after every property change.
+    - 'kill_stale()': kill stale collector processes that might still be running.
+    - 'start()': start collecting the statistics.
+    - 'end()': signal the collector process to stop.
+    - 'save()': wait for the collector to exit and synchronize the output file.
+    - 'validate()': validate the collected data to make sure it is sane.
+
+    The expected usage sequence after initialization is: 'configure()', 'kill_stale()', 'start()',
+    'end()', 'save()', 'validate()'. The sequence can be repeated many times.
     """
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         """
-        Initialize a class instance. The 'name' parameter is the name of the statistics to collect.
+        Initialize a class instance.
+
+        Args:
+            name: The name of the statistics to collect.
         """
 
         self.name = name
@@ -298,45 +223,58 @@ class _BaseCollector:
         self.props["fallible"] = False
         # The output directory where the statistics will be stored.
         self.props["outdir"] = _UNINITIALIZED["required_path"]
-        # The log directory where may put their standard error output.
-        self.props["logdir"] = _UNINITIALIZED["required_str"]
+        # The log directory where collectors may put their standard error output.
+        self.props["logdir"] = _UNINITIALIZED["required_path"]
         # The statistics collection interval.
         self.props["interval"] = _UNINITIALIZED["required_str"]
 
         # The local process manager object.
+        self._pman: LocalProcessManager.LocalProcessManager | None
         self._pman = LocalProcessManager.LocalProcessManager()
 
         #
         # These attributes are internal to this base class.
         #
 
-        self._fobj = None
+        # The output file where subprocess redirects its stdout and stderr streams. The file is
+        # opened with no buffering ('buffering=0') as a paranoid measure to minimize the
+        # probability of data loss. And to disable buffering, the file must be opened in binary
+        # mode.
+        self._fobj: IO[bytes] | None = None
         # The statistics collector process.
-        self._proc = None
-        self._outpath = None
+        self._proc: LocalProcessManager.LocalProcess | None = None
+        # The full path to the output file.
+        self._outpath: Path | None = None
+        # Whether 'configure()' has been called and the collector is ready to use.
+        self._configured: bool = False
 
         #
         # These attributes can/should be set by child classes.
         #
-        self._outfile = f"{name}.raw.txt"
-        self._command = None
-        self._configured = False
-        self._valid_start = None
-        self._valid_end = None
-        self._signal = signal.SIGTERM
-        self._stale_search = None
+        self._outfile: str = f"{name}.raw.txt"
+        self._command: str = ""
+        # Optional byte patterns the base class 'validate()' checks against the start and end of
+        # the output file. Set by subclasses, empty bytes means no validation should be performed.
+        self._valid_start: bytes = b""
+        self._valid_end: bytes = b""
+        self._signal: signal.Signals = signal.SIGTERM
+        self._stale_search: str = ""
 
     def __del__(self):
         """Class destructor."""
 
         if getattr(self, "_pman", None):
+            if typing.TYPE_CHECKING:
+                assert self._pman is not None
             self._pman.close()
             self._pman = None
         if getattr(self, "_fobj", None):
+            if typing.TYPE_CHECKING:
+                assert self._fobj is not None
             self._fobj.close()
             self._fobj = None
 
-    def _error(self, msgformat, *args):
+    def _error(self, msgformat, *args) -> NoReturn:
         """The collector error handler."""
 
         if args:
@@ -346,45 +284,33 @@ class _BaseCollector:
 
         raise Error(f"The '{self.name}' statistics collector failed:\n{msg}")
 
-    def _debug(self, msgformat, *args):
-        """The collector debug messages."""
-
-        if args:
-            msg = msgformat % args
-        else:
-            msg = str(msgformat)
-
-        _LOG.debug("'%s': %s", self.name, msg)
-
     def _sync(self):
         """Synchronize all the collector files."""
 
-        def _fsync(fobj):
-            """Synchronize the 'fobj' file."""
+        if self._fobj is None:
+            self._error("BUG: The output file object is not initialized")
 
-            try:
-                fobj.flush()
-                os.fsync(fobj.fileno())
-            except OSError as err:
-                self._error("Cannot synchronize '%s':\n%s", fobj.name, err)
-
-        _fsync(self._fobj)
+        try:
+            self._fobj.flush()
+            os.fsync(self._fobj.fileno())
+        except OSError as err:
+            self._error("Cannot synchronize '%s':\n%s", self._fobj.name, err)
 
     def _handle_dirs(self):
-        """Make sure the output directory exists."""
+        """Make sure the output and log directories exist."""
 
         for key in ("outdir", "logdir"):
             path = self.props[key]
-            if not os.path.isabs(path):
+            if not path.is_absolute():
                 self._error("Path '%s' (%s) is not absolute", path, key)
-            if os.path.exists(path):
-                if not os.path.isdir(path):
+            if path.exists():
+                if not path.is_dir():
                     self._error("Path '%s' (%s) already exists and it is not a directory",
                                 path, key)
             else:
-                self._debug("Creating directory '%s' (%s)", path, key)
+                _LOG.debug("'%s': Creating directory '%s' (%s)", self.name, path, key)
                 try:
-                    os.mkdir(path)
+                    path.mkdir()
                 except OSError as err:
                     self._error("Cannot create directory '%s' (%s):\n%s", path, key, err)
 
@@ -393,15 +319,16 @@ class _BaseCollector:
 
         # Validate that all of the mandatory properties have been set.
         for prop, val in self.props.items():
-            if any(val is s for s in (_UNINITIALIZED["required_str"], _UNINITIALIZED["required_int"],
+            if any(val is s for s in (_UNINITIALIZED["required_str"],
+                                      _UNINITIALIZED["required_int"],
                                       _UNINITIALIZED["required_path"])):
                 self._error("Please configure '%s' first", prop)
 
         self._handle_dirs()
 
-        self._outpath = os.path.join(self.props["outdir"], self._outfile)
+        self._outpath = self.props["outdir"] / self._outfile
 
-        if self._fobj:
+        if self._fobj is not None:
             self._fobj.close()
             self._fobj = None
 
@@ -411,7 +338,8 @@ class _BaseCollector:
         except OSError as err:
             self._error("Failed to open '%s':\n%s", self._outpath, err)
 
-        self._sync() # Flush any newly created files.
+        # Ensure the newly created output file is flushed to disk.
+        self._sync()
         self._configured = True
 
     def kill_stale(self):
@@ -428,38 +356,50 @@ class _BaseCollector:
         if not self._configured:
             self._error("The collector was not configured")
 
+        if self._proc is not None:
+            self._error("BUG: The collector is already running")
+
+        if self._pman is None:
+            self._error("BUG: The process manager is not initialized")
+
         self._proc = self._pman.run_async(self._command, stderr=self._fobj, stdout=self._fobj,
                                           newgrp=True)
 
     def end(self):
-        """Stop collecting and get the resulting statistics."""
+        """Signal the collector process to stop."""
+
+        if self._proc is None:
+            self._error("BUG: The collector is not running")
 
         exitcode = self._proc.poll()
         if exitcode is not None:
             self._error("The following command exited prematurely with exit code %d:\n%s",
                         exitcode, self._command)
-        else:
-            try:
-                pgid = Trivial.get_pgid(self._proc.pid)
-            except Error as err:
-                self._error(err)
 
-            # Signal the entire statistics collector process group.
-            self._debug("Sending signal %s to PGID %d (group of PID %d)",
-                        self._signal, pgid, self._proc.pid)
-            try:
-                os.killpg(pgid, self._signal)
-            except OSError as err:
-                self._error("Failed to kill the process group of PID %d, PGID %d:\n%s",
-                            self._proc.pid, pgid, err)
+        try:
+            pgid = Trivial.get_pgid(self._proc.pid)
+        except Error as err:
+            self._error(err)
+
+        # Signal the entire statistics collector process group.
+        _LOG.debug("'%s': Sending signal %s to PGID %d (group of PID %d)",
+                   self.name, self._signal, pgid, self._proc.pid)
+        try:
+            os.killpg(pgid, self._signal)
+        except OSError as err:
+            self._error("Failed to kill the process group of PID %d, PGID %d:\n%s",
+                        self._proc.pid, pgid, err)
 
     def save(self):
-        """Save the collected statistics."""
+        """Wait for the collector process to exit and save the collected statistics."""
+
+        if self._proc is None:
+            self._error("BUG: The collector is not running")
 
         # Make sure the process has exited. The reason it is done in 'save()' is a hacky
-        # optimization: all processes are signaled first without waiting (in 'end()'), and
-        # only once all are signaled does checking begin. This
-        # approach helps having the collectors stop "more simultaneously".
+        # optimization: all processes are signaled first without waiting (in 'end()'), and only once
+        # all are signaled does checking begin. This approach helps having the collectors stop
+        # "more simultaneously".
         try:
             _, _, exitcode = self._proc.wait(timeout=10, capture_output=False)
             if exitcode is None:
@@ -472,6 +412,9 @@ class _BaseCollector:
 
     def validate(self):
         """Check that the collected statistics are valid."""
+
+        if self._fobj is None:
+            self._error("BUG: The output file object is not initialized")
 
         if self._valid_start:
             self._fobj.seek(0)
@@ -606,10 +549,14 @@ class _ACPowerCollector(_BaseCollector):
         """Initialize a class instance."""
 
         super().__init__("acpower")
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_ACPowerPropsTypedDict, self.props)
+
         self.props["toolpath"] = Path("yokotool")
         self.props["devnode"] = _UNINITIALIZED["required_str"]
         self.props["pmtype"] = _UNINITIALIZED["str"]
-        self._signal = signal.SIGINT
+        self._signal: signal.Signals = signal.SIGINT
 
     def configure(self):
         """Configure the statistics collector."""
@@ -1291,6 +1238,76 @@ def _handle_client(client: _Client, stc_agent: _STCAgent):
         client.respond(response)
 
     raise _ExitCommand()
+
+def _build_arguments_parser() -> ArgParse.ArgsParser:
+    """Build and return the arguments parser object."""
+
+    text = sys.modules[__name__].__doc__
+    parser = ArgParse.ArgsParser(description=text, prog=_TOOLNAME, ver=_VERSION)
+
+    text = f"""The local unix socket path to wait for incoming clients connections on. By default,
+               '{_TOOLNAME}' creates a socket node with a random name in the temporary directory and
+               prints its path to the standard output. The socket file name, however, will include
+               SUT name, if it was specified with '--sut-name'. E.g., '--sut-name=myhost' would
+               result in socket file name like 'stc-agent-myhost-abracadabra', where 'abracadabra'
+               is the random part of the name."""
+    parser.add_argument("-u", "--unix", default="", help=text)
+
+    text = f"""TCP port number to listen for incoming client connections on. If port value is 0,
+               '{_TOOLNAME}' allocates an available port and prints its value to the standard
+               output. WARNING! Using a TCP port may be dangerous because there is no
+               authentication. It is more secure to use a unix socket and let the remote client
+               authenticate and connect via a secure protocol like SSH."""
+    parser.add_argument("-p", "--port", type=int, default=-1, help=text)
+
+    text = """System Under Test (SUT) name. This option affects only the messages and the
+              automatically created Unix socket file name."""
+    parser.add_argument("--sut-name", dest="sutname", default="", help=text)
+
+    # Hidden option: print paths to 'stc-agent' module dependencies and exit.
+    parser.add_argument("--print-module-paths", action="store_true", help=argparse.SUPPRESS)
+    return parser
+
+def _parse_arguments() -> argparse.Namespace:
+    """
+    Parse the command-line arguments.
+
+    Returns:
+        The parsed arguments namespace.
+    """
+
+    parser = _build_arguments_parser()
+    return parser.parse_args()
+
+def _get_cmdline_args(args: argparse.Namespace) -> _CmdlineArgsTypedDict:
+    """
+    Format command-line arguments into a typed dictionary.
+
+    Args:
+        args: Command-line arguments namespace.
+
+    Returns:
+        A typed dictionary containing the validated and formatted command-line arguments.
+    """
+
+    cmdl: _CmdlineArgsTypedDict = {}
+    cmdl["unix"] = Path(args.unix) if args.unix else None
+    cmdl["port"] = args.port
+    cmdl["sutname"] = args.sutname
+
+    if cmdl["port"] != -1 and cmdl["unix"] is not None:
+        raise Error("'--port' and '--unix' options are mutually exclusive")
+
+    return cmdl
+
+def _sighandler(sig, _):
+    """
+    In case 'satsd' is started in a PID namespace and it is PID1, the default signal handlers are
+    not set up, and this handler is installed to exit on 'SIGTERM' and 'SIGINT' signals.
+    """
+
+    _LOG.debug("Received signal '%d', exiting", sig)
+    raise SystemExit(sig)
 
 def _main() -> int:
     """Implement main logic."""
