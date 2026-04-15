@@ -39,7 +39,8 @@ if typing.TYPE_CHECKING:
         Typed dictionary representing the command-line arguments.
 
         Attributes:
-            unix: Path to the Unix socket to listen on. 'None' means a socket file with a random name is created in the temporary directory.
+            unix: Path to the Unix socket to listen on. 'None' means a socket file with a random
+                  name is created in the temporary directory.
             port: TCP port number to listen on. '-1' means use a Unix socket instead.
             sutname: The SUT name, used in socket file name and log messages.
         """
@@ -440,6 +441,10 @@ class _TurbostatCollector(_BaseCollector):
         """Initialize a class instance."""
 
         super().__init__("turbostat")
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_TurbostatPropsTypedDict, self.props)
+
         self.props["toolpath"] = Path("turbostat")
         self.props["opts"] = _UNINITIALIZED["str"]
 
@@ -447,6 +452,9 @@ class _TurbostatCollector(_BaseCollector):
         """Configure the statistics collector."""
 
         super().configure()
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_TurbostatPropsTypedDict, self.props)
 
         self._command = f"{self.props['toolpath']} --enable Time_Of_Day_Seconds " \
                         f"--interval '{self.props['interval']}'"
@@ -457,11 +465,14 @@ class _TurbostatCollector(_BaseCollector):
         toolname = os.path.basename(self.props["toolpath"])
         self._stale_search = f"{toolname} --enable Time_Of_Day_Seconds --interval "
 
+        if self._pman is None:
+            self._error("BUG: The process manager is not initialized")
+
         try:
             self._pman.run_verify("modprobe intel_uncore_frequency")
         except Error as err:
             _LOG.debug("Unable to load 'intel_uncore_frequency' module which is required "
-                       "to collect turbostat uncore frequency measurements: %s", {str(err)})
+                       "to collect turbostat uncore frequency measurements: %s", str(err))
 
 class _InterruptsCollector(_BaseCollector):
     """The interrupts statistics collector - periodically snapshot '/proc/interrupts'."""
@@ -471,6 +482,9 @@ class _InterruptsCollector(_BaseCollector):
 
         super().__init__("interrupts")
 
+        if typing.TYPE_CHECKING:
+            self.props = cast(_InterruptsPropsTypedDict, self.props)
+
         self.props["toolpath"] = Path("stc-agent-proc-interrupts-helper")
         self._signal = signal.SIGINT
 
@@ -479,15 +493,34 @@ class _InterruptsCollector(_BaseCollector):
 
         super().configure()
 
+        if typing.TYPE_CHECKING:
+            self.props = cast(_InterruptsPropsTypedDict, self.props)
+
         self._command = f"{self.props['toolpath']} --interval {self.props['interval']}"
 
 class _IPMICollector(_BaseCollector):
     """Base class for IPMI statistics collectors."""
 
+    def __init__(self, name):
+        """Initialize a class instance."""
+
+        super().__init__(name)
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_IPMIPropsTypedDict, self.props)
+
+        self.props["toolpath"] = Path("stc-agent-ipmi-helper")
+        self.props["retries"] = _UNINITIALIZED["int"]
+        self.props["count"] = _UNINITIALIZED["int"]
+        self._valid_start = b"timestamp | "
+
     def configure(self):
         """Configure the statistics collector."""
 
         super().configure()
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_IPMIPropsTypedDict, self.props)
 
         self._command = f"{self.props['toolpath']} --interval '{self.props['interval']}'"
         if self.props["retries"] is not _UNINITIALIZED["int"]:
@@ -496,15 +529,6 @@ class _IPMICollector(_BaseCollector):
             self._command += f" --count '{self.props['count']}'"
 
         self._stale_search = f"{os.path.basename(self.props['toolpath'])} --interval "
-
-    def __init__(self, name):
-        """Initialize a class instance."""
-
-        super().__init__(name)
-        self.props["toolpath"] = Path("stc-agent-ipmi-helper")
-        self.props["retries"] = _UNINITIALIZED["int"]
-        self.props["count"] = _UNINITIALIZED["int"]
-        self._valid_start = b"timestamp | "
 
 class _IPMIInBandCollector(_IPMICollector):
     """The in-band IPMI statistics collector."""
@@ -521,6 +545,10 @@ class _IPMIOOBCollector(_IPMICollector):
         """Initialize a class instance."""
 
         super().__init__("ipmi-oob")
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_IPMIOOBPropsTypedDict, self.props)
+
         self.props["host"] = _UNINITIALIZED["required_str"]
         self.props["user"] = _UNINITIALIZED["str"]
         self.props["pwdfile"] = _UNINITIALIZED["path"]
@@ -530,6 +558,9 @@ class _IPMIOOBCollector(_IPMICollector):
         """Configure the statistics collector."""
 
         super().configure()
+
+        if typing.TYPE_CHECKING:
+            self.props = cast(_IPMIOOBPropsTypedDict, self.props)
 
         hostopt = f" --host '{self.props['host']}'"
         self._command += hostopt
@@ -563,12 +594,18 @@ class _ACPowerCollector(_BaseCollector):
 
         super().configure()
 
+        if typing.TYPE_CHECKING:
+            self.props = cast(_ACPowerPropsTypedDict, self.props)
+
         devnode = self.props['devnode']
         cmd = f"{self.props['toolpath']} {devnode}"
         if self.props["pmtype"] is not _UNINITIALIZED["str"]:
             cmd += f" --pmtype {self.props['pmtype']}"
 
         self._stale_search = f"{os.path.basename(self.props['toolpath'])} {devnode}"
+
+        if self._pman is None:
+            self._error("BUG: The process manager is not initialized")
 
         # The power meter is assumed to be initialized and configured outside of 'stc-agent'.
         # Only the interval is set here.
@@ -1169,8 +1206,8 @@ def _handle_command(cmd: str, stc_agent: _STCAgent) -> str:
     Dispatch a single client command to the appropriate '_STCAgent' method.
 
     Args:
-        cmd: The raw command string received from the client, including any arguments separated
-             by a space.
+        cmd: The raw command string received from the client. May include a space-separated
+             argument after the command name.
         stc_agent: The statistics collection agent to dispatch the command to.
 
     Returns:
@@ -1302,8 +1339,8 @@ def _get_cmdline_args(args: argparse.Namespace) -> _CmdlineArgsTypedDict:
 
 def _sighandler(sig, _):
     """
-    In case 'satsd' is started in a PID namespace and it is PID1, the default signal handlers are
-    not set up, and this handler is installed to exit on 'SIGTERM' and 'SIGINT' signals.
+    In case 'stc-agent' is started in a PID namespace and it is PID 1, the default signal handlers
+    are not set up, and this handler is installed to exit on 'SIGTERM' and 'SIGINT' signals.
     """
 
     _LOG.debug("Received signal '%d', exiting", sig)
