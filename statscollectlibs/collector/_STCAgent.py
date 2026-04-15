@@ -18,6 +18,7 @@ from pathlib import Path
 from pepclibs.helperlibs import Logging, LocalProcessManager, Trivial, ClassHelpers, KernelVersion
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
 from statscollectlibs.collector import SysInfo
+from statscollectlibs.deploy import DeployHelpersBase
 from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
@@ -462,7 +463,8 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         # Discover path to 'stc-agent'.
         if not self._stca_path:
-            self._stca_path = self._pman.which("stc-agent")
+            deploy_path = DeployHelpersBase.get_deploy_path("stats-collect", self._pman)
+            self._stca_path = deploy_path / "stc-agent"
 
         is_root = ProcHelpers.is_root(pman=self._pman)
 

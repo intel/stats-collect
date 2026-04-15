@@ -26,6 +26,44 @@ if typing.TYPE_CHECKING:
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
+def get_deploy_path(prjname: str,
+                    pman: ProcessManagerType,
+                    deploy_path: Path | None = None) -> Path:
+    """
+    Return the path to the directory where project helper programs are deployed on the host.
+
+    The path is resolved in the following order: 'deploy_path' if provided, the project helpers
+    environment variable if set on the target host, otherwise '$HOME/.local/bin'.
+
+    Args:
+        prjname: Name of the project whose helpers deployment directory to find.
+        pman: The process manager for the target host.
+        deploy_path: An explicit deployment path. If provided, returned as-is.
+
+    Returns:
+        The path to the directory where the helper programs are deployed.
+    """
+
+    if deploy_path:
+        return deploy_path
+
+    envar = ProjectFiles.get_project_helpers_envar(prjname)
+    stdout, _ = pman.run_verify_join(f"echo ${envar}")
+    helpers_path: str | Path = stdout.strip()
+
+    if not helpers_path:
+        if envar in os.environ:
+            helpers_path = os.environ[envar]
+        else:
+            homedir = pman.get_envar("HOME")
+            if not homedir:
+                raise Error(f"Cannot determine the helpers deployment path{pman.hostmsg}: "
+                            f"Neither the '{envar}' environment variable nor the 'HOME' "
+                            f"environment variable are set")
+            helpers_path = Path(homedir) / ".local" / "bin"
+
+    return Path(helpers_path)
+
 class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
     """Base class for deploying non-driver installables (helpers)."""
 
@@ -93,25 +131,7 @@ class DeployHelpersBase(DeployInstallableBase.DeployInstallableBase):
             The path to the directory where the helper programs should be deployed.
         """
 
-        if self._deploy_path:
-            return self._deploy_path
-
-        envar = ProjectFiles.get_project_helpers_envar(self._prjname)
-        stdout, _ = self._spman.run_verify_join(f"echo ${envar}")
-        helpers_path: str | Path = stdout.strip()
-
-        if not helpers_path:
-            if envar in os.environ:
-                helpers_path = os.environ[envar]
-            else:
-                homedir = self._spman.get_envar("HOME")
-                if not homedir:
-                    raise Error(f"Cannot determine the helpers deployment path"
-                                f"{self._spman.hostmsg}: Neither the '{envar}' environment "
-                                f"variable nor the 'HOME' environment variable are set")
-                helpers_path = Path(homedir) / ".local" / "bin"
-
-        return Path(helpers_path)
+        return get_deploy_path(self._prjname, self._spman, self._deploy_path)
 
     def deploy(self,
                insts_info: dict[str, InstallableInfoTypedDict],
