@@ -241,7 +241,7 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
         self.props["interval"] = _UNINITIALIZED["required_str"]
 
         # The local process manager object.
-        self._pman: LocalProcessManager.LocalProcessManager | None = pman
+        self._pman: LocalProcessManager.LocalProcessManager = pman
 
         if su and not self._pman.is_superuser() and not self._pman.has_passwdless_sudo():
             raise ErrorPermissionDenied(f"The '{name}' collector requires superuser privileges")
@@ -364,9 +364,6 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
         if self._proc is not None:
             self._error("BUG: The collector is already running")
 
-        if self._pman is None:
-            self._error("BUG: The process manager is not initialized")
-
         self._proc = self._pman.run_async(self._command, stderr=self._fobj, stdout=self._fobj,
                                           newgrp=True, su=self._su)
 
@@ -467,9 +464,6 @@ class _TurbostatCollector(_BaseCollector):
 
         toolname = os.path.basename(self.props["toolpath"])
         self._stale_search = f"{toolname} --enable Time_Of_Day_Seconds --interval "
-
-        if self._pman is None:
-            self._error("BUG: The process manager is not initialized")
 
         try:
             self._pman.run_verify("modprobe intel_uncore_frequency")
@@ -601,18 +595,24 @@ class _ACPowerCollector(_BaseCollector):
             self.props = cast(_ACPowerPropsTypedDict, self.props)
 
         devnode = self.props["devnode"]
+
+        if not os.access(devnode, os.R_OK | os.W_OK):
+            # The process has no read/write access to the device node, run 'yokotool' under
+            # superuser privileges.
+            if not self._pman.is_superuser() and not self._pman.has_passwdless_sudo():
+                raise ErrorPermissionDenied(f"The 'acpower' collector requires superuser "
+                                            f"privileges: '{devnode}' is not accessible")
+            self._su = True
+
         cmd = f"{self.props['toolpath']} {devnode}"
         if self.props["pmtype"] is not _UNINITIALIZED["str"]:
             cmd += f" --pmtype {self.props['pmtype']}"
 
         self._stale_search = f"{os.path.basename(self.props['toolpath'])} {devnode}"
 
-        if self._pman is None:
-            self._error("BUG: The process manager is not initialized")
-
         # The power meter is assumed to be initialized and configured outside of 'stc-agent'.
         # Only the interval is set here.
-        self._pman.run_verify(f"{cmd} set interval {self.props['interval']}")
+        self._pman.run_verify(f"{cmd} set interval {self.props['interval']}", su=self._su)
 
         items = "T,P,I,V,S,Q,Phi,Fv,Vrange,Irange"
         self._command = f"{cmd} read {items}"
@@ -1272,10 +1272,8 @@ def _handle_command(cmd: str, stc_agent: _STCAgent) -> str:
                 stc_agent.stop()
         else:
             response = f"Bad command: {cmd}"
-    except Error as err:
-        response = f"Error: {err}"
     except Exception as err: # pylint: disable=broad-except
-        response = f"Unknown exception of type '{type(err).__name__}':\n{err}"
+        response = f"Error: {type(err).__name__}: {err}"
 
     return response
 
