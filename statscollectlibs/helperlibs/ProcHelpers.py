@@ -30,25 +30,6 @@ def _is_sigkill(sig: str):
     """Return 'True' if sig' is the 'SIGKILL' signal."""
     return sig == "15" or sig.endswith("KILL")
 
-def is_root(pman=None):
-    """
-    If 'pman' is 'None' or a local process manager object, return 'True' if current process' user
-    name is 'root' and 'False' if current process' user name is not 'root'.
-
-    If 'pman' is a remote process manager object, returns 'True' if user has 'root' permissions on
-    the remote host, otherwise returns 'False'.
-    """
-
-    if not pman or not pman.is_remote:
-        return Trivial.is_root()
-
-    stdout, _ = pman.run_verify("id -u")
-    stdout = stdout.strip()
-    if not Trivial.is_int(stdout):
-        raise Error("unexpected output from 'id -u' command, expected an integer, got:\n{stdout}")
-
-    return int(stdout) == 0
-
 def bind_pid(pid: int,
              cpus: int | list[int] | str,
              pman: ProcessManager.ProcessManagerType | None = None):

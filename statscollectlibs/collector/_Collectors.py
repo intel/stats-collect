@@ -466,7 +466,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             deploy_path = DeployHelpersBase.get_deploy_path("stats-collect", self._pman)
             self._stca_path = deploy_path / "stc-agent"
 
-        is_root = ProcHelpers.is_root(pman=self._pman)
+        is_root = self._pman.is_superuser()
 
         if not self._unshare_path and is_root:
             # Unshare is used for running 'stc-agent' in a separate PID namespace. We do this
