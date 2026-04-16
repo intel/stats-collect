@@ -608,7 +608,7 @@ class _ACPowerCollector(_BaseCollector):
         items = "T,P,I,V,S,Q,Phi,Fv,Vrange,Irange"
         self._command = f"{cmd} read {items}"
 
-class _STCAgent:
+class _STCAgent(ClassHelpers.SimpleCloseContext):
     """
     The statistics collection agent class implementing all statistics collection functionality.
 
@@ -621,6 +621,7 @@ class _STCAgent:
     - 'add_label()': add a label.
     - 'start()': start collecting the statistics.
     - 'stop()': stop collecting the statistics.
+    - 'close()': stop all running collectors and release resources.
     """
 
     def __init__(self):
@@ -638,6 +639,22 @@ class _STCAgent:
         self.props: _BasePropsTypedDict = {}
         # The output directory where data like labels will be stored.
         self.props["outdir"] = _UNINITIALIZED["path"]
+
+    @property
+    def started(self) -> bool:
+        """Return 'True' if statistics collection has been started."""
+
+        return self._started
+
+    def close(self):
+        """Kill all running collectors and release resources."""
+
+        for collector in self._collectors.values():
+            collector.close()
+
+        self._collectors = {}
+
+        ClassHelpers.close(self, close_attrs=("_lfobj",))
 
     def _execute_collectors_methods(self, methods: Iterable[str]):
         """
@@ -1239,7 +1256,8 @@ def _handle_command(cmd: str, stc_agent: _STCAgent) -> str:
         elif cmd == "get-failed-collectors":
             response += f" {','.join(stc_agent.failed_collectors)}"
         elif cmd == "exit":
-            pass
+            if stc_agent.started:
+                stc_agent.stop()
         else:
             response = f"Bad command: {cmd}"
     except Error as err:
@@ -1359,9 +1377,8 @@ def _main() -> int:
 
     cmdl = _get_cmdline_args(args)
 
-    stc_agent = _STCAgent()
-
-    with _Server(unix=cmdl["unix"], port=cmdl["port"], sutname=cmdl["sutname"]) as server:
+    with _STCAgent() as stc_agent, \
+         _Server(unix=cmdl["unix"], port=cmdl["port"], sutname=cmdl["sutname"]) as server:
         server.start_listening()
         _LOG.debug("Commands delimiter is '\\n%s'", _DELIMITER)
 
