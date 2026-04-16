@@ -20,6 +20,7 @@ Terminology.
              also be the sum or something else.
 """
 
+# TODO: Files with data from turbustat that was run as a normal user, not root
 import re
 from pepclibs.helperlibs import Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error, ErrorBadFormat
