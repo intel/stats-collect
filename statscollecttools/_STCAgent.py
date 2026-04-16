@@ -195,7 +195,7 @@ class _ExitCommand(Exception):
 class _NoClientTimeout(Exception):
     """Raise when no client connects within '_NO_CLIENT_TIMEOUT' seconds."""
 
-class _BaseCollector:
+class _BaseCollector(ClassHelpers.SimpleCloseContext):
     """
     The base class for statistics collectors.
 
@@ -263,19 +263,10 @@ class _BaseCollector:
         self._signal: signal.Signals = signal.SIGTERM
         self._stale_search: str = ""
 
-    def __del__(self):
-        """Class destructor."""
+    def close(self):
+        """Close the collector and release its resources."""
 
-        if getattr(self, "_pman", None):
-            if typing.TYPE_CHECKING:
-                assert self._pman is not None
-            self._pman.close()
-            self._pman = None
-        if getattr(self, "_fobj", None):
-            if typing.TYPE_CHECKING:
-                assert self._fobj is not None
-            self._fobj.close()
-            self._fobj = None
+        ClassHelpers.close(self, close_attrs=("_proc", "_fobj", "_pman"))
 
     def _error(self, msgformat, *args) -> NoReturn:
         """The collector error handler."""
@@ -699,8 +690,9 @@ class _STCAgent:
 
         _LOG.debug("Creating the following collectors: %s", ",".join(stnames))
 
-        # Delete collectors one by one to explicitly trigger their '__del__()' methods.
+        # Close collectors one by one to release their resources before replacing them.
         for name in list(self._collectors):
+            self._collectors[name].close()
             del self._collectors[name]
         self.failed_collectors = set()
 
