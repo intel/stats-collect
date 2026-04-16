@@ -398,7 +398,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             msg = Error(str(err)).indent(2)
             raise Error(f"failed to serialize a label as JSON:\n{msg}") from err
 
-        self._send_command("add_label", arg=arg)
+        self._send_command("add-label", arg=arg)
 
     def start(self):
         """Start collecting the statistics."""

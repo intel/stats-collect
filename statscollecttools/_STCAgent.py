@@ -27,7 +27,7 @@ import argparse
 import contextlib
 from pathlib import Path
 from pepclibs.helperlibs import Logging, ArgParse, LocalProcessManager, Trivial, ClassHelpers
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import Error, ErrorPermissionDenied
 from statscollectlibs.helperlibs import ProcHelpers
 from statscollecttools import ToolInfo, _Common
 
@@ -212,15 +212,22 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
     'end()', 'save()', 'validate()'. The sequence can be repeated many times.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, pman: LocalProcessManager.LocalProcessManager, su: bool = False):
         """
         Initialize a class instance.
 
         Args:
             name: The name of the statistics to collect.
+            pman: The process manager to use for running collector processes.
+            su: If 'True', the collector process requires superuser privileges.
+
+        Raises:
+            ErrorPermissionDenied: The collector requires superuser privileges, but
+                                   neither root access nor passwordless sudo is available.
         """
 
         self.name = name
+        self._su: bool = su
 
         # The collector properties that require 'configure()' to be called after any change.
         self.props: _BaseCollectorPropsTypedDict = {}
@@ -234,8 +241,10 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
         self.props["interval"] = _UNINITIALIZED["required_str"]
 
         # The local process manager object.
-        self._pman: LocalProcessManager.LocalProcessManager | None
-        self._pman = LocalProcessManager.LocalProcessManager()
+        self._pman: LocalProcessManager.LocalProcessManager | None = pman
+
+        if su and not self._pman.is_superuser() and not self._pman.has_passwdless_sudo():
+            raise ErrorPermissionDenied(f"The '{name}' collector requires superuser privileges")
 
         #
         # These attributes are internal to this base class.
@@ -266,7 +275,7 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
     def close(self):
         """Close the collector and release its resources."""
 
-        ClassHelpers.close(self, close_attrs=("_proc", "_fobj", "_pman"))
+        ClassHelpers.close(self, close_attrs=("_proc", "_fobj"), unref_attrs=("_pman",))
 
     def _error(self, msgformat, *args) -> NoReturn:
         """The collector error handler."""
@@ -359,7 +368,7 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
             self._error("BUG: The process manager is not initialized")
 
         self._proc = self._pman.run_async(self._command, stderr=self._fobj, stdout=self._fobj,
-                                          newgrp=True)
+                                          newgrp=True, su=self._su)
 
     def end(self):
         """Signal the collector process to stop."""
@@ -431,10 +440,10 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
 class _TurbostatCollector(_BaseCollector):
     """The turbostat statistics collector."""
 
-    def __init__(self):
+    def __init__(self, pman: LocalProcessManager.LocalProcessManager):
         """Initialize a class instance."""
 
-        super().__init__("turbostat")
+        super().__init__("turbostat", pman=pman, su=True)
 
         if typing.TYPE_CHECKING:
             self.props = cast(_TurbostatPropsTypedDict, self.props)
@@ -471,10 +480,10 @@ class _TurbostatCollector(_BaseCollector):
 class _InterruptsCollector(_BaseCollector):
     """The interrupts statistics collector - periodically snapshot '/proc/interrupts'."""
 
-    def __init__(self):
+    def __init__(self, pman: LocalProcessManager.LocalProcessManager):
         """Initialize a class instance."""
 
-        super().__init__("interrupts")
+        super().__init__("interrupts", pman=pman)
 
         if typing.TYPE_CHECKING:
             self.props = cast(_InterruptsPropsTypedDict, self.props)
@@ -495,10 +504,10 @@ class _InterruptsCollector(_BaseCollector):
 class _IPMICollector(_BaseCollector):
     """Base class for IPMI statistics collectors."""
 
-    def __init__(self, name):
+    def __init__(self, name: str, pman: LocalProcessManager.LocalProcessManager):
         """Initialize a class instance."""
 
-        super().__init__(name)
+        super().__init__(name, pman=pman, su=True)
 
         if typing.TYPE_CHECKING:
             self.props = cast(_IPMIPropsTypedDict, self.props)
@@ -527,18 +536,18 @@ class _IPMICollector(_BaseCollector):
 class _IPMIInBandCollector(_IPMICollector):
     """The in-band IPMI statistics collector."""
 
-    def __init__(self):
+    def __init__(self, pman: LocalProcessManager.LocalProcessManager):
         """Initialize a class instance."""
 
-        super().__init__("ipmi-inband")
+        super().__init__("ipmi-inband", pman=pman)
 
 class _IPMIOOBCollector(_IPMICollector):
     """The out-of-band IPMI statistics collector."""
 
-    def __init__(self):
+    def __init__(self, pman: LocalProcessManager.LocalProcessManager):
         """Initialize a class instance."""
 
-        super().__init__("ipmi-oob")
+        super().__init__("ipmi-oob", pman=pman)
 
         if typing.TYPE_CHECKING:
             self.props = cast(_IPMIOOBPropsTypedDict, self.props)
@@ -570,10 +579,10 @@ class _IPMIOOBCollector(_IPMICollector):
 class _ACPowerCollector(_BaseCollector):
     """The ACPower statistics collector."""
 
-    def __init__(self):
+    def __init__(self, pman: LocalProcessManager.LocalProcessManager):
         """Initialize a class instance."""
 
-        super().__init__("acpower")
+        super().__init__("acpower", pman=pman)
 
         if typing.TYPE_CHECKING:
             self.props = cast(_ACPowerPropsTypedDict, self.props)
@@ -591,7 +600,7 @@ class _ACPowerCollector(_BaseCollector):
         if typing.TYPE_CHECKING:
             self.props = cast(_ACPowerPropsTypedDict, self.props)
 
-        devnode = self.props['devnode']
+        devnode = self.props["devnode"]
         cmd = f"{self.props['toolpath']} {devnode}"
         if self.props["pmtype"] is not _UNINITIALIZED["str"]:
             cmd += f" --pmtype {self.props['pmtype']}"
@@ -632,6 +641,8 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
         self.failed_collectors: set[str] = set()
         self.name: str = "STCAgent"
 
+        self._pman = LocalProcessManager.LocalProcessManager()
+
         # The labels file object.
         self._lfobj: IO[str] | None = None
 
@@ -654,7 +665,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         self._collectors = {}
 
-        ClassHelpers.close(self, close_attrs=("_lfobj",))
+        ClassHelpers.close(self, close_attrs=("_pman", "_lfobj"))
 
     def _execute_collectors_methods(self, methods: Iterable[str]):
         """
@@ -713,7 +724,8 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             del self._collectors[name]
         self.failed_collectors = set()
 
-        _collector_map: dict[str, Callable[[], _BaseCollector]] = {
+        _collector_map: dict[str, Callable[[LocalProcessManager.LocalProcessManager],
+                                           _BaseCollector]] = {
             "turbostat":   _TurbostatCollector,
             "interrupts":  _InterruptsCollector,
             "ipmi-oob":    _IPMIOOBCollector,
@@ -727,7 +739,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
                 raise Error(f"Unknown statistics name '{name}', use one of:\n{supported}")
             try:
                 _LOG.debug("Creating the %s collector", name)
-                self._collectors[name] = _collector_map[name]()
+                self._collectors[name] = _collector_map[name](self._pman)
             except Error as err:
                 raise type(err)(f"Failed to create the {name} collector:\n"
                                 f"{err.indent(2)}") from err
@@ -1251,7 +1263,7 @@ def _handle_command(cmd: str, stc_agent: _STCAgent) -> str:
             stc_agent.start()
         elif cmd == "stop":
             stc_agent.stop()
-        elif cmd == "add_label":
+        elif cmd == "add-label":
             stc_agent.add_label(args)
         elif cmd == "get-failed-collectors":
             response += f" {','.join(stc_agent.failed_collectors)}"
