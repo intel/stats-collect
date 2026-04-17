@@ -196,7 +196,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         self._span_human = Human.duration(self._span)
         self._pipe: IO[str]
 
-        ProcHelpers.bind_pid(Trivial.get_pid(), cmdl["cpu"])
+        ProcHelpers.bind_pid(Trivial.get_pid(), (cmdl["cpu"],))
 
         try:
             # pylint: disable-next=consider-using-with

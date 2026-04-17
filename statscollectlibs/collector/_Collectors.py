@@ -551,7 +551,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             # Failed to extract socket file path.
             if exitcode is None:
                 with contextlib.suppress(Error):
-                    ProcHelpers.kill_pids([self._stca.pid, ], kill_children=True, must_die=False,
+                    ProcHelpers.kill_pids((self._stca.pid,), kill_children=True, must_die=False,
                                           pman=self._pman)
 
             msg = f"failed to extract socket file path from 'stc-agent' log\n" \

@@ -80,6 +80,7 @@ STC_DEPENDENCIES: Final[tuple[str, ...]] = (
     "pip3",
     "cat",
     "id",
+    "taskset",
     "uname",
     "pgrep",
     "ps")

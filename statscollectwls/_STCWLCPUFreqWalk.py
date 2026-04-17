@@ -226,7 +226,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         """Uninitialize the object."""
 
         if getattr(self, "_proc", False):
-            ProcHelpers.kill_pids(self._proc.pid, kill_children=False, must_die=True,
+            ProcHelpers.kill_pids((self._proc.pid,), kill_children=False, must_die=True,
                                   pman=self._lpman)
             setattr(self, "_proc", None)
 
@@ -253,7 +253,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         Stop the busy loop workload.
         """
 
-        ProcHelpers.kill_pids(self._proc.pid, kill_children=False, must_die=True,
+        ProcHelpers.kill_pids((self._proc.pid,), kill_children=False, must_die=True,
                               pman=self._lpman)
         setattr(self, "_proc", None)
 
