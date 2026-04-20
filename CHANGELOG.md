@@ -5,9 +5,11 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
+ - Fix scatter plot: remove artificial vertical bands.
 ### Added
 ### Removed
 ### Changed
+ - Improve stc-agent robustness.
 
 ## [1.0.66] - 2026-01-08
 ### Added
