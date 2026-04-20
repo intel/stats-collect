@@ -153,7 +153,10 @@ class ScatterPlot(_Plot.Plot):
         # reduced dataframe.
         copy_cols = []
 
-        for idx in range(0, len(df)):
+        # The dataframe may arrive in any order (e.g. sorted by X after a groupby). We want to
+        # select points randomly within each bin, not biased by the input ordering. Shuffle the
+        # indices so that the first 'quota' points we encounter in each bin are a random sample.
+        for idx in numpy.random.permutation(len(df)):
             xidx = xindeces[idx] - 1
             yidx = yindeces[idx] - 1
 

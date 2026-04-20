@@ -210,12 +210,14 @@ class DTabBuilder:
                     self._warn_plot_skip_res(reportid, plottitle, cd["title"])
                     break
             else:
-                # Ignore hover columns if X column has non-unique values. Prefer making them unique
-                # instead.
-                if not hover_cds or not df[xcolname].is_unique:
-                    # Check if there are multiple Y values for the same X value (i.e., the dataframe
-                    # contains duplicate X values). In that case, average the Y values for each X
-                    # value.
+                # Some scatter plots have a discrete X axis: the same X value is measured many
+                # times (e.g. system power measured repeatedly at each wake period setting). In
+                # that case, average the Y values per unique X value so the plot shows a single
+                # clean point per X rather than a vertical column of raw scatter points.
+                # 'is_unique' is False when there are duplicate X values, i.e. the discrete case.
+                # Skip averaging when hover text is requested, since hover text requires individual
+                # data points for meaningful per-point tooltips.
+                if not hover_cds and not df[xcolname].is_unique:
                     hover_cds = []
                     df = df[[xcolname, ycolname]]
                     df = df.groupby(xcolname, as_index=False).mean()
