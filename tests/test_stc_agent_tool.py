@@ -11,6 +11,7 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import time
+import signal
 import socket
 import typing
 import contextlib
@@ -20,6 +21,7 @@ from pepclibs.helperlibs import Trivial, Exceptions
 from pepclibs.helperlibs.Exceptions import Error, ErrorPermissionDenied
 from statscollectlibs.collector import _Collectors
 from statscollectlibs.deploy import DeployHelpersBase
+from statscollectlibs.helperlibs import ProcHelpers
 from statscollectlibs.parsers import InterruptsParser, TurbostatParser
 from tests import _Common
 
@@ -239,10 +241,10 @@ def test_exit_command(params: _TestParamsTypedDict):
         _, _, exitcode = proc.wait(timeout=10)
         assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
 
-def _subtest_interrupts(pman: ProcessManagerType,
-                        sock: socket.socket,
-                        outdir: Path,
-                        interrupts_helper_path: Path):
+def _subtest_start_stop_interrupts(pman: ProcessManagerType,
+                                   sock: socket.socket,
+                                   outdir: Path,
+                                   interrupts_helper_path: Path):
     """
     Run a configure -> start -> stop cycle for the interrupts collector.
 
@@ -276,7 +278,7 @@ def _subtest_interrupts(pman: ProcessManagerType,
     else:
         assert False, f"The interrupts output file '{outfile}' contains no snapshots"
 
-def _subtest_turbostat(pman: ProcessManagerType, sock: socket.socket, outdir: Path):
+def _subtest_start_stop_turbostat(pman: ProcessManagerType, sock: socket.socket, outdir: Path):
     """
     Run a configure -> start -> stop cycle for the turbostat collector.
 
@@ -344,14 +346,156 @@ def test_start_stop(params: _TestParamsTypedDict):
         if interrupts_helper_path is not None:
             subdir = outdir / "interrupts"
             pman.mkdir(subdir)
-            _subtest_interrupts(pman, sock=sock, outdir=subdir,
-                                interrupts_helper_path=interrupts_helper_path)
+            _subtest_start_stop_interrupts(pman, sock=sock, outdir=subdir,
+                                           interrupts_helper_path=interrupts_helper_path)
 
         if turbostat_path is not None:
             subdir = outdir / "turbostat"
             pman.mkdir(subdir)
-            _subtest_turbostat(pman, sock=sock, outdir=subdir)
+            _subtest_start_stop_turbostat(pman, sock=sock, outdir=subdir)
 
         _send_cmd(sock, "exit")
         _, _, exitcode = proc.wait(timeout=10)
         assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
+
+def _configure_collectors(sock: socket.socket,
+                          outdir: Path,
+                          interrupts_helper_path: Path | None,
+                          turbostat_path: Path | None) -> list[Path]:
+    """
+    Configure all available collectors on 'sock', writing output to 'outdir'.
+
+    Args:
+        sock: The connected socket to send commands through.
+        outdir: The directory for collector output files.
+        interrupts_helper_path: Path to the interrupts helper, or 'None' if unavailable.
+        turbostat_path: Path to turbostat, or 'None' if unavailable.
+
+    Returns:
+        The list of binary paths for collectors that were successfully configured.
+    """
+
+    collector_paths: list[Path] = []
+
+    if interrupts_helper_path is not None:
+        try:
+            _send_cmd(sock, "set-stats interrupts")
+            collector_paths.append(interrupts_helper_path)
+        except ErrorPermissionDenied:
+            pass
+
+    if turbostat_path is not None:
+        try:
+            _send_cmd(sock, "set-stats turbostat")
+            collector_paths.append(turbostat_path)
+        except ErrorPermissionDenied:
+            pass
+
+    if interrupts_helper_path in collector_paths:
+        _send_cmd(sock, f"set-collector-property interrupts outdir {outdir}")
+        _send_cmd(sock, f"set-collector-property interrupts logdir {outdir / 'log'}")
+        _send_cmd(sock, "set-collector-property interrupts interval 1")
+        _send_cmd(sock, f"set-collector-property interrupts toolpath {interrupts_helper_path}")
+
+    if turbostat_path in collector_paths:
+        _send_cmd(sock, f"set-collector-property turbostat outdir {outdir}")
+        _send_cmd(sock, f"set-collector-property turbostat logdir {outdir / 'log'}")
+        _send_cmd(sock, "set-collector-property turbostat interval 1")
+
+    _send_cmd(sock, "configure")
+
+    return collector_paths
+
+def test_stale_process_cleanup(params: _TestParamsTypedDict):
+    """
+    Test that stc-agent kills stale collector processes left over from a previous run.
+
+    Scenario:
+     1. Start stc-agent, configure and start all available collectors (interrupts, turbostat).
+     2. Kill stc-agent with SIGKILL so it has no chance to clean up.
+     3. Verify that all collector processes are still running (stale).
+     4. Start a fresh stc-agent and run 'configure' for the same collectors.
+     5. Verify that all stale collector processes have been killed.
+     6. Start the collectors, stop them, then exit stc-agent cleanly.
+     7. Verify that all collector processes have been stopped.
+
+    Args:
+        params: Test parameters including the process manager and 'stc-agent' path.
+    """
+
+    pman = params["pman"]
+    stc_agent_path = params["stc_agent_path"]
+
+    interrupts_helper_path = params["interrupts_helper_path"]
+    turbostat_path = pman.which_or_none("turbostat")
+
+    if interrupts_helper_path is None and turbostat_path is None:
+        pytest.skip("No supported collectors available")
+
+    with contextlib.ExitStack() as stack:
+        proc, port = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_stale_cleanup_"))
+        sock = socket.create_connection((pman.hostname, port), timeout=10)
+
+        configured = _configure_collectors(sock, outdir=outdir,
+                                           interrupts_helper_path=interrupts_helper_path,
+                                           turbostat_path=turbostat_path)
+        if not configured:
+            pytest.skip("No collectors could be configured (insufficient privileges)")
+
+        _send_cmd(sock, "start")
+
+        # Give the collectors a moment to start.
+        time.sleep(1)
+
+        try:
+            # Kill stc-agent with SIGKILL, no cleanup will run.
+            ProcHelpers.signal_pids([proc.pid], pman=pman, sig=signal.SIGKILL, must_die=True,
+                                    interval=0)
+            proc.wait(timeout=5)
+        finally:
+            # Close the socket after killing, the connection is broken so suppress the error.
+            with contextlib.suppress(OSError):
+                sock.close()
+
+        # All collectors must still be running after stc-agent was killed.
+        for path in configured:
+            procs = ProcHelpers.grep_processes(path.name, pman=pman)
+            assert procs, f"Expected '{path.name}' to be running after SIGKILL to stc-agent"
+
+    # Start a fresh stc-agent and configure the same collectors, this should trigger cleanup of the
+    # stale processes.
+    with contextlib.ExitStack() as stack:
+        proc2, port2 = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir2 = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_stale_cleanup2_"))
+        sock2 = stack.enter_context(socket.create_connection((pman.hostname, port2), timeout=10))
+
+        _configure_collectors(sock2, outdir=outdir2,
+                              interrupts_helper_path=interrupts_helper_path,
+                              turbostat_path=turbostat_path)
+
+        # All stale collectors must be gone after the fresh stc-agent configured its collectors.
+        still_running = []
+        for path in configured:
+            still_running.extend(ProcHelpers.grep_processes(path.name, pman=pman))
+
+        assert not still_running, \
+               f"Stale collector processes still running: {still_running}"
+
+        _send_cmd(sock2, "start")
+
+        # Give the collectors a moment to start.
+        time.sleep(1)
+
+        _send_cmd(sock2, "stop")
+        _send_cmd(sock2, "exit")
+        _, _, exitcode = proc2.wait(timeout=10)
+        assert exitcode == 0, f"Second 'stc-agent' exited with code {exitcode}"
+
+    # After a clean exit, all collector processes must have been stopped.
+    still_running = []
+    for path in configured:
+        still_running.extend(ProcHelpers.grep_processes(path.name, pman=pman))
+
+    assert not still_running, \
+           f"Collector processes still running after clean 'stc-agent' exit: {still_running}"
