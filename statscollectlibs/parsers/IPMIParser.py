@@ -33,17 +33,19 @@ class IPMIParser(_ParserBase.ParserBase):
         ts_line = next(self._lines, None).strip()
         match = re.match(ts_regex, ts_line)
         if not match:
-            raise ErrorBadFormat(f"unrecognized raw IPMI statistics file format.\nExpected to find "
-                                 f"the time-stamp (example: 'Timestamp | 1705672515.054093'), got: "
-                                 f"'{ts_line}'")
-        yield (match[1].strip(), get_ts(match[2].strip()), "")
+            raise ErrorBadFormat(f"Bad raw IPMI statistics: expected a timestamp line "
+                                 f"(e.g., 'Timestamp | 1705672515.054093'), got: '{ts_line}'")
+        # Always yield 'Timestamp' (capital T) to normalize old 'timestamp' (lowercase) format.
+        yield ("Timestamp", get_ts(match[2].strip()), "")
 
         for line in self._lines:
             line = line.strip()
             match = re.match(ts_regex, line)
             if match:
                 timestamp = get_ts(match[2].strip())
-                yield (match[1].strip(), timestamp, "")
+                # Always yield 'Timestamp' (capital T) to normalize old 'timestamp' (lowercase)
+                # format.
+                yield ("Timestamp", timestamp, "")
             else:
                 # Example of the string:
                 # System Fan 4     | 2491 RPM          | ok
