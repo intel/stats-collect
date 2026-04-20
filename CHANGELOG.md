@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix failure during report generation.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.68] - 2026-04-20
+### Fixed
+ - Fix failure during report generation.
 
 ## [1.0.67] - 2026-04-20
 ### Fixed

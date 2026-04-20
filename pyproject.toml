@@ -1,6 +1,6 @@
 [project]
 name = "stats-collect"
-version = "1.0.67"
+version = "1.0.68"
 description = "A tool for collecting and visualizing system statistics and telemetry."
 authors = [
     { name = "Artem Bityutskiy", email = "dedekind@gmail.com" }
@@ -25,7 +25,7 @@ dependencies = [
     "Pyarrow",
     "numpy",
     "pandas>=2.1.0",
-    "pepc>=2.0.0",
+    "pepc>=2.0.1",
     "plotly>=5.18.0",
 ]
 
