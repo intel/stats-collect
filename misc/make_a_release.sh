@@ -29,7 +29,7 @@ MAN_DIR="$BASEDIR/statscollectdata/man/man1"
 MD_DIR="$BASEDIR/docs/man"
 
 # Path to the script that prepares CHANGELOG.md for the release.
-PREPARE_CHENGELOG_MD="$BASEDIR/../pepc/misc/prepare_changelog_md"
+PREPARE_CHANGELOG_MD="$BASEDIR/misc/prepare_changelog_md"
 
 fatal() {
         printf "$PROG: error: %s\n" "$1" >&2
@@ -104,23 +104,21 @@ ask_question "Did you run tests"
 ask_question "Did you update 'CHANGELOG.md'"
 
 # Update CHANGELOG.md.
-"$PREPARE_CHENGELOG_MD" "$new_ver" "$CHANGELOG_FILE"
+"$PREPARE_CHANGELOG_MD" "$new_ver" "$CHANGELOG_FILE"
 
 # Change the tool version.
 sed -i -e "s/$VERSION_VAR_REGEX/VERSION\1= \"$new_ver\"/" "$STCOLL_VER_FILE"
 sed -i -e "s/^version = \"$VERSION_REGEX\"$/version = \"$new_ver\"/" "$PYPROJECT_TOML"
 
 # Update the man pages.
-for file in "$MD_DIR"/*.md; do
+for file in $(ls -1 "$MD_DIR"); do
     stem="$(basename "$file" ".md")"
     manfile="${MAN_DIR}/${stem}.1"
     pandoc -f markdown_strict+definition_lists -s \
            -M title="$(echo "$stem" | tr '[:lower:]' '[:upper:]')" \
-           -M section=1 "$file" -t man -o "$manfile"
+           -M section=1 "$MD_DIR/$file" -t man -o "$manfile"
     git add "$manfile"
 done
-
-# Commit the changes.
 git -C "$BASEDIR" commit -a -s -m "Release version $new_ver"
 
 outdir="."
