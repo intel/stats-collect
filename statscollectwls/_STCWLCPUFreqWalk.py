@@ -226,7 +226,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         """Uninitialize the object."""
 
         if getattr(self, "_proc", False):
-            ProcHelpers.kill_pids((self._proc.pid,), kill_children=False, must_die=True,
+            ProcHelpers.signal_pids((self._proc.pid,), include_children=False, must_die=True,
                                   pman=self._lpman)
             setattr(self, "_proc", None)
 
@@ -239,7 +239,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
 
         # Kill any existing busy loop processes started by this tool.
         regex = ".* # stc-wl-cpu-freq-walk.*"
-        ProcHelpers.kill_processes(regex, kill_children=False, log=True,
+        ProcHelpers.signal_processes(regex, include_children=False, log=True,
                                    name=f"{TOOLNAME} busy loop", pman=self._lpman)
 
         # Use a comment at the end of the busy loop command to make it easier to identify the
@@ -253,7 +253,7 @@ class _Runner(ClassHelpers.SimpleCloseContext):
         Stop the busy loop workload.
         """
 
-        ProcHelpers.kill_pids((self._proc.pid,), kill_children=False, must_die=True,
+        ProcHelpers.signal_pids((self._proc.pid,), include_children=False, must_die=True,
                               pman=self._lpman)
         setattr(self, "_proc", None)
 

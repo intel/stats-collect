@@ -551,7 +551,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             # Failed to extract socket file path.
             if exitcode is None:
                 with contextlib.suppress(Error):
-                    ProcHelpers.kill_pids((self._stca.pid,), kill_children=True, must_die=False,
+                    ProcHelpers.signal_pids((self._stca.pid,), include_children=True, must_die=False,
                                           pman=self._pman)
 
             msg = f"failed to extract socket file path from 'stc-agent' log\n" \
@@ -628,13 +628,13 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
         # Kill a possibly running stale 'stc-agent' process.
         msg = f"stale {self._stca_path} process"
         self._stca_search = f"{self._stca_path} --sut-name {self.sutname}"
-        ProcHelpers.kill_processes(self._stca_search, kill_children=True, log=True, name=msg,
+        ProcHelpers.signal_processes(self._stca_search, include_children=True, log=True, name=msg,
                                    pman=self._pman)
         if self._pman.is_remote:
             # Kill a possibly running stale SSH tunnel process.
             msg = "stale stc-agent SSH tunnel process"
             self._ssht_search = f"ssh -L .*:.*stc-agent-{self.sutname}-.* -N"
-            ProcHelpers.kill_processes(self._ssht_search, kill_children=True, log=True, name=msg)
+            ProcHelpers.signal_processes(self._ssht_search, include_children=True, log=True, name=msg)
 
         # Format the command for executing 'stc-agent'.
         self._cmd = f"{self._stca_path} --sut-name {self.sutname}"
@@ -884,14 +884,14 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         if getattr(self, "_ssht", None):
             with contextlib.suppress(Exception):
-                ProcHelpers.kill_processes(self._ssht_search)
+                ProcHelpers.signal_processes(self._ssht_search)
                 self._ssht.close()
             self._ssht = None
 
         if getattr(self, "_pman", None):
             if self._stca:
                 with contextlib.suppress(Exception):
-                    ProcHelpers.kill_processes(self._stca_search, pman=self._pman)
+                    ProcHelpers.signal_processes(self._stca_search, pman=self._pman)
                     self._stca.close()
                 self._stca = None
 

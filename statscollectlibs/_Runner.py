@@ -85,13 +85,13 @@ class Runner(ClassHelpers.SimpleCloseContext):
         if self._cmd_proc and self._cmd_proc.poll() is None:
             _LOG.info("The command is still running%s: attempting to kill it",
                       self._cmd_pman.hostmsg)
-            ProcHelpers.kill_pids((self._cmd_proc.pid,), kill_children=True, must_die=True,
+            ProcHelpers.signal_pids((self._cmd_proc.pid,), include_children=True, must_die=True,
                                   pman=self._cmd_pman)
             self._cmd_proc = None
 
         if self._pipe_proc and self._pipe_proc.poll() is None:
             _LOG.debug("Attempting to kill the named pipe reader process%s", self._cmd_pman.hostmsg)
-            ProcHelpers.kill_pids((self._pipe_proc.pid,), kill_children=True, must_die=True,
+            ProcHelpers.signal_pids((self._pipe_proc.pid,), include_children=True, must_die=True,
                                   pman=self._cmd_pman)
             self._pipe_proc = None
 
@@ -360,11 +360,11 @@ class Runner(ClassHelpers.SimpleCloseContext):
         self.res.write_info()
 
         if self._cmd_proc.poll() is None:
-            ProcHelpers.kill_pids((self._cmd_proc.pid,), kill_children=True, must_die=True,
+            ProcHelpers.signal_pids((self._cmd_proc.pid,), include_children=True, must_die=True,
                                   pman=self._cmd_pman)
         self._cmd_proc = None
 
         if self._pipe_proc and self._pipe_proc.poll() is None:
-            ProcHelpers.kill_pids((self._pipe_proc.pid,), kill_children=True, must_die=True,
+            ProcHelpers.signal_pids((self._pipe_proc.pid,), include_children=True, must_die=True,
                                   pman=self._cmd_pman)
         self._pipe_proc = None
