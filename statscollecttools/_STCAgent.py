@@ -67,45 +67,33 @@ if typing.TYPE_CHECKING:
             fallible: Whether the collector is allowed to fail without causing an error.
             logdir: The directory for collector standard error output.
             interval: The statistics collection interval.
+            toolpath: Path to the collector tool binary.
         """
 
         fallible: bool
         logdir: Path
         interval: str
+        toolpath: Path
 
     class _TurbostatPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
         """
         Properties for the turbostat statistics collector.
 
         Attributes:
-            toolpath: Path to the turbostat binary.
             opts: Extra command-line options to pass to turbostat.
         """
 
-        toolpath: Path
         opts: str
-
-    class _InterruptsPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
-        """
-        Properties for the interrupts statistics collector.
-
-        Attributes:
-            toolpath: Path to the interrupts helper binary.
-        """
-
-        toolpath: Path
 
     class _IPMIPropsTypedDict(_BaseCollectorPropsTypedDict, total=False):
         """
         Base properties for IPMI statistics collectors.
 
         Attributes:
-            toolpath: Path to the IPMI helper binary.
             retries: Number of retries for IPMI commands.
             count: Number of IPMI readings per interval.
         """
 
-        toolpath: Path
         retries: int
         count: int
 
@@ -130,12 +118,10 @@ if typing.TYPE_CHECKING:
         Properties for the AC power statistics collector.
 
         Attributes:
-            toolpath: Path to the yokotool binary.
             devnode: The power meter device node.
             pmtype: The power meter type.
         """
 
-        toolpath: Path
         devnode: str
         pmtype: str
 
@@ -202,14 +188,13 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
     Public methods overview:
 
     - 'configure()': configure the collector, must be called after every property change.
-    - 'kill_stale()': kill stale collector processes that might still be running.
     - 'start()': start collecting the statistics.
     - 'end()': signal the collector process to stop.
     - 'save()': wait for the collector to exit and synchronize the output file.
     - 'validate()': validate the collected data to make sure it is sane.
 
-    The expected usage sequence after initialization is: 'configure()', 'kill_stale()', 'start()',
-    'end()', 'save()', 'validate()'. The sequence can be repeated many times.
+    The expected usage sequence after initialization is: 'configure()', 'start()', 'end()',
+    'save()', 'validate()'. The sequence can be repeated many times.
     """
 
     def __init__(self, name: str, pman: LocalProcessManager.LocalProcessManager, su: bool = False):
@@ -270,7 +255,6 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
         self._valid_start: bytes = b""
         self._valid_end: bytes = b""
         self._signal: signal.Signals = signal.SIGTERM
-        self._stale_search: str = ""
 
     def close(self):
         """Close the collector and release its resources."""
@@ -347,13 +331,18 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
         self._sync()
         self._configured = True
 
-    def kill_stale(self):
-        """Kill stale collector process that might still be running."""
+    def _kill_stale(self, regex: str = ""):
+        """Kill stale collector processes that might still be running."""
 
-        if not self._stale_search:
+        if not regex:
+            toolpath = self.props.get("toolpath")
+            if toolpath:
+                regex = os.path.basename(str(toolpath))
+        if not regex:
             return
 
-        ProcHelpers.kill_processes(self._stale_search, kill_children=True, log=False)
+        ProcHelpers.signal_processes(regex, sig=signal.SIGKILL, include_children=True,
+                                     must_die=True, interval=0)
 
     def start(self):
         """Start collecting the statistics."""
@@ -448,6 +437,9 @@ class _TurbostatCollector(_BaseCollector):
         self.props["toolpath"] = Path("turbostat")
         self.props["opts"] = _UNINITIALIZED["str"]
 
+        # Kill any stale 'turbostat' processes left over from a previous run.
+        self._kill_stale()
+
     def configure(self):
         """Configure the statistics collector."""
 
@@ -461,9 +453,6 @@ class _TurbostatCollector(_BaseCollector):
 
         if self.props["opts"] is not _UNINITIALIZED["str"]:
             self._command += " " + self.props["opts"]
-
-        toolname = os.path.basename(self.props["toolpath"])
-        self._stale_search = f"{toolname} --enable Time_Of_Day_Seconds --interval "
 
         try:
             self._pman.run_verify("modprobe intel_uncore_frequency")
@@ -479,19 +468,16 @@ class _InterruptsCollector(_BaseCollector):
 
         super().__init__("interrupts", pman=pman)
 
-        if typing.TYPE_CHECKING:
-            self.props = cast(_InterruptsPropsTypedDict, self.props)
-
         self.props["toolpath"] = Path("stc-agent-proc-interrupts-helper")
         self._signal = signal.SIGINT
+
+        # Kill any stale interrupts helper processes left over from a previous run.
+        self._kill_stale()
 
     def configure(self):
         """Configure the statistics collector."""
 
         super().configure()
-
-        if typing.TYPE_CHECKING:
-            self.props = cast(_InterruptsPropsTypedDict, self.props)
 
         self._command = f"{self.props['toolpath']} --interval {self.props['interval']}"
 
@@ -525,8 +511,6 @@ class _IPMICollector(_BaseCollector):
         if self.props["count"] is not _UNINITIALIZED["int"]:
             self._command += f" --count '{self.props['count']}'"
 
-        self._stale_search = f"{os.path.basename(self.props['toolpath'])} --interval "
-
 class _IPMIInBandCollector(_IPMICollector):
     """The in-band IPMI statistics collector."""
 
@@ -534,6 +518,9 @@ class _IPMIInBandCollector(_IPMICollector):
         """Initialize a class instance."""
 
         super().__init__("ipmi-inband", pman=pman)
+
+        # Kill any stale in-band IPMI helper processes left over from a previous run.
+        self._kill_stale()
 
 class _IPMIOOBCollector(_IPMICollector):
     """The out-of-band IPMI statistics collector."""
@@ -568,7 +555,8 @@ class _IPMIOOBCollector(_IPMICollector):
         if self.props["interface"] is not _UNINITIALIZED["str"]:
             self._command += f" -I '{self.props['interface']}'"
 
-        self._stale_search += f".*{hostopt}"
+        toolname = os.path.basename(self.props["toolpath"])
+        self._kill_stale(regex=f"{toolname}.*{hostopt}")
 
 class _ACPowerCollector(_BaseCollector):
     """The ACPower statistics collector."""
@@ -608,7 +596,8 @@ class _ACPowerCollector(_BaseCollector):
         if self.props["pmtype"] is not _UNINITIALIZED["str"]:
             cmd += f" --pmtype {self.props['pmtype']}"
 
-        self._stale_search = f"{os.path.basename(self.props['toolpath'])} {devnode}"
+        toolname = os.path.basename(self.props["toolpath"])
+        self._kill_stale(regex=f"{toolname} {devnode}")
 
         # The power meter is assumed to be initialized and configured outside of 'stc-agent'.
         # Only the interval is set here.
@@ -896,7 +885,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
         if self._started:
             raise Error("Statistics collection has been started, cannot configure")
 
-        self._execute_collectors_methods(("configure", "kill_stale"))
+        self._execute_collectors_methods(("configure",))
         _LOG.debug("Configured the collectors")
 
     def add_label(self, args: str):
