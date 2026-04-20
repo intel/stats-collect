@@ -707,12 +707,6 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         _LOG.debug("Creating the following collectors: %s", ",".join(stnames))
 
-        # Close collectors one by one to release their resources before replacing them.
-        for name in list(self._collectors):
-            self._collectors[name].close()
-            del self._collectors[name]
-        self.failed_collectors = set()
-
         _collector_map: dict[str, Callable[[LocalProcessManager.LocalProcessManager],
                                            _BaseCollector]] = {
             "turbostat":   _TurbostatCollector,
@@ -726,12 +720,22 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             if name not in _collector_map:
                 supported = ", ".join(_SUPPORTED_STATS)
                 raise Error(f"Unknown statistics name '{name}', use one of:\n{supported}")
+
+            # Close the existing collector for this name before creating a new one, to avoid
+            # resource conflicts between old and new instances of the same collector.
+            if name in self._collectors:
+                self._collectors[name].close()
+                del self._collectors[name]
+
             try:
                 _LOG.debug("Creating the %s collector", name)
                 self._collectors[name] = _collector_map[name](self._pman)
             except Error as err:
                 raise type(err)(f"Failed to create the {name} collector:\n"
                                 f"{err.indent(2)}") from err
+
+            # Clear the failed status for this collector now that it has been recreated.
+            self.failed_collectors.discard(name)
 
         _LOG.debug("Created the collectors")
 
