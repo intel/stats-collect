@@ -230,6 +230,7 @@ def install_stats_collect(pman: ProcessManagerType,
         installer.install_dependencies(STC_DEPENDENCIES)
 
     installer.install(exclude=STC_COPY_EXCLUDE)
+    installer.create_rc_file()
 
     if not no_rcfile and not no_sudo_alias:
         if force_sudo_alias:
