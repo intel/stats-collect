@@ -55,7 +55,7 @@ care of everything: installing `pepc` (a required dependency), installing OS dep
 the Python virtual environment, configuring shell tab completions, man pages, and adding a `sudo`
 alias if needed.
 
-First, clone the repositories.
+Clone both repositories. The installation script spans both of them:
 
 ```bash
 git clone https://github.com/intel/pepc.git
@@ -66,20 +66,19 @@ cd stats-collect
 **Install the latest release from GitHub**
 
 Run `tools/install-stats-collect` without arguments. It fetches and installs the latest `pepc` and
-`stats-collect` releases directly from GitHub. No additional options needed.
+`stats-collect` releases directly from GitHub. The local clones are only used to run the script.
 
 ```bash
 ./tools/install-stats-collect
 ```
 
-**Install from a local clone**
+**Install from local clones**
 
-Use `--src-path` with the path to the cloned repository to install from local sources instead. If
-`--src-path` is a local path, the script automatically looks for `pepc` sources in the sibling
-directory (`../pepc`).
+Use `--src-path` to install from the local clones instead. The script automatically looks for
+`pepc` sources in the sibling directory (`../pepc`).
 
 ```bash
-./tools/install-stats-collect --src-path /path/to/stats-collect
+./tools/install-stats-collect --src-path .
 ```
 
 The script adds `stats-collect` configuration to your `~/.bashrc`. Re-login or source `~/.bashrc`
