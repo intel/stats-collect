@@ -126,9 +126,11 @@ class ScatterPlot(_Plot.Plot):
         hist = pandas.DataFrame(hist, dtype=int)
 
         hist_max = hist.max().max()
-        if hist_max <= lo_thresh:
-            _LOG.debug("Cancel density reduction: max frequency for '%s vs %s' is %d, but scaling "
-                       "threshold is %d", self.yaxis_label, self.xaxis_label, hist_max, lo_thresh)
+        if hist_max <= hi_thresh:
+            # The densest bin already has at most 'hi_thresh' points, so no bin needs reducing.
+            _LOG.debug("Cancel density reduction: max frequency for '%s vs %s' is %d, at or below "
+                       "the hi threshold of %d", self.yaxis_label, self.xaxis_label, hist_max,
+                       hi_thresh)
             return rawdf
 
         # The histogram scaling factor.
