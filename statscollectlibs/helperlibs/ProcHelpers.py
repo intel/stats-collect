@@ -178,7 +178,8 @@ def signal_pids(pids: Iterable[int],
                 sig: signal.Signals = signal.SIGTERM,
                 include_children: bool = False,
                 must_die: bool = False,
-                interval: float = 0.1):
+                interval: float = 0.1,
+                su: bool = False):
     """
     Send signal 'sig' to processes in 'pids'.
 
@@ -193,6 +194,7 @@ def signal_pids(pids: Iterable[int],
                   'sig' is 'SIGTERM', also escalates to 'SIGKILL' if processes do not exit within
                   the timeout. Only valid with 'SIGTERM' and 'SIGKILL'.
         interval: Number of seconds to sleep between polls when waiting for processes to exit.
+        su: If 'True', run the kill command with superuser privileges.
 
     Notes:
         - When 'must_die' is 'False', the signal is sent and the function returns immediately
@@ -221,7 +223,7 @@ def signal_pids(pids: Iterable[int],
                    sig.name, wpman.hostmsg, pids_comma)
 
         try:
-            wpman.run_verify(f"kill -{sig.value} -- {pids_space}")
+            wpman.run_verify(f"kill -{sig.value} -- {pids_space}", su=su)
         except Error as err:
             if not killing:
                 raise Error(f"Failed to send signal '{sig.name}' to the following PIDs"
@@ -256,7 +258,7 @@ def signal_pids(pids: Iterable[int],
 
             try:
                 pids_space = " ".join(str(p) for p in pids_list)
-                wpman.run_verify(f"kill -9 -- {pids_space}")
+                wpman.run_verify(f"kill -9 -- {pids_space}", su=su)
             except Error as err:
                 # It is fine if one of the processes exited meanwhile.
                 if "No such process" not in str(err):
@@ -325,7 +327,8 @@ def signal_processes(regex: str | re.Pattern[str],
                      interval: float = 0.1,
                      log: bool = False,
                      name: str = "",
-                     pman: ProcessManagerType | None = None) -> list[tuple[int, str]]:
+                     pman: ProcessManagerType | None = None,
+                     su: bool = False) -> list[tuple[int, str]]:
     """
     Send signal 'sig' to all processes matching 'regex'.
 
@@ -345,6 +348,7 @@ def signal_processes(regex: str | re.Pattern[str],
               is 'True'. Defaults to "the following process(es)" when empty.
         pman: The process manager object that defines the system to search for processes on
               (local host by default).
+        su: If 'True', run the kill command with superuser privileges.
 
     Returns:
         A list of '(pid, command_line)' tuples for each signalled process, or an empty list if
@@ -366,5 +370,5 @@ def signal_processes(regex: str | re.Pattern[str],
                       sig.name, name, wpman.hostmsg, pids_str)
 
         signal_pids(pids, pman=wpman, sig=sig, include_children=include_children,
-                    must_die=must_die, interval=interval)
+                    must_die=must_die, interval=interval, su=su)
         return procs
