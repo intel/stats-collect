@@ -330,16 +330,12 @@ class InterruptsParser:
 
             try:
                 yield from self._parse_line(line)
-            except ErrorBadFormat:
-                if line == "stc-agent-proc-interrupts-helper: error: interrupted, exiting":
-                    # This is the message from 'proc-interrupts-handler' when it is interrupted, and
-                    # this indicates the end of the interrupts statistics.
+            except ErrorBadFormat as err:
+                if line == "Interrupted, exiting":
+                    # The helper prints this when interrupted via a signal.
                     break
-                # TODO: compatibility code, remove in 2026. The helper was called
-                # 'proc-interrupts-helper' in the past.
-                if line == "proc-interrupts-helper: error: interrupted, exiting":
-                    break
-                raise
+                raise type(err)(f"Failed to parse '/proc/interrupts' line '{line}':\n"
+                                f"{err.indent(2)}") from err
 
         if self._yielded_cnt == 0:
             if not self._dataset.get("timestamp"):
