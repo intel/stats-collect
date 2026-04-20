@@ -5,7 +5,7 @@ vim: ts=4 sw=4 tw=100 et ai si
 Copyright (C) 2022-2024 Intel, Inc.
 SPDX-License-Identifier: BSD-3-Clause
 
-Author: Adam Hawley <adam.james.hawley@intel.com>
+Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 -->
 
 # Introduction
@@ -15,59 +15,11 @@ collects system statistics and telemetry, and visualizes them. It’s for debugg
 purposes only. It is for lab usage, not for production usage. The users are software engineers
 debugging a problem in the Linux operating system.
 
-# Installation
+## Installation
 
-Note, while 'stats-collect' is available via OS packages, they typically do not provide the latest
-version. Use the "pip" installation method to get the latest 'stats-collect' version.
+See [docs/guide-install.md](docs/guide-install.md) for full installation instructions.
 
-## Dependency on 'pepc'
-
-Note, the 'stats-collect' project is dependent on the ['pepc' tool](https://github.com/intel/pepc).
-
-This means that you will need to install 'pepc' before installing 'stats-collect'. Please check the
-['pepc' documentation](https://github.com/intel/pepc#installation) for information on how to install
-it.
-
-## Fedora
-
-'stats-collect' is available on Fedora 38 and Fedora 39. To install 'stats-collect', run
-
-```bash
-sudo dnf install stats-collect
-```
-
-Fedora packages are maintained by Ali Erdinç Köroğlu <ali.erdinc.koroglu@intel.com>.
-
-In case of Fedora 37 or older Fedora, use the 'pip' installation method.
-
-## CentOS, Ubuntu and Debian
-
-We do not provide CentOS/Ubuntu/Debian packages, so you'll need to use the 'pip' installation method.
-
-## Installing with 'pip'
-
-Run the following command:
-
-```
-sudo pip3 install --upgrade git+https://github.com/intel/stats-collect.git@release
-```
-
-This command will download 'stats-collect' from the 'release' branch of the git repository and
-install it to the system.
-
-The other way of doing this is by first cloning the git repository and running
-
-```
-git clone https://github.com/intel/stats-collect.git --branch release stats-collect
-cd stats-collect
-pip3 install --upgrade .
-```
-
-Note, 'stats-collect' has to be run with superuser (root) privileges in many cases, and if you
-install it with the '--user' option of 'pip3', it won't work "out of the box". This is why we do not
-recommend using '--user'.
-
-# Basic Usage
+## Basic Usage
 
 Below outlines basic local usage of the 'stats-collect' tool involving how to collect and visualise
 statistics.
@@ -75,7 +27,7 @@ statistics.
 All of the commands listed below can be used in conjunction with the `-h` option to learn more about
 the command and other options that can be used with it.
 
-## Start Statistics Collection
+### Start Statistics Collection
 
 Start statistics collection using the `stats-collect start` command.
 
@@ -84,21 +36,21 @@ A command must be passed to `stats-collect start` to run on the system during th
 
 Note that below the optional `-o` argument is used to specify an output directory.
 
-```
+```bash
 stats-collect start -o stats-result 'sleep 30'
 ```
 
-## Generate Report
+### Generate Report
 
 Generate an HTML report to visualise the statistics collected using `stats-collect start`.
 
-```
+```bash
 stats-collect report stats-result
 ```
 
 To view the report, open the 'index.html' file in the report directory in a browser.
 
-# Remote Usage
+## Remote Usage
 
 `stats-collect` can be used to collect statistics on a remote system. Generally, the process is very
 similar to the local usage but there are some differences.
@@ -108,16 +60,16 @@ documentation purposes, the example comands below will use a placeholder name 'S
 please replace any instances of 'SUTNAME' with the name of the system you are trying to measure
 before running the commands.**
 
-## Deploy 'stats-collect'
+### Deploy 'stats-collect'
 
 Before collecting statistics with 'stats-collect' start, 'stats-collect deploy' should be used. This
 is to deploy the 'stats-collect' helpers to the system which are required to collect statistics.
 
-```
+```bash
 stats-collect deploy -H SUTNAME
 ```
 
-## Start Remote Statistics Collection
+### Start Remote Statistics Collection
 
 The statistics collection step is very similar to the equivalent step in local usage. However it
 differs because it requires the host option `-H SUTNAME` (like in the previous deployment step).
@@ -125,30 +77,24 @@ differs because it requires the host option `-H SUTNAME` (like in the previous d
 See [local usage](#start-statistics-collection), for more information on the other elements of this
 command.
 
-```
+```bash
 stats-collect start -H SUTNAME -o stats-result 'sleep 30'
 ```
 
-## Generate Report Containing Remote Data
+### Generate Report Containing Remote Data
 
 Generating a report for remote data works exactly the same way as locally. Remember to make sure
 that the result directory you specify is the same as the directory passed as the output directory
 the statistics collection step (using the `-o` option).
 
-```
+```bash
 stats-collect report stats-result
 ```
 
-# Documentation
+## Documentation
 
 For more information, documentation is available for each 'stats-collect' command accordingly:
- * `stats-collect deploy` - [Documentation](docs/stats-collect-deploy.rst)
- * `stats-collect start` - [Documentation](docs/stats-collect-start.rst)
- * `stats-collect report` - [Documentation](docs/stats-collect-report.rst)
 
-# Authors and contributors
-
-* Artem Bityutskiy <dedekind1@gmail.com> - original author, project maintainer.
-* Antti Laakso <antti.laakso@linux.intel.com> - contributor, project maintainer.
-* Adam Hawley <adam.james.hawley@intel.com> - contributor.
-* Niklas Neronin <niklas.neronin@intel.com> - contributor.
+* `stats-collect deploy` - [Documentation](docs/stats-collect-deploy.rst)
+* `stats-collect start` - [Documentation](docs/stats-collect-start.rst)
+* `stats-collect report` - [Documentation](docs/stats-collect-report.rst)
