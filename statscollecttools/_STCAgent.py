@@ -341,8 +341,10 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
         if not regex:
             return
 
+        # When the collector runs with superuser privileges, its stale processes also run as root,
+        # so the kill must be issued with the same privileges.
         ProcHelpers.signal_processes(regex, sig=signal.SIGKILL, include_children=True,
-                                     must_die=True, interval=0)
+                                     must_die=True, interval=0, su=self._su)
 
     def start(self):
         """Start collecting the statistics."""
