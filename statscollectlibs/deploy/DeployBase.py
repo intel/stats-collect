@@ -91,9 +91,9 @@ if typing.TYPE_CHECKING:
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
 # The supported installable categories.
-_CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers": "kernel driver",
-                                                     "shelpers": "simple helper program",
-                                                     "pyhelpers": "python helper program"}
+CATEGORIES: dict[InstallableCategoriesType, str] = {"drivers": "kernel driver",
+                                                    "shelpers": "simple helper program",
+                                                    "pyhelpers": "python helper program"}
 
 def _get_deploy_cmd(pman: ProcessManagerType, toolname: str) -> str:
     """
@@ -225,7 +225,7 @@ def _get_insts_cats(deploy_info: DeployInfoTypedDict) -> \
     """
 
     insts: dict[str, InstallableInfoTypedDict] = {}
-    cats: dict[str, dict[str, InstallableInfoTypedDict]] = {cat: {} for cat in _CATEGORIES}
+    cats: dict[str, dict[str, InstallableInfoTypedDict]] = {cat: {} for cat in CATEGORIES}
 
     for name, info in deploy_info["installables"].items():
         _info = copy.deepcopy(info)
@@ -238,7 +238,7 @@ def _get_insts_cats(deploy_info: DeployInfoTypedDict) -> \
 
         # Add category description to the installable information dictionary.
         catname = info["category"]
-        info["category_descr"] = _CATEGORIES[catname]
+        info["category_descr"] = CATEGORIES[catname]
 
         insts[name] = info
         cats[catname][name] = info
