@@ -118,7 +118,7 @@ _BAD_INPUT: dict[str, str] = {
 
     "Too short input #3": """Timestamp: 1234567890.1
 CPU1 CPU2
-stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
+Interrupted, exiting""",
 
     "Too short input #4": "",
 
@@ -184,7 +184,7 @@ CPU1 CPU2
 1: 1 3
 Timestamp: 1234567890.2
 CPU1 CPU2
-stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
+Interrupted, exiting""",
     },
 
     "Good input #5": {
@@ -195,7 +195,7 @@ CPU1
 Timestamp: 1234567890.2
 CPU1
 1: 2
-stc-agent-proc-interrupts-helper: error: interrupted, exiting""",
+Interrupted, exiting""",
     },
 }
 
@@ -228,7 +228,7 @@ CPU1 CPU2
 timestamp: 1234567890.2
 CPU1 CPU2
 1: 2 4
-stc-agent-proc-interrupts-helper: error: interrupted, exiting"""
+Interrupted, exiting"""
 
     parser = InterruptsParser.InterruptsParser(lines=iter(old_format_input.splitlines()))
     cnt = 0
