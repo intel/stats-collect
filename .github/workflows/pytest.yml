@@ -52,8 +52,6 @@ jobs:
       - name: "Install dependencies"
         run: |
             python -m pip install --upgrade pip
-            pepc_url=$(echo "${{ github.server_url }}/${{ github.repository }}" | sed 's/stats-collect/pepc/')
-            pip install --upgrade "git+${pepc_url}.git"
             pip install --upgrade .
             pip install pytest coverage
 

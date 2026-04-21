@@ -38,8 +38,9 @@ jobs:
           printf "DEBUG: github.event_name='%s'\n" "${{ github.event_name }}"
           printf "DEBUG: from='%s'\n" "$from"
 
-          # List all commits in the range and display them
-          git rev-list --pretty=oneline "$from..HEAD" --
+          # List all commits in the range; skip if 'from' is not reachable.
+          git cat-file -e "${from}^{commit}" 2>/dev/null &&
+            git rev-list --pretty=oneline "$from..HEAD" -- || true
 
       - name: "Set up Python ${{ inputs.python_version }}"
         uses: actions/setup-python@v5
@@ -50,9 +51,6 @@ jobs:
       - name: "Install dependencies"
         run: |
           python -m pip install --upgrade pip
-
-          pepc_url=$(echo "${{ github.server_url }}/${{ github.repository }}" | sed 's/stats-collect/pepc/')
-          pip install --upgrade "git+${pepc_url}.git"
           pip install --upgrade .
           pip install ruff
 
@@ -73,10 +71,16 @@ jobs:
 
           # Find modified files, filter for Python scripts, and save them to modified-files.
           # Exclude .md files which may be misdetected as Python due to code examples.
-          git diff-tree --diff-filter=d --no-commit-id --name-status -r "$from..HEAD" | \
-            cut -f2- | xargs -r file -Ni -- | \
-            sed -n -e 's#: text/x-script.python;.*##p' | \
-            { grep -v '\.md$' || true; } > .tmp/modified-files
+          # If 'from' is not reachable (e.g. first push to a new remote), fall back to all
+          # tracked Python files.
+          if git cat-file -e "${from}^{commit}" 2>/dev/null; then
+            git diff-tree --diff-filter=d --no-commit-id --name-status -r "$from..HEAD" | \
+              cut -f2- | xargs -r file -Ni -- | \
+              sed -n -e 's#: text/x-script.python;.*##p' | \
+              { grep -v '\.md$' || true; } > .tmp/modified-files
+          else
+            git ls-files '*.py' > .tmp/modified-files
+          fi
 
           echo "Files to check:"
           cat .tmp/modified-files
