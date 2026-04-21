@@ -83,7 +83,7 @@ jobs:
 
       - name: "Run pytest to execute tests and collect coverage data"
         run: |
-            coverage run --module pytest -v
+            coverage run --module pytest -v --log-cli-level=DEBUG
         env:
           SHELL: /bin/sh
 
