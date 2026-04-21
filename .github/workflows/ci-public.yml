@@ -32,3 +32,5 @@ jobs:
   pytest:
     if: ${{ github.repository_owner != 'intel-innersource' }}
     uses: ./.github/workflows/pytest.yml
+    with:
+      pepc_repo: intel/pepc

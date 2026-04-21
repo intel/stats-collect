@@ -8,6 +8,13 @@ on:
         type: string
         required: false
         default: 'ubuntu-latest'
+      pepc_repo:
+        type: string
+        required: false
+        default: 'intel-innersource/applications.validation.server-powerlab.pepc'
+    secrets:
+      PEPC_READ_TOKEN:
+        required: false
 
 # Define the jobs to run in this workflow
 jobs:
@@ -49,9 +56,28 @@ jobs:
 #            nproc=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || echo 1)
 #            [ "$nproc" -le 16 ] || nproc=16
 #            pytest -v --numprocesses "$nproc" --cov=statscollectlibs --cov=statscollecttools --cov=statscollectwls --cov-append
+      - name: "Checkout pepc"
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.pepc_repo }}
+          token: ${{ secrets.PEPC_READ_TOKEN }}
+          path: pepc
+
+      # The workspace directory is the stats-collect checkout (not a parent of it), so 'path: pepc'
+      # places pepc inside stats-collect. But tests require both projects at the same level:
+      #   Actual layout:          Required layout:
+      #     parent/                 parent/
+      #     └── stats-collect/      ├── stats-collect/
+      #         ├── pepc/           │   └── <sources>
+      #         └── <sources>       └── pepc/  <- symlink to stats-collect/pepc/
+      # Create a symlink one level up to achieve the required layout.
+      - name: "Create pepc sibling symlink"
+        run: ln -s "$GITHUB_WORKSPACE/pepc" "${GITHUB_WORKSPACE%/*}/pepc"
+
       - name: "Install dependencies"
         run: |
             python -m pip install --upgrade pip
+            pip install --upgrade ./pepc
             pip install --upgrade .
             pip install pytest coverage
 

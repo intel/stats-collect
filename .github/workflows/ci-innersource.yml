@@ -23,21 +23,29 @@ jobs:
     uses: ./.github/workflows/mypy.yml
     with:
       runs_on: innersource.prod.amr.dind
+    secrets:
+      PEPC_READ_TOKEN: ${{ secrets.PEPC_READ_TOKEN }}
 
   pylint:
     if: ${{ github.repository_owner == 'intel-innersource' }}
     uses: ./.github/workflows/pylint.yml
     with:
       runs_on: innersource.prod.amr.dind
+    secrets:
+      PEPC_READ_TOKEN: ${{ secrets.PEPC_READ_TOKEN }}
 
   ruff:
     if: ${{ github.repository_owner == 'intel-innersource' }}
     uses: ./.github/workflows/ruff.yml
     with:
       runs_on: innersource.prod.amr.dind
+    secrets:
+      PEPC_READ_TOKEN: ${{ secrets.PEPC_READ_TOKEN }}
 
   pytest:
     if: ${{ github.repository_owner == 'intel-innersource' }}
     uses: ./.github/workflows/pytest.yml
     with:
       runs_on: innersource.prod.amr.dind
+    secrets:
+      PEPC_READ_TOKEN: ${{ secrets.PEPC_READ_TOKEN }}
