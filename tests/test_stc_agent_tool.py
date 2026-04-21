@@ -11,6 +11,7 @@
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
 import time
+import json
 import signal
 import socket
 import typing
@@ -555,10 +556,12 @@ def test_failed_collectors(params: _TestParamsTypedDict):
         # Prefer turbostat as the victim; fall back to the interrupts helper.
         if turbostat_path in configured:
             victim_name = "turbostat"
-            victim_regex = "turbostat"
+            assert turbostat_path is not None
+            victim_regex = turbostat_path.name
             victim_su = True
         else:
             victim_name = "interrupts"
+            assert interrupts_helper_path is not None
             victim_regex = interrupts_helper_path.name
             victim_su = False
 
@@ -585,3 +588,80 @@ def test_failed_collectors(params: _TestParamsTypedDict):
         _send_cmd(sock, "exit")
         _, _, exitcode = proc.wait(timeout=10)
         assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
+
+def test_labels(params: _TestParamsTypedDict):
+    """
+    Test that 'add-label' writes labels to 'labels.txt' in the agent output directory.
+
+    Scenario:
+     1. Start stc-agent, configure collectors, and set the agent output directory.
+     2. Start collection and add two labels with distinct names.
+     3. Verify that invalid labels are rejected: reserved 'ts' key, non-alphanumeric name,
+        malformed JSON.
+     4. Stop and exit stc-agent cleanly.
+     5. Verify 'labels.txt' exists and contains exactly the two valid labels, each with a
+        'name' and a 'ts' field.
+
+    Args:
+        params: Test parameters including the process manager and 'stc-agent' path.
+    """
+
+    pman = params["pman"]
+    stc_agent_path = params["stc_agent_path"]
+    interrupts_helper_path = params["interrupts_helper_path"]
+    turbostat_path = pman.which_or_none("turbostat")
+
+    if interrupts_helper_path is None and turbostat_path is None:
+        pytest.skip("No supported collectors available")
+
+    with contextlib.ExitStack() as stack:
+        proc, port = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_labels_"))
+        sock = stack.enter_context(socket.create_connection((pman.hostname, port), timeout=10))
+
+        configured = _configure_collectors(sock, outdir=outdir,
+                                           interrupts_helper_path=interrupts_helper_path,
+                                           turbostat_path=turbostat_path)
+        if not configured:
+            pytest.skip("No collectors could be configured (insufficient privileges)")
+
+        # Set the agent output directory where 'labels.txt' will be written.
+        _send_cmd(sock, f"set-agent-property outdir {outdir}")
+
+        _send_cmd(sock, "start")
+
+        _send_cmd(sock, 'add-label {"name": "warmup"}')
+        _send_cmd(sock, 'add-label {"name": "measurement"}')
+
+        # Error: 'ts' is a reserved key.
+        with pytest.raises(Error):
+            _send_cmd(sock, 'add-label {"name": "bad", "ts": 0}')
+
+        # Error: label name must be alphanumeric.
+        with pytest.raises(Error):
+            _send_cmd(sock, 'add-label {"name": "bad-name"}')
+
+        # Error: malformed JSON.
+        with pytest.raises(Error):
+            _send_cmd(sock, "add-label not-json")
+
+        _send_cmd(sock, "stop")
+        _send_cmd(sock, "exit")
+        _, _, exitcode = proc.wait(timeout=10)
+        assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
+
+        # Verify that 'labels.txt' was created and contains exactly the two valid labels.
+        labels_path = outdir / "labels.txt"
+        assert pman.exists(labels_path), f"Labels file '{labels_path}' was not created"
+
+        raw = pman.read_file(labels_path)
+        label_lines = [ln for ln in raw.splitlines() if ln and not ln.startswith("#")]
+        assert len(label_lines) == 2, \
+               f"Expected 2 labels in '{labels_path}', got {len(label_lines)}"
+
+        expected_names = ["warmup", "measurement"]
+        for line, expected_name in zip(label_lines, expected_names):
+            label = json.loads(line)
+            assert label.get("name") == expected_name, \
+                   f"Expected label name '{expected_name}', got: {line!r}"
+            assert "ts" in label, f"Label line missing 'ts' key: {line!r}"
