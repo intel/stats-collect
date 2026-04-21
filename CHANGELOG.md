@@ -9,6 +9,10 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Removed
 ### Changed
 
+## [1.0.69] - 2026-04-21
+### Fixed
+ - Fix turbostat parser crash when TDP is 0.
+
 ## [1.0.68] - 2026-04-20
 ### Fixed
  - Fix failure during report generation.
