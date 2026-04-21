@@ -194,6 +194,23 @@ def _send_cmd(sock: socket.socket, cmd: str):
 
     raise err_class(f"Command {cmd!r} failed: {err_msg}")
 
+def _get_failed_collectors(sock: socket.socket) -> list[str]:
+    """
+    Send 'get-failed-collectors' and return the list of failed collector names.
+
+    Args:
+        sock: The connected socket to send the command through.
+
+    Returns:
+        The list of collector names reported as failed, or an empty list if none have failed.
+    """
+
+    sock.sendall(b"get-failed-collectors" + _Collectors.DELIMITER)
+    msg = _recv_msg(sock)
+    assert msg.startswith("OK"), f"'get-failed-collectors' command failed: {msg}"
+    data = msg[len("OK"):].strip()
+    return Trivial.split_csv_line(data)
+
 @contextlib.contextmanager
 def _start_stc_agent(pman: ProcessManagerType,
                      stc_agent_path: Path) -> Generator[tuple[ProcessType, int], None, None]:
@@ -466,11 +483,11 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
     # Start a fresh stc-agent and configure the same collectors, this should trigger cleanup of the
     # stale processes.
     with contextlib.ExitStack() as stack:
-        proc2, port2 = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
-        outdir2 = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_stale_cleanup2_"))
-        sock2 = stack.enter_context(socket.create_connection((pman.hostname, port2), timeout=10))
+        proc, port = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_stale_cleanup2_"))
+        sock = stack.enter_context(socket.create_connection((pman.hostname, port), timeout=10))
 
-        _configure_collectors(sock2, outdir=outdir2,
+        _configure_collectors(sock, outdir=outdir,
                               interrupts_helper_path=interrupts_helper_path,
                               turbostat_path=turbostat_path)
 
@@ -482,14 +499,14 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
         assert not still_running, \
                f"Stale collector processes still running: {still_running}"
 
-        _send_cmd(sock2, "start")
+        _send_cmd(sock, "start")
 
         # Give the collectors a moment to start.
         time.sleep(1)
 
-        _send_cmd(sock2, "stop")
-        _send_cmd(sock2, "exit")
-        _, _, exitcode = proc2.wait(timeout=10)
+        _send_cmd(sock, "stop")
+        _send_cmd(sock, "exit")
+        _, _, exitcode = proc.wait(timeout=10)
         assert exitcode == 0, f"Second 'stc-agent' exited with code {exitcode}"
 
     # After a clean exit, all collector processes must have been stopped.
@@ -499,3 +516,72 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
 
     assert not still_running, \
            f"Collector processes still running after clean 'stc-agent' exit: {still_running}"
+
+def test_failed_collectors(params: _TestParamsTypedDict):
+    """
+    Test that 'get-failed-collectors' reports collectors that died during a run.
+
+    Scenario:
+     1. Start stc-agent and configure collectors (prefer turbostat, fall back to interrupts).
+     2. Start collection.
+     3. Verify the victim collector is running, then kill it externally.
+     4. Send 'stop' - it must succeed, but the victim must appear in 'get-failed-collectors'.
+     5. Verify that 'get-failed-collectors' reports the victim collector name.
+     6. Send 'exit' and verify stc-agent exits cleanly.
+
+    Args:
+        params: Test parameters including the process manager and 'stc-agent' path.
+    """
+
+    pman = params["pman"]
+    stc_agent_path = params["stc_agent_path"]
+    interrupts_helper_path = params["interrupts_helper_path"]
+    turbostat_path = pman.which_or_none("turbostat")
+
+    if interrupts_helper_path is None and turbostat_path is None:
+        pytest.skip("No supported collectors available")
+
+    with contextlib.ExitStack() as stack:
+        proc, port = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_failed_collectors_"))
+        sock = stack.enter_context(socket.create_connection((pman.hostname, port), timeout=10))
+
+        configured = _configure_collectors(sock, outdir=outdir,
+                                           interrupts_helper_path=interrupts_helper_path,
+                                           turbostat_path=turbostat_path)
+        if not configured:
+            pytest.skip("No collectors could be configured (insufficient privileges)")
+
+        # Prefer turbostat as the victim; fall back to the interrupts helper.
+        if turbostat_path in configured:
+            victim_name = "turbostat"
+            victim_regex = "turbostat"
+            victim_su = True
+        else:
+            victim_name = "interrupts"
+            victim_regex = interrupts_helper_path.name
+            victim_su = False
+
+        _send_cmd(sock, "start")
+
+        # Give the collectors a moment to start.
+        time.sleep(1)
+
+        # Verify the victim is running, then kill it externally so stc-agent is unaware.
+        procs = ProcHelpers.grep_processes(victim_regex, pman=pman)
+        assert procs, f"Expected '{victim_regex}' to be running after 'start'"
+        victim_pids = [pid for pid, _ in procs]
+        ProcHelpers.signal_pids(victim_pids, pman=pman, sig=signal.SIGKILL, must_die=True,
+                                interval=0, su=victim_su)
+
+        # 'stop' must succeed even though the victim exited prematurely.
+        _send_cmd(sock, "stop")
+
+        # The victim must be reported as a failed collector.
+        failed = _get_failed_collectors(sock)
+        assert victim_name in failed, \
+               f"Expected '{victim_name}' in 'get-failed-collectors' response, got: {failed}"
+
+        _send_cmd(sock, "exit")
+        _, _, exitcode = proc.wait(timeout=10)
+        assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
