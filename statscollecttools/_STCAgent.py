@@ -181,6 +181,9 @@ class _ExitCommand(Exception):
 class _NoClientTimeout(Exception):
     """Raise when no client connects within '_NO_CLIENT_TIMEOUT' seconds."""
 
+class _PrematureExitError(Error):
+    """Raise when a collector process exits before it was asked to stop."""
+
 class _BaseCollector(ClassHelpers.SimpleCloseContext):
     """
     The base class for statistics collectors.
@@ -366,8 +369,9 @@ class _BaseCollector(ClassHelpers.SimpleCloseContext):
 
         exitcode = self._proc.poll()
         if exitcode is not None:
-            self._error("The following command exited prematurely with exit code %d:\n%s",
-                        exitcode, self._command)
+            raise _PrematureExitError(f"The '{self.name}' statistics collector failed:\n"
+                                      f"The following command exited prematurely with exit code "
+                                      f"{exitcode}:\n{self._command}")
 
         try:
             pgid = Trivial.get_pgid(self._proc.pid)
@@ -667,8 +671,10 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
 
         Notes:
             - Collectors that have previously failed are skipped.
-            - If a method raises an 'Error' and the collector is fallible, the error is logged and
-              execution continues. Otherwise it is re-raised.
+            - If a method raises '_PrematureExitError', the failure is always non-fatal: the
+              collector is added to 'failed_collectors' and execution continues.
+            - If a method raises any other 'Error' subclass and the collector is fallible, the
+              error is logged and execution continues. Otherwise it is re-raised.
         """
 
         for method in methods:
@@ -686,7 +692,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
                     self.failed_collectors.add(collector.name)
                     errmsg = f"The '{method}' method of the {collector.name} collector failed:\n" \
                              f"{err.indent(2)}"
-                    if collector.props["fallible"]:
+                    if isinstance(err, _PrematureExitError) or collector.props["fallible"]:
                         _LOG.debug(errmsg)
                     else:
                         raise type(err)(errmsg) from err
