@@ -259,6 +259,38 @@ def test_exit_command(params: _TestParamsTypedDict):
         _, _, exitcode = proc.wait(timeout=10)
         assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
 
+def test_bad_command(params: _TestParamsTypedDict):
+    """
+    Test that 'stc-agent' responds with 'Bad command: <cmd>' for unrecognised commands.
+
+    Scenario:
+     1. Start stc-agent and connect.
+     2. Send an unrecognised command directly over the socket (bypassing '_send_cmd' so
+        that the raw protocol response can be inspected).
+     3. Verify the response starts with 'Bad command:'.
+     4. Verify the server stays alive and exits cleanly afterwards.
+
+    Args:
+        params: Test parameters including the process manager and 'stc-agent' path.
+    """
+
+    pman = params["pman"]
+    stc_agent_path = params["stc_agent_path"]
+
+    with _start_stc_agent(pman, stc_agent_path=stc_agent_path) as (proc, port):
+        with socket.create_connection((pman.hostname, port), timeout=10) as sock:
+            # Send an unrecognised command and inspect the raw response.
+            sock.sendall(b"garbage-xyz-command" + _Collectors.DELIMITER)
+            msg = _recv_msg(sock)
+            assert msg.startswith("Bad command:"), \
+                   f"Expected 'Bad command:' response for unknown command, got: {msg!r}"
+
+            # The server must stay alive after the bad command.
+            _send_cmd(sock, "exit")
+
+        _, _, exitcode = proc.wait(timeout=10)
+        assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
+
 def _subtest_start_stop_interrupts(pman: ProcessManagerType,
                                    sock: socket.socket,
                                    outdir: Path,
