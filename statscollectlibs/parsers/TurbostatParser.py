@@ -387,12 +387,20 @@ class TurbostatParser(_ParserBase.ParserBase):
             if "Time_Of_Day_Seconds" not in self._heading2type:
                 self._time_elapsed_metric = None
 
+        if self._tdp is None:
+            tdp = self._nontable.get("TDP", 0)
+            if tdp:
+                self._tdp = tdp
+            else:
+                self._tdp = 1000
+                _LOG.notice("TDP is unknown, assuming %dW for power sanity check", self._tdp)
+
         if self._pkgwatt_tdp_metric:
             if "PkgWatt" not in self._heading2type:
                 self._pkgwatt_tdp_metric = None
-            if "TDP" not in self._nontable:
+            if "TDP" not in self._nontable or self._nontable["TDP"] == 0:
                 if "PkgWatt" in self._heading2type:
-                    _LOG.warning("TDP was not found, drop the '%s' derivative metric",
+                    _LOG.warning("TDP was not found or is zero, drop the '%s' derivative metric",
                                  self._pkgwatt_tdp_metric)
                 self._pkgwatt_tdp_metric = None
 
@@ -411,7 +419,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         if self._pkgwatt_tdp_metric:
             for pkginfo in tdict["packages"].values():
                 for cpuinfo in pkginfo["cpus"].values():
-                    val = (cpuinfo["PkgWatt"] / self._nontable["TDP"]) * 100
+                    val = (cpuinfo["PkgWatt"] / self._tdp) * 100
                     type_func = self._heading2type[self._pkgwatt_tdp_metric]
                     cpuinfo[self._pkgwatt_tdp_metric] = type_func(val)
                     break
@@ -626,8 +634,7 @@ class TurbostatParser(_ParserBase.ParserBase):
             else:
                 self._heading2type[key] = str
 
-    @staticmethod
-    def _check_against_tdp(tdict, metric, multiplier):
+    def _check_against_tdp(self, tdict, metric, multiplier):
         """
         Check if values for 'colname' are less than 'multiplier' times the package TDP.
         The arguments are as follows.
@@ -636,21 +643,15 @@ class TurbostatParser(_ParserBase.ParserBase):
         * multiplier - the number of times the TDP to compare the 'colname' values against.
         """
 
-        if "TDP" in tdict["nontable"]:
-            tdp = tdict["nontable"]["TDP"]
-        else:
-            # Just assume a very big number.
-            tdp = 1000
-
         for package in tdict["packages"].values():
             if metric not in package["totals"]:
                 return True
 
-            threshold = tdp * multiplier
+            threshold = self._tdp * multiplier
             val = package["totals"][metric]
             if val > threshold:
-                _LOG.warning("met a turbostat datapoint with '%s' value (%sW) greater than %s "
-                             "times the package TDP (%sW)", metric, val, multiplier, tdp)
+                _LOG.warning("Met a turbostat datapoint with '%s' value (%sW) greater than %s "
+                             "times the package TDP (%sW)", metric, val, multiplier, self._tdp)
                 return False
 
         return True
@@ -661,7 +662,7 @@ class TurbostatParser(_ParserBase.ParserBase):
         """Validate the final turbostat table dictionary."""
 
         # Verify that package power does not exceed 4xTDP.
-        valid = self._check_against_tdp(tdict, "PkgWatt", 4)
+        valid = self._check_against_tdp(tdict, metric="PkgWatt", multiplier=4)
         if valid:
             self._invalid_tables += self._consecutive_invalid_tables
             self._consecutive_invalid_tables = 0
@@ -795,6 +796,8 @@ class TurbostatParser(_ParserBase.ParserBase):
         self._consecutive_invalid_tables = 0
         # Maximum amount of consecutive invalid tables.
         self._max_consecutive_invalid_tables = 4
+        # The package TDP used for power sanity checks.
+        self._tdp = None
 
         # A dictionary indexed by topology level name (package, core, CPU) and containing metric
         # names metrics for every level.
