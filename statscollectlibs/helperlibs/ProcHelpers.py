@@ -12,12 +12,10 @@ This module contains misc. helper functions related to processes (tasks).
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
-import os
 import re
 import time
 import typing
 import signal
-import contextlib
 from pepclibs.helperlibs import Logging, ProcessManager, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 
@@ -152,11 +150,6 @@ def _wait_for_pids_to_die(pids: Iterable[int],
 
     start_time = time.time()
     while time.time() - start_time <= timeout:
-        # Reap any zombie children to prevent them from accumulating.
-        if not pman.is_remote:
-            with contextlib.suppress(OSError):
-                os.waitpid(0, os.WNOHANG)
-
         # Refresh the PIDs list to exclude already exited processes and zombies.
         pids = _filter_pids(pids, pman, include_children=include_children)
         if not pids:
