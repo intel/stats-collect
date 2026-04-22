@@ -101,9 +101,9 @@ def test_cmdl_help(params: _TestParamsTypedDict):
     pman = params["pman"]
     stc_agent_path = params["stc_agent_path"]
 
-    stdout, _, exitcode = pman.run_join(f"{stc_agent_path} -h")
+    stdout, stderr, exitcode = pman.run_join(f"{stc_agent_path} -h")
 
-    assert exitcode == 0, f"'stc-agent -h' exited with code {exitcode}"
+    assert exitcode == 0, f"'stc-agent -h' exited with code {exitcode}\nstderr:\n{stderr}"
     assert stdout, "'stc-agent -h' printed nothing to stdout"
 
 def test_cmdl_mutual_exclusion(params: _TestParamsTypedDict):
@@ -133,9 +133,10 @@ def test_cmdl_print_module_paths(params: _TestParamsTypedDict):
     pman = params["pman"]
     stc_agent_path = params["stc_agent_path"]
 
-    stdout, _, exitcode = pman.run_nojoin(f"{stc_agent_path} --print-module-paths")
+    stdout, stderr, exitcode = pman.run_nojoin(f"{stc_agent_path} --print-module-paths")
 
-    assert exitcode == 0, f"'stc-agent --print-module-paths' exited with code {exitcode}"
+    assert exitcode == 0, \
+           f"'stc-agent --print-module-paths' exited with code {exitcode}\nstderr:\n{stderr}"
     assert stdout, "'stc-agent --print-module-paths' printed nothing to stdout"
     for line in stdout:
         line = line.rstrip()
