@@ -157,7 +157,7 @@ def _wait_for_pids_to_die(pids: Iterable[int],
 
         # Check if processes have exited (special signal "0").
         pids_str = " ".join(str(pid) for pid in pids)
-        _, _, exitcode = pman.run(f"kill -0 -- {pids_str}")
+        _, _, exitcode = pman.run(f"kill -0 {pids_str}")
         if exitcode == 1:
             # All processes have exited.
             return True
@@ -216,7 +216,8 @@ def signal_pids(pids: Iterable[int],
                    sig.name, wpman.hostmsg, pids_comma)
 
         try:
-            wpman.run_verify(f"kill -{sig.value} -- {pids_space}", su=su)
+            # Note: Do not try to use '--', like in 'kill -9 -- 1234' - 'dash' does not support it.
+            wpman.run_verify(f"kill -{sig.value} {pids_space}", su=su)
         except Error as err:
             if not killing:
                 raise Error(f"Failed to send signal '{sig.name}' to the following PIDs"
@@ -231,6 +232,7 @@ def signal_pids(pids: Iterable[int],
             # will make process A exit. This is why we do not error out just yet. So the strategy is
             # to do the second signal sending round and often times it happens without errors, and
             # all the processes that we want to kill just go away.
+            _LOG.debug("Sending signal '%s' failed:\n%s", sig.name, err.indent(2))
 
         if not killing:
             return
@@ -251,7 +253,7 @@ def signal_pids(pids: Iterable[int],
 
             try:
                 pids_space = " ".join(str(p) for p in pids_list)
-                wpman.run_verify(f"kill -9 -- {pids_space}", su=su)
+                wpman.run_verify(f"kill -9 {pids_space}", su=su)
             except Error as err:
                 # It is fine if one of the processes exited meanwhile.
                 if "No such process" not in str(err):
