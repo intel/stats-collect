@@ -502,7 +502,7 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
         try:
             # Kill stc-agent with SIGKILL, no cleanup will run.
             ProcHelpers.signal_pids([proc.pid], pman=pman, sig=signal.SIGKILL, must_die=True,
-                                    interval=0)
+                                    interval=0.01)
             proc.wait(timeout=5)
         finally:
             # Close the socket after killing, the connection is broken so suppress the error.
@@ -608,7 +608,7 @@ def test_failed_collectors(params: _TestParamsTypedDict):
         assert procs, f"Expected '{victim_regex}' to be running after 'start'"
         victim_pids = [pid for pid, _ in procs]
         ProcHelpers.signal_pids(victim_pids, pman=pman, sig=signal.SIGKILL, must_die=True,
-                                interval=0, su=victim_su)
+                                interval=0.01, su=victim_su)
 
         # 'stop' must succeed even though the victim exited prematurely.
         _send_cmd(sock, "stop")

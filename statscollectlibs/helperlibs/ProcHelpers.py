@@ -343,7 +343,6 @@ def signal_processes(regex: str | re.Pattern[str],
                   'sig' is 'SIGTERM', also escalates to 'SIGKILL' if processes do not exit within
                   the timeout. Only valid with 'SIGTERM' and 'SIGKILL'.
         interval: Number of seconds to sleep between polls when waiting for processes to exit.
-                  Pass '0' to busy-poll without sleeping.
         log: If 'True', log a message including the PIDs of the processes being signalled.
         name: A human-readable description of the processes, used in the log message when 'log'
               is 'True'. Defaults to "the following process(es)" when empty.
