@@ -298,7 +298,8 @@ def grep_processes(regex: str | re.Pattern[str],
         A list of '(pid, command_line)' tuples for each matching process.
     """
 
-    cmd = "ps axo pid,args"
+    # Use '-ww' to disable 'ps' column-width truncation so long command lines are not cut off.
+    cmd = "ps -ww axo pid,args"
 
     with ProcessManager.pman_or_local(pman) as wpman:
         stdout, stderr = wpman.run_verify_nojoin(cmd)
