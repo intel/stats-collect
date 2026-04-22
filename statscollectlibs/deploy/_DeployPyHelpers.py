@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
@@ -177,7 +176,7 @@ class DeployPyHelpers(DeployHelpersBase.DeployHelpersBase):
         standalone_path = outdir / deployable
         try:
             with standalone_path.open("wb") as fobj:
-                fobj.write(b"#!/usr/bin/python3\n")
+                fobj.write(b"#!/usr/bin/env python3\n")
                 with zipfile.ZipFile(fobj, "w", compression=zipfile.ZIP_DEFLATED) as zipobj:
                     zipobj.write(deployable_path, arcname="./__main__.py")
                     pkgdirs: set[Path] = set()
