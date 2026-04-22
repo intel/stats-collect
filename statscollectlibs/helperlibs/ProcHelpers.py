@@ -274,8 +274,8 @@ def signal_pids(pids: Iterable[int],
         if not pids_list:
             return
 
-        pids_space = " ".join(str(p) for p in pids_list)
-        msg, _, = wpman.run_verify_join(f"ps -f {pids_space} --no-headers")
+        pids_comma = ",".join(str(p) for p in pids_list)
+        msg, _, = wpman.run_verify_join(f"ps -ww -fp {pids_comma} --no-headers")
         if not msg:
             msg = "PIDs " + ", ".join(str(p) for p in pids_list)
 
