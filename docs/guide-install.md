@@ -217,16 +217,17 @@ Two `~/.bashrc` snippets are provided below for quick reference.
 **Option 1: refresh**
 
 The alias pre-authorizes `sudo` credentials before invoking the tool. Requires passwordless `sudo`
-or prompts once per session.
+or prompts once per session. Supported by `pepc` (and is its default), but not yet supported by
+`stats-collect`. Refresh support for `stats-collect` is planned for a future release.
 
 ```bash
 alias pepc='sudo -v && pepc'
-alias stats-collect='sudo -v && stats-collect'
 ```
 
 **Option 2: wrap**
 
-The alias passes the virtual environment variables to `sudo` explicitly.
+The alias passes the virtual environment variables to `sudo` explicitly. This is the only supported
+option for `stats-collect`. It also works for `pepc`.
 
 ```bash
 VENV="$HOME/.pmtools"
@@ -271,8 +272,9 @@ man stats-collect-start
 
 ### Example of .bashrc
 
-The example below is for a `pip`-based installation into `~/.pmtools`, using the `refresh` sudo
-approach. Adjust paths and the sudo alias as needed for your setup.
+The example below is for a `pip`-based installation into `~/.pmtools`. `pepc` uses the `refresh`
+sudo style (its default). `stats-collect` uses the `wrap` style (the only style currently
+supported). Adjust paths and the sudo aliases as needed for your setup.
 
 ```bash
 # === pepc and stats-collect settings ===
@@ -282,9 +284,10 @@ VENV_BIN="$VENV/bin"
 # Ensure the virtual environment's bin directory is in the PATH.
 export PATH="$PATH:$VENV_BIN"
 
-# Sudo aliases: pre-authorize sudo credentials before invoking the tools.
+# Sudo alias for pepc: pre-authorize sudo credentials (refresh style).
 alias pepc='sudo -v && pepc'
-alias stats-collect='sudo -v && stats-collect'
+# Sudo alias for stats-collect: pass virtual environment to sudo (wrap style).
+alias stats-collect="sudo PATH=$PATH VIRTUAL_ENV=$VENV $VENV_BIN/stats-collect"
 
 # Enable tab completion for pepc and stats-collect.
 eval "$($VENV_BIN/register-python-argcomplete pepc)"
