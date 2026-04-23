@@ -69,7 +69,7 @@ Run `tools/install-stats-collect` without arguments. It fetches and installs the
 `stats-collect` releases directly from GitHub. The local clones are only used to run the script.
 
 ```bash
-./tools/install-stats-collect
+sudo -v && ./tools/install-stats-collect
 ```
 
 **Install from local clones**
@@ -78,17 +78,30 @@ Use `--src-path` to install from the local clones instead. The script automatica
 `pepc` sources in the sibling directory (`../pepc`).
 
 ```bash
-./tools/install-stats-collect --src-path .
+sudo -v && ./tools/install-stats-collect --src-path .
 ```
 
-The script adds `stats-collect` configuration to your `~/.bashrc`. Re-login or source `~/.bashrc`
-to apply the changes.
+**Note**: the script runs most steps as the current user, but it requires `sudo` for installing OS
+dependencies. The `sudo -v` pre-authorizes `sudo` credentials so the script can install
+dependencies without prompting for a password.
 
-```bash
-. ~/.bashrc
-```
+**What the script does**
 
-`tools/install-stats-collect` has additional options to tune the installation (e.g. the
+The script performs the steps described below in the [Manual Installation](#manual-installation)
+section. Here is a high-level overview:
+
+- Install OS dependencies using the system package manager (`dnf` or `apt`).
+- Create a Python virtual environment in `~/.pmtools` and install `pepc`, `stats-collect`, and
+  their Python dependencies there.
+- Create `~/.pmtools/.pepc-rc.sh` and `~/.pmtools/.stats-collect-rc.sh` with all the necessary
+  configuration and add lines to `~/.bashrc` to source them. The configuration includes the
+  following:
+  - Add `~/.pmtools/bin` to `PATH`.
+  - Configure tab completions.
+  - Configure manual pages.
+  - Create `sudo` aliases for `pepc` and `stats-collect`.
+
+`tools/install-stats-collect` has additional options to tune the installation (e.g., the
 installation path), install `stats-collect` on a remote host over SSH, and control `sudo` alias
 creation and style. Run `./tools/install-stats-collect --help` to see all available options.
 
