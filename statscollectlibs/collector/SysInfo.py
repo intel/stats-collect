@@ -12,14 +12,15 @@ Collect system information statistics.
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
 
+import time
 import typing
 from pathlib import Path
 from pepclibs.helperlibs import Logging
-from pepclibs.helperlibs.Exceptions import Error
+from pepclibs.helperlibs.Exceptions import Error, ErrorTimeOut
 
 if typing.TYPE_CHECKING:
-    from typing import TypedDict
-    from pepclibs.helperlibs.ProcessManager import ProcessManagerType
+    from typing import TypedDict, Final
+    from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
 
     class _CmdInfoTypedDict(TypedDict, total=False):
         """
@@ -34,6 +35,9 @@ if typing.TYPE_CHECKING:
         outfile: Path
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
+
+# Overall timeout in seconds for collecting all sysinfo statistics.
+_TIMEOUT: Final[int] = 5 * 60
 
 def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
     """
@@ -53,22 +57,26 @@ def _run_commands(cmdinfos: list[_CmdInfoTypedDict], pman: ProcessManagerType):
 
         cmd += " wait"
         try:
-            pman.run_verify(cmd)
+            pman.run_verify(cmd, timeout=_TIMEOUT)
         except Error as err:
             _LOG.warning("Some system statistics were not collected")
-            _LOG.debug(str(err))
+            _LOG.debug("%s", err)
     else:
-        procs = []
-        errors = []
+        procs: list[ProcessType] = []
+        errors: list[str] = []
         for cmdinfo in cmdinfos:
             try:
                 procs.append(pman.run_async(cmdinfo["cmd"]))
             except Error as err:
                 errors.append(str(err))
 
+        before = time.time()
         for cmd_proc in procs:
+            remaining = _TIMEOUT - (time.time() - before)
+            if remaining <= 0:
+                raise ErrorTimeOut(f"Sysinfo collection did not finish within {_TIMEOUT} seconds")
             try:
-                cmd_proc.wait(capture_output=False, timeout=5 * 60)
+                cmd_proc.wait(capture_output=False, timeout=remaining)
             except Error as err:
                 errors.append(str(err))
             finally:
@@ -118,7 +126,7 @@ def _collect_sysinfo(outdir: Path, when: str, pman: ProcessManagerType):
     cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
     outfile = outdir / f"sys-cpufreq.{when}.raw.txt"
-    # Exclude 'scaling_cpu_freq' files - they are not very interesting.
+    # Exclude 'scaling_cur_freq' files - they are not very interesting.
     cmd = _format_find_cmd("cpufreq", outfile, exclude=".*/scaling_cur_freq")
     cmdinfos.append({"cmd": cmd, "outfile": outfile})
 
