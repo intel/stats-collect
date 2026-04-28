@@ -28,7 +28,7 @@ from tests import _Common
 
 if typing.TYPE_CHECKING:
     from pathlib import Path
-    from typing import cast, Generator
+    from typing import cast, Final, Generator
     from pepclibs.helperlibs.ProcessManager import ProcessManagerType, ProcessType
     from tests._Common import CommonTestParamsTypedDict
 
@@ -47,6 +47,33 @@ if typing.TYPE_CHECKING:
 # Paths to tools in the local project source tree.
 _LOCAL_STC_AGENT = _Common.get_prj_src_path() / "stc-agent"
 _LOCAL_INTERRUPTS_HELPER = _Common.get_prj_src_path() / "stc-agent-proc-interrupts-helper"
+
+# Maximum time in seconds to wait for collector processes to appear after 'start' is sent.
+_COLLECTOR_START_TIMEOUT: Final[int] = 5
+
+def _wait_for_processes(regex: str,
+                        pman: ProcessManagerType,
+                        timeout: int = _COLLECTOR_START_TIMEOUT) -> list:
+    """
+    Poll until at least one process matching 'regex' is found or 'timeout' seconds elapse.
+
+    Args:
+        regex: The regex to search for in process command lines.
+        pman: The process manager to search on.
+        timeout: Maximum number of seconds to wait.
+
+    Returns:
+        The list of '(pid, cmd)' tuples for matching processes, or an empty list if none were
+        found within 'timeout' seconds.
+    """
+
+    start = time.time()
+    while time.time() - start <= timeout:
+        procs = ProcHelpers.grep_processes(regex, pman=pman)
+        if procs:
+            return procs
+        time.sleep(0.5)
+    return []
 
 @pytest.fixture(name="params", scope="module")
 def get_params(hostspec: str, username: str) -> Generator[_TestParamsTypedDict, None, None]:
@@ -496,8 +523,10 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
 
         _send_cmd(sock, "start")
 
-        # Give the collectors a moment to start.
-        time.sleep(1)
+        # Wait for all collector processes to appear before killing stc-agent.
+        for path in configured:
+            procs = _wait_for_processes(path.name, pman=pman)
+            assert procs, f"Expected '{path.name}' to be running after 'start'"
 
         try:
             # Kill stc-agent with SIGKILL, no cleanup will run.
@@ -509,9 +538,8 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
             with contextlib.suppress(OSError):
                 sock.close()
 
-        # All collectors must still be running after stc-agent was killed.
         for path in configured:
-            procs = ProcHelpers.grep_processes(path.name, pman=pman)
+            procs = _wait_for_processes(path.name, pman=pman)
             assert procs, f"Expected '{path.name}' to be running after SIGKILL to stc-agent"
 
     # Start a fresh stc-agent and configure the same collectors, this should trigger cleanup of the
@@ -535,8 +563,9 @@ def test_stale_process_cleanup(params: _TestParamsTypedDict):
 
         _send_cmd(sock, "start")
 
-        # Give the collectors a moment to start.
-        time.sleep(1)
+        # Give the collectors a moment to start before stopping.
+        for path in configured:
+            _wait_for_processes(path.name, pman=pman)
 
         _send_cmd(sock, "stop")
         _send_cmd(sock, "exit")
@@ -600,11 +629,8 @@ def test_failed_collectors(params: _TestParamsTypedDict):
 
         _send_cmd(sock, "start")
 
-        # Give the collectors a moment to start.
-        time.sleep(1)
-
         # Verify the victim is running, then kill it externally so stc-agent is unaware.
-        procs = ProcHelpers.grep_processes(victim_regex, pman=pman)
+        procs = _wait_for_processes(victim_regex, pman=pman)
         assert procs, f"Expected '{victim_regex}' to be running after 'start'"
         victim_pids = [pid for pid, _ in procs]
         ProcHelpers.signal_pids(victim_pids, pman=pman, sig=signal.SIGKILL, must_die=True,
@@ -618,6 +644,87 @@ def test_failed_collectors(params: _TestParamsTypedDict):
         assert victim_name in failed, \
                f"Expected '{victim_name}' in 'get-failed-collectors' response, got: {failed}"
 
+        _send_cmd(sock, "exit")
+        _, _, exitcode = proc.wait(timeout=10)
+        assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
+
+def test_missing_tool(params: _TestParamsTypedDict):
+    """
+    Test that a collector configured with a non-existent tool path is reported as failed.
+
+    Scenario:
+     1. Start stc-agent and configure the interrupts collector with a path to a binary that does
+        not exist.
+     2. Start collection. stc-agent launches the shell, which immediately exits because the binary
+        is not found.
+     3. Stop collection.
+     4. Verify the interrupts collector appears in the 'get-failed-collectors' response.
+
+    Args:
+        params: Test parameters including the process manager and 'stc-agent' path.
+    """
+
+    pman = params["pman"]
+    stc_agent_path = params["stc_agent_path"]
+
+    with contextlib.ExitStack() as stack:
+        proc, port = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_missing_tool_"))
+        sock = stack.enter_context(socket.create_connection((pman.hostname, port), timeout=10))
+
+        _send_cmd(sock, "set-stats interrupts")
+        _send_cmd(sock, f"set-collector-property interrupts outdir {outdir}")
+        _send_cmd(sock, f"set-collector-property interrupts logdir {outdir / 'log'}")
+        _send_cmd(sock, "set-collector-property interrupts interval 1")
+        # Point to a path that is guaranteed not to exist.
+        _send_cmd(sock, "set-collector-property interrupts toolpath /nonexistent/stc-tool")
+        _send_cmd(sock, "configure")
+        _send_cmd(sock, "start")
+
+        # Give the shell time to attempt to execute the non-existent binary and exit.
+        time.sleep(1)
+
+        _send_cmd(sock, "stop")
+
+        failed = _get_failed_collectors(sock)
+        assert "interrupts" in failed, \
+               f"Expected 'interrupts' in 'get-failed-collectors' response, got: {failed}"
+
+        _send_cmd(sock, "exit")
+        _, _, exitcode = proc.wait(timeout=10)
+        assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
+
+def test_missing_required_property(params: _TestParamsTypedDict):
+    """
+    Test that 'configure' fails when a required collector property has not been set.
+
+    Scenario:
+     1. Start stc-agent and select the interrupts collector.
+     2. Set 'outdir' and 'logdir' but deliberately omit the required 'interval' property.
+     3. Send 'configure' and verify that it returns an error.
+     4. Verify that stc-agent stays alive and exits cleanly afterwards.
+
+    Args:
+        params: Test parameters including the process manager and 'stc-agent' path.
+    """
+
+    pman = params["pman"]
+    stc_agent_path = params["stc_agent_path"]
+
+    with contextlib.ExitStack() as stack:
+        proc, port = stack.enter_context(_start_stc_agent(pman, stc_agent_path=stc_agent_path))
+        outdir = stack.enter_context(pman.mkdtemp_ctx(prefix="stc_missing_prop_"))
+        sock = stack.enter_context(socket.create_connection((pman.hostname, port), timeout=10))
+
+        _send_cmd(sock, "set-stats interrupts")
+        _send_cmd(sock, f"set-collector-property interrupts outdir {outdir}")
+        _send_cmd(sock, f"set-collector-property interrupts logdir {outdir / 'log'}")
+        # Deliberately omit the required 'interval' property.
+
+        with pytest.raises(Error):
+            _send_cmd(sock, "configure")
+
+        # Stc-agent must stay alive and exit cleanly after the failed configure.
         _send_cmd(sock, "exit")
         _, _, exitcode = proc.wait(timeout=10)
         assert exitcode == 0, f"'stc-agent' exited with code {exitcode}"
