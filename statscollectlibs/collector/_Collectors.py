@@ -20,7 +20,7 @@ import contextlib
 from pathlib import Path
 from pepclibs.helperlibs import Logging, LocalProcessManager, Trivial, ClassHelpers, KernelVersion
 from pepclibs.helperlibs.Exceptions import Error, ErrorExists
-from statscollectlibs.collector import SysInfo
+from statscollectlibs.collector import _SysInfo
 from statscollectlibs.deploy import DeployHelpersBase
 from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
@@ -361,7 +361,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             return
 
         _LOG.log(self.infolvl, "Collecting %s system information", self.sutname)
-        SysInfo.collect_before(self.statsdir / "sysinfo", self._pman)
+        _SysInfo.collect_before(self.statsdir / "sysinfo", self._pman)
 
     def add_label(self, name, metrics=None):
         """
@@ -445,7 +445,7 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
             return
 
         _LOG.log(self.infolvl, "Collecting more %s system information", self.sutname)
-        SysInfo.collect_after(self.statsdir / "sysinfo", self._pman)
+        _SysInfo.collect_after(self.statsdir / "sysinfo", self._pman)
 
     def _get_failed_collectors(self):
         """
