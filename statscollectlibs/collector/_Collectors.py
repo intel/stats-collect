@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 """
-This module provides two statistic collector classes: 'InBandCollector' and 'OutOfBandCollector'.
+Provide the 'InBandCollector' and 'OutOfBandCollector' classes for managing statistics collection
+via 'stc-agent'.
+
+'InBandCollector' runs 'stc-agent' on the SUT and collects in-band statistics (e.g., turbostat,
+interrupts, IPMI in-band, sysinfo).
+
+'OutOfBandCollector' runs 'stc-agent' on the local host and collects out-of-band statistics from
+the SUT via an external channel (e.g., AC power meter, IPMI out-of-band).
 """
 
 from __future__ import annotations # Remove when switching to Python 3.10+.
@@ -25,7 +32,59 @@ from statscollectlibs.deploy import DeployHelpersBase
 from statscollectlibs.helperlibs import ProcHelpers, RemoteHelpers
 
 if typing.TYPE_CHECKING:
-    from typing import Final
+    from typing import Final, TypedDict
+
+    class _STInfoPathsTypedDict(TypedDict, total=False):
+        """
+        A dictionary that describes various paths related to a statistics collector.
+
+        Attributes:
+            stats: Path to the file where the collected statistics will be stored.
+        """
+
+        stats: str
+        labels: str
+
+    class _STInfoPropsTypedDict(TypedDict, total=False):
+        """
+        A dictionary that describes various properties of a statistics collector. The content of this
+        dictionary is collector-specific.
+
+        Attributes:
+            opts: Additional options for the 'turbostat' collector.
+            host: Name or address of the host to collect statistics from.
+            user: Name of the user to use when connecting to the host.
+            pwdfile: Path to a file containing the password to use authenticating to the host.
+            interface: IPMI interface name to use (e.g., 'lanplus').
+            devnode: Device node to use for collecting statistics.
+            pmtype: The power meter type.
+        """
+
+        opts: str
+        host: str | None
+        user: str | None
+        pwdfile: str | None
+        interface: str | None
+        devnode: str | None
+        pmtype: str | None
+    class _STInfoTypedDict(TypedDict, total=False):
+        """
+        The statistics information dictionary type.
+
+        Attributes:
+            interval: The wake up period in seconds for the statistics collector.
+            inband: 'True' if the statistics collector is "in band" and 'False' if it is
+                     "out-of-band".
+        """
+
+        interval: float | None
+        inband: bool
+        fallible: bool
+        enabled: bool
+        toolpath: str | None
+        description: str
+        paths: _STInfoPathsTypedDict
+        props: _STInfoPropsTypedDict
 
 _LOG = Logging.getLogger(f"{Logging.MAIN_LOGGER_NAME}.stats-collect.{__name__}")
 
@@ -70,7 +129,7 @@ DELIMITER: Final[bytes] = b"--\n"
 # before and after the workload. Sysinfo includes stuff like the '/proc/cpuinfo' contents, the
 # 'lspci' output, and more.
 #
-STINFO = {
+STINFO: dict[str, _STInfoTypedDict] = {
     "sysinfo" : {
         "interval" : None,
         "inband" : True,
@@ -155,6 +214,115 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
     The base statistics collector class, contains the parts shared between the inband and
     out-of-band collectors.
     """
+
+    def __init__(self, pman, sutname, outdir=None, stca_path=None):
+        """
+        Initialize a class instance. The input arguments are as follows.
+          * pman - a process manager associated with the host to run 'stc-agent' on.
+          * outdir - path to the directory to store the logs and the collected statistics. Stored in
+                     a temporary directory if not provided.
+          * sutname - name of the System Under Test. Will be used for messages and searching for
+                      stale 'stc-agent' process instances for the same SUT.
+          * stca_path - path to 'stc-agent' program on the host defined by 'pman'. Searched for in
+                      '$PATH' if not provided.
+        """
+
+        self._pman = pman
+        self.sutname = sutname
+        self.outdir = outdir
+        self._stca_path = stca_path
+
+        # The statistics information dictionary.
+        self.stinfo = None
+        # Path to the labels file ('None' if no labels were added).
+        self.labels_path = None
+        # Path to the statistics sub-directory.
+        self.statsdir = None
+
+        # Log level for some of the high-level messages.
+        self.infolvl = Logging.DEBUG
+
+        # Whether the 'self._pman' object should be closed.
+        self._close_pman = False
+        # The command to start 'stc-agent'.
+        self._cmd = None
+
+        # Paths to the 'unshare' and 'nice' tools on the same host where 'stc-agent' runs.
+        self._unshare_path = None
+        self._nice_path = None
+
+        self._outdir_created = False
+        self._keep_outdir = False
+        self._agentdir = None
+        self._logsdir = None
+        self._logpath = None
+
+        # The 'stc-agent' process search pattern.
+        self._stca_search = None
+        # The SSH tunnel process search pattern.
+        self._ssht_search = None
+
+        self._stca = None
+        self._stca_id = None
+        self._uspath = None
+        self._ssht = None
+        self._ssht_port = None
+        self._sock = None
+        self._timeout = 60
+        self._start_time = None
+
+        # Initialize the statistics dictionary.
+        self.stinfo = copy.deepcopy(STINFO)
+        self._set_stinfo_defaults()
+
+        if not self.outdir:
+            self.outdir = self._pman.mkdtemp(prefix="stc-agent-")
+            self._outdir_created = True
+            _LOG.debug("created output directory '%s'%s", self.outdir, self._pman.hostmsg)
+        else:
+            self.outdir = self._pman.abspath(self.outdir)
+            try:
+                self._pman.mkdir(self.outdir, parents=True)
+            except ErrorExists:
+                pass
+            else:
+                self._outdir_created = True
+
+    def close(self):
+        """Close the statistics collector."""
+
+        if getattr(self, "_sock", None):
+            if self._start_time:
+                with contextlib.suppress(Exception):
+                    self._send_command("stop")
+            with contextlib.suppress(Exception):
+                self._send_command("exit")
+            with contextlib.suppress(Exception):
+                self._disconnect()
+            self._sock = None
+
+        if getattr(self, "_ssht", None):
+            with contextlib.suppress(Exception):
+                ProcHelpers.signal_processes(self._ssht_search)
+                self._ssht.close()
+            self._ssht = None
+
+        if getattr(self, "_pman", None):
+            if self._stca:
+                with contextlib.suppress(Exception):
+                    ProcHelpers.signal_processes(self._stca_search, pman=self._pman)
+                    self._stca.close()
+                self._stca = None
+
+            # Remove the output directory if we created it.
+            if getattr(self, "_outdir_created", None) and not getattr(self, "_keep_outdir", None):
+                with contextlib.suppress(Exception):
+                    self._pman.rmtree(self.outdir)
+                self._outdir_created = None
+
+            if getattr(self, "_close_pman", None):
+                self._pman.close()
+            self._pman = None
 
     def _connect(self):
         """Connect to 'stc-agent'."""
@@ -795,115 +963,6 @@ class _STCAgent(ClassHelpers.SimpleCloseContext):
                 info["fallible"] = False
             if "props" not in info:
                 info["props"] = {}
-
-    def __init__(self, pman, sutname, outdir=None, stca_path=None):
-        """
-        Initialize a class instance. The input arguments are as follows.
-          * pman - a process manager associated with the host to run 'stc-agent' on.
-          * outdir - path to the directory to store the logs and the collected statistics. Stored in
-                     a temporary directory if not provided.
-          * sutname - name of the System Under Test. Will be used for messages and searching for
-                      stale 'stc-agent' process instances for the same SUT.
-          * stca_path - path to 'stc-agent' program on the host defined by 'pman'. Searched for in
-                      '$PATH' if not provided.
-        """
-
-        self._pman = pman
-        self.sutname = sutname
-        self.outdir = outdir
-        self._stca_path = stca_path
-
-        # The statistics information dictionary.
-        self.stinfo = None
-        # Path to the labels file ('None' if no labels were added).
-        self.labels_path = None
-        # Path to the statistics sub-directory.
-        self.statsdir = None
-
-        # Log level for some of the high-level messages.
-        self.infolvl = Logging.DEBUG
-
-        # Whether the 'self._pman' object should be closed.
-        self._close_pman = False
-        # The command to start 'stc-agent'.
-        self._cmd = None
-
-        # Paths to the 'unshare' and 'nice' tools on the same host where 'stc-agent' runs.
-        self._unshare_path = None
-        self._nice_path = None
-
-        self._outdir_created = False
-        self._keep_outdir = False
-        self._agentdir = None
-        self._logsdir = None
-        self._logpath = None
-
-        # The 'stc-agent' process search pattern.
-        self._stca_search = None
-        # The SSH tunnel process search pattern.
-        self._ssht_search = None
-
-        self._stca = None
-        self._stca_id = None
-        self._uspath = None
-        self._ssht = None
-        self._ssht_port = None
-        self._sock = None
-        self._timeout = 60
-        self._start_time = None
-
-        # Initialize the statistics dictionary.
-        self.stinfo = copy.deepcopy(STINFO)
-        self._set_stinfo_defaults()
-
-        if not self.outdir:
-            self.outdir = self._pman.mkdtemp(prefix="stc-agent-")
-            self._outdir_created = True
-            _LOG.debug("created output directory '%s'%s", self.outdir, self._pman.hostmsg)
-        else:
-            self.outdir = self._pman.abspath(self.outdir)
-            try:
-                self._pman.mkdir(self.outdir, parents=True)
-            except ErrorExists:
-                pass
-            else:
-                self._outdir_created = True
-
-    def close(self):
-        """Close the statistics collector."""
-
-        if getattr(self, "_sock", None):
-            if self._start_time:
-                with contextlib.suppress(Exception):
-                    self._send_command("stop")
-            with contextlib.suppress(Exception):
-                self._send_command("exit")
-            with contextlib.suppress(Exception):
-                self._disconnect()
-            self._sock = None
-
-        if getattr(self, "_ssht", None):
-            with contextlib.suppress(Exception):
-                ProcHelpers.signal_processes(self._ssht_search)
-                self._ssht.close()
-            self._ssht = None
-
-        if getattr(self, "_pman", None):
-            if self._stca:
-                with contextlib.suppress(Exception):
-                    ProcHelpers.signal_processes(self._stca_search, pman=self._pman)
-                    self._stca.close()
-                self._stca = None
-
-            # Remove the output directory if we created it.
-            if getattr(self, "_outdir_created", None) and not getattr(self, "_keep_outdir", None):
-                with contextlib.suppress(Exception):
-                    self._pman.rmtree(self.outdir)
-                self._outdir_created = None
-
-            if getattr(self, "_close_pman", None):
-                self._pman.close()
-            self._pman = None
 
 class InBandCollector(_STCAgent):
     """
