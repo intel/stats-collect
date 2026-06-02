@@ -73,7 +73,6 @@ STC_GIT_INSTALL_SRC: Final[str] = "git+https://github.com/intel/stats-collect.gi
 
 # The tools stats-collect relies on to be installed and to operate.
 STC_DEPENDENCIES: Final[tuple[str, ...]] = (
-    "virtualenv",
     "pip3",
     "cat",
     "id",
