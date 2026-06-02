@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix installation on RHEL.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.70] - 2026-06-02
+### Fixed
+ - Fix installation on RHEL.
 
 ## [1.0.69] - 2026-04-21
 ### Fixed
