@@ -25,7 +25,7 @@ dependencies = [
     "Pyarrow",
     "numpy",
     "pandas>=2.1.0",
-    "pepc>=2.0.1",
+    "pepc @ git+https://github.com/intel/pepc.git@release",
     "plotly>=5.18.0",
 ]
 
