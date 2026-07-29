@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-exclude = ["tests*", "misc*"]
+exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 statscollectdata = ["**"]
