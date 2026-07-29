@@ -14,8 +14,6 @@ Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
 ## Table of Contents
 
-- [Stats-collect Packages](#stats-collect-packages)
-- [Running From Source](#running-from-source)
 - [Installation Script](#installation-script)
 - [Manual Installation](#manual-installation)
   - [Stats-collect Package Dependencies](#stats-collect-package-dependencies)
@@ -25,28 +23,7 @@ Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
   - [Tab completions](#tab-completions)
   - [Man pages](#man-pages)
   - [Example of .bashrc](#example-of-bashrc)
-
-## Stats-collect Packages
-
-Some Linux distributions provide `stats-collect` as an installable package. However, these packages
-are out of date, do not use them.
-
-## Running From Source
-
-You can run `stats-collect` directly from the source code without installation. Clone both
-repositories (`pepc` is required as a dependency), and run `stats-collect` from the cloned
-directory.
-
-```bash
-git clone https://github.com/intel/pepc.git
-git clone https://github.com/intel/stats-collect.git
-cd stats-collect
-./stats-collect --help
-```
-
-This method is not recommended for regular use. For regular use, a proper installation is
-recommended: it configures shell tab completions and man pages, so commands like
-`man stats-collect-start` work out of the box.
+- [Running From Source](#running-from-source)
 
 ## Installation Script
 
@@ -54,6 +31,9 @@ The `tools/install-stats-collect` script is the simplest way to install `stats-c
 care of everything: installing `pepc` (a required dependency), installing OS dependencies, creating
 the Python virtual environment, configuring shell tab completions, man pages, and adding a `sudo`
 alias if needed.
+
+**Note**: Some Linux distributions provide `stats-collect` as an installable package, but those
+packages are out of date. Do not use them.
 
 Clone both repositories. The installation script spans both of them:
 
@@ -299,3 +279,20 @@ export MANPATH="$MANPATH:$($VENV_BIN/pepc --print-man-path)"
 export MANPATH="$MANPATH:$($VENV_BIN/stats-collect --print-man-path)"
 # === end of pepc and stats-collect settings ===
 ```
+
+## Running From Source
+
+You can run `stats-collect` directly from the source code without installation. Clone both
+repositories (`pepc` is required as a dependency), and run `stats-collect` from the cloned
+directory.
+
+```bash
+git clone https://github.com/intel/pepc.git
+git clone https://github.com/intel/stats-collect.git
+cd stats-collect
+./stats-collect --help
+```
+
+This method is not recommended for regular use. For regular use, a proper installation is
+recommended: it configures shell tab completions and man pages, so commands like
+`man stats-collect-start` work out of the box.
