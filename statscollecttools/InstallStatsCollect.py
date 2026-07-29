@@ -84,6 +84,28 @@ STC_DEPENDENCIES: Final[tuple[str, ...]] = (
 # Directories and files to exclude when copying stats-collect project sources to a remote host.
 STC_COPY_EXCLUDE: Final[tuple[str, ...]] = ("/tests", "/docs", "**/*.md", ".*")
 
+def _get_pepc_min_version() -> str:
+    """
+    Read the minimum required pepc version from the '# Requires: pepc>=X.Y.Z' comment in
+    'pyproject.toml'.
+
+    Returns:
+        The minimum pepc version string (e.g. '2.0.1').
+    """
+
+    prefix = "# Requires: pepc>="
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+
+    try:
+        with open(pyproject_path, "r", encoding="utf-8") as fobj:
+            for line in fobj:
+                if line.startswith(prefix):
+                    return line[len(prefix):].strip()
+    except OSError as err:
+        raise Error(f"Failed to read '{pyproject_path}': {err}") from err
+
+    raise Error(f"BUG: Failed to find the '{prefix}' line in '{pyproject_path}'")
+
 def _build_arguments_parser() -> ArgParse.ArgsParser:
     """
     Build and return the command-line arguments parser.
@@ -256,11 +278,14 @@ def _main(pman: ProcessManagerType, cmdl: _CmdlineArgsTypedDict):
     else:
         pepc_src = str(Path(src_path).resolve().parent / "pepc")
 
+    pepc_min_version = _get_pepc_min_version()
+
     InstallPepc.install_pepc(pman, pepc_src, install_path=cmdl["install_path"],
                              no_pkg_install=cmdl["no_pkg_install"],
                              no_rcfile=cmdl["no_rcfile"],
                              no_sudo_alias=cmdl["no_sudo_alias"],
-                             sudo_alias_style=cmdl["sudo_alias_style"] or "refresh")
+                             sudo_alias_style=cmdl["sudo_alias_style"] or "refresh",
+                             min_version=pepc_min_version)
 
     _LOG.info("Installing 'stats-collect'%s", pman.hostmsg)
 
