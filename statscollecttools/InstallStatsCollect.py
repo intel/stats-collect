@@ -27,7 +27,7 @@ except ImportError:
     # We can live without argcomplete, we only lose tab completions.
     argcomplete = None
 
-from pepclibs.helperlibs import ProcessManager, ArgParse, Logging
+from pepclibs.helperlibs import ProcessManager, ArgParse, Logging, Trivial
 from pepclibs.helperlibs.Exceptions import Error
 from pepctools import PythonPrjInstaller, InstallPepc
 
@@ -185,7 +185,8 @@ def install_stats_collect(pman: ProcessManagerType,
                           no_pkg_install: bool = False,
                           no_rcfile: bool = False,
                           no_sudo_alias: bool = False,
-                          sudo_alias_style: SudoAliasStyle = "refresh") -> None:
+                          sudo_alias_style: SudoAliasStyle = "refresh",
+                          min_version: str = "") -> None:
     """
     Install 'stats-collect' on the target host into a Python virtual environment.
 
@@ -200,6 +201,7 @@ def install_stats_collect(pman: ProcessManagerType,
         no_rcfile: Do not modify the user's shell RC file.
         no_sudo_alias: Prevent adding a 'sudo' alias to the RC file.
         sudo_alias_style: The style of the 'sudo' alias ('refresh' or 'wrap').
+        min_version: Minimum required stats-collect version (e.g. '1.0.30').
     """
 
     installer = PythonPrjInstaller.PythonPrjInstaller("stats-collect", src, pman=pman,
@@ -223,6 +225,19 @@ def install_stats_collect(pman: ProcessManagerType,
     else:
         _LOG.info("Skipping shell RC file hookup%s, run '. %s' to configure "
                   "the 'stats-collect' environment manually.", pman.hostmsg, installer.rcfile_path)
+
+    if min_version:
+        stc_bin = installer.install_path / "bin" / "stats-collect"
+        stdout, _ = pman.run_verify_join(f"'{stc_bin}' --version")
+        installed_version = stdout.strip()
+        what = "stats-collect version component"
+        installed_ver = tuple(Trivial.str_to_int(num, what=what)
+                              for num in Trivial.split_csv_line(installed_version, sep="."))
+        min_ver = tuple(Trivial.str_to_int(num, what=what)
+                        for num in Trivial.split_csv_line(min_version, sep="."))
+        if installed_ver < min_ver:
+            raise Error(f"Installed stats-collect version is {installed_version}, but minimum "
+                        f"required version is {min_version}")
 
 def _main(pman: ProcessManagerType, cmdl: _CmdlineArgsTypedDict):
     """

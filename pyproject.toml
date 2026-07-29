@@ -18,6 +18,11 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 
+# Requires: pepc>=2.0.1
+#
+# pepc (https://github.com/intel/pepc) is not listed as a pip dependency to prevent a dependency
+# confusion attack: pepc is not on PyPI, so an attacker could register a malicious package under
+# the same name. Install pepc separately before installing stats-collect.
 dependencies = [
     "argcomplete",
     "colorama",
@@ -25,7 +30,6 @@ dependencies = [
     "Pyarrow",
     "numpy",
     "pandas>=2.1.0",
-    "pepc>=2.0.1",
     "plotly>=5.18.0",
 ]
 
