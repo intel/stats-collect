@@ -8,6 +8,12 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.71] - 2026-07-29
+### Fixed
+### Added
+### Removed
+### Changed
  - Remove pepc from pip dependencies to prevent a dependency confusion attack.
  - No tool functionality changes, just packaging and installation improvements.
 
