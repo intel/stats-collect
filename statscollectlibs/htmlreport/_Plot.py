@@ -282,8 +282,7 @@ class Plot:
 
             _LOG.info("Generating plot: %s vs %s.", self.yaxis_label, self.xaxis_label)
 
-            plotly.offline.plot(fig, filename=str(self.outpath), auto_open=False,
-                                config={"showLink": False})
+            plotly.offline.plot(fig, filename=str(self.outpath), auto_open=False)
         except Exception as err:
             msg = Error(str(err)).indent(2)
             raise Error(f"Failed to create the '{self.outpath}' diagram:\n{msg}") from err
