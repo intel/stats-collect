@@ -5,10 +5,13 @@ Versioning practices: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [ADD NEW VERSION HERE] - ADD DATE HERE
 ### Fixed
- - Fix warning when using new plotly.
 ### Added
 ### Removed
 ### Changed
+
+## [1.0.72] - 2026-11-05
+### Fixed
+ - Fix warning when using new plotly.
 
 ## [1.0.71] - 2026-07-29
 ### Fixed
